@@ -1,7 +1,12 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import type { CategorizedStudent, Student } from '@u7-scl/stream/domain';
+import { type MdText, md, mdConcat, mdJoin, mdRaw } from '@u7-scl/core/shared';
+import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
+import type {
+  CategorizedStudent,
+  Stream,
+  Student,
+} from '@u7-scl/stream/domain';
 import { StreamDs, StudentPolicy } from '@u7-scl/stream/domain';
 
 /**
@@ -15,32 +20,32 @@ export class MonitorStory extends U7BotUiStory {
   async handleCallback(
     action: string,
     actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     const [cmd, id] = action.split(':');
 
     // Детальная карточка студента
     if (cmd === 'detail' && id) {
-      return this.#handleDetail(id, actor);
+      return this.#handleDetail(id);
     }
 
     // История шагов — ещё не реализована
     if (cmd === 'history' && id) {
       return {
-        sendMessage: {
-          text: '🚧 История шагов ещё не реализована, но скоро будет.',
+        screen: {
+          text: md`🚧 История шагов ещё не реализована, но скоро будет\\.`,
         },
       };
     }
 
     // mark-abandoned — подтверждение
     if (cmd === 'mark-abandoned' && id) {
-      return this.#handleMarkAbandonedConfirm(id, actor);
+      return this.#handleMarkAbandonedConfirm(id);
     }
 
     // mark-abandoned — выполнить
     if (cmd === 'mark-abandoned-confirm' && id) {
-      return this.#handleMarkAbandonedExecute(id, actor, action);
+      return this.#handleMarkAbandonedExecute(id, actor);
     }
 
     // complete-student — выбор исхода
@@ -50,7 +55,7 @@ export class MonitorStory extends U7BotUiStory {
 
     // complete-student — подтверждение исхода (confirm-диалог)
     if (cmd === 'complete-confirm' && id) {
-      return this.#handleCompleteConfirm(id, actor, action);
+      return this.#handleCompleteConfirm(id, action);
     }
 
     // complete-student — выполнение (после подтверждения)
@@ -67,15 +72,7 @@ export class MonitorStory extends U7BotUiStory {
       return this.#handleStudents(id, actor, true);
     }
 
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
-  }
-
-  override async handleMessage(): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
-  }
-
-  override async handleStart(_actor: User): Promise<null> {
-    return null;
+    return this.unknownCommand(action, actor, session);
   }
 
   // ── Приватные методы ──
@@ -84,19 +81,17 @@ export class MonitorStory extends U7BotUiStory {
     streamId: string,
     actor: User,
     showAll: boolean,
-  ): Promise<BotResponse> {
-    const students = await this.appApi.execute(
-      'list-stream-students',
-      { streamId },
-      actor.uuid,
-    );
-
-    const stream = await this.appApi.execute('get-stream', {
+  ): Promise<DialogResponse> {
+    const students = (await this.appApi.execute('list-stream-students', {
       streamId,
-    });
+    })) as Student[];
+
+    const stream = (await this.appApi.execute('get-stream', {
+      streamId,
+    })) as Stream | undefined;
 
     if (!stream) {
-      return { sendMessage: { text: '⚠️ Поток не найден' } };
+      return { screen: { text: md`⚠️ Поток не найден` } };
     }
 
     // FR-8: по умолчанию — только активные (active/enrolled);
@@ -130,8 +125,8 @@ export class MonitorStory extends U7BotUiStory {
           uuid: s.userId,
         });
         name = user.name;
-      } catch (err) {
-        this.handleError(err);
+      } catch {
+        // профиль недоступен — оставляем обрезок userId
       }
 
       rows.push({ student: s, name, progress, lagLevel });
@@ -181,14 +176,13 @@ export class MonitorStory extends U7BotUiStory {
     // Клавиатура
     const keyboardRows: Array<Array<{ text: string; code: string }>> = [];
 
-    const { lagMarker } = this.#helpers;
     const canManage = StudentPolicy.canManageStudent(actor, stream);
 
     // Строки студентов для текста сообщения
-    const studentLines: string[] = [];
+    const studentLines: MdText[] = [];
 
     for (const r of rows) {
-      const marker = lagMarker(r.lagLevel, r.student.status);
+      const marker = this.#lagMarker(r.lagLevel, r.student.status);
       const isActive = r.student.status === 'active';
 
       // Сводка через DS
@@ -202,16 +196,19 @@ export class MonitorStory extends U7BotUiStory {
         summary.progress.completed,
         summary.progress.total,
       );
-      const parts = [
-        `${marker} ${this.escapeMarkdown(r.name)}`,
-        `${bar} ${summary.progress.percent}%`,
+      const parts: MdText[] = [
+        md`${marker} ${r.name}`,
+        mdConcat(bar, md` ${summary.progress.percent}%`),
       ];
       if (summary.dominantCategory && summary.medianTimeMinutes !== null) {
         parts.push(
-          `${summary.dominantCategory.emoji} ${summary.dominantCategory.name}: ${summary.medianTimeMinutes} мин`,
+          mdConcat(
+            md`${summary.dominantCategory.emoji} ${summary.dominantCategory.name}: `,
+            md`${summary.medianTimeMinutes} мин`,
+          ),
         );
       }
-      studentLines.push(parts.join(' \\| '));
+      studentLines.push(mdJoin(parts, ' \\| '));
 
       // Кнопка: только эмодзи + имя + процент
       const nameBtn = `${marker} ${r.name} — ${summary.progress.percent}%`;
@@ -276,10 +273,10 @@ export class MonitorStory extends U7BotUiStory {
       'студентов',
     );
 
-    const header = [
-      `👥 *Студенты потока* — _${this.escapeMarkdown(stream.title)}_`,
-      '',
-      `Всего: ${students.length} ${countLabel}, из них ${activeTotal} ${this.#pluralize(activeTotal, 'активный', 'активных', 'активных')}, ${departedTotal} выбывших`,
+    const header: MdText[] = [
+      md`👥 *Студенты потока* — _${stream.title}_`,
+      md``,
+      md`Всего: ${students.length} ${countLabel}, из них ${activeTotal} ${this.#pluralize(activeTotal, 'активный', 'активных', 'активных')}, ${departedTotal} выбывших`,
     ];
 
     // Метрики группы (с заголовком)
@@ -289,72 +286,64 @@ export class MonitorStory extends U7BotUiStory {
     if (notAdvancedCount > 0) metrics.push(`↩️ Не прошли: ${notAdvancedCount}`);
     if (abandonedCount > 0) metrics.push(`🚫 Выбыли: ${abandonedCount}`);
 
-    header.push('', '———');
+    header.push(md``, md`———`);
 
     if (metrics.length > 0) {
-      header.push('', '*Метрики группы:*', ...metrics);
+      header.push(md``, md`*Метрики группы:*`);
+      for (const m of metrics) {
+        header.push(mdRaw(m));
+      }
     }
 
     header.push(
-      '',
-      '*Легенда:*',
-      '🏃 учится   ✅ прошёл   ↩️ не прошёл   🚫 выбыл',
-      '',
-      '———',
-      '',
-      '*Метрики по студентам:*',
+      md``,
+      md`*Легенда:*`,
+      md`🏃 учится   ✅ прошёл   ↩️ не прошёл   🚫 выбыл`,
+      md``,
+      md`———`,
+      md``,
+      md`*Метрики по студентам:*`,
+      ...studentLines,
+      md``,
+      md`*Легенда:*`,
+      md`🛑 критическое отставание, кандидат на снятие с учёбы`,
+      md`⚠️ учится, но отстаёт от группы`,
+      md`🏃 в норме, учится`,
+      md`🚫 выбыл из учёбы`,
+      md`↩️ завершил модуль, но пройдет заново`,
+      md`✅ завершил модуль, проходит дальше`,
     );
 
-    // Добавляем строки студентов в текст
-    for (const line of studentLines) {
-      header.push(line);
-    }
-
-    header.push('');
-    header.push('*Легенда:*');
-    header.push('🛑 критическое отставание, кандидат на снятие с учёбы');
-    header.push('⚠️ учится, но отстаёт от группы');
-    header.push('🏃 в норме, учится');
-    header.push('🚫 выбыл из учёбы');
-    header.push('↩️ завершил модуль, но пройдет заново');
-    header.push('✅ завершил модуль, проходит дальше');
-
     return {
-      sendMessage: {
-        text: header.join('\n'),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: mdJoin(header),
         keyboard: { rows: keyboardRows, isMultiple: false },
       },
     };
   }
 
-  /** Хелперы форматирования */
-  get #helpers() {
-    return {
-      /** Возвращает маркер отставания с учётом статуса */
-      lagMarker: (
-        lagLevel: CategorizedStudent['lagLevel'],
-        status: string,
-      ): string => {
-        if (status === 'advanced') return '✅';
-        if (status === 'not_advanced') return '↩️';
-        if (status === 'abandoned') return '🚫';
-        if (lagLevel === 'critical') return '🛑';
-        if (lagLevel === 'lagging') return '⚠️';
-        return '🏃';
-      },
-    };
+  /** Возвращает маркер отставания с учётом статуса */
+  #lagMarker(lagLevel: CategorizedStudent['lagLevel'], status: string): string {
+    if (status === 'advanced') return '✅';
+    if (status === 'not_advanced') return '↩️';
+    if (status === 'abandoned') return '🚫';
+    if (lagLevel === 'critical') return '🛑';
+    if (lagLevel === 'lagging') return '⚠️';
+    return '🏃';
   }
 
   /**
    * Форматирует прогресс-бар для Telegram MarkdownV2.
    * Скобки экранированы: \[ ████░░░░ \]
+   * Возвращает уже размеченный текст (mdRaw — экранирование внутри).
    */
-  #formatProgressBar(completed: number, total: number): string {
+  #formatProgressBar(completed: number, total: number): MdText {
     const width = 10;
     const filled = total === 0 ? 0 : Math.round((completed / total) * width);
     const empty = width - filled;
-    return `\\[${'█'.repeat(filled)}${'░'.repeat(empty)}\\] ${completed}/${total}`;
+    return mdRaw(
+      `\\[${'█'.repeat(filled)}${'░'.repeat(empty)}\\] ${completed}/${total}`,
+    );
   }
 
   /** Склоняет существительное: 1 студент, 2 студента, 5 студентов */
@@ -367,12 +356,10 @@ export class MonitorStory extends U7BotUiStory {
     return many;
   }
 
-  async #handleDetail(studentId: string, actor: User): Promise<BotResponse> {
-    const student: Student = await this.appApi.execute(
-      'get-student-progress',
-      { studentId },
-      actor.uuid,
-    );
+  async #handleDetail(studentId: string): Promise<DialogResponse> {
+    const student = (await this.appApi.execute('get-student-progress', {
+      studentId,
+    })) as Student;
 
     let userName = student.userId.slice(0, 8);
     try {
@@ -380,16 +367,16 @@ export class MonitorStory extends U7BotUiStory {
         uuid: student.userId,
       });
       userName = user.name;
-    } catch (err) {
-      this.handleError(err);
+    } catch {
+      // профиль недоступен — оставляем обрезок userId
     }
 
-    const stream = await this.appApi.execute('get-stream', {
+    const stream = (await this.appApi.execute('get-stream', {
       streamId: student.streamId,
-    });
+    })) as Stream | undefined;
 
     if (!stream) {
-      return { sendMessage: { text: '⚠️ Поток не найден' } };
+      return { screen: { text: md`⚠️ Поток не найден` } };
     }
 
     // Lag info
@@ -415,37 +402,49 @@ export class MonitorStory extends U7BotUiStory {
       not_advanced: '↩️ Не прошёл',
     };
 
-    const esc = (s: string) => this.escapeMarkdown(s);
     const bar = (c: number, t: number) => this.#formatProgressBar(c, t);
 
-    const lines = [
-      `👤 *${esc(userName)}* \\| ${statusLabels[student.status] ?? student.status}`,
-      '',
-      '———',
-      '',
-      '*Прогресс студента:*',
-      `📊 Прогресс по модулю: ${bar(card.moduleProgress.completed, card.moduleProgress.total)} \\| ${card.moduleProgress.percent}%`,
+    const lines: MdText[] = [
+      mdConcat(
+        md`👤 *${userName}* \\| `,
+        md`${statusLabels[student.status] ?? student.status}`,
+      ),
+      md``,
+      md`———`,
+      md``,
+      md`*Прогресс студента:*`,
+      mdConcat(
+        mdRaw(
+          `📊 Прогресс по модулю: ${bar(card.moduleProgress.completed, card.moduleProgress.total)} \\| `,
+        ),
+        md`${card.moduleProgress.percent}%`,
+      ),
     ];
 
     // Проект и урок
     if (card.currentProject) {
-      lines.push('', `📁 Проект: «${esc(card.currentProject.title)}»`);
+      lines.push(md``, md`📁 Проект: «${card.currentProject.title}»`);
       if (card.currentLesson) {
-        lines.push(`📝 Урок: «${esc(card.currentLesson.title)}»`);
+        lines.push(md`📝 Урок: «${card.currentLesson.title}»`);
       }
       lines.push(
-        `📊 Прогресс по проекту: ${bar(card.currentProject.progress.completed, card.currentProject.progress.total)} \\| ${card.currentProject.progress.percent}%`,
+        mdConcat(
+          mdRaw(
+            `📊 Прогресс по проекту: ${bar(card.currentProject.progress.completed, card.currentProject.progress.total)} \\| `,
+          ),
+          md`${card.currentProject.progress.percent}%`,
+        ),
       );
     }
 
     // Усидчивость студента
-    lines.push('', '———', '', '*Усидчивость студента:*');
+    lines.push(md``, md`———`, md``, md`*Усидчивость студента:*`);
 
     // Среднее время
     if (card.medianTimeMinutes !== null) {
       lines.push(
-        '',
-        `⏱ Типичное время на шаг: ${card.medianTimeMinutes} мин\\.`,
+        md``,
+        md`⏱ Типичное время на шаг: ${card.medianTimeMinutes} мин\\.`,
       );
     }
 
@@ -459,20 +458,24 @@ export class MonitorStory extends U7BotUiStory {
     for (const c of card.timeCategories) {
       const desc = catDescs[c.name] ?? '';
       lines.push(
-        `${c.emoji} ${c.name} \u005c\u0028${desc}\u005c\u0029: ${c.count} шаг\u005c\u0028ов\u005c\u0029`,
+        mdConcat(
+          md`${c.emoji} ${c.name} `,
+          mdRaw(`\\(${desc}\\)`),
+          md`: ${c.count} шаг\\(ов\\)`,
+        ),
       );
     }
     // Активность студента
-    lines.push('', '———', '', '*Активность студента:*');
+    lines.push(md``, md`———`, md``, md`*Активность студента:*`);
 
     // Последняя активность
     const hours = Math.round(card.hoursSinceLastActivity);
     if (hours > 0) {
       const days = Math.round(hours / 24);
       if (days >= 1) {
-        lines.push('', `📅 Последняя активность: ${days} дн\\. назад`);
+        lines.push(md``, md`📅 Последняя активность: ${days} дн\\. назад`);
       } else {
-        lines.push('', `📅 Последняя активность: ${hours} ч\\. назад`);
+        lines.push(md``, md`📅 Последняя активность: ${hours} ч\\. назад`);
       }
     }
 
@@ -480,16 +483,16 @@ export class MonitorStory extends U7BotUiStory {
     if (student.status === 'active') {
       if (card.lagLevel === 'critical') {
         const days = Math.round(card.hoursSinceLastActivity / 24);
-        lines.push('', `🛑 Критическое отставание: ${days} дн\\.`);
+        lines.push(md``, md`🛑 Критическое отставание: ${days} дн\\.`);
       } else if (card.lagLevel === 'lagging') {
         if (card.hoursSinceLastActivity > 4 * 24) {
           const days = Math.round(card.hoursSinceLastActivity / 24);
-          lines.push('', `⚠️ Отстаёт: ${days} дн\\.`);
+          lines.push(md``, md`⚠️ Отстаёт: ${days} дн\\.`);
         } else {
-          lines.push('', '⚠️ Отстаёт от группы');
+          lines.push(md``, md`⚠️ Отстаёт от группы`);
         }
       } else {
-        lines.push('', '✅ Идёт по расписанию');
+        lines.push(md``, md`✅ Идёт по расписанию`);
       }
     }
 
@@ -504,9 +507,8 @@ export class MonitorStory extends U7BotUiStory {
     ];
 
     return {
-      sendMessage: {
-        text: lines.join('\n'),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: mdJoin(lines),
         keyboard: { rows: keyboardRows, isMultiple: false },
       },
     };
@@ -516,13 +518,10 @@ export class MonitorStory extends U7BotUiStory {
 
   async #handleMarkAbandonedConfirm(
     studentId: string,
-    actor: User,
-  ): Promise<BotResponse> {
-    const student: Student = await this.appApi.execute(
-      'get-student-progress',
-      { studentId },
-      actor.uuid,
-    );
+  ): Promise<DialogResponse> {
+    const student = (await this.appApi.execute('get-student-progress', {
+      studentId,
+    })) as Student;
 
     let userName = student.userId.slice(0, 8);
     try {
@@ -531,13 +530,13 @@ export class MonitorStory extends U7BotUiStory {
       });
       userName = user.name;
     } catch {
-      // ignore
+      // профиль недоступен — оставляем обрезок userId
     }
 
     return this.confirm(
       'mark-abandoned',
       studentId,
-      `⚠️ Снять студента *${this.escapeMarkdown(userName)}* с учёбы за бездействие?`,
+      md`⚠️ Снять студента *${userName}* с учёбы за бездействие?`,
       {
         confirmButton: '⚠️ Да, неактивен',
       },
@@ -547,13 +546,10 @@ export class MonitorStory extends U7BotUiStory {
   async #handleMarkAbandonedExecute(
     studentId: string,
     actor: User,
-    _action: string,
-  ): Promise<BotResponse> {
-    const student: Student = await this.appApi.execute(
-      'get-student-progress',
-      { studentId },
-      actor.uuid,
-    );
+  ): Promise<DialogResponse> {
+    const student = (await this.appApi.execute('get-student-progress', {
+      studentId,
+    })) as Student;
 
     let userName = student.userId.slice(0, 8);
     try {
@@ -562,7 +558,7 @@ export class MonitorStory extends U7BotUiStory {
       });
       userName = user.name;
     } catch {
-      // ignore
+      // профиль недоступен — оставляем обрезок userId
     }
 
     try {
@@ -576,9 +572,8 @@ export class MonitorStory extends U7BotUiStory {
     }
 
     return {
-      sendMessage: {
-        text: `✅ Студент *${this.escapeMarkdown(userName)}* снят с учёбы\\.`,
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: md`✅ Студент *${userName}* снят с учёбы\\.`,
       },
       delegate: {
         path: this.cbFor('monitor', 'students', student.streamId),
@@ -588,7 +583,7 @@ export class MonitorStory extends U7BotUiStory {
 
   // ── complete-student (выбор исхода) ──
 
-  async #handleCompleteChoice(studentId: string): Promise<BotResponse> {
+  async #handleCompleteChoice(studentId: string): Promise<DialogResponse> {
     const keyboardRows: Array<Array<{ text: string; code: string }>> = [
       [
         {
@@ -619,8 +614,8 @@ export class MonitorStory extends U7BotUiStory {
     ];
 
     return {
-      sendMessage: {
-        text: 'Выберите исход для студента:',
+      screen: {
+        text: md`Выберите исход для студента:`,
         keyboard: { rows: keyboardRows, isMultiple: false },
       },
     };
@@ -628,18 +623,15 @@ export class MonitorStory extends U7BotUiStory {
 
   async #handleCompleteConfirm(
     studentId: string,
-    actor: User,
     action: string,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     // action = 'complete-confirm:studentId:outcome'
     const parts = action.split(':');
     const outcome = parts[2]; // advanced | not_advanced | abandoned
 
-    const student: Student = await this.appApi.execute(
-      'get-student-progress',
-      { studentId },
-      actor.uuid,
-    );
+    const student = (await this.appApi.execute('get-student-progress', {
+      studentId,
+    })) as Student;
 
     let userName = student.userId.slice(0, 8);
     try {
@@ -648,7 +640,7 @@ export class MonitorStory extends U7BotUiStory {
       });
       userName = user.name;
     } catch {
-      // ignore
+      // профиль недоступен — оставляем обрезок userId
     }
 
     const outcomeLabels: Record<string, string> = {
@@ -663,7 +655,7 @@ export class MonitorStory extends U7BotUiStory {
     return this.confirm(
       'complete-confirm',
       studentId,
-      `Завершить студента *${this.escapeMarkdown(userName)}* с исходом «${outcomeLabels[outcome ?? ''] ?? outcome}»?`,
+      md`Завершить студента *${userName}* с исходом «${outcomeLabels[outcome ?? ''] ?? outcome}»?`,
       {
         confirmButton: '✅ Завершить',
         extraData: outcome,
@@ -675,7 +667,7 @@ export class MonitorStory extends U7BotUiStory {
     studentId: string,
     actor: User,
     action: string,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     // action = 'complete-confirm-confirm:studentId:outcome'
     const parts = action.split(':');
     const rawOutcome = parts[2]; // advanced | not_advanced | abandoned
@@ -684,15 +676,13 @@ export class MonitorStory extends U7BotUiStory {
       rawOutcome !== 'not_advanced' &&
       rawOutcome !== 'abandoned'
     ) {
-      return { sendMessage: { text: '⚠️ Неизвестный исход' } };
+      return { screen: { text: md`⚠️ Неизвестный исход` } };
     }
     const outcome = rawOutcome;
 
-    const student: Student = await this.appApi.execute(
-      'get-student-progress',
-      { studentId },
-      actor.uuid,
-    );
+    const student = (await this.appApi.execute('get-student-progress', {
+      studentId,
+    })) as Student;
 
     let userName = student.userId.slice(0, 8);
     try {
@@ -701,7 +691,7 @@ export class MonitorStory extends U7BotUiStory {
       });
       userName = user.name;
     } catch {
-      // ignore
+      // профиль недоступен — оставляем обрезок userId
     }
 
     try {
@@ -719,9 +709,8 @@ export class MonitorStory extends U7BotUiStory {
     }
 
     return {
-      sendMessage: {
-        text: `✅ Студент *${this.escapeMarkdown(userName)}* завершён\\.`,
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: md`✅ Студент *${userName}* завершён\\.`,
       },
       delegate: {
         path: this.cbFor('monitor', 'students', student.streamId),

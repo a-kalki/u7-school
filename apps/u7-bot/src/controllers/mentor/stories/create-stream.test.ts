@@ -75,7 +75,8 @@ function createStory(apiOverrides?: Record<string, unknown>) {
       return undefined;
     }),
   };
-  story.init({ appApi } as never);
+  // Второй аргумент — имя контроллера (для isActive в pipe-командах)
+  story.init({ appApi } as never, { name: 'mentor' } as never);
   return { story, appApi };
 }
 
@@ -544,7 +545,7 @@ describe('CreateStreamStory (US-6) — контракт «Диалог и Экр
     expect(text).toContain('100123456789');
     expect(text).toContain('Ссылка для студентов');
     expect(text).toContain('abc123');
-    expect(text).toContain('Всё верно?');
+    expect(text).toContain('Всё верно');
     expect(response.screen?.keyboard?.rows).toEqual([
       [
         { text: '✅ Создать', code: 'create-stream:confirm' },

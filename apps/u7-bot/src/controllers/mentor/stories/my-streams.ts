@@ -1,6 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
+import { md, mdJoin, mdRaw } from '@u7-scl/core/shared';
+import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
 
 interface StreamRow {
   uuid: string;
@@ -16,8 +17,9 @@ const STATUS_EMOJI: Record<string, string> = {
   archived: '⚫',
 };
 
-const LEGEND =
-  '\n\n🟡 — идёт набор   🔵 — идёт обучение   🟢 — завершён   ⚫ — в архиве';
+const LEGEND = mdRaw(
+  '\n\n🟡 — идёт набор   🔵 — идёт обучение   🟢 — завершён   ⚫ — в архиве',
+);
 
 /**
  * Список потоков ментора с фильтрацией по статусу.
@@ -29,32 +31,18 @@ export class MyStreamsStory extends U7BotUiStory {
   async handleCallback(
     action: string,
     actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
+    _session: BotSession,
+  ): Promise<DialogResponse> {
     // Парсим фильтры: list[:completed:1][:archived:1]
     const segments = action.split(':');
     const showCompleted = segments.includes('completed');
     const showArchived = segments.includes('archived');
 
     if (segments[0] !== 'list') {
-      return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+      return this.unknownCommand(action, actor, _session);
     }
 
     return this.#handleList(actor, showCompleted, showArchived);
-  }
-
-  async handleMessage(
-    _update: BotUpdate,
-    _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return {
-      sendMessage: { text: '⚠️ Используйте кнопки меню для навигации.' },
-    };
-  }
-
-  override async handleStart(_actor: User): Promise<null> {
-    return null;
   }
 
   // ── Приватные методы ──
@@ -63,7 +51,8 @@ export class MyStreamsStory extends U7BotUiStory {
     actor: User,
     showCompleted: boolean,
     showArchived: boolean,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
+    let response: DialogResponse;
     try {
       const allStreams = (await this.appApi.execute('list-streams', {})) as
         | StreamRow[]
@@ -123,13 +112,18 @@ export class MyStreamsStory extends U7BotUiStory {
             code: this.cbFor('submenu', 'start'),
           },
         ]);
-        return {
-          sendMessage: {
-            text: `📋 *Мои потоки*\n\nУ вас пока нет потоков\\.${LEGEND}`,
-            parseMode: 'MarkdownV2',
+        response = {
+          screen: {
+            text: mdJoin([
+              md`📋 *Мои потоки*`,
+              md``,
+              md`У вас пока нет потоков\\.`,
+              LEGEND,
+            ]),
             keyboard: { rows, isMultiple: false },
           },
         };
+        return response;
       }
 
       // Строки потоков
@@ -149,17 +143,17 @@ export class MyStreamsStory extends U7BotUiStory {
         },
       ]);
 
-      return {
-        sendMessage: {
-          text: `📋 *Мои потоки*${LEGEND}`,
-          parseMode: 'MarkdownV2',
+      response = {
+        screen: {
+          text: mdJoin([md`📋 *Мои потоки*`, LEGEND]),
           keyboard: { rows, isMultiple: false },
         },
       };
+      return response;
     } catch {
       return {
-        sendMessage: {
-          text: '⚠️ Не удалось загрузить список потоков.',
+        screen: {
+          text: md`⚠️ Не удалось загрузить список потоков\\.`,
         },
       };
     }

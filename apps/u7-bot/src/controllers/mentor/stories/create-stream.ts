@@ -1,7 +1,13 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
-import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
+import { type MdText, md, mdConcat, mdJoin, mdRaw } from '@u7-scl/core/shared';
+import type {
+  BotSession,
+  BotUpdate,
+  CommandReaction,
+  CommandUpdate,
+  DialogResponse,
+} from '@u7-scl/core/ui';
 import { Status } from '@u7-scl/course/domain';
 
 /** Тип команды создания потока (локально, для wizard-а) */
@@ -21,7 +27,7 @@ interface CreateStreamCmd {
   enrollmentKey?: string;
 }
 
-/** Контекст wizard-а создания потока */
+/** Контекст wizard-а создания потока (живёт в dialog.input.context) */
 interface CreateStreamWizardContext {
   step: number;
   moduleId: string;
@@ -45,7 +51,16 @@ interface CreateStreamWizardContext {
   moduleAdditional: string;
 }
 
-const WIZARD_PATH = 'create-stream/wizard';
+/** Минимум полей модуля, которые wizard забирает в подсказки */
+interface ModuleRow {
+  title?: string;
+  description?: string;
+  goal?: string;
+  result?: string;
+  rules?: string;
+  targetAudience?: string;
+  additional?: string;
+}
 
 /** Описание одного необязательного поля */
 interface OptionalFieldConfig {
@@ -110,8 +125,8 @@ export class CreateStreamStory extends U7BotUiStory {
   async handleCallback(
     action: string,
     actor: User,
-    session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     // Старт wizard-а
     if (action === 'start') {
       return this.#startWizard();
@@ -162,23 +177,32 @@ export class CreateStreamStory extends U7BotUiStory {
       return this.#handleAcceptDescription(session);
     }
 
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+    return this.unknownCommand(action, actor, session);
   }
 
-  async handleMessage(
+  override async handleMessage(
     update: BotUpdate,
-    actor: User,
-    session: SessionData,
-  ): Promise<BotResponse> {
+    _actor: User,
+    session: BotSession,
+  ): Promise<DialogResponse> {
     if (update.type !== 'message') {
-      return { sendMessage: { text: '⚠️ Ожидалось текстовое сообщение' } };
+      // Wizard ждёт текст: документ/фото/кнопка — переспрос, ввод живёт
+      return {
+        notify: {
+          text: md`⚠️ Ожидалось текстовое сообщение\\.`,
+          kind: 'warn',
+        },
+      };
     }
 
-    const context = session.activeHandler?.context as
+    const context = session.dialog?.input?.context as
       | CreateStreamWizardContext
       | undefined;
     if (!context) {
-      return { sendMessage: { text: '⚠️ Контекст wizard-а потерян' } };
+      return {
+        notify: { text: md`⚠️ Контекст wizard\\-а потерян\\.`, kind: 'warn' },
+        release: true,
+      };
     }
 
     // Шаги 4-8: необязательные поля модуля
@@ -199,78 +223,70 @@ export class CreateStreamStory extends U7BotUiStory {
       case 3:
         return this.#handleDateInput(context, update.text);
       case 9:
-        return this.#handleGroupInput(context, update.text, actor);
+        return this.#handleGroupInput(context, update.text);
       case 10:
         return this.#handleInviteInput(context, update.text);
       case 11:
         return this.#handleEnrollmentKeyInput(context, update.text);
       case 12:
         return {
-          sendMessage: {
-            text: '👆 Используйте кнопки выше для подтверждения или изменения.',
+          notify: {
+            text: md`👆 Используйте кнопки выше для подтверждения или изменения\\.`,
           },
         };
       default:
-        return { sendMessage: { text: '⚠️ Неизвестный шаг wizard-а' } };
+        return {
+          notify: { text: md`⚠️ Неизвестный шаг wizard\\-а\\.`, kind: 'warn' },
+        };
     }
   }
 
-  override async handleCancel(
+  /** /cancel: активный wizard — сброс с репликой; неактивный — pass. */
+  override async handleCommand(
+    update: CommandUpdate,
     _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return {
-      releaseInput: true,
-      sendMessage: { text: '🚫 Создание потока отменено' },
-    };
-  }
-
-  override async handleTimeout(
-    _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return {
-      releaseInput: true,
-      sendMessage: { text: '⏰ Время создания потока истекло' },
-    };
-  }
-
-  override async handleStart(_actor: User): Promise<MainMenuAction | null> {
-    // Создание потока — только через подменю «Инструменты ментора»
-    return null;
+    session: BotSession,
+  ): Promise<CommandReaction> {
+    if (update.command === 'cancel' && this.isActive(session)) {
+      this.reset();
+      return {
+        reaction: 'stop',
+        response: {
+          notify: { text: md`🚫 Создание потока отменено\\.`, kind: 'warn' },
+          release: true,
+        },
+      };
+    }
+    return super.handleCommand(update, _actor, session);
   }
 
   // ── Приватные шаги wizard-а ──
 
-  async #startWizard(): Promise<BotResponse> {
+  async #startWizard(): Promise<DialogResponse> {
     return this.#handleModuleMessage(this.#emptyCtx());
   }
 
   async #handleModuleMessage(
     ctx: CreateStreamWizardContext,
-  ): Promise<BotResponse> {
-    const modules = await this.appApi.execute('list-modules', {
+  ): Promise<DialogResponse> {
+    const modules = (await this.appApi.execute('list-modules', {
       status: Status.PUBLISHED,
-    });
+    })) as Array<{ uuid: string; title: string }>;
 
     if (!modules || modules.length === 0) {
       return {
-        sendMessage: {
-          text: `📦 *Нет доступных модулей*\n\n${this.escapeMarkdown('У вас нет опубликованных модулей. Создайте модуль в конструкторе курсов.')}`,
-          parseMode: 'MarkdownV2',
+        screen: {
+          text: md`📦 *Нет доступных модулей*\n\nУ вас нет опубликованных модулей\\. Создайте модуль в конструкторе курсов\\.`,
           keyboard: {
             rows: [[{ text: '🔄 Обновить список', code: this.cb('start') }]],
             isMultiple: false,
           },
         },
-        captureInput: {
-          path: WIZARD_PATH,
-          context: ctx,
-        },
+        awaitInput: { context: ctx },
       };
     }
 
-    const rows = modules.map((m: { uuid: string; title: string }) => [
+    const rows = modules.map((m) => [
       {
         text: m.title,
         code: `create-stream:module:${m.uuid}`,
@@ -278,28 +294,24 @@ export class CreateStreamStory extends U7BotUiStory {
     ]);
 
     return {
-      sendMessage: {
-        text: '📦 *Выберите модуль курса:*',
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: md`📦 *Выберите модуль курса\\:*`,
         keyboard: {
           rows,
           isMultiple: false,
         },
       },
-      captureInput: {
-        path: WIZARD_PATH,
-        context: ctx,
-      },
+      awaitInput: { context: ctx },
     };
   }
 
   async #onModuleSelected(
     action: string,
-    session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     const moduleId = action.split(':')[1];
     if (!moduleId) {
-      return this.sendUnknownError();
+      return this.unknownCommand(action);
     }
 
     // Загружаем данные модуля через appApi
@@ -312,9 +324,9 @@ export class CreateStreamStory extends U7BotUiStory {
     let moduleAdditional = '';
 
     try {
-      const module = await this.appApi.execute('get-module', {
+      const module = (await this.appApi.execute('get-module', {
         uuid: moduleId,
-      });
+      })) as ModuleRow;
       moduleTitle = module.title ?? '';
       moduleDescription = module.description ?? '';
       moduleGoal = module.goal ?? '';
@@ -327,8 +339,9 @@ export class CreateStreamStory extends U7BotUiStory {
     }
 
     const existingCtx =
-      (session.activeHandler?.context as CreateStreamWizardContext) ??
-      this.#emptyCtx();
+      (session.dialog?.input?.context as
+        | CreateStreamWizardContext
+        | undefined) ?? this.#emptyCtx();
 
     const ctx: CreateStreamWizardContext = {
       ...existingCtx,
@@ -344,9 +357,9 @@ export class CreateStreamStory extends U7BotUiStory {
     };
 
     // Сообщение с подсказкой о предзаполненном названии
-    const lines = ['📝 Введите название потока:'];
+    const lines: MdText[] = [md`📝 Введите название потока\\:`];
     if (moduleTitle) {
-      lines.push(`_По умолчанию: «${this.escapeMarkdown(moduleTitle)}»_`);
+      lines.push(md`_По умолчанию: «${moduleTitle}»_`);
     }
 
     const buttons: { text: string; code: string }[] = [];
@@ -358,25 +371,24 @@ export class CreateStreamStory extends U7BotUiStory {
     }
 
     return {
-      sendMessage: {
-        text: lines.join('\n'),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: mdJoin(lines),
         keyboard:
           buttons.length > 0
             ? { rows: [buttons], isMultiple: false }
             : undefined,
       },
-      captureInput: {
-        path: WIZARD_PATH,
-        context: ctx,
-      },
+      awaitInput: { context: ctx },
     };
   }
 
-  #handleTitleInput(ctx: CreateStreamWizardContext, text: string): BotResponse {
-    const lines = ['📄 Введите описание потока:'];
+  #handleTitleInput(
+    ctx: CreateStreamWizardContext,
+    text: string,
+  ): DialogResponse {
+    const lines: MdText[] = [md`📄 Введите описание потока\\:`];
     if (ctx.description) {
-      lines.push(`_По умолчанию: «${this.escapeMarkdown(ctx.description)}»_`);
+      lines.push(md`_По умолчанию: «${ctx.description}»_`);
     }
 
     const buttons: { text: string; code: string }[] = [];
@@ -388,45 +400,42 @@ export class CreateStreamStory extends U7BotUiStory {
     }
 
     return {
-      sendMessage: {
-        text: lines.join('\n'),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: mdJoin(lines),
         keyboard:
           buttons.length > 0
             ? { rows: [buttons], isMultiple: false }
             : undefined,
       },
-      captureInput: {
-        path: WIZARD_PATH,
-        context: { ...ctx, step: 2, title: text },
-      },
+      awaitInput: { context: { ...ctx, step: 2, title: text } },
     };
   }
 
   #handleDescriptionInput(
     ctx: CreateStreamWizardContext,
     text: string,
-  ): BotResponse {
+  ): DialogResponse {
     // Пример даты: сегодня + 5 дней, время 10:00
     const exampleDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
     const yyyy = exampleDate.getFullYear();
     const mm = String(exampleDate.getMonth() + 1).padStart(2, '0');
     const dd = String(exampleDate.getDate()).padStart(2, '0');
-    const exampleStr = `${yyyy}\\-${mm}\\-${dd}T10:00`;
+    const exampleStr = mdRaw(`${yyyy}\\-${mm}\\-${dd}T10:00`);
 
     return {
-      sendMessage: {
-        text: `📅 Введите дату старта в формате \`YYYY\\-MM\\-DD\` или дату время \`YYYY\\-MM\\-DDTHH:MM\`\\.\nНапример: \`${exampleStr}\`\\.`,
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: mdConcat(
+          md`📅 Введите дату старта в формате \`YYYY\\-MM\\-DD\` или дату время \`YYYY\\-MM\\-DDTHH\\:MM\`\\\\.\nНапример: \`${exampleStr}\`\\\\.`,
+        ),
       },
-      captureInput: {
-        path: WIZARD_PATH,
-        context: { ...ctx, step: 3, description: text },
-      },
+      awaitInput: { context: { ...ctx, step: 3, description: text } },
     };
   }
 
-  #handleDateInput(ctx: CreateStreamWizardContext, text: string): BotResponse {
+  #handleDateInput(
+    ctx: CreateStreamWizardContext,
+    text: string,
+  ): DialogResponse {
     const normalizedDate = text.includes('T') ? text : `${text}T00:00`;
 
     // OPTIONAL_FIELDS всегда непустой
@@ -443,14 +452,14 @@ export class CreateStreamStory extends U7BotUiStory {
   #showOptionalFieldStep(
     ctx: CreateStreamWizardContext,
     field: OptionalFieldConfig,
-  ): BotResponse {
+  ): DialogResponse {
     const moduleValue: string = ctx[field.moduleKey] || '';
-    const lines = [`📝 *${field.label}*`];
+    const lines: MdText[] = [md`📝 *${field.label}*`];
 
     const buttons: { text: string; code: string }[] = [];
 
     if (moduleValue) {
-      lines.push(`_По умолчанию: «${this.escapeMarkdown(moduleValue)}»_`);
+      lines.push(md`_По умолчанию: «${moduleValue}»_`);
       buttons.push({
         text: '✅ Принять',
         code: this.cb(`accept-${field.fieldName}`),
@@ -463,18 +472,14 @@ export class CreateStreamStory extends U7BotUiStory {
     });
 
     return {
-      sendMessage: {
-        text: lines.join('\n'),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: mdJoin(lines),
         keyboard: {
           rows: [buttons],
           isMultiple: false,
         },
       },
-      captureInput: {
-        path: WIZARD_PATH,
-        context: ctx,
-      },
+      awaitInput: { context: ctx },
     };
   }
 
@@ -483,7 +488,7 @@ export class CreateStreamStory extends U7BotUiStory {
     field: OptionalFieldConfig,
     ctx: CreateStreamWizardContext,
     text: string,
-  ): BotResponse {
+  ): DialogResponse {
     const nextCtx: CreateStreamWizardContext = {
       ...ctx,
       step: field.nextStep,
@@ -497,19 +502,19 @@ export class CreateStreamStory extends U7BotUiStory {
       return this.#showOptionalFieldStep(nextCtx, nextField);
     }
 
-    // После последнего необязательного поля (additional → step 9: группа)
+    // После последнего необязательного поля (additional → шаг 9: группа)
     return this.#showGroupStep(nextCtx);
   }
 
   /** Обработчик кнопки «Принять» */
   #handleAcceptField(
     field: OptionalFieldConfig,
-    session: SessionData,
-  ): BotResponse {
-    const ctx = session.activeHandler?.context as
+    session: BotSession,
+  ): DialogResponse {
+    const ctx = session.dialog?.input?.context as
       | CreateStreamWizardContext
       | undefined;
-    if (!ctx) return { sendMessage: { text: '⚠️ Контекст потерян' } };
+    if (!ctx) return this.#lostContext();
 
     const moduleValue: string = ctx[field.moduleKey] || '';
     const nextCtx: CreateStreamWizardContext = {
@@ -522,9 +527,7 @@ export class CreateStreamStory extends U7BotUiStory {
       (f) => f.fieldName === this.#stepToField(field.nextStep),
     );
     if (nextField) {
-      return {
-        ...this.#showOptionalFieldStep(nextCtx, nextField),
-      };
+      return this.#showOptionalFieldStep(nextCtx, nextField);
     }
 
     // Переход к группе
@@ -534,12 +537,12 @@ export class CreateStreamStory extends U7BotUiStory {
   /** Обработчик кнопки «Пропустить» */
   #handleSkipField(
     field: OptionalFieldConfig,
-    session: SessionData,
-  ): BotResponse {
-    const ctx = session.activeHandler?.context as
+    session: BotSession,
+  ): DialogResponse {
+    const ctx = session.dialog?.input?.context as
       | CreateStreamWizardContext
       | undefined;
-    if (!ctx) return { sendMessage: { text: '⚠️ Контекст потерян' } };
+    if (!ctx) return this.#lostContext();
 
     const nextCtx: CreateStreamWizardContext = {
       ...ctx,
@@ -551,26 +554,24 @@ export class CreateStreamStory extends U7BotUiStory {
       (f) => f.fieldName === this.#stepToField(field.nextStep),
     );
     if (nextField) {
-      return {
-        ...this.#showOptionalFieldStep(nextCtx, nextField),
-      };
+      return this.#showOptionalFieldStep(nextCtx, nextField);
     }
 
     // Переход к группе
     return this.#showGroupStep(nextCtx);
   }
 
-  #handleAcceptTitle(session: SessionData): BotResponse {
-    const ctx = session.activeHandler?.context as
+  #handleAcceptTitle(session: BotSession): DialogResponse {
+    const ctx = session.dialog?.input?.context as
       | CreateStreamWizardContext
       | undefined;
-    if (!ctx) return { sendMessage: { text: '⚠️ Контекст потерян' } };
+    if (!ctx) return this.#lostContext();
 
     // Берём название из уже загруженного контекста (title заполнен в #onModuleSelected)
     const title = ctx.title || ctx.moduleId;
-    const lines = ['📄 Введите описание потока:'];
+    const lines: MdText[] = [md`📄 Введите описание потока\\:`];
     if (ctx.description) {
-      lines.push(`_По умолчанию: «${this.escapeMarkdown(ctx.description)}»_`);
+      lines.push(md`_По умолчанию: «${ctx.description}»_`);
     }
 
     const buttons: { text: string; code: string }[] = [];
@@ -582,26 +583,22 @@ export class CreateStreamStory extends U7BotUiStory {
     }
 
     return {
-      sendMessage: {
-        text: lines.join('\n'),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: mdJoin(lines),
         keyboard:
           buttons.length > 0
             ? { rows: [buttons], isMultiple: false }
             : undefined,
       },
-      captureInput: {
-        path: WIZARD_PATH,
-        context: { ...ctx, step: 2, title },
-      },
+      awaitInput: { context: { ...ctx, step: 2, title } },
     };
   }
 
-  #handleAcceptDescription(session: SessionData): BotResponse {
-    const ctx = session.activeHandler?.context as
+  #handleAcceptDescription(session: BotSession): DialogResponse {
+    const ctx = session.dialog?.input?.context as
       | CreateStreamWizardContext
       | undefined;
-    if (!ctx) return { sendMessage: { text: '⚠️ Контекст потерян' } };
+    if (!ctx) return this.#lostContext();
 
     return this.#handleDescriptionInput(ctx, ctx.description);
   }
@@ -616,8 +613,7 @@ export class CreateStreamStory extends U7BotUiStory {
   async #handleGroupInput(
     ctx: CreateStreamWizardContext,
     text: string,
-    _actor: User,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     const nextCtx: CreateStreamWizardContext = {
       ...ctx,
       step: 10,
@@ -627,13 +623,11 @@ export class CreateStreamStory extends U7BotUiStory {
     return this.#showInviteStep(nextCtx);
   }
 
-  #handleSkipGroup(session: SessionData): BotResponse {
-    const ctx = session.activeHandler?.context as
+  #handleSkipGroup(session: BotSession): DialogResponse {
+    const ctx = session.dialog?.input?.context as
       | CreateStreamWizardContext
       | undefined;
-    if (!ctx) {
-      return { sendMessage: { text: '⚠️ Контекст wizard-а потерян' } };
-    }
+    if (!ctx) return this.#lostContext();
     const nextCtx: CreateStreamWizardContext = {
       ...ctx,
       step: 10,
@@ -644,44 +638,36 @@ export class CreateStreamStory extends U7BotUiStory {
 
   // ── Группа: показ шагов и инвайт-ссылка ──
 
-  #showGroupStep(ctx: CreateStreamWizardContext): BotResponse {
+  #showGroupStep(ctx: CreateStreamWizardContext): DialogResponse {
     return {
-      sendMessage: {
-        text: '🔗 Введите ID или username Telegram\\-группы потока — по нему бот сможет исключать \\(кикать\\) студентов \\(необязательно\\):',
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: md`🔗 Введите ID или username Telegram\\-группы потока — по нему бот сможет исключать \\(кикать\\) студентов \\(необязательно\\)\\:`,
         keyboard: {
           rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-group') }]],
           isMultiple: false,
         },
       },
-      captureInput: {
-        path: WIZARD_PATH,
-        context: ctx,
-      },
+      awaitInput: { context: ctx },
     };
   }
 
-  #showInviteStep(ctx: CreateStreamWizardContext): BotResponse {
+  #showInviteStep(ctx: CreateStreamWizardContext): DialogResponse {
     return {
-      sendMessage: {
-        text: '🔗 Введите инвайт\\-ссылку на группу потока — по ней студенты попадут в группу \\(необязательно\\):',
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: md`🔗 Введите инвайт\\-ссылку на группу потока — по ней студенты попадут в группу \\(необязательно\\)\\:`,
         keyboard: {
           rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-invite') }]],
           isMultiple: false,
         },
       },
-      captureInput: {
-        path: WIZARD_PATH,
-        context: ctx,
-      },
+      awaitInput: { context: ctx },
     };
   }
 
   #handleInviteInput(
     ctx: CreateStreamWizardContext,
     text: string,
-  ): BotResponse {
+  ): DialogResponse {
     return this.#showEnrollmentKeyStep({
       ...ctx,
       step: 11,
@@ -689,13 +675,11 @@ export class CreateStreamStory extends U7BotUiStory {
     });
   }
 
-  #handleSkipInvite(session: SessionData): BotResponse {
-    const ctx = session.activeHandler?.context as
+  #handleSkipInvite(session: BotSession): DialogResponse {
+    const ctx = session.dialog?.input?.context as
       | CreateStreamWizardContext
       | undefined;
-    if (!ctx) {
-      return { sendMessage: { text: '⚠️ Контекст wizard-а потерян' } };
-    }
+    if (!ctx) return this.#lostContext();
     return this.#showEnrollmentKeyStep({
       ...ctx,
       step: 11,
@@ -705,26 +689,23 @@ export class CreateStreamStory extends U7BotUiStory {
 
   // ── Кодовое слово ──
 
-  #showEnrollmentKeyStep(ctx: CreateStreamWizardContext): BotResponse {
+  #showEnrollmentKeyStep(ctx: CreateStreamWizardContext): DialogResponse {
     return {
-      sendMessage: {
-        text: '🔑 Введите кодовое слово для записи на поток (необязательно). Оставьте пустым для свободной записи.',
+      screen: {
+        text: md`🔑 Введите кодовое слово для записи на поток \\(необязательно\\)\\. Оставьте пустым для свободной записи\\.`,
         keyboard: {
           rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-key') }]],
           isMultiple: false,
         },
       },
-      captureInput: {
-        path: WIZARD_PATH,
-        context: ctx,
-      },
+      awaitInput: { context: ctx },
     };
   }
 
   #handleEnrollmentKeyInput(
     ctx: CreateStreamWizardContext,
     text: string,
-  ): BotResponse {
+  ): DialogResponse {
     return this.#showPreview({
       ...ctx,
       step: 12,
@@ -732,13 +713,11 @@ export class CreateStreamStory extends U7BotUiStory {
     });
   }
 
-  #handleSkipEnrollmentKey(session: SessionData): BotResponse {
-    const ctx = session.activeHandler?.context as
+  #handleSkipEnrollmentKey(session: BotSession): DialogResponse {
+    const ctx = session.dialog?.input?.context as
       | CreateStreamWizardContext
       | undefined;
-    if (!ctx) {
-      return { sendMessage: { text: '⚠️ Контекст wizard-а потерян' } };
-    }
+    if (!ctx) return this.#lostContext();
     return this.#showPreview({
       ...ctx,
       step: 12,
@@ -748,40 +727,35 @@ export class CreateStreamStory extends U7BotUiStory {
 
   // ── Шаг превью ──
 
-  #showPreview(ctx: CreateStreamWizardContext): BotResponse {
-    const lines = [
-      '📋 *Превью потока*',
-      '',
-      `*Название:* ${this.escapeMarkdown(ctx.title)}`,
-      `*Описание:* ${this.escapeMarkdown(ctx.description)}`,
-      `*Дата старта:* ${this.escapeMarkdown(ctx.startDate)}`,
+  #showPreview(ctx: CreateStreamWizardContext): DialogResponse {
+    const lines: MdText[] = [
+      md`📋 *Превью потока*`,
+      md``,
+      md`*Название\\:* ${ctx.title}`,
+      md`*Описание\\:* ${ctx.description}`,
+      md`*Дата старта\\:* ${ctx.startDate}`,
     ];
 
     if (ctx.telegramGroupId)
-      lines.push(`*ID группы:* ${this.escapeMarkdown(ctx.telegramGroupId)}`);
+      lines.push(md`*ID группы\\:* ${ctx.telegramGroupId}`);
     if (ctx.telegramGroupInvite)
-      lines.push(
-        `*Ссылка для студентов:* ${this.escapeMarkdown(ctx.telegramGroupInvite)}`,
-      );
+      lines.push(md`*Ссылка для студентов\\:* ${ctx.telegramGroupInvite}`);
 
-    if (ctx.goal) lines.push(`*Цель:* ${this.escapeMarkdown(ctx.goal)}`);
-    if (ctx.result)
-      lines.push(`*Результат:* ${this.escapeMarkdown(ctx.result)}`);
-    if (ctx.rules) lines.push(`*Правила:* ${this.escapeMarkdown(ctx.rules)}`);
+    if (ctx.goal) lines.push(md`*Цель\\:* ${ctx.goal}`);
+    if (ctx.result) lines.push(md`*Результат\\:* ${ctx.result}`);
+    if (ctx.rules) lines.push(md`*Правила\\:* ${ctx.rules}`);
     if (ctx.targetAudience)
-      lines.push(`*Аудитория:* ${this.escapeMarkdown(ctx.targetAudience)}`);
-    if (ctx.additional)
-      lines.push(`*Дополнительно:* ${this.escapeMarkdown(ctx.additional)}`);
+      lines.push(md`*Аудитория\\:* ${ctx.targetAudience}`);
+    if (ctx.additional) lines.push(md`*Дополнительно\\:* ${ctx.additional}`);
 
     if (ctx.enrollmentKey)
-      lines.push(`*Кодовое слово:* ${this.escapeMarkdown(ctx.enrollmentKey)}`);
+      lines.push(md`*Кодовое слово\\:* ${ctx.enrollmentKey}`);
 
-    lines.push('', 'Всё верно?');
+    lines.push(md``, md`Всё верно\\?`);
 
     return {
-      sendMessage: {
-        text: lines.join('\n'),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: mdJoin(lines),
         keyboard: {
           rows: [
             [
@@ -792,25 +766,24 @@ export class CreateStreamStory extends U7BotUiStory {
           isMultiple: false,
         },
       },
-      captureInput: {
-        path: WIZARD_PATH,
-        context: ctx,
-      },
+      awaitInput: { context: ctx },
     };
   }
 
   async #handleConfirm(
     actor: User,
-    session: SessionData,
-  ): Promise<BotResponse> {
-    const context = session.activeHandler?.context as
+    session: BotSession,
+  ): Promise<DialogResponse> {
+    const context = session.dialog?.input?.context as
       | CreateStreamWizardContext
       | undefined;
     if (!context) {
       return {
-        sendMessage: {
-          text: '⚠️ Контекст wizard-а потерян. Начните заново.',
+        notify: {
+          text: md`⚠️ Контекст wizard\\-а потерян\\. Начните заново\\.`,
+          kind: 'warn',
         },
+        release: true,
       };
     }
 
@@ -840,15 +813,22 @@ export class CreateStreamStory extends U7BotUiStory {
     }
 
     return {
-      releaseInput: true,
-      sendMessage: {
-        text: '✅ *Поток успешно создан\\!*',
-        parseMode: 'MarkdownV2',
+      release: true,
+      screen: {
+        text: md`✅ *Поток успешно создан\\\\!*`,
       },
     };
   }
 
   // ── Вспомогательные ──
+
+  /** Реплика о потере контекста wizard-а: ввод не держится мёртвым. */
+  #lostContext(): DialogResponse {
+    return {
+      notify: { text: md`⚠️ Контекст wizard\\-а потерян\\.`, kind: 'warn' },
+      release: true,
+    };
+  }
 
   #emptyCtx(): CreateStreamWizardContext {
     return {

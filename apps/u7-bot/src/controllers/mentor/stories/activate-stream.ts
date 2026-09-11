@@ -1,6 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import type { BotResponse, SessionData } from '@u7-scl/core/ui';
+import { md } from '@u7-scl/core/shared';
+import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
 
 /**
  * US-7: Запуск потока (старт обучения).
@@ -12,18 +13,17 @@ export class ActivateStreamStory extends U7BotUiStory {
   async handleCallback(
     action: string,
     actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     const [cmd, streamId] = action.split(':');
     if (cmd !== 'activate' || !streamId) {
-      return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+      return this.unknownCommand(action, actor, session);
     }
     await this.appApi.execute('activate-stream', { streamId }, actor.uuid);
 
     return {
-      sendMessage: {
-        text: '🚀 *Поток запущен\\!* Первые задания выданы студентам\\. Они увидят их в разделе «🎓 Моя учёба»\\.',
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: md`🚀 *Поток запущен\\!* Первые задания выданы студентам\\. Они увидят их в разделе «🎓 Моя учёба»\\.`,
         keyboard: {
           rows: [
             [
@@ -37,13 +37,5 @@ export class ActivateStreamStory extends U7BotUiStory {
         },
       },
     };
-  }
-
-  override async handleMessage(): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
-  }
-
-  override async handleStart(_actor: User): Promise<null> {
-    return null;
   }
 }

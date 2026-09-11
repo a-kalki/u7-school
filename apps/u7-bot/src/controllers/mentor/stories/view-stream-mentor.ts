@@ -1,8 +1,9 @@
 import type { User } from '@u7-scl/app/domain';
+import { md } from '@u7-scl/core/shared';
 import type {
-  BotResponse,
+  BotSession,
+  DialogResponse,
   KeyboardDescription,
-  SessionData,
 } from '@u7-scl/core/ui';
 import type { Stream } from '@u7-scl/stream/domain';
 import { StreamPolicy, StudentPolicy } from '@u7-scl/stream/domain';
@@ -23,8 +24,8 @@ export class ViewStreamMentorStory extends ViewStreamStory {
   override async handleCallback(
     action: string,
     actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     const [cmd, streamId] = action.split(':');
 
     // Делегируем просмотр карточки, программы и деталей родителю
@@ -58,15 +59,7 @@ export class ViewStreamMentorStory extends ViewStreamStory {
     }
 
     // Всё остальное (включая students, enroll, cancel) — делегируем родителю
-    return super.handleCallback(action, actor, _session);
-  }
-
-  override async handleMessage(): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
-  }
-
-  override async handleStart(_actor: User): Promise<null> {
-    return null;
+    return super.handleCallback(action, actor, session);
   }
 
   // ── Переопределение клавиатуры ──
@@ -149,12 +142,12 @@ export class ViewStreamMentorStory extends ViewStreamStory {
   protected override async handleStudentsList(
     streamId: string,
     actor: User,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     // Получаем базовый ответ от родителя (текст, статистика, форматирование)
     const baseResponse = await super.handleStudentsList(streamId, actor);
-    const baseText = baseResponse.sendMessage?.text ?? '';
-    const baseKeyboard = baseResponse.sendMessage?.keyboard;
-    if (!baseKeyboard) return baseResponse;
+    const baseScreen = baseResponse.screen;
+    const baseKeyboard = baseScreen?.keyboard;
+    if (!baseScreen || !baseKeyboard) return baseResponse;
 
     // Получаем данные для построения менторской клавиатуры
     const students = (await this.appApi.execute(
@@ -227,9 +220,8 @@ export class ViewStreamMentorStory extends ViewStreamStory {
     });
 
     return {
-      sendMessage: {
-        text: baseText,
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: baseScreen.text,
         keyboard: { rows: enrichedRows, isMultiple: false },
       },
     };
@@ -237,11 +229,10 @@ export class ViewStreamMentorStory extends ViewStreamStory {
 
   // ── Подтверждения ──
 
-  #showCompleteConfirm(streamId: string): BotResponse {
+  #showCompleteConfirm(streamId: string): DialogResponse {
     return {
-      sendMessage: {
-        text: '⚠️ *Завершить поток?*\n\nЭто действие остановит обучение для всех студентов\\. Поток нельзя будет перезапустить\\.',
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: md`⚠️ *Завершить поток?*\n\nЭто действие остановит обучение для всех студентов\\. Поток нельзя будет перезапустить\\.`,
         keyboard: {
           rows: [
             [
@@ -265,11 +256,10 @@ export class ViewStreamMentorStory extends ViewStreamStory {
     };
   }
 
-  #showArchiveConfirm(streamId: string): BotResponse {
+  #showArchiveConfirm(streamId: string): DialogResponse {
     return {
-      sendMessage: {
-        text: '⚠️ *Отправить поток в архив?*\n\nПоток будет скрыт из витрины\\. Студенты потеряют доступ к обучению\\.',
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: md`⚠️ *Отправить поток в архив?*\n\nПоток будет скрыт из витрины\\. Студенты потеряют доступ к обучению\\.`,
         keyboard: {
           rows: [
             [
@@ -295,12 +285,14 @@ export class ViewStreamMentorStory extends ViewStreamStory {
 
   // ── Менторские действия ──
 
-  async #handleComplete(streamId: string, actor: User): Promise<BotResponse> {
+  async #handleComplete(
+    streamId: string,
+    actor: User,
+  ): Promise<DialogResponse> {
     await this.appApi.execute('complete-stream', { streamId }, actor.uuid);
     return {
-      sendMessage: {
-        text: '✅ *Поток завершён\\!* Обучение окончено\\.',
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: md`✅ *Поток завершён\\!* Обучение окончено\\.`,
         keyboard: {
           rows: [
             [
@@ -316,12 +308,11 @@ export class ViewStreamMentorStory extends ViewStreamStory {
     };
   }
 
-  async #handleArchive(streamId: string, actor: User): Promise<BotResponse> {
+  async #handleArchive(streamId: string, actor: User): Promise<DialogResponse> {
     await this.appApi.execute('archive-stream', { streamId }, actor.uuid);
     return {
-      sendMessage: {
-        text: '📁 *Поток перемещён в архив\\.*',
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: md`📁 *Поток перемещён в архив\\.*`,
         keyboard: {
           rows: [
             [

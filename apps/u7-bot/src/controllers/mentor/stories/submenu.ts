@@ -1,7 +1,8 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
-import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
+import type { MenuButton } from '@u7-scl/bot/u7-menu';
+import { md } from '@u7-scl/core/shared';
+import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import { buttons } from '../../shared/buttons';
 
@@ -15,12 +16,12 @@ export class SubmenuStory extends U7BotUiStory {
   async handleCallback(
     action: string,
     actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     if (!this.#isMentor(actor)) {
       return {
-        sendMessage: {
-          text: '⚠️ У вас нет доступа к инструментам ментора.',
+        screen: {
+          text: md`⚠️ У вас нет доступа к инструментам ментора\\.`,
         },
       };
     }
@@ -29,31 +30,23 @@ export class SubmenuStory extends U7BotUiStory {
       return this.#buildSubmenu();
     }
 
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+    return this.unknownCommand(action, actor, session);
   }
 
-  async handleMessage(
-    _update: BotUpdate,
-    _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return {
-      sendMessage: { text: '⚠️ Используйте кнопки меню для навигации.' },
-    };
-  }
-
-  override async handleStart(actor: User): Promise<MainMenuAction | null> {
+  override menuButtons(actor: User): MenuButton[] {
     if (this.#isMentor(actor)) {
-      return {
-        kind: 'callback',
-        text: '🛠️ Инструменты ментора',
-        action: this.cb('start'),
-        priority: 30,
-        description:
-          '🛠️ Инструменты ментора — управление потоками и мониторинг студентов',
-      };
+      return [
+        {
+          kind: 'callback',
+          text: '🛠️ Инструменты ментора',
+          action: this.cb('start'),
+          priority: 30,
+          description:
+            '🛠️ Инструменты ментора — управление потоками и мониторинг студентов',
+        },
+      ];
     }
-    return null;
+    return [];
   }
 
   // ── Приватные методы ──
@@ -64,11 +57,10 @@ export class SubmenuStory extends U7BotUiStory {
     );
   }
 
-  #buildSubmenu(): BotResponse {
+  #buildSubmenu(): DialogResponse {
     return {
-      sendMessage: {
-        text: '🛠️ *Инструменты ментора*',
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: md`🛠️ *Инструменты ментора*`,
         keyboard: {
           rows: [
             [{ text: '📋 Мои потоки', code: this.cbFor('my-streams', 'list') }],
