@@ -1,0 +1,7 @@
+Задача: Обновить styleguide bot-ui-story.md — раздел «Хелперы ответов»
+
+Сводка: добавлен раздел 5 «Хелперы ответов» в conductor/code_styleguides/skills/bot-ui-story.md — таблица девяти хелперов (screen/ask/notify/warn/note/go/kb/btn/btnUrl), правила выбора хелпер/спред/литерал, живые образцы из мигрированных стори (course-catalog — каталог с клавиатурой, create-stream — wizard-ask, view-stream — спред с release). Попутно актуализировано описание контракта DialogResponse в §4 (info.text → notify.text, screen/finalize/notify), разделы 5–7 перенумерованы в 6–8.
+
+Файлы: conductor/code_styleguides/skills/bot-ui-story.md
+
+Причина: ФР-5 спецификации трека bot-story-helpers — документировать новый паттерн построения ответов стори.
