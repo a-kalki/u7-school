@@ -10,27 +10,28 @@ import type {
 import { createTestApp, type TestApp } from '@u7-scl/test-helpers/test-app';
 import {
   createTestBotTransport,
+  pressedCode,
   type TestBotTransport,
 } from '@u7-scl/test-helpers/test-bot-transport';
 import { UserController } from '../../src/controllers/user/controller';
 import { registerGroupHandlers } from '../../src/handlers/group-handler';
 
 /**
- * E2E проактивов бездействия и ухода из учёбы (И3, контрак «Диалог и Экран»):
- *   1) предупреждение студенту (5+ дней) — notify-текст без кнопок
- *      с подсказкой /start;
- *   2) кандидат ментору (7+ дней, wasWarned) — notify-текст без кнопок;
+ * E2E проактивов бездействия и ухода из учёбы (контракт «Диалог и Экран»):
+ *   1) предупреждение студенту (5+ дней) — invite с кнопкой
+ *      «🚪 Покинуть учёбу» (самовыход, FR-4);
+ *   2) кандидат ментору (7+ дней, wasWarned) — invite с кнопкой
+ *      «⚠️ Снять с учёбы» (FR-5);
  *   3) student.abandoned → мягкий кик из TG-группы потока (FR-6);
- *   4) легаси-кнопка самовыхода → «Неизвестная команда» (callback-тупик);
+ *   4) нажатие кнопки самовыхода из invite → confirm-диалог → отмена;
  *   5) chat_member left активного студента → ментору «покинул группу»,
  *      статус студента не меняется (FR-7);
  *   6) mark-abandoned (UC) → abandoned + мягкий кик (FR-6);
  *   7) chat_member left выбывшего студента → уведомления нет (FR-7).
  *
- * Кнопочные сцены confirm (drop-student / mark-abandoned) удалены из
- * проактивов осознанно (И3): самовыход — через меню (трек learning),
- * снятие ментором — через monitor (трек mentor). Здесь они не
- * восстанавливаются; проактив — чистый notify-текст, сессию не трогает.
+ * Кнопочные проактивы восстановлены треком mentor (решение владельца,
+ * ревью трека 3): канал invite — получателю без открытого диалога
+ * открывается экран app/invite (seq=1), кнопки штампуются и валидны.
  * Текстовые уведомления UC (drop-student / mark-abandoned) доставляются
  * через userFacade.notify — механизм покрыт user-notify e2e.
  *
@@ -195,7 +196,7 @@ describe('E2E: проактивы бездействия (трек student-inact
     await stand.app.cleanup();
   });
 
-  test('warning (5 дней) → студенту notify-текст без кнопок, подсказка /start', async () => {
+  test('warning (5 дней) → студенту invite с кнопкой «🚪 Покинуть учёбу»', async () => {
     const { app, transport } = stand;
     transport.reset();
 
@@ -206,16 +207,17 @@ describe('E2E: проактивы бездействия (трек student-inact
     expect(text).toContain('Учёба стоит');
     expect(text).toContain('5 дней');
     expect(text).toContain('снять тебя с учёбы');
-    // И3: получателю без открытого диалога подсказан /start
-    expect(text).toContain('/start');
-    // Проактив — реплика без клавиатуры: экран и сессию не трогает
+    expect(text).not.toContain('/start');
+    // Кнопочный проактив: экран invite с единственной кнопкой самовыхода
     const msg = transport.api.sentMessages.find(
       (m) => m.telegramId === STUDENT_TG,
     );
-    expect(msg?.keyboard).toBeUndefined();
+    const btn = msg?.keyboard?.rows.flat()[0];
+    expect(btn?.text).toBe('🚪 Покинуть учёбу');
+    expect(btn?.code).toStartWith('stream:inactivity:drop-student:');
   });
 
-  test('candidate (7 дней, wasWarned) → ментору notify без кнопок', async () => {
+  test('candidate (7 дней, wasWarned) → ментору invite с кнопкой «⚠️ Снять с учёбы»', async () => {
     const { app, transport } = stand;
     transport.reset();
 
@@ -229,12 +231,14 @@ describe('E2E: проактивы бездействия (трек student-inact
     expect(text).toContain('JS Core — Поток 2');
     expect(text).toContain('не занимался 7 дней');
     expect(text).toContain('Уведомления были ранее отправлены');
-    expect(text).toContain('/start');
-    // Без кнопок: confirm-сцена снятия ушла в monitor (долг трека mentor)
+    expect(text).not.toContain('Действия по студенту');
+    // Кнопка снятия ведёт в confirm-сцену этой же стори
     const msg = transport.api.sentMessages.find(
       (m) => m.telegramId === MENTOR_TG,
     );
-    expect(msg?.keyboard).toBeUndefined();
+    const btn = msg?.keyboard?.rows.flat()[0];
+    expect(btn?.text).toBe('⚠️ Снять с учёбы');
+    expect(btn?.code).toStartWith('stream:inactivity:mark-abandoned:');
   });
 
   test('student.abandoned → мягкий кик из группы потока (FR-6)', async () => {
@@ -250,26 +254,37 @@ describe('E2E: проактивы бездействия (трек student-inact
     expect(kick?.unbanned).toBe(true);
   });
 
-  test('легаси-кнопка самовыхода → «Неизвестная команда», без падений (И3)', async () => {
-    const { transport } = stand;
+  test('нажатие кнопки самовыхода из invite → confirm-диалог → отмена (FR-4)', async () => {
+    const { app, transport } = stand;
     transport.reset();
 
-    // /start: диалог seq=1 — косвенно подтверждает, что проактивы выше
-    // сессию студента не трогали (иначе штамп не совпал бы)
-    const startResp = await transport.handleStart(
-      transport.makeBotContext(STUDENT_TG),
-    );
-    expect(startResp.screen?.text).toContain('Привет');
+    // Предупреждение приносит экран invite студенту (seq=1)
+    publishWarning(app, 5);
+    await waitMessageFor(transport, STUDENT_TG);
 
-    // Кнопка «Покинуть учёбу» из истории чата: код по форме валиден,
-    // штамп совпадает с seq, но действия drop-student больше нет —
-    // тупик без падений, экраном «Неизвестная команда»
-    const legacyResp = await transport.handleCallback(
+    // Нажимаем отштампованную кнопку из invite
+    const msg = transport.api.sentMessages.find(
+      (m) => m.telegramId === STUDENT_TG,
+    );
+    const code = msg?.keyboard?.rows.flat()[0]?.code;
+    expect(code).toBeDefined();
+
+    const confirmResp = await transport.handleCallback(
+      transport.makeBotContext(STUDENT_TG, { callbackData: code! }),
+    );
+    expect(String(confirmResp.screen?.text)).toContain('Покинуть учёбу?');
+    const cancelBtn = confirmResp.screen?.keyboard?.rows
+      .flat()
+      .find((b) => b.text === '❌ Остаться');
+    expect(cancelBtn?.code).toBe('app:main-menu');
+
+    // Отмена → главное меню (нажатие — отштампованной кнопкой)
+    const menuResp = await transport.handleCallback(
       transport.makeBotContext(STUDENT_TG, {
-        callbackData: 'stream:inactivity:drop-student:~1',
+        callbackData: pressedCode(transport, STUDENT_TG, 'Остаться'),
       }),
     );
-    expect(legacyResp.screen?.text).toContain('Неизвестная команда');
+    expect(String(menuResp.screen?.text)).toContain('Выберите действие');
   });
 });
 

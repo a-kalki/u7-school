@@ -8,26 +8,29 @@ import type {
 import { eventSubscription } from '@u7-scl/core/ui';
 import type {
   Stream,
+  Student,
   StudentAbandonedEvent,
   StudentInactivityRemoveCandidateEvent,
   StudentInactivityWarningEvent,
 } from '@u7-scl/stream/domain';
 import { U7BotUiStory } from '../../../core/u7-bot-ui-story';
+import { Routes } from '../../shared/routes';
 
 /**
  * Проактивные уведомления о бездействии и уходе из учёбы.
  *
  * Подписки на события job'а inactivity-sweep и агрегата Student:
- * - student.inactivity-warning (5+ дней) → студенту предупреждение;
+ * - student.inactivity-warning (5+ дней) → студенту предупреждение
+ *   с кнопкой «🚪 Покинуть учёбу» (самовыход, FR-4);
  * - student.inactivity-remove-candidate (7+ дней) → ментору потока
- *   «Студент A из группы B не занимался N дней» (+ строка о ранее
- *   отправленных предупреждениях);
+ *   «Студент A из группы B не занимался N дней» с кнопкой
+ *   «⚠️ Снять с учёбы» (FR-5, cause=inactivity);
  * - student.abandoned → мягкий кик из TG-группы потока.
  *
- * И3: проактив — notify-текст без кнопок, сессию получателя не трогает;
- * получателю без открытого диалога в тексте подсказан /start.
- * Кнопочные сценарии ушли из проактивов: самовыход — через меню (self-drop,
- * трек 3), снятие ментором — через monitor (трек 5).
+ * Кнопочные проактивы идут каналом invite (решение владельца, ревью
+ * трека 3): получателю без открытого диалога открывается экран «invite»,
+ * кнопки штампуются и валидны. Нажатие обрабатывает handleCallback:
+ * confirm-диалог → UC drop-student / mark-abandoned.
  * Текстовые уведомления (#3/#4) отправляют UC drop-student /
  * mark-abandoned через userFacade.notify (трек user-notify).
  */
@@ -56,19 +59,27 @@ export class InactivityStory extends U7BotUiStory {
   async #handleWarningEvent(
     event: StudentInactivityWarningEvent,
   ): Promise<void> {
-    const { telegramId, daysInactive } = event.payload;
+    const { telegramId, studentId, daysInactive } = event.payload;
 
-    await this.proactiveSender.notify(telegramId, {
+    await this.proactiveSender.invite(telegramId, {
       text: mdJoin([
         md`⏳ *Учёба стоит*`,
         md``,
         md`Ты не занимаешься уже ${this.#pluralizeDays(daysInactive)}\\.`,
         md``,
         md`Если бездействие продлится больше недели, ментор может снять тебя с учёбы за бездействие\\.`,
-        md``,
-        md`Меню бота: /start`,
       ]),
-      kind: 'notify',
+      keyboard: {
+        rows: [
+          [
+            {
+              text: '🚪 Покинуть учёбу',
+              code: Routes.stream.inactivityDrop(studentId),
+            },
+          ],
+        ],
+        isMultiple: false,
+      },
     });
   }
 
@@ -76,8 +87,14 @@ export class InactivityStory extends U7BotUiStory {
   async #handleCandidateEvent(
     event: StudentInactivityRemoveCandidateEvent,
   ): Promise<void> {
-    const { mentorTelegramId, userId, streamId, daysInactive, wasWarned } =
-      event.payload;
+    const {
+      mentorTelegramId,
+      studentId,
+      userId,
+      streamId,
+      daysInactive,
+      wasWarned,
+    } = event.payload;
 
     const [studentName, streamTitle] = await Promise.all([
       this.#resolveName(userId),
@@ -92,11 +109,20 @@ export class InactivityStory extends U7BotUiStory {
     if (wasWarned) {
       lines.push(md``, md`ℹ️ Уведомления были ранее отправлены студенту\\.`);
     }
-    lines.push(md``, md`Действия по студенту — в меню: /start`);
 
-    await this.proactiveSender.notify(mentorTelegramId, {
+    await this.proactiveSender.invite(mentorTelegramId, {
       text: mdJoin(lines),
-      kind: 'notify',
+      keyboard: {
+        rows: [
+          [
+            {
+              text: '⚠️ Снять с учёбы',
+              code: Routes.stream.inactivityMarkAbandoned(studentId),
+            },
+          ],
+        ],
+        isMultiple: false,
+      },
     });
   }
 
@@ -114,16 +140,137 @@ export class InactivityStory extends U7BotUiStory {
 
   // ── Callback ──
 
-  /** Кнопочных сценариев больше нет (И3) — любое нажатие ничего не делает. */
+  /**
+   * Кнопки канала invite (FR-4 самовыход / FR-5 снятие ментором):
+   * confirm-диалог → UC drop-student / mark-abandoned.
+   */
   async handleCallback(
     action: string,
     actor: User,
     session: BotSession,
   ): Promise<DialogResponse> {
+    const [cmd, id] = action.split(':');
+
+    // Самовыход: confirm → drop-student (FR-4)
+    if (cmd === 'drop-student' && id) {
+      return this.confirm(
+        'drop-student',
+        id,
+        md`Покинуть учёбу?\n\nПрогресс сохранится, но ментор больше не будет тебя сопровождать\\.`,
+        {
+          confirmButton: '🚪 Да, покинуть',
+          cancelButton: '❌ Остаться',
+          cancelCode: Routes.app.mainMenu,
+        },
+      );
+    }
+    if (cmd === 'drop-student-confirm' && id) {
+      return this.#executeDrop(id, actor);
+    }
+
+    // Снятие с учёбы ментором: confirm → mark-abandoned (FR-5)
+    if (cmd === 'mark-abandoned' && id) {
+      const student = await this.#getStudent(id, actor);
+      if (!student) {
+        return { screen: { text: md`⚠️ Запись студента не найдена` } };
+      }
+      const name = await this.#resolveName(student.userId);
+      return this.confirm(
+        'mark-abandoned',
+        id,
+        md`Снять студента *${name}* с учёбы за бездействие?\n\nСтудент будет исключён из группы потока и получит уведомление\\.`,
+        {
+          confirmButton: '⚠️ Да, снять с учёбы',
+          cancelButton: '❌ Отмена',
+          cancelCode: Routes.app.mainMenu,
+        },
+      );
+    }
+    if (cmd === 'mark-abandoned-confirm' && id) {
+      return this.#executeMarkAbandoned(id, actor);
+    }
+
     return this.unknownCommand(action, actor, session);
   }
 
   // ── Приватные методы ──
+
+  /** Самовыход студента (FR-4): UC drop-student + прощание. */
+  async #executeDrop(studentId: string, actor: User): Promise<DialogResponse> {
+    const student = await this.#getStudent(studentId, actor);
+    if (!student) {
+      return { screen: { text: md`⚠️ Запись студента не найдена` } };
+    }
+
+    try {
+      await this.appApi.execute(
+        'drop-student',
+        { streamId: student.streamId, studentId },
+        actor.uuid,
+      );
+    } catch (err: unknown) {
+      return this.handleError(err);
+    }
+
+    return {
+      screen: {
+        text: md`Ты покинул учёбу\\. Жаль, что не сложилось — возвращайся, когда будешь готов\\!`,
+        keyboard: {
+          rows: [[{ text: '⬅️ В меню', code: Routes.app.mainMenu }]],
+          isMultiple: false,
+        },
+      },
+    };
+  }
+
+  /** Снятие ментором за бездействие (FR-5): UC mark-abandoned. */
+  async #executeMarkAbandoned(
+    studentId: string,
+    actor: User,
+  ): Promise<DialogResponse> {
+    const student = await this.#getStudent(studentId, actor);
+    if (!student) {
+      return { screen: { text: md`⚠️ Запись студента не найдена` } };
+    }
+
+    try {
+      await this.appApi.execute(
+        'mark-abandoned',
+        {
+          streamId: student.streamId,
+          studentId,
+          cause: 'inactivity' as const,
+        },
+        actor.uuid,
+      );
+    } catch (err: unknown) {
+      return this.handleError(err);
+    }
+
+    const name = await this.#resolveName(student.userId);
+
+    return {
+      screen: {
+        text: md`✅ Студент *${name}* снят с учёбы за бездействие и исключён из группы потока\\.`,
+      },
+    };
+  }
+
+  /** Запись студента (streamId для команды UC); недоступна — undefined. */
+  async #getStudent(
+    studentId: string,
+    actor: User,
+  ): Promise<Student | undefined> {
+    try {
+      return await this.appApi.execute(
+        'get-student-progress',
+        { studentId },
+        actor.uuid,
+      );
+    } catch {
+      return undefined;
+    }
+  }
 
   /** Имя пользователя по uuid (fallback — первые 8 символов id). */
   async #resolveName(userId: string): Promise<string> {

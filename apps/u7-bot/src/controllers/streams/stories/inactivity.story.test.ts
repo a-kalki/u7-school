@@ -1,7 +1,11 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import { assertMarkdownV2Safe } from '@u7-scl/core/shared';
-import type { BotSession, NotificationPayload } from '@u7-scl/core/ui';
+import { assertMarkdownV2Safe, type MdText } from '@u7-scl/core/shared';
+import type {
+  BotSession,
+  DialogResponse,
+  NotificationPayload,
+} from '@u7-scl/core/ui';
 import { assertDialogResponseMarkdownSafe } from '@u7-scl/core/ui';
 import type {
   Stream,
@@ -106,11 +110,26 @@ function makeAbandonedEvent(
 function setupStory(opts: { streamOverrides?: Partial<Stream> } = {}): {
   story: InactivityStory;
   notifies: Array<{ telegramId: number; payload: NotificationPayload }>;
+  invites: Array<{
+    telegramId: number;
+    payload: {
+      text: MdText;
+      keyboard: { rows: Array<Array<{ text: string; code: string }>> };
+    };
+  }>;
   kicks: Array<{ groupId: number | string; userId: number }>;
+  execute: ReturnType<typeof mock>;
 } {
   const notifies: Array<{
     telegramId: number;
     payload: NotificationPayload;
+  }> = [];
+  const invites: Array<{
+    telegramId: number;
+    payload: {
+      text: MdText;
+      keyboard: { rows: Array<Array<{ text: string; code: string }>> };
+    };
   }> = [];
   const kicks: Array<{ groupId: number | string; userId: number }> = [];
   const execute = mock(
@@ -123,6 +142,18 @@ function setupStory(opts: { streamOverrides?: Partial<Stream> } = {}): {
       if (name === 'get-stream') {
         return { ...stream, ...opts.streamOverrides };
       }
+      if (name === 'get-student-progress') {
+        const sid = params?.studentId as string;
+        if (sid === 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa') {
+          return {
+            uuid: sid,
+            userId: STUDENT_USER_ID,
+            streamId: STREAM_ID,
+            status: 'active',
+          };
+        }
+        return undefined;
+      }
       return undefined;
     },
   );
@@ -134,13 +165,24 @@ function setupStory(opts: { streamOverrides?: Partial<Stream> } = {}): {
       notify: mock(async (telegramId: number, payload: NotificationPayload) => {
         notifies.push({ telegramId, payload });
       }),
+      invite: mock(
+        async (
+          telegramId: number,
+          payload: {
+            text: MdText;
+            keyboard: { rows: Array<Array<{ text: string; code: string }>> };
+          },
+        ) => {
+          invites.push({ telegramId, payload });
+        },
+      ),
       kickFromGroup: mock(async (groupId: number | string, userId: number) => {
         kicks.push({ groupId, userId });
       }),
     },
   } as unknown);
 
-  return { story, notifies, kicks };
+  return { story, notifies, invites, kicks, execute };
 }
 
 /** Достаёт обработчик подписки по имени события */
@@ -173,25 +215,34 @@ describe('InactivityStory', () => {
 
   // ── Предупреждение студенту (FR-1, 5+ дней) ──
 
-  test('warning → студенту notify-текст о N днях с подсказкой /start', async () => {
-    const { story, notifies } = setupStory();
+  test('warning → студенту invite с кнопкой «🚪 Покинуть учёбу»', async () => {
+    const { story, invites, notifies } = setupStory();
 
     await subHandler(
       story,
       'student.inactivity-warning',
     )(makeWarningEvent() as never);
 
-    expect(notifies).toHaveLength(1);
-    expect(notifies[0]?.telegramId).toBe(1003);
-    const text = String(notifies[0]?.payload.text);
+    // Кнопочный проактив — канал invite (не notify)
+    expect(notifies).toHaveLength(0);
+    expect(invites).toHaveLength(1);
+    expect(invites[0]?.telegramId).toBe(1003);
+    const text = String(invites[0]?.payload.text);
     expect(text).toContain('5 дней');
     expect(text).toContain('снять тебя с учёбы');
-    // И3: проактив не открывает диалог — подсказка /start
-    expect(text).toContain('/start');
+    expect(text).not.toContain('/start');
+    // Кнопка самовыхода: в drop-student confirm этой же стори
+    const btns = invites[0]?.payload.keyboard.rows.flat() ?? [];
+    expect(btns).toHaveLength(1);
+    expect(btns[0]?.text).toBe('🚪 Покинуть учёбу');
+    // Полный путь (кросс-диалоговый invite-канал, как в Routes.stream)
+    expect(btns[0]?.code).toBe(
+      'stream:inactivity:drop-student:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    );
   });
 
   test('warning: текст валиден для MarkdownV2', async () => {
-    const { story, notifies } = setupStory();
+    const { story, invites } = setupStory();
 
     await subHandler(
       story,
@@ -199,45 +250,55 @@ describe('InactivityStory', () => {
     )(makeWarningEvent() as never);
 
     expect(() =>
-      assertMarkdownV2Safe(String(notifies[0]?.payload.text)),
+      assertMarkdownV2Safe(String(invites[0]?.payload.text)),
     ).not.toThrow();
   });
 
   // ── Уведомление ментору (FR-1, 7+ дней) ──
 
-  test('candidate → ментору «не занимался N дней», без кнопок', async () => {
-    const { story, notifies } = setupStory();
+  test('candidate → ментору invite с кнопкой «⚠️ Снять с учёбы»', async () => {
+    const { story, invites, notifies } = setupStory();
 
     await subHandler(
       story,
       'student.inactivity-remove-candidate',
     )(makeCandidateEvent() as never);
 
-    expect(notifies).toHaveLength(1);
-    expect(notifies[0]?.telegramId).toBe(1004);
-    const text = String(notifies[0]?.payload.text);
+    // Кнопочный проактив — канал invite (не notify)
+    expect(notifies).toHaveLength(0);
+    expect(invites).toHaveLength(1);
+    expect(invites[0]?.telegramId).toBe(1004);
+    const text = String(invites[0]?.payload.text);
     // доменные данные экранированы md-интерполяцией — литерал без спецсимволов
     expect(text).toContain('Иван Студент');
     expect(text).toContain('JS Core — Поток 2');
     expect(text).toContain('7 дней');
     expect(text).not.toContain('ранее отправлены');
+    expect(text).not.toContain('Действия по студенту');
+    // Кнопка снятия: в mark-abandoned confirm этой же стори
+    const btns = invites[0]?.payload.keyboard.rows.flat() ?? [];
+    expect(btns).toHaveLength(1);
+    expect(btns[0]?.text).toBe('⚠️ Снять с учёбы');
+    expect(btns[0]?.code).toBe(
+      'stream:inactivity:mark-abandoned:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    );
   });
 
   test('candidate с wasWarned → строка «уведомления были ранее отправлены»', async () => {
-    const { story, notifies } = setupStory();
+    const { story, invites } = setupStory();
 
     await subHandler(
       story,
       'student.inactivity-remove-candidate',
     )(makeCandidateEvent({ wasWarned: true }) as never);
 
-    const text = String(notifies[0]?.payload.text);
+    const text = String(invites[0]?.payload.text);
     expect(text).toContain('Уведомления были ранее отправлены');
     expect(() => assertMarkdownV2Safe(text)).not.toThrow();
   });
 
   test('candidate: имя не резолвится → fallback, первые 8 символов userId', async () => {
-    const { story, notifies } = setupStory();
+    const { story, invites } = setupStory();
 
     await subHandler(
       story,
@@ -248,7 +309,7 @@ describe('InactivityStory', () => {
       }) as never,
     );
 
-    const text = String(notifies[0]?.payload.text);
+    const text = String(invites[0]?.payload.text);
     expect(text).toContain('99999999');
     expect(() => assertMarkdownV2Safe(text)).not.toThrow();
   });
@@ -294,23 +355,157 @@ describe('InactivityStory', () => {
     expect(kicks).toHaveLength(0);
   });
 
-  // ── Callback: кнопочных сценариев больше нет (И3) ──
+  // ── Callback: восстановленные кнопочные сценарии (FR-4/FR-5) ──
 
-  test('callback (любой action) → «Неизвестная команда», экран без действий', async () => {
+  const SESSION = {
+    dialog: { path: 'streams/inactivity', seq: 1 },
+  } as BotSession;
+
+  function buttonCodes(
+    response: DialogResponse,
+  ): Array<{ text: string; code: string }> {
+    return response.screen?.keyboard?.rows.flat() ?? [];
+  }
+
+  test('drop-student: confirm-диалог «Покинуть учёбу?» с возвратом в меню', async () => {
     const { story } = setupStory();
-    const session = {
-      dialog: { path: 'stream/inactivity', seq: 1 },
-    } as BotSession;
 
     const response = await story.handleCallback(
-      `drop-student:x`,
+      `drop-student:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa`,
       student,
-      session,
+      SESSION,
     );
 
     assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain('Покинуть учёбу?');
+    expect(String(response.screen?.text)).toContain('Прогресс сохранится');
+    const btns = buttonCodes(response);
+    expect(btns).toEqual([
+      {
+        text: '🚪 Да, покинуть',
+        code: 'inactivity:drop-student-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      },
+      { text: '❌ Остаться', code: 'app:main-menu' },
+    ]);
+  });
+
+  test('drop-student-confirm: UC drop-student + прощание и выход в меню', async () => {
+    const { story, execute } = setupStory({
+      streamOverrides: { telegramGroupId: GROUP_ID },
+    });
+
+    const response = await story.handleCallback(
+      `drop-student-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa`,
+      student,
+      SESSION,
+    );
+
+    assertDialogResponseMarkdownSafe(response);
+    expect(execute).toHaveBeenCalledWith(
+      'drop-student',
+      {
+        streamId: STREAM_ID,
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      },
+      student.uuid,
+    );
+    expect(String(response.screen?.text)).toContain('Ты покинул учёбу');
+    expect(buttonCodes(response)).toEqual([
+      { text: '⬅️ В меню', code: 'app:main-menu' },
+    ]);
+  });
+
+  test('mark-abandoned: confirm-диалог снятия с возвратом в меню', async () => {
+    const { story, execute } = setupStory();
+
+    const response = await story.handleCallback(
+      `mark-abandoned:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa`,
+      student,
+      SESSION,
+    );
+
+    assertDialogResponseMarkdownSafe(response);
+    expect(execute).toHaveBeenCalledWith(
+      'get-student-progress',
+      { studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' },
+      student.uuid,
+    );
+    expect(String(response.screen?.text)).toContain(
+      'Снять студента *Иван Студент*',
+    );
+    expect(String(response.screen?.text)).toContain(
+      'исключён из группы потока',
+    );
+    const btns = buttonCodes(response);
+    expect(btns).toEqual([
+      {
+        text: '⚠️ Да, снять с учёбы',
+        code: 'inactivity:mark-abandoned-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      },
+      { text: '❌ Отмена', code: 'app:main-menu' },
+    ]);
+  });
+
+  test('mark-abandoned: студент не найден — экран «Запись студента не найдена»', async () => {
+    const { story } = setupStory();
+
+    const response = await story.handleCallback(
+      `mark-abandoned:bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb`,
+      student,
+      SESSION,
+    );
+
+    expect(String(response.screen?.text)).toContain(
+      'Запись студента не найдена',
+    );
+  });
+
+  test('mark-abandoned-confirm: UC mark-abandoned cause=inactivity + реплика результата', async () => {
+    const { story, execute } = setupStory();
+
+    const response = await story.handleCallback(
+      `mark-abandoned-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa`,
+      student,
+      SESSION,
+    );
+
+    assertDialogResponseMarkdownSafe(response);
+    expect(execute).toHaveBeenCalledWith(
+      'mark-abandoned',
+      {
+        streamId: STREAM_ID,
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+        cause: 'inactivity',
+      },
+      student.uuid,
+    );
+    expect(String(response.screen?.text)).toContain(
+      'снят с учёбы за бездействие и исключён из группы потока',
+    );
+    expect(buttonCodes(response)).toEqual([]);
+  });
+
+  test('drop-student-confirm: ошибка UC — экран ошибки с выходом в меню', async () => {
+    const { story } = setupStory();
+    // get-student-progress для несуществующего студента бросает —
+    // #getStudent возвращает undefined → экран «не найдена» (без UC-вызова)
+    const response = await story.handleCallback(
+      `drop-student-confirm:bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb`,
+      student,
+      SESSION,
+    );
+
+    expect(String(response.screen?.text)).toContain(
+      'Запись студента не найдена',
+    );
+  });
+
+  test('неизвестный action — экран «Неизвестная команда»', async () => {
+    const { story } = setupStory();
+
+    const response = await story.handleCallback('wat:123', student, SESSION);
+
+    assertDialogResponseMarkdownSafe(response);
     expect(String(response.screen?.text)).toContain('Неизвестная команда');
-    // диалог не тронут
-    expect(session.dialog?.seq).toBe(1);
   });
 });
