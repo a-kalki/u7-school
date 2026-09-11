@@ -4,8 +4,8 @@
 
 ## Фаза 1: Mentor-стори
 
-- [~] Task: **Инвентаризация кнопок/реплик** всех mentor-стори из `ui-spec.md` и кода → зафиксировать в падающих тестах с точными keyboard-ассертами; протокол «миграция без потери функциональности» — решение владельца, ревью трека 3 (см. spec)
-- [ ] Task: Написать падающие тесты submenu, my-streams, view-stream-mentor, create-stream, activate-stream, monitor на `DialogResponse` (включая delegate monitor→students); команды — дефолт pipe, ошибки — `errorNotify`
+- [x] Task: **Инвентаризация кнопок/реплик** всех mentor-стори из `ui-spec.md` и кода → зафиксировать в падающих тестах с точными keyboard-ассертами; протокол «миграция без потери функциональности» — решение владельца, ревью трека 3 (см. spec) [e40280d2]
+- [x] Task: Написать падающие тесты submenu, my-streams, view-stream-mentor, create-stream, activate-stream, monitor на `DialogResponse` (включая delegate monitor→students); команды — дефолт pipe, ошибки — `errorNotify` [e40280d2]
 - [ ] Task: **Убедиться, что «⚠️ Снять с учёбы» (mark-abandoned, cause=inactivity, FR-5) доступен ментору без проактива:** точка входа в monitor (карточка студента) с confirm-диалогом — ex-кнопка проактива inactivity, удалённая треком bot-ui-dialog-nav [7034c7e]; приёмка — сценарий снятия проходит из monitor, студент исключён из TG-группы (FR-6), реплика «✅ Студент снят с учёбы…» доставляется
 - [ ] Task: Мигрировать тесты домена: e2e `mentor-management`, integration `tests/mentor/mentor.integration.test.ts` — на `DialogResponse` (тест-стенд `tests/helpers/test-bot-transport.ts` уже на новом контракте — мигрирован треком bot-ui-dialog-nav [6e1147a4], хелперы нажатий готовы: `pressedCode`/`stampedCode` [94fa7a1e])
 - [ ] Task: Перевести все mentor-стори
