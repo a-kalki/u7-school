@@ -10,32 +10,40 @@ import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
-import { assertBotResponseValid, type BotResponse } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
 import { createTestApp } from '@u7-scl/test-helpers/test-app';
-import type { SentMessage } from '@u7-scl/test-helpers/test-bot-transport';
+import type {
+  SentMessage,
+  TestBotTransport,
+} from '@u7-scl/test-helpers/test-bot-transport';
 import {
   createTestBotTransport,
-  type TestBotTransport,
+  pressedCode,
+  screensNewFirst,
 } from '@u7-scl/test-helpers/test-bot-transport';
 import { QuestionnaireController } from '../../src/controllers/questionnaire/controller';
 
 /**
- * E2E: UX анкет (spec FR-1/FR-2) и takeover-перехват ввода (spec FR-5).
+ * E2E: UX анкет (spec FR-1/FR-2) и приглашения продолжить (spec FR-5,
+ * вариант A — кнопка-мост вместо takeover-предупреждения).
  *
  * Уровень Telegram: проверяются РЕАЛЬНЫЕ вызовы sendMessage/editMessageText —
- * маркеры вопросов, удаление клавиатур, предупреждающая строка takeover.
- * Пул анкетного курса (3 вопроса): Q1 radio → Q2 text → Q3 multiple.
+ * финализация вопросов (маркеры, снятие клавиатур), тогглы на месте,
+ * приглашения канала invite. Нажатия — отштампованными кодами из Api-записей
+ * (как реальный клиент). Пул анкетного курса (3 вопроса):
+ * Q1 radio → Q2 text → Q3 multiple.
  */
 
 const QUESTIONNAIRE_COURSE_ID = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
 const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
+// Поток с кодовым словом (enroll-key) — «чужой» флоу в сценарии приглашения
+const ENROLL_KEY_STREAM = 'e4e4e4e4-e4e4-e4e4-e4e4-e4e4e4e4e4e4';
 
 describe('Questionnaire UX (e2e)', () => {
   let app: TestApp;
   let transport: TestBotTransport;
   // Отдельный пользователь на тест: apply выдаёт одну активную анкету на курс.
-  // fillGuest — для takeover-теста: GUEST (видит «Записаться» в карточке потока).
+  // fillGuest — для сценария приглашения: GUEST (видит «Записаться» в карточке потока).
   let guest: User;
   let candidate: User;
   let student: User;
@@ -94,69 +102,101 @@ describe('Questionnaire UX (e2e)', () => {
     );
   }
 
-  function click(
+  /**
+   * Ждёт экран с текстом (send или edit): drill-down внутри одной стори
+   * рендерится edit'ом на месте (seq не растёт) — сообщения может не быть.
+   */
+  function waitForScreen(
     tgId: number,
-    msg:
-      | {
-          keyboard?: { rows: { text: string; code: string }[][] };
-          sendMessage?: {
-            keyboard?: { rows: { text: string; code: string }[][] };
-          };
-        }
-      | undefined,
-    buttonText: string,
-  ): Promise<BotResponse | null> {
-    const kb = msg?.keyboard ?? msg?.sendMessage?.keyboard;
-    const btn = kb?.rows.flat().find((b) => b.text === buttonText);
-    expect(btn, `Кнопка «${buttonText}» не найдена`).toBeDefined();
-    return transport.handleCallback(
-      transport.makeBotContext(tgId, { callbackData: btn!.code }),
-    );
+    textContains: string,
+  ): Promise<SentMessage | (typeof transport.api.editedMessages)[number]> {
+    return waitFor(`экран «${textContains}»`, () => {
+      const edited = transport.api.editedMessages.find(
+        (e) => e.telegramId === tgId && e.text.includes(textContains),
+      );
+      if (edited) return edited;
+      return transport.api.sentMessages.find(
+        (m) => m.telegramId === tgId && m.text.includes(textContains),
+      );
+    });
   }
 
-  function applyQuestionnaire(tgId: number): Promise<BotResponse | null> {
+  /** Клик по кнопке с текстом (код — отштампованный, из Api-записи). */
+  function click(tgId: number, buttonText: string): Promise<unknown> {
     return transport.handleCallback(
       transport.makeBotContext(tgId, {
-        callbackData: `course:course-catalog:apply:${QUESTIONNAIRE_COURSE_ID}`,
+        callbackData: pressedCode(transport, tgId, buttonText),
       }),
     );
   }
 
-  function activeHandler(tgId: number): string | null {
-    return transport.sessionMap.get(tgId)?.activeHandler?.path ?? null;
+  /**
+   * apply-кнопка анкетного курса из каталога: ряд
+   * [«<эмодзи> Тест. Курс…», «🎓 Хочу пройти курс»] — у каждого курса свой
+   * apply, ищем ряд по названию курса.
+   */
+  function applyCode(tgId: number): string {
+    for (const screen of screensNewFirst(transport, tgId)) {
+      const row = screen.keyboard?.rows.find(
+        (r) =>
+          r[0]?.text.includes('Тест. Курс') &&
+          r[1]?.text.includes('Хочу пройти курс'),
+      );
+      if (row) return row[1]!.code;
+    }
+    throw new Error('apply-кнопка анкетного курса не найдена — открой каталог');
+  }
+
+  /** /start → «Программы курсов» (уровень 0 с apply-кнопками). */
+  async function openCatalog(tgId: number): Promise<void> {
+    await transport.handleStart(transport.makeBotContext(tgId));
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Программы курсов'),
+      }),
+    );
   }
 
   /**
-   * Вход в анкету: apply → проактивный Q1.
+   * Вход в анкету: каталог → apply → приглашение «заполнить анкету»
+   * (вариант A: сервер только зовёт) → кнопка-мост → Q1.
    * Возвращает сообщение Q1 (radio, кнопки 1/2/3).
    */
   async function startQuestionnaire(tgId: number): Promise<SentMessage> {
-    await applyQuestionnaire(tgId);
+    await openCatalog(tgId);
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, { callbackData: applyCode(tgId) }),
+    );
+
+    const invite = await waitForSent(tgId, 'Для вас подготовлена анкета');
+    const fillBtn = invite.keyboard?.rows
+      .flat()
+      .find((b) => b.text === '▶️ Заполнить анкету');
+    expect(fillBtn, 'Кнопка «▶️ Заполнить анкету» не найдена').toBeDefined();
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, { callbackData: fillBtn!.code }),
+    );
+
     const q1 = await waitForSent(tgId, 'Вопрос 1 из 3');
     expect(q1.keyboard?.rows[0]?.map((b) => b.text)).toEqual(['1', '2', '3']);
     return q1;
   }
 
-  // ── FR-1: radio — маркер (x), клавиатура удалена, история сохраняется ──
+  // ── FR-1: radio — финализация (маркер, клавиатура снята), история живёт ──
 
-  test('radio: выбор → editMessage с маркером (x) и БЕЗ клавиатуры → новый вопрос новым сообщением', async () => {
+  test('radio: выбор → финализация Q1 с маркером (x) и БЕЗ клавиатуры → новый вопрос новым сообщением', async () => {
     const q1 = await startQuestionnaire(guest.telegramId);
     expect(q1.messageId).toBeDefined();
 
     // Выбор «2» → Q2 (text) новым сообщением
-    await click(guest.telegramId, q1, '2');
+    await click(guest.telegramId, '2');
     const q2 = await waitForSent(guest.telegramId, 'Вопрос 2 из 3');
-    assertBotResponseValid({
-      sendMessage: {
-        text: q2.text,
-        keyboard: q2.keyboard,
-        parseMode: q2.parseMode,
-      },
-    });
+    expect(q2.text).toContain('Опиши свою цель');
+    expect(q2.keyboard).toBeUndefined();
 
     // История: Q1 отредактирован, а не заменён — тот же messageId.
-    // ВАЖНО: берём ПОСЛЕДНИЙ edit — раньше мог пройти штатное снятие
-    // клавиатуры пустым ответом apply (гонка с проактивной отправкой).
+    // Берём ПОСЛЕДНИЙ edit — раньше могло пройти снятие клавиатуры экрана
+    // каталога (retire при смене диалога).
     const edits = transport.api.editedMessages.filter(
       (e) => e.telegramId === guest.telegramId && e.messageId === q1.messageId,
     );
@@ -166,7 +206,7 @@ describe('Questionnaire UX (e2e)', () => {
     // Маркер radio: (x) у выбранного, ( ) у остальных
     expect(q1Edit.text).toContain('\\(x\\)');
     expect(q1Edit.text).toContain('\\( \\)');
-    // Клавиатура удалена
+    // Клавиатура снята (finalize гасит экран вопроса)
     expect(q1Edit.keyboard).toBeUndefined();
   });
 
@@ -175,7 +215,7 @@ describe('Questionnaire UX (e2e)', () => {
   test('multiple: тоггл редактирует на месте (клавиатура жива), «Далее» появляется/исчезает', async () => {
     // Дойти до Q3 (multiple)
     const q1 = await startQuestionnaire(candidate.telegramId);
-    await click(candidate.telegramId, q1, '2');
+    await click(candidate.telegramId, '2');
     await transport.handleMessage(
       transport.makeBotContext(candidate.telegramId, { text: 'Цель' }),
     );
@@ -185,7 +225,7 @@ describe('Questionnaire UX (e2e)', () => {
     expect(q3.messageId).toBeDefined();
 
     // Тоггл «1» → editMessage того же сообщения (messageId совпадает)
-    await click(candidate.telegramId, q3, '1');
+    await click(candidate.telegramId, '1');
     const toggleEdit = await waitFor('edit тоггла', () =>
       transport.api.editedMessages.find(
         (e) =>
@@ -204,7 +244,7 @@ describe('Questionnaire UX (e2e)', () => {
     ]);
 
     // Снятие выбора → «Далее» исчезает из отредактированного сообщения
-    await click(candidate.telegramId, q3, '1');
+    await click(candidate.telegramId, '1');
     const untoggleEdit = await waitFor('edit снятия выбора', () =>
       transport.api.editedMessages.find(
         (e) =>
@@ -220,17 +260,17 @@ describe('Questionnaire UX (e2e)', () => {
     ]);
   });
 
-  test('«Далее» → editMessage Q3 с финальными маркерами без клавиатуры + completed новым сообщением', async () => {
+  test('«Далее» → финализация Q3 с финальными маркерами без клавиатуры + completed новым сообщением', async () => {
     const q1 = await startQuestionnaire(student.telegramId);
-    await click(student.telegramId, q1, '2');
+    await click(student.telegramId, '2');
     await transport.handleMessage(
       transport.makeBotContext(student.telegramId, { text: 'Цель' }),
     );
     const q3 = await waitForSent(student.telegramId, 'Вопрос 3 из 3');
-    await click(student.telegramId, q3, '1');
+    await click(student.telegramId, '1');
 
     // «Далее» появляется в отредактированной клавиатуре после выбора
-    const toggled = await waitFor('edit тоггла с «Далее»', () =>
+    await waitFor('edit тоггла с «Далее»', () =>
       transport.api.editedMessages.find(
         (e) =>
           e.telegramId === student.telegramId &&
@@ -238,11 +278,9 @@ describe('Questionnaire UX (e2e)', () => {
           e.keyboard?.rows.flat().some((b) => b.text === 'Далее -->'),
       ),
     );
-    const done = await click(student.telegramId, toggled, 'Далее -->');
-    assertBotResponseValid(done);
-    expect(done?.releaseInput).toBe(true);
+    await click(student.telegramId, 'Далее -->');
 
-    // Финальные маркеры в Q3, клавиатура удалена
+    // Финальные маркеры в Q3, клавиатура снята
     const finalEdit = await waitFor('финальный edit Q3', () =>
       transport.api.editedMessages.find(
         (e) =>
@@ -253,39 +291,20 @@ describe('Questionnaire UX (e2e)', () => {
     );
     expect(finalEdit.text).toContain('\\[x\\]');
 
-    // completed — новым сообщением
+    // completed — новым сообщением, шапка S04 + кнопка главного меню
     const doneMsg = await waitForSent(
       student.telegramId,
       'Желание пройти курс закреплено',
     );
+    expect(doneMsg.text).toContain('Анкета завершена');
     expect(doneMsg.keyboard?.rows.flat().map((b) => b.text)).toEqual([
       '↩️ Главное меню',
     ]);
+    // Ввод отпущен: текст после completed не адресуется анкете
+    expect(transport.dialogOf(student.telegramId)?.input).toBeUndefined();
   });
 
-  // ── FR-5: takeover — перехват ввода при чужом активном действии ──
-
-  /**
-   * Запускает «чужой» флоу с активным вводом (ввод кодового слова потока)
-   * — честная замена «активного урока»: activeHandler другого контроллера.
-   */
-  async function startForeignFlow(tgId: number): Promise<void> {
-    const ENROLL_KEY_STREAM = 'e4e4e4e4-e4e4-e4e4-e4e4-e4e4e4e4e4e4';
-    const view = await transport.handleCallback(
-      transport.makeBotContext(tgId, {
-        callbackData: `stream:view-stream:view:${ENROLL_KEY_STREAM}`,
-      }),
-    );
-    const enrollBtn = view?.sendMessage?.keyboard?.rows
-      .flat()
-      .find((b) => b.text.includes('Записаться'));
-    expect(enrollBtn).toBeDefined();
-    const prompt = await transport.handleCallback(
-      transport.makeBotContext(tgId, { callbackData: enrollBtn!.code }),
-    );
-    expect(prompt?.captureInput).toBeDefined();
-    expect(activeHandler(tgId)).toBe('stream/view-stream/enroll-key');
-  }
+  // ── FR-5 (вариант A): приглашение продолжить — кнопка-мост ──
 
   /** Публикует событие приглашения продолжить (как SweepAbandonedJob на 3ч). */
   function publishContinueInvite(telegramId: number): void {
@@ -304,41 +323,77 @@ describe('Questionnaire UX (e2e)', () => {
     } as never);
   }
 
-  test('takeover: чужой активный флоу → приглашение со строкой-предупреждением → «Продолжить анкету» перехватывает ввод', async () => {
+  test('при чужом активном флоу: приглашение без предупреждения → «Продолжить анкету» переключает диалог', async () => {
     // 1. Анкета начата (in_progress)
     await startQuestionnaire(fillGuest.telegramId);
 
     // 2. Сессия потеряна (рестарт бота): анкета остаётся in_progress,
     //    пользователь начинает чужой флоу (ввод кодового слова потока)
-    transport.sessionMap.delete(fillGuest.telegramId);
-    await startForeignFlow(fillGuest.telegramId);
+    transport.dropSession(fillGuest.telegramId);
+    await transport.handleStart(transport.makeBotContext(fillGuest.telegramId));
+    await transport.handleCallback(
+      transport.makeBotContext(fillGuest.telegramId, {
+        callbackData: pressedCode(
+          transport,
+          fillGuest.telegramId,
+          'Потоки курсов',
+        ),
+      }),
+    );
+    await transport.handleCallback(
+      transport.makeBotContext(fillGuest.telegramId, {
+        callbackData: pressedCode(transport, fillGuest.telegramId, 'Поток 5'),
+      }),
+    );
+    await transport.handleCallback(
+      transport.makeBotContext(fillGuest.telegramId, {
+        callbackData: pressedCode(
+          transport,
+          fillGuest.telegramId,
+          'Записаться',
+        ),
+      }),
+    );
+    await waitForScreen(fillGuest.telegramId, 'кодовое слово');
+    const enrollDialog = transport.dialogOf(fillGuest.telegramId);
+    expect(enrollDialog?.input).toBeDefined();
+    expect(enrollDialog?.path).not.toBe('questionnaire/fill');
 
-    // 3. Проактивное приглашение продолжить — со строкой-предупреждением
+    // 3. Приглашение продолжить: кнопка-мост, БЕЗ takeover-предупреждения
     publishContinueInvite(fillGuest.telegramId);
     const invite = await waitForSent(
       fillGuest.telegramId,
-      'Вы начали заполнять анкету — продолжим?',
+      'Вы начали заполнять анкету',
     );
-    expect(invite.text).toContain(
-      '⚠️ Нажатие на кнопку приведёт к окончанию вашего текущего действия\\.',
-    );
+    expect(invite.text).toContain('продолжим?');
+    expect(invite.text).not.toContain('окончанию вашего текущего действия');
+    expect(invite.text).toContain('/start');
+    expect(
+      invite.keyboard?.rows
+        .flat()
+        .some((b) => b.text === '▶️ Продолжить анкету'),
+    ).toBe(true);
+    expect(
+      invite.keyboard?.rows.flat().some((b) => b.text === '⏭️ Прервать'),
+    ).toBe(true);
 
-    // 4. Клик по takeover-кнопке — НЕ блокируется, захват перезаписан
-    const resumeBtn = invite.keyboard?.rows
-      .flat()
-      .find((b) => b.text === '▶️ Продолжить анкету');
-    expect(resumeBtn).toBeDefined();
-    const resume = await transport.handleCallback(
+    // 4. Кнопка-мост: диалог switch-ится в fill, прошлый вопрос вернулся
+    await transport.handleCallback(
       transport.makeBotContext(fillGuest.telegramId, {
-        callbackData: resumeBtn!.code,
+        callbackData: pressedCode(
+          transport,
+          fillGuest.telegramId,
+          'Продолжить анкету',
+        ),
       }),
     );
-    assertBotResponseValid(resume);
-    expect(resume?.sendMessage?.text).toContain('Вопрос 1 из 3');
-    expect(activeHandler(fillGuest.telegramId)).toBe('questionnaire/fill');
+    await waitForSent(fillGuest.telegramId, 'Вопрос 1 из 3');
+    expect(transport.dialogOf(fillGuest.telegramId)?.path).toBe(
+      'questionnaire/fill',
+    );
 
     // 5. Анкета заполняется дальше: radio-ответ работает (вопрос → история)
-    await click(fillGuest.telegramId, resume, '2');
+    await click(fillGuest.telegramId, '2');
     await waitForSent(fillGuest.telegramId, 'Вопрос 2 из 3');
     const edit = transport.api.editedMessages.find(
       (e) =>
@@ -349,22 +404,34 @@ describe('Questionnaire UX (e2e)', () => {
     expect(edit).toBeDefined();
   });
 
-  test('takeover: без активного действия — приглашение БЕЗ строки-предупреждения', async () => {
+  test('без сессии (якорь app/invite): приглашение живо, кнопка открывает анкету', async () => {
     // Юзер с активной анкетой, но без сессии (закрыл/перезапустил бот)
     await startQuestionnaire(admin.telegramId);
-    transport.sessionMap.delete(admin.telegramId);
+    transport.dropSession(admin.telegramId);
 
+    // Приглашение без диалога: транспорт открывает якорь (seq = 1),
+    // кнопки заштампованы — приглашение не умирает
     publishContinueInvite(admin.telegramId);
     const invite = await waitForSent(
       admin.telegramId,
-      'Вы начали заполнять анкету — продолжим?',
+      'Вы начали заполнять анкету',
     );
-    expect(invite.text).not.toContain('окончанию вашего текущего действия');
-    // Takeover-кнопка на месте (RecordingBotApi не хранит флаг — проверяем текст)
-    expect(
-      invite.keyboard?.rows
-        .flat()
-        .some((b) => b.text === '▶️ Продолжить анкету'),
-    ).toBe(true);
+    expect(invite.text).toContain('продолжим?');
+    expect(invite.text).toContain('/start');
+    const resumeBtn = invite.keyboard?.rows
+      .flat()
+      .find((b) => b.text === '▶️ Продолжить анкету');
+    expect(resumeBtn).toBeDefined();
+
+    // Клик по кнопке-мосту открывает анкету и без /start
+    await transport.handleCallback(
+      transport.makeBotContext(admin.telegramId, {
+        callbackData: resumeBtn!.code,
+      }),
+    );
+    await waitForSent(admin.telegramId, 'Вопрос 1 из 3');
+    expect(transport.dialogOf(admin.telegramId)?.path).toBe(
+      'questionnaire/fill',
+    );
   });
 });

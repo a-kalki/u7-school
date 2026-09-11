@@ -2,7 +2,12 @@ import type { User } from '@u7-scl/app/domain';
 import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { U7BotController } from '@u7-scl/bot/u7-bot-controller';
 import { InProcEventBus } from '@u7-scl/core/infra';
-import type { DialogResponse, KeyboardDescription } from '@u7-scl/core/ui';
+import type {
+  BotSession,
+  DialogResponse,
+  DialogState,
+  KeyboardDescription,
+} from '@u7-scl/core/ui';
 import type { Api } from 'grammy';
 import type { BotContext } from '../../src/context';
 import type { U7BotUiAppResolve } from '../../src/core/u7-bot-app-meta';
@@ -206,6 +211,24 @@ export class TestBotTransport {
     this.#lastResponse = null;
   }
 
+  // ── Доступ к сессиям (e2e: ассерты диалога, эмуляция рестарта) ──
+
+  /**
+   * Активный диалог пользователя (path/seq/input) — для e2e-ассертов
+   * «диалог переключился в стори», «ввод захвачен».
+   */
+  dialogOf(tgId: number): DialogState | undefined {
+    return sessionsOf(this.transport).get(tgId)?.dialog;
+  }
+
+  /**
+   * Эмуляция рестарта сервиса: сессии BotTransport живут в памяти
+   * процесса и теряются (персистентность — трек bot-ui-session-persist).
+   */
+  dropSession(tgId: number): void {
+    sessionsOf(this.transport).delete(tgId);
+  }
+
   // ── Фабрика мок-контекста ──
 
   /**
@@ -335,6 +358,16 @@ export function createTestBotTransport(
 }
 
 // ── Хелперы отштампованных нажатий (integration/e2e) ──
+
+/**
+ * Приватная мапа сессий BotTransport — тестовый доступ для dialogOf/
+ * dropSession (обход private как в #captureResponses: стенд уже работает
+ * с внутренностями транспорта через приведение типов).
+ */
+function sessionsOf(transport: BotTransport): Map<number, BotSession> {
+  return (transport as unknown as { sessions: Map<number, BotSession> })
+    .sessions;
+}
 
 /** Экран в хронологии отображения: sent или edit (text + keyboard). */
 interface ScreenRecord {
