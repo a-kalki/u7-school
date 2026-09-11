@@ -25,8 +25,8 @@
 
 ## Фаза 3: Миграция mentor + questionnaire
 
-- [~] Task: Мигрировать `create-stream` — самый большой wizard (35 полей, 11 `awaitInput`); локальные kb-хелперы → `kb/btn`
-- [ ] Task: Мигрировать `monitor`, `my-streams`, `submenu`, `activate-stream`, `view-stream-mentor`
+- [x] Task: Мигрировать `create-stream` — самый большой wizard (35 полей, 11 `awaitInput`); локальные kb-хелперы → `kb/btn` `5f507c3`
+- [~] Task: Мигрировать `monitor`, `my-streams`, `submenu`, `activate-stream`, `view-stream-mentor`
 - [ ] Task: Мигрировать `fill.story`, `invite.story` (wizard + release)
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
 
