@@ -1,0 +1,13 @@
+Задача: Мигрировать тесты домена (задача 4 Фазы 1)
+
+Сводка:
+- e2e mentor-management: 7 сценариев на паттерне реального клиента (/start +
+  отштампованные коды через pressedCode), ассерты DialogResponse; delegate —
+  notify результата над целевым экраном.
+- integration mentor.integration: 8 тестов, wizard на awaitInput/release,
+  /cancel через команду, сквозные проверки полей потока сохранены.
+- fix(monitor) в пути: регресс миграции — авторизация UC (actor.uuid) и
+  notify вместо screen для реплик результата над delegate.
+
+Тесты: 246 pass / 0 fail. Файлы: tests/e2e/mentor-management.e2e.test.ts,
+tests/mentor/mentor.integration.test.ts, monitor.ts/.test.ts (fix).
