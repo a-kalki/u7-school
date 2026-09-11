@@ -1,0 +1,6 @@
+# u7-bot core: экраны из handleMessage / команд без префикса контроллера — кнопки мертвы
+
+- **Симптомы:** e2e: экран приходит, но клик по его кнопке даёт «⚠️ Неизвестная команда». Экраны, пришедшие ответом на **кнопку**, работают. Типичные жертвы: вопрос анкеты после текстового ответа (handleMessage), confirm-экран `/cancel` (stop-ответ команды). В Api-записи код кнопки выглядит как `fill:answer:...:~N` — без `questionnaire:` в начале.
+- **Причина:** `BotController.handleCallback` прогоняет ответ стори через `#prefixResponse` (коды `story:action` → `controller:story:action`), а `handleMessage` и stop-ответы `handleCommand` раньше отдавали ответ стори как есть. Маршрутизация uiApp парсит первый сегмент как имя контроллера — `fill:...` контроллера не находит.
+- **Решение:** все ответы стори через контроллер должны проходить `#prefixResponse` (fix 58c85f69: handleMessage + stop-реакции команд). При добавлении нового обработчика в `BotController` — оборачивай ответ симметрично. Юнит-тест-паттерн: `SpyStory.messageResult` / `commandReaction` + ассерт кодов клавиатуры.
+- **Смежная ловушка e2e:** экран «после нажатия» внутри одной стори (drill-down, seq не растёт) рендерится **edit'ом**, а не send — `waitForSent` по `sentMessages` его не найдёт, ждать экран надо и в `editedMessages` (см. также `testbot-api-log-chronology`).
