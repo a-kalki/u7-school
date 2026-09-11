@@ -1,0 +1,7 @@
+Задача: Мигрировать create-stream на хелперы ответов (Фаза 3, трек bot-story-helpers_20260912)
+
+Сводка: Полная миграция wizard-а создания потока (самый большой стори-файл, 12 шагов) с литералов DialogResponse на protected-делегаты BotUiStory (ask/screen/notify/warn + kb/btn). Локальные литералы клавиатур { rows, isMultiple: false } заменены на kb()/btn(); ручная сборка кода кнопки модуля create-stream:module:<id> — на this.cb('module', id). Комбинации с release — спредом ({ ...this.warn(...), release: true }).
+
+Файлы: apps/u7-bot/src/controllers/mentor/stories/create-stream.ts
+
+Обоснование: ФР-3 спецификации трека. Инвариант соблюдён: тесты стори (34) зелёные без правок; коды кнопок идентичны. Дифф: -171/+82 строк — шум литералов ушёл.
