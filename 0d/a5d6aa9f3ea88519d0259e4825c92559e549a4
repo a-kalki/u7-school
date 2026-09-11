@@ -1,0 +1,9 @@
+Задача: Protected-делегаты на BotUiStory (Фаза 1, трек bot-story-helpers_20260912)
+
+Сводка: тонкие protected-методы screen/ask/warn/note/go/kb/btn/btnUrl на BotUiStory, переадресующие в чистые билдеры response-builders (namespace-импорт rb — без конфликтов имён метод/функция). Тесты: делегаты возвращают результат билдеров; btn + cb-композиция (код кнопки через this.cb).
+
+Файлы:
+- packages/core/src/ui/bot/bot-ui-story.ts — секция делегатов перед confirm
+- packages/core/src/ui/bot/bot-ui-story.test.ts — describe «Делегаты билдеров ответов (ФР-2)» (3 теста) + call-экспоненты в TestStory
+
+Причина: ФР-2 — доменный язык ответов прямо в наследниках стори, миграция без импортов билдеров в каждой стори.
