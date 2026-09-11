@@ -35,7 +35,7 @@
 - [x] Task: Мигрировать learning-стори: `hub`, `step-view`, `nav-tree`, `progress` `800a2bc`
 - [x] Task: Мигрировать `community`, `notify.story` `977d2a5`
 - [x] Task: Мигрировать core: `bot-controller.ts` (`#errorScreen`, `unknownCommand` → билдеры; убрать дубль метода со стори), `core/ui-app.ts` (4 литерала) `e435baf`
-- [~] Task: Мигрировать app-слой: `app/core/ui-app.ts` (7 литералов), `learning/shared.ts`
+- [x] Task: Мигрировать app-слой: `app/core/ui-app.ts` (7 литералов), `learning/shared.ts` `4587ca7`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
 
 ## Фаза 5: Документация и закрытие
