@@ -10,9 +10,9 @@
   - [x] Написать падающие unit-тесты `response-builders.test.ts` (все функции: дефолты `isMultiple: false`, kind-уведомления, чистота вызовов)
   - [x] Реализовать `packages/core/src/ui/bot/response-builders.ts`: `screen/ask/warn/note/go/kb/btn/btnUrl`
   - [x] Экспорт из `@u7-scl/core/ui`; ворота `lint/tslint/test` чисто
-- [~] Task: Protected-делегаты на `BotUiStory`
-  - [ ] Тесты: делегаты возвращают результат билдеров; `btn` + `cb`-композиция
-  - [ ] Реализация тонких `protected`-методов (`screen/ask/warn/note/go/kb/btn/btnUrl`)
+- [x] Task: Protected-делегаты на `BotUiStory` `0da5d6a`
+  - [x] Тесты: делегаты возвращают результат билдеров; `btn` + `cb`-композиция
+  - [x] Реализация тонких `protected`-методов (`screen/ask/warn/note/go/kb/btn/btnUrl`)
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
 ## Фаза 2: Миграция образцовых стори (courses, streams)
