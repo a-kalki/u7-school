@@ -3,47 +3,68 @@ name: troubleshoot
 description: ЗАГРУЗИ при любой неожиданной ошибке (компиляция, runtime, тесты, линтер, git) или странном поведении библиотеки/инструмента — проверь, есть ли известное решение в базе. Также используй после решения нетривиальной проблемы, чтобы записать его для будущего.
 ---
 
-# Troubleshoot — База известных проблем
+# Troubleshoot — база известных проблем
 
 ## Директива
 
-При столкновении с **неожиданной ошибкой** или **странным поведением** библиотеки/инструмента — ДО того как начинать чинить, прочитай реестр ниже. Возможно решение уже есть. Это обязательно для: ошибок компиляции/runtime/тестов/линтера, странностей git, неожиданного поведения valibot/bun/biome/typescript и инструментов pi.
+При столкновении с **неожиданной ошибкой** или **странным поведением** библиотеки/инструмента — ДО того как начинать чинить, проверь базу. Это обязательно для: ошибок компиляции/runtime/тестов/линтера, странностей git, неожиданного поведения valibot/bun/biome/typescript и инструментов pi.
 
-## Как использовать
+## CLI
 
-1. Найди запись в реестре ниже по тегу или описанию симптома.
-2. Перейди по ссылке → прочитай файл → примени решение.
-3. Если решения нет — реши проблему, затем **добавь запись** (см. ниже).
+Весь доступ к базе — через скрипт (он же пишет метрики использования). Вручную `registry.json` не редактируй — это ломает счётчики.
 
-## Как добавить новую запись
+```bash
+TS="bun .pi/skills/troubleshoot/troubleshoot.ts"
 
-После решения нетривиальной проблемы (если потрачено много шагов и решение пригодится в будущем):
+$TS search "текст ошибки или тег"   # поиск; без запроса — весь реестр
+$TS show <id>                       # решение целиком
+$TS info <id>                       # метаданные и метрики записи
+$TS helped <id>                     # пометить: решение помогло
+$TS add --file <имя.md> --tags "a,b" --desc "..." [--symptoms "..."]  # зарегистрировать запись
+$TS remove <id> --yes               # удалить запись и файл (см. правила ниже)
+$TS audit                           # ревизия базы
+```
 
-1. Создай файл `conductor/code_styleguides/troubleshoots/<tag>-<short-slug>.md`.
-2. Заполни: **Симптомы**, **Причина**, **Решение** (с примером кода/команды).
-3. Добавь строку в реестр ниже.
-4. В финальном отчёте задания сообщи пользователю о добавленной записи.
+## Протокол при ошибке
 
-Структура файла:
+1. `search "<слова из текста ошибки>"` — обычно 1–2 слова (имя функции, текст ошибки, тег).
+2. Нашлось похожее → `show <id>` → примени решение.
+3. Решение сработало → `helped <id>` (обязательно — это метрика ценности записи).
+4. Не нашлось → реши проблему, затем добавь запись (ниже).
+
+## Добавление записи
+
+После решения нетривиальной проблемы (много шагов, пригодится в будущем):
+
+1. Создай файл `conductor/code_styleguides/troubleshoots/<tag>-<short-slug>.md` со структурой:
 
 ```markdown
 # <Библиотека/Инструмент>: <Краткое описание>
 
 - **Симптомы:** что наблюдается, текст ошибки.
 - **Причина:** почему так происходит.
-- **Решение:** ... (с примерами кода/команд)
+- **Решение:** ... (с примером кода/команды)
 ```
 
-## Реестр
+2. Зарегистрируй:
 
-| Теги | Описание | Файл |
-|---|---|---|
-| `#valibot` `#test` `#date` | `isoDateTime` принимает только `YYYY-MM-DDTHH:mm`, отклоняет миллисекунды и `Z` | [valibot-isoDateTime-format.md](../../../conductor/code_styleguides/troubleshoots/valibot-isoDateTime-format.md) |
-| `#pi` `#edit` | `$T`-подстановка ломает `edit` на skill-файлах — oldText не совпадает | [pi-tsubstitution-edit.md](../../../conductor/code_styleguides/troubleshoots/pi-tsubstitution-edit.md) |
-| `#git` `#gitignore` | `conductor/archive/` в `.gitignore` — `git add` отказывается добавлять | [git-archive-gitignore.md](../../../conductor/code_styleguides/troubleshoots/git-archive-gitignore.md) |
-| `#deploy` `#valibot` `#isoDateTime` | Миграция пишет `updatedAt` с пробелом вместо `T` — невалидный isoDateTime | [deploy-migration-updatedAt-format.md](../../../conductor/code_styleguides/troubleshoots/deploy-migration-updatedAt-format.md) |
-| `#wish` `#repo` `#createdAt` | `getByUserAndTarget` при равных `createdAt` возвращает недетерминированную запись — конфликты не срабатывают | [wish-getbyuserandtarget-createdAt-tie.md](../../../conductor/code_styleguides/troubleshoots/wish-getbyuserandtarget-createdAt-tie.md) |
-| `#telegram` `#markdownv2` `#proactive` | Неэкранированные скобки вокруг t.me-ссылки ломают разбор MarkdownV2 — проактивное сообщение не доставляется | [markdownv2-unescaped-parens-around-link.md](../../../conductor/code_styleguides/troubleshoots/markdownv2-unescaped-parens-around-link.md) |
-| `#bun-test` `#test-stand` `#edit` | Склейка Api-записей `[...edited, ...sent]` даёт неверную хронологию экранов при edit/send-чередовании | [testbot-api-log-chronology.md](../../../conductor/code_styleguides/troubleshoots/testbot-api-log-chronology.md) |
-| `#core` `#bot-ui` `#prefix` | Экраны из handleMessage/команд без префикса контроллера — кнопки дают «Неизвестная команда» | [bot-controller-response-prefix.md](../../../conductor/code_styleguides/troubleshoots/bot-controller-response-prefix.md) |
-| `#pi` `#git` `#race` | edit + зависимый git-коммит в одном parallel-блоке — в коммит попадает пустой файл | [pi-edit-bash-race-empty-commit.md](../../../conductor/code_styleguides/troubleshoots/pi-edit-bash-race-empty-commit.md) |
+```bash
+$TS add --file <имя>.md --tags "lib,контекст" --desc "краткое описание" --symptoms "фраза из текста ошибки,ещё фраза"
+```
+
+`--symptoms` — ключевые фразы из реальных текстов ошибок: по ним тебя найдёт будущий `search`. Без них запись «невидимка».
+
+3. `add` сразу печатает кандидатов на ревизию — **сообщи о них пользователю в финальном отчёте** (вместе с фактом добавления).
+
+## Метрики и чистка базы
+
+Скрипт ведёт воронку: `shown` (находили поиском) → `opened` (читали решение) → `helped` (подтверждено применение). Ревизия — команда `audit` (и автоматически в выводе `add`):
+
+- 🔴 **к удалению** — `helped=0` при открытиях, старше `zombie_days` (120д): находили, но не помогало.
+- 🔵 **невидимка** — ни разу не открыта за `invisible_days` (180д): не находится поиском → допиши `symptoms`/теги или удали.
+- 🟡 **спящая** — помогала, но не используется `stale_days` (365д): спроси пользователя (проблема могла исчезнуть).
+- 🟢 ок.
+
+Пороги настраиваются в `conductor/code_styleguides/troubleshoots/registry.json` → `policy`.
+
+**Удаление — только после явного подтверждения пользователем:** сначала `audit`/`info` (показать метрики), затем `remove <id> --yes`. Просто предложить — не удалять.
