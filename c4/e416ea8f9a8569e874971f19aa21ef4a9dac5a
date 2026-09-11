@@ -1,0 +1,7 @@
+Задача: Мигрировать view-stream.story.ts — эталон wizard/awaitInput/delegate/release (21)
+
+Сводка: Миграция стори карточки потока на хелперы. handleEnrollStart → this.ask (awaitInput с контекстом EnrollKeyContext); warn-реплики → this.warn; «попытки исчерпаны» → { release: true, ...this.screen(...) }; «неверное слово» → { ...this.warn(...), awaitInput }; handleEnrollCancel → { release: true, ...this.go(...) }; buildKeyboard/keyboardRows → KbButton[][] + this.btn + this.kb. Два литерала notify без kind оставлены (дефолт 🔔 ≠ info ℹ️ — note() менял бы оформление).
+
+Файлы: apps/u7-bot/src/controllers/streams/stories/view-stream.story.ts
+
+Причина: эталон wizard-паттерна для Фазы 2; 27 unit-тестов стори + 637 всего по u7-bot зелёные без правок.
