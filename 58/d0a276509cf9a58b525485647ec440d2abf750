@@ -1,0 +1,7 @@
+Задача: Мигрировать monitor, my-streams, submenu, activate-stream, view-stream-mentor (Фаза 3, трек bot-story-helpers_20260912)
+
+Сводка: Миграция пяти mentor-стори на protected-делегаты BotUiStory. monitor (список/карточка студента, mark-abandoned, complete-student), my-streams (список потоков с переключателями фильтров), submenu (подменю ментора), activate-stream (запуск потока), view-stream-mentor (lifecycle-кнопки, confirm-диалоги завершения/архива, менторская клавиатура списка студентов). Типы массивов { text, code } заменены на KbButton. Реплики результата с делегатом — спред notify+go.
+
+Файлы: apps/u7-bot/src/controllers/mentor/stories/{monitor,my-streams,submenu,activate-stream,view-stream-mentor}.ts
+
+Обоснование: ФР-3 спецификации. Инвариант соблюдён: 99 тестов mentor-стори зелёные без правок. Дифф: -325/+204 строк.
