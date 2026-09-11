@@ -19,54 +19,55 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
     "types": ["bun", "node"],
-    "baseUrl": ".",
     "paths": {
-      "@u7-scl/user/domain": ["packages/user/src/domain/index.ts"],
-      "@u7-scl/user/api": ["packages/user/src/api/index.ts"],
-      "@u7-scl/user/ui": ["packages/user/src/ui/index.ts"],
-      "@u7-scl/user/infra": ["packages/user/src/infra/index.ts"],
-      "@u7-scl/core/domain": ["packages/core/src/domain/index.ts"],
-      "@u7-scl/core/api": ["packages/core/src/api/index.ts"],
-      "@u7-scl/core/ui": ["packages/core/src/ui/index.ts"],
-      "@u7-scl/core/shared": ["packages/core/src/shared/index.ts"],
-      "@u7-scl/course": ["packages/course/src/index.ts"],
-      "@u7-scl/course/api": ["packages/course/src/api/index.ts"],
-      "@u7-scl/course/infra": ["packages/course/src/infra/index.ts"],
-      "@u7-scl/course/domain": ["packages/course/src/domain/index.ts"],
-      "@u7-scl/stream": ["packages/stream/src/index.ts"],
-      "@u7-scl/wish": ["packages/wish/src/index.ts"],
-      "@u7-scl/wish/domain": ["packages/wish/src/domain/index.ts"],
-      "@u7-scl/wish/api": ["packages/wish/src/api/index.ts"],
-      "@u7-scl/wish/infra": ["packages/wish/src/infra/index.ts"],
-      "@u7-scl/questionnaire": ["packages/questionnaire/src/index.ts"],
+      "@u7-scl/user/domain": ["./packages/user/src/domain/index.ts"],
+      "@u7-scl/user/api": ["./packages/user/src/api/index.ts"],
+      "@u7-scl/user/ui": ["./packages/user/src/ui/index.ts"],
+      "@u7-scl/user/infra": ["./packages/user/src/infra/index.ts"],
+      "@u7-scl/core/domain": ["./packages/core/src/domain/index.ts"],
+      "@u7-scl/core/api": ["./packages/core/src/api/index.ts"],
+      "@u7-scl/core/ui": ["./packages/core/src/ui/index.ts"],
+      "@u7-scl/core/shared": ["./packages/core/src/shared/index.ts"],
+      "@u7-scl/course": ["./packages/course/src/index.ts"],
+      "@u7-scl/course/api": ["./packages/course/src/api/index.ts"],
+      "@u7-scl/course/infra": ["./packages/course/src/infra/index.ts"],
+      "@u7-scl/course/domain": ["./packages/course/src/domain/index.ts"],
+      "@u7-scl/stream": ["./packages/stream/src/index.ts"],
+      "@u7-scl/wish": ["./packages/wish/src/index.ts"],
+      "@u7-scl/wish/domain": ["./packages/wish/src/domain/index.ts"],
+      "@u7-scl/wish/api": ["./packages/wish/src/api/index.ts"],
+      "@u7-scl/wish/infra": ["./packages/wish/src/infra/index.ts"],
+      "@u7-scl/questionnaire": ["./packages/questionnaire/src/index.ts"],
       "@u7-scl/questionnaire/domain": [
-        "packages/questionnaire/src/domain/index.ts"
+        "./packages/questionnaire/src/domain/index.ts"
       ],
-      "@u7-scl/questionnaire/api": ["packages/questionnaire/src/api/index.ts"],
+      "@u7-scl/questionnaire/api": [
+        "./packages/questionnaire/src/api/index.ts"
+      ],
       "@u7-scl/questionnaire/infra": [
-        "packages/questionnaire/src/infra/index.ts"
+        "./packages/questionnaire/src/infra/index.ts"
       ],
-      "@u7-scl/w3school": ["packages/w3school/src/index.ts"],
-      "@u7-scl/app": ["packages/app/src/index.ts"],
-      "@u7-scl/app/domain": ["packages/app/src/domain/index.ts"],
-      "@u7-scl/app/shared": ["packages/app/src/shared/index.ts"],
-      "@u7-scl/app/api": ["packages/app/src/api/index.ts"],
+      "@u7-scl/w3school": ["./packages/w3school/src/index.ts"],
+      "@u7-scl/app": ["./packages/app/src/index.ts"],
+      "@u7-scl/app/domain": ["./packages/app/src/domain/index.ts"],
+      "@u7-scl/app/shared": ["./packages/app/src/shared/index.ts"],
+      "@u7-scl/app/api": ["./packages/app/src/api/index.ts"],
       "@u7-scl/bot/u7-bot-controller": [
-        "apps/u7-bot/src/core/u7-bot-controller.ts"
+        "./apps/u7-bot/src/core/u7-bot-controller.ts"
       ],
       "@u7-scl/bot/u7-bot-ui-story": [
-        "apps/u7-bot/src/core/u7-bot-ui-story.ts"
+        "./apps/u7-bot/src/core/u7-bot-ui-story.ts"
       ],
       "@u7-scl/bot/u7-bot-app-meta": [
-        "apps/u7-bot/src/core/u7-bot-app-meta.ts"
+        "./apps/u7-bot/src/core/u7-bot-app-meta.ts"
       ],
-      "@u7-scl/bot/u7-menu": ["apps/u7-bot/src/core/u7-menu.ts"],
-      "@u7-scl/bot/app/*": ["apps/u7-bot/src/controllers/app/*"],
-      "@u7-scl/bot/courses/*": ["apps/u7-bot/src/controllers/courses/*"],
-      "@u7-scl/bot/streams/*": ["apps/u7-bot/src/controllers/streams/*"],
-      "@u7-scl/bot/learning/*": ["apps/u7-bot/src/controllers/learning/*"],
-      "@u7-scl/bot/mentor/*": ["apps/u7-bot/src/controllers/mentor/*"],
-      "@u7-scl/test-helpers/*": ["apps/u7-bot/tests/helpers/*"]
+      "@u7-scl/bot/u7-menu": ["./apps/u7-bot/src/core/u7-menu.ts"],
+      "@u7-scl/bot/app/*": ["./apps/u7-bot/src/controllers/app/*"],
+      "@u7-scl/bot/courses/*": ["./apps/u7-bot/src/controllers/courses/*"],
+      "@u7-scl/bot/streams/*": ["./apps/u7-bot/src/controllers/streams/*"],
+      "@u7-scl/bot/learning/*": ["./apps/u7-bot/src/controllers/learning/*"],
+      "@u7-scl/bot/mentor/*": ["./apps/u7-bot/src/controllers/mentor/*"],
+      "@u7-scl/test-helpers/*": ["./apps/u7-bot/tests/helpers/*"]
     }
   },
   "exclude": ["data/deploy/archive"]

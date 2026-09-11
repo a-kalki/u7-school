@@ -1,12 +1,20 @@
 {
   "name": "u7-school",
   "module": "index.ts",
-  "type": "module",
+  "dependencies": {
+    "@google/genai": "^1.51.0",
+    "@valibot/to-json-schema": "^1.7.1",
+    "markdown-to-telegram": "^0.0.7",
+    "openai": "^6.35.0",
+    "typescript": "^7",
+    "valibot": "^1.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.6",
+    "@types/bun": "latest",
+    "@types/markdown-it": "^14.1.2"
+  },
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
     "test": "bun test",
     "test:bot": "bun test apps/u7-bot/",
@@ -29,19 +37,9 @@
     "start:prod:stop": "pm2 stop pm2.config.cjs",
     "start:prod:restart": "pm2 restart pm2.config.cjs --update-env"
   },
-  "devDependencies": {
-    "@biomejs/biome": "^2.4.6",
-    "@types/bun": "latest",
-    "@types/markdown-it": "^14.1.2"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "@google/genai": "^1.51.0",
-    "@valibot/to-json-schema": "^1.7.1",
-    "markdown-to-telegram": "^0.0.7",
-    "openai": "^6.35.0",
-    "valibot": "^1.0.0"
-  }
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }
