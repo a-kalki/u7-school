@@ -1,0 +1,7 @@
+Задача: Мигрировать app-слой: app/core/ui-app.ts (7 литералов), learning/shared.ts (Фаза 4, трек bot-story-helpers_20260912)
+
+Сводка: U7BotUiApp — литералы DialogResponse/KeyboardDescription заменены именованными билдерами из '@u7-scl/core/ui' (не-стори контекст, паттерн render.ts): notify() для help-реплик и подсказки о неизвестной команде; screen(menu.text, menu.keyboard) для welcome/короткого меню (Screen собирается доменно из menuButtons, распаковка в DialogResponse — билдером); { ...response, screen } (/cancel с ответом стори без экрана) — редкая комбинация спредом; #toKeyboard — kb(rows). learning/shared.ts: notEnrolled() — screen() (чистый билдер вне наследников по НФ спеки).
+
+Файлы: apps/u7-bot/src/core/ui-app.ts, apps/u7-bot/src/controllers/learning/shared.ts
+
+Критерии приёмки Фазы 4 проверены: isMultiple в controllers — 0 вхождений; keyboard-литералов в apps — 0. Остатки вне скоупа задач (не упомянуты в spec ФР-4): u7-bot-ui-story.ts /cancel-литерал, app-controller.ts log_level/unknownCommand, bot-controller.ts #withNotices — перечислены для решения владельцем в сводке фазы.
