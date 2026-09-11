@@ -14,5 +14,5 @@
 
 ---
 
-- [ ] **Track: Декларативные хелперы ответов стори бота — полная миграция на screen/ask/warn/note/go/kb/btn**
+- [~] **Track: Декларативные хелперы ответов стори бота — полная миграция на screen/ask/warn/note/go/kb/btn**
 *Link: [./tracks/bot-story-helpers_20260912/](./tracks/bot-story-helpers_20260912/)*

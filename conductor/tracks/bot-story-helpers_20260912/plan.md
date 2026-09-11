@@ -36,10 +36,10 @@
 - [x] Task: Мигрировать `community`, `notify.story` `977d2a5`
 - [x] Task: Мигрировать core: `bot-controller.ts` (`#errorScreen`, `unknownCommand` → билдеры; убрать дубль метода со стори), `core/ui-app.ts` (4 литерала) `e435baf`
 - [x] Task: Мигрировать app-слой: `app/core/ui-app.ts` (7 литералов), `learning/shared.ts` `4587ca7`
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
 
 ## Фаза 5: Документация и закрытие
 
-- [ ] Task: Обновить styleguide `bot-ui-story.md` — раздел «Хелперы ответов» (когда хелпер / когда литерал-спред), живой образец — мигрированная стори
+- [~] Task: Обновить styleguide `bot-ui-story.md` — раздел «Хелперы ответов» (когда хелпер / когда литерал-спред), живой образец — мигрированная стори
 - [ ] Task: Закрытие трека — финальный прогон `bun run check`, `summary.md`, обновление `tracks.md`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md)
