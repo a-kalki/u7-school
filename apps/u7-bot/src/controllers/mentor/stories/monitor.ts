@@ -358,10 +358,7 @@ export class MonitorStory extends U7BotUiStory {
     return many;
   }
 
-  async #handleDetail(
-    studentId: string,
-    actor: User,
-  ): Promise<DialogResponse> {
+  async #handleDetail(studentId: string, actor: User): Promise<DialogResponse> {
     const student = (await this.appApi.execute(
       'get-student-progress',
       { studentId },

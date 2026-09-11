@@ -196,6 +196,9 @@ describe('CreateStreamStory (US-6) — контракт «Диалог и Экр
     const text = String(response.screen?.text);
     expect(text).toContain('дату старта');
     expect(text).toContain('YYYY');
+    // Инвариант литералов MdText: `\.` — валидный MarkdownV2, а `\\.` —
+    // литеральный backslash + голая точка, Telegram отклонит сообщение
+    expect(text).not.toContain('\\\\');
     expect(ctxOf(response).step).toBe(3);
   });
 
@@ -612,6 +615,10 @@ describe('CreateStreamStory (US-6) — контракт «Диалог и Экр
 
     expect(String(response.screen?.text)).toContain('успешно создан');
     expect(response.release).toBe(true);
+    // Точная реплика: `\!` — экранированный `!`; двойной backslash перед `!`
+    // даёт невалидный MarkdownV2 (Telegram вернёт 400 на весь экран)
+    expect(String(response.screen?.text)).toBe('✅ *Поток успешно создан\\!*');
+    assertDialogResponseMarkdownSafe(response);
 
     const calls = appApi.execute.mock.calls as unknown[][];
     const call = calls.find((c) => c[0] === 'create-stream');

@@ -424,8 +424,12 @@ export class CreateStreamStory extends U7BotUiStory {
 
     return {
       screen: {
+        // Композиция MdText — через mdConcat: интерполяция готового MdText
+        // в md-шаблон экранирует его повторно (дефисы получали двойной backslash)
         text: mdConcat(
-          md`📅 Введите дату старта в формате \`YYYY\\-MM\\-DD\` или дату время \`YYYY\\-MM\\-DDTHH\\:MM\`\\\\.\nНапример: \`${exampleStr}\`\\\\.`,
+          md`📅 Введите дату старта в формате \`YYYY\\-MM\\-DD\` или дату время \`YYYY\\-MM\\-DDTHH\\:MM\`\\.\nНапример: \``,
+          exampleStr,
+          md`\`\\.`,
         ),
       },
       awaitInput: { context: { ...ctx, step: 3, description: text } },
@@ -815,7 +819,7 @@ export class CreateStreamStory extends U7BotUiStory {
     return {
       release: true,
       screen: {
-        text: md`✅ *Поток успешно создан\\\\!*`,
+        text: md`✅ *Поток успешно создан\\!*`,
       },
     };
   }
