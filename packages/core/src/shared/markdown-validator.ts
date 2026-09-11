@@ -4,7 +4,7 @@
  * Роли функций:
  * - `escapeMarkdown` (markdown.ts) — producer: экранирует спецсимволы перед сборкой текста.
  * - `validateMarkdownV2` — диагностика: возвращает список issues без исключений.
- * - `assertMarkdownV2Safe` / `assertResponseMarkdownSafe` — fail-fast: бросают
+ * - `assertMarkdownV2Safe` / `assertDialogResponseMarkdownSafe` — fail-fast: бросают
  *   `MarkdownV2ValidationError` (issues + фрагмент текста) в тестах и в проде
  *   перед отправкой в Telegram.
  *
@@ -123,7 +123,7 @@ function stripProtectedSyntax(text: string): string {
  *
  * Несёт список issues и фрагмент проблемного текста — достаточно для
  * диагностики по логам. Бросается fail-fast проверками
- * (`assertMarkdownV2Safe` / `assertResponseMarkdownSafe`) как в тестах,
+ * (`assertMarkdownV2Safe` / `assertDialogResponseMarkdownSafe`) как в тестах,
  * так и в продакшене (`executeResponses` → глобальный обработчик).
  */
 export class MarkdownV2ValidationError extends Error {
