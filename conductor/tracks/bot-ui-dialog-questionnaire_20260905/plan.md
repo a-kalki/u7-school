@@ -13,7 +13,7 @@
 
 - [x] Task: Takeover-подписки fill-событий → notify-текст; подписки на кнопки умирают — кнопочные ветки из инвентаризации фазы 1 переносятся в `invite` (не срезаются); обновить тесты [31a551c]
 - [x] Task: Приглашения (`questionnaire:invite` S01, continue-invite, abandon-warning, fill.start из каталога) — временный `ProactiveSender.invite` по варианту A: штамп текущей эпохи получателя, якорь `app/invite` (без диалога), кнопка-мост `fill:resume:<id>`, подсказка /start; тесты на обе ветки (с диалогом и без) [bcee7858, 31a551c]
-- [ ] Conductor - User Manual Verification 'Подписки' (Protocol in workflow.md)
+- [x] Conductor - User Manual Verification 'Подписки' (Protocol in workflow.md)
 
 ## Фаза 3: Финал трека 4
 
