@@ -14,9 +14,9 @@ export function drawTree(height) {
     stemHeight === 0
       ? ''
       : new Array(stemHeight)
-        .fill()
-        .map((_n) => ' '.repeat(height - 1) + '#')
-        .join('\n');
+          .fill()
+          .map((_n) => ' '.repeat(height - 1) + '#')
+          .join('\n');
   return result;
 }
 
