@@ -1,259 +1,197 @@
 # Архитектура Telegram-бота (bot-level)
 
-**Назначение:** единый архитектурный разрез UI-слоя Telegram-бота: из чего он
-собран, кто за что отвечает, как течёт запрос от Telegram до домена и обратно.
+**Назначение:** единый архитектурный разрез UI-слоя Telegram-бота на контракте
+«Диалог и Экран» (инварианты и контракты — `conductor/bot-ui-session-architecture.md`, §3–§5):
+из чего собран UI, кто чем владеет, как течёт апдейт от Telegram до домена и обратно.
 
 Живой код:
 - базовые классы/типы — `packages/core/src/ui/bot/`;
 - приложение бота — `apps/u7-bot/src/`;
-- инфраструктура — `apps/u7-bot/src/infra/`.
+- транспорт — `apps/u7-bot/src/infra/bot-transport.ts`.
 
 ---
 
 ## 1. Слои
 
 ```
-Grammy (адаптер) → BotTransport (транспорт/исполнение) → BotUiApp (маршрутизация)
-                → Controller (диспетчер) → Story (сценарий) → ApiApp (доменные UC)
+Grammy (адаптер) → BotTransport (сессии, штампы, рендер) → BotUiApp (диалоги, маршрутизация)
+                 → Controller (диспетчер сторис) → Story (сценарий) → ApiApp (доменные UC)
 ```
 
 | Слой | Объект | Где | Ответственность |
 |---|---|---|---|
-| Адаптер | `createBot`, `BotContext` | `apps/u7-bot/src/bot.ts`, `context.ts` | Grammy-бот + session middleware; тип контекста |
-| Транспорт | `BotTransport` | `apps/u7-bot/src/infra/bot-transport.ts` | Единый слой Grammy↔BotUiApp: сессии, сжатие UUID, исполнение `BotCommand` |
-| Маршрутизация | `BotUiApp` / `U7BotUiApp` | `packages/core/src/ui/bot/ui-app.ts`, `apps/u7-bot/src/core/ui-app.ts` | Core: резолв актора, диспетчеризация, `delegate`. U7: сбор меню, `/start`, `/help` |
-| Диспетчер | `BotController` / `U7BotController` | `packages/core/src/ui/bot/bot-controller.ts`, `apps/u7-bot/src/core/u7-bot-controller.ts` | Core: реестр сторис, префиксация кнопок, `handleError`. U7: главное меню, `handleWelcome`/`handleHelpMessage` |
-| Сценарий | `BotUiStory` / `U7BotUiStory` | `packages/core/src/ui/bot/bot-ui-story.ts`, `apps/u7-bot/src/core/u7-bot-ui-story.ts` | Логика одного экрана: UC → рендер `BotResponse` |
-| Данные | `BotCommand` / `BotResponse` / `SessionData` / `ProactiveSender` | `packages/core/src/ui/bot/types.ts` | Типы между слоями |
+| Адаптер | `createBot`, `BotContext` | `apps/u7-bot/src/bot.ts`, `context.ts` | Grammy-бот; `Context` без сессий (Grammy-session нет) |
+| Транспорт | `BotTransport` | `apps/u7-bot/src/infra/bot-transport.ts` | Сессии `BotSession`, штампы `:~seq`, shortId-сжатие, рендер `DialogResponse` (§5), per-chat очередь, `ProactiveSender` |
+| Хаб | `BotUiApp` / `U7BotUiApp` | `packages/core/src/ui/bot/ui-app.ts`, `apps/u7-bot/src/core/ui-app.ts` | Core: `dialog.path/seq`, `enterDialog`, `dispatch`, delegate-склейка, pipe команд (ФР-4). U7: `/start`, `/help`, `/cancel`, системные коды `app:*`, меню из `menuButtons` |
+| Диспетчер | `BotController` / `U7BotController` | `packages/core/src/ui/bot/bot-controller.ts`, `apps/u7-bot/src/core/u7-bot-controller.ts` | Реестр сторис, префиксация кодов `name:`, `handleError`, `errorExitRows` |
+| Сценарий | `BotUiStory` / `U7BotUiStory` | `packages/core/src/ui/bot/bot-ui-story.ts`, `apps/u7-bot/src/core/u7-bot-ui-story.ts` | Логика экрана: UC → `DialogResponse`; `awaitInput`-ввод, `contextHelp`, `menuButtons`, `/cancel` в pipe |
+| Данные | `DialogResponse` / `Screen` / `BotSession` / `ProactiveSender` | `packages/core/src/ui/bot/types.ts` | Типы между слоями |
 | Домен | `ApiApp.execute()` | `packages/core/src/api/` | UseCase'ы доменных модулей |
+
+**Разделение владения:** сессиями и экраном владеет транспорт; диалогом
+(`path`/`seq`) — uiApp; логикой сценария — стори; домен никогда не знает о Telegram.
 
 ---
 
-## 2. Объекты и ответственности
+## 2. Ключевые объекты
 
-### 2.1. `BotContext` + `createBot` (адаптер)
-
-`context.ts` задаёт тип контекста:
-
-```ts
-export type BotContext = Context & SessionFlavor<SessionData>;
-```
-
-`createBot(token, sessionMap?)` (`bot.ts`) создаёт `Bot` и вешает `session`-
-middleware. Ключевой момент: **`sessionMap` — общий** `Map<number, SessionData>`,
-который GrammY использует как storage сессий, а `BotTransport` — как своё
-хранилище. То есть `ctx.session` и `transport.sessionMap.get(tgId)` — один объект.
-
-### 2.2. `BotTransport` (транспорт/исполнение)
+### 2.1. `BotTransport` (транспорт/исполнение)
 
 `apps/u7-bot/src/infra/bot-transport.ts`. Владеет:
 
-- **`sessionMap`** — `Map<number, SessionData>` (общая с GrammY).
-- **сжатием UUID** — `compressCommand` / `compressAction` / `shrink` (на отправке),
-  `expandAction` (на входе callback).
-- **исполнением `BotCommand`** — `execute(session, tgId, command)`: send/edit,
-  удаление клавиатуры, `lastBotMessage`, `captureInput`/`releaseInput`.
-- **проактивной отправкой** — `send(telegramId, command)` (интерфейс `ProactiveSender`).
+- **сессиями `BotSession`** — внутренняя мапа `tgId → { dialog, screen }`
+  (создаётся лениво пустой: до первого `/start` диалог не открыт — ФР-1);
+- **единым входом слэш-команд (ФР-4)** — перехват `/`-текста в `message:text`
+  (`parseCommandText`), без поимённой grammy-регистрации;
+- **валидацией callback без исключений (ФР-3)** — порядок: диалог открыт →
+  штамп `:~<seq36>` совпал с `dialog.seq` → shortId разжат; иначе alert
+  («Наберите /start» / «Экран устарел» / «кнопка устарела после рестарта»);
+- **рендер-политикой §5** (ниже);
+- **сжатием UUID** (`compressAction`/`expandAction` + `short-id.ts`),
+  fail-fast лимит `callback_data ≤ 64 байта`;
+- **per-chat очередью** на все апдейты и проактивы (строгий порядок на чат).
 
-Методы-обработчики (`handleStart`, `handleCallback`, `handleMessage`,
-`handleCancel`, `handleHelp`) принимают `ctx` и возвращают `void`.
+### 2.2. `BotUiApp` / `U7BotUiApp` (хаб)
 
-> Префиксация кнопок здесь **не** выполняется — она переехала в `BotController`.
+`packages/core/src/ui/bot/ui-app.ts`. Core-механика:
 
-### 2.3. `BotUiApp` / `U7BotUiApp` (маршрутизация)
+- **`enterDialog(session, path, mode)`** — единственная точка инкремента `seq`
+  (ФР-2): `switch` (кнопки/мосты/delegate) — смена пути растит seq и сбрасывает
+  ввод; `reopen` (`/start`, `/cancel`) — всегда seq++. Штампы прежнего экрана
+  становятся мёртвыми — транспорт отправляет send и ретирит старую клавиатуру.
+- **`dispatch(data)`** — маршрутизация `controller:story:action...`: вход в
+  диалог `controller/story` + делегирование контроллеру.
+- **`#resolveDelegate`** — исполняет `delegate.path` (симметрично handleCallback)
+  и склеивает ответы (notify — конкатенация; screen/release — приоритет делегата).
+- **pipe команд (ФР-4)** — `handleCommand` опрашивает контроллеры (активный
+  первым), реакции `pass/continue/stop`; stop с `delegate` исполняется ядром.
 
-`packages/core/src/ui/bot/ui-app.ts` — центральный хаб. Владеет:
+`U7BotUiApp` (`apps/u7-bot/src/core/ui-app.ts`) добавляет U7-специфику:
+`/start` (гост-регистрация → reopen якоря `app/menu` → welcome из `menuButtons`),
+`/help` (контекстная справка активной стори `contextHelp()` или общий справочник),
+`/cancel` (сброс активной стори в pipe + глобальный reopen меню; ответ без
+`screen` дополняется экраном меню), дефолт «неизвестная команда», перехват
+системных кодов `app:main-menu` / `app:help` в `dispatch` (единая точка для
+кнопок и delegate).
 
-- **реестром контроллеров** (`getController(name)`);
-- **резолвером актора** (`actorResolver: (tgId) => Promise<TActor>`, задаётся в `init`);
-- **маршрутизацией**: `handleCallback/handleMessage/handleCancel/handleTimeout(tgId, ...)`;
-- **обработкой `delegate`**: `#handleDelegate` + `#mergeResponses` (delegate.path — всегда полный маршрут `controller:story:action:...`, первый сегмент резолвится как контроллер).
+### 2.3. `BotController` / `U7BotController` (диспетчер)
 
-`handleCallback(data, tgId, session)`:
-1. `resolveActor(tgId)` → `User`;
-2. `extractControllerName(data)` → имя контроллера;
-3. `controller.handleCallback(extractRestData(data), actor, session)`;
-4. `#applyCapturedInput(session, controllerName, response)`;
-5. если `response.delegate` — `#handleDelegate` (первый сегмент `delegate.path` — имя контроллера) и смержить через `#mergeResponses`.
+- `handleCallback` — ищет стори по префиксу `story:`, делегирует, префиксует
+  коды ответа (`#prefixResponse`: клавиатуры `screen` + `delegate.path`);
+  необработанные ошибки → `handleError` (ошибка = экран, `MdText` через `md`).
+- `handleMessage` — делегирует стори активного диалога (`dialog.path`);
+  `null` — адресата нет.
+- `handleCommand` — pipe стори (активная первой), `pass/continue/stop`.
+- `U7BotController.menuButtons(actor)` — сбор кнопок главного меню от стори
+  с префиксацией и сортировкой по приоритету.
 
-`U7BotUiApp` (`apps/u7-bot/src/core/ui-app.ts`) закрывает дженерики
-`<U7BotAppMeta, User>` и добавляет систему меню: `collectMainMenu`, `collectHelp`,
-`collectAllMenuItems`, `collectAllHelpDescriptions`, `handleWelcome`, `handleHelp`.
+### 2.4. `BotUiStory` / `U7BotUiStory` (сценарий)
 
-### 2.4. `BotController` / `U7BotController` (диспетчер)
+Сценарий одного экрана: `appApi.execute(...)` → `DialogResponse`. Хелперы:
+`cb(action, ...ids)` / `cbFor(story, action, ...ids)`, `confirm(...)`,
+`formatDate`, `handleError` (ошибка-экран), `errorNotify` (warn-реплика поверх
+диалога — ФР-5, для переспросов при живом `awaitInput`).
 
-`packages/core/src/ui/bot/bot-controller.ts`. Владеет:
+`U7BotUiStory` добавляет: `dialogPath`/`isActive` (для `/cancel` в pipe —
+сброс себя + stop-реплика), `contextHelp` (контекстная справка), `menuButtons`
+(кнопка главного меню), `errorExitRows` — «⬅️ Меню» на экранах ошибок.
 
-- `name` — префикс контроллера в `callback_data`;
-- `stories` — реестр сторис;
-- **префиксацией кнопок и `delegate.path`** (`#prefixResponse` / `#prefixCode`): к кодам стори
-  добавляется `${name}:`; коды с префиксом другого контроллера (`app:main-menu`)
-  не трогаются;
-- `handleError(err)` — универсальный обработчик ошибок;
-- `cb(action)` — `${name}:${action}`; `stripPrefix(data)`.
-
-`handleCallback/handleMessage/handleCancel/handleTimeout` находят стори
-(`${story.name}:`-префикс или `session.activeHandler.path`), делегируют и
-возвращают ответ **с уже добавленным префиксом**.
-
-`U7BotController` (`apps/u7-bot/src/core/u7-bot-controller.ts`) закрывает
-дженерики `<U7BotAppMeta, User>` и добавляет систему меню: `handleStart`,
-`handleWelcome`, `handleHelpMessage`, поле `uiApp`.
-
-### 2.5. `BotUiStory` / `U7BotUiStory` (сценарий)
-
-`packages/core/src/ui/bot/bot-ui-story.ts`. Сценарий одного экрана:
-выполняет UC через `this.appApi.execute(...)`, формирует `BotResponse`
-(текст MarkdownV2, клавиатуру, `captureInput`/`releaseInput`/`delegate`).
-
-Хелперы: `cb(action, ...ids)` (код своей стори), `cbFor(story, action, ...ids)`
-(код соседней стори того же контроллера), `confirm(...)`, `escapeMarkdown`,
-`formatDate`, `handleError`.
-
-`U7BotUiStory` закрывает дженерики `<U7BotAppMeta, User>` и добавляет
-`handleStart(actor)` — кнопку стори в главном меню.
-
-### 2.6. `BotCommand` / `BotResponse` (типы)
-
-`packages/core/src/ui/bot/types.ts`:
+### 2.5. Типы (`packages/core/src/ui/bot/types.ts`)
 
 ```ts
-BotCommand   // «приказ» транспорту: send/edit + сессия (captureInput/releaseInput)
-BotResponse extends BotCommand  // + delegate (маршрутная директива, ест BotUiApp)
-ProactiveSender  // send(telegramId, command) — цепочка transport → BotUiApp → BotController → BotUiStory
+DialogResponse  // screen? / finalize? / notify? / awaitInput? / release? / delegate?
+Screen          // text: MdText + keyboard?
+BotSession      // dialog?: { path, seq, input? }, screen?: { messageId, ownerSeq, ... }
+ProactiveSender // notify / invite (временный, ФР-6) / kickFromGroup
+CommandReaction // pass | continue{notice} | stop{response}   (pipe команд)
 ```
 
-Стори/контроллеры возвращают `BotResponse`; `BotTransport.execute()`/`send()`
-принимают `BotCommand`. `delegate` до транспорта не доходит — его съедает `BotUiApp`.
-
-### 2.7. `SessionData` (сессия)
-
-`{ activeHandler: { path, context?, expiresAt? } | null, lastBotMessage? }`.
-
-- `activeHandler` — какой обработчик активен (для `handleMessage`/`handleCancel`
-  и `captureInput`/`releaseInput`).
-- `lastBotMessage` — последнее сообщение бота (для удаления клавиатуры и `editMessage`).
+Стори/контроллеры возвращают `DialogResponse`; `delegate` до транспорта не
+доходит — его исполняет uiApp. Тексты — `MdText` (`md`/`mdRaw`/`mdConcat` —
+см. [bot-ui-story.md](./skills/bot-ui-story.md), §4).
 
 ---
 
 ## 3. Поток обработки
 
-### 3.1. Вход события
+### 3.1. Вход апдейтов (`main.ts`)
 
-`main.ts` регистрирует Grammy-обработчики:
+Регистрация без поимённых команд: `privateBot.on('callback_query:data')`,
+`privateBot.on('message:text')` → транспорт. Слэш-тексты перехватываются
+транспортом по `/`-префиксу и уходят в pipe uiApp; `/start` — приветствие +
+меню (reopen), `/help` — справка, `/cancel` — сброс + короткое меню. Прочие
+тексты — ввод только при живом `dialog.input`, иначе подсказка. Групповые
+события (`chat_member`, FR-7) — отдельные обработчики `handlers/group-handler.ts`.
 
-```ts
-bot.command('start', (ctx) => transport.handleStart(ctx));
-bot.command('help',  (ctx) => transport.handleHelp(ctx));
-bot.command('cancel', (ctx) => transport.handleCancel(ctx));
-privateBot.on('callback_query:data', (ctx) => transport.handleCallback(ctx));
-privateBot.on('message:text', (ctx, next) => transport.handleMessage(ctx, next));
-```
-
-### 3.2. Callback (нажатие кнопки)
+### 3.2. Нажатие кнопки
 
 ```
-Grammy ctx (callback_query.data)
-  → BotTransport.handleCallback(ctx)
-    → expandAction(data)                      // разжатие UUID (shortIds)
-    → BotUiApp.handleCallback(data, tgId, ctx.session)
-      → resolveActor(tgId)                    // User из userFacade
-      → extractControllerName → controller
-      → controller.handleCallback(rest, actor, session)
-        → поиск стори → story.handleCallback(...)
-          → appApi.execute(UC) → BotResponse
-        ← BotResponse (коды с префиксом name:)
-      ← delegate: обработать + #mergeResponses
-    ← BotResponse (без delegate)
-    → compressCommand(response)               // сжатие UUID кнопок
-    → execute(session, tgId, command)         // grammy Api: send/edit + сессия
-    → ctx.answerCallbackQuery()               // ack Telegram
+Grammy callback_query.data
+  → BotTransport: очередь → валидация (диалог / штамп / shortId)
+  → BotUiApp.handleCallback → dispatch(controller:story:action)
+    → enterDialog(switch) → Controller.handleCallback → Story.handleCallback
+      → appApi.execute(UC) → DialogResponse
+  ← delegate? → #resolveDelegate (маршрут + склейка)
+  → BotTransport.#render (§5): notify → finalize → screen → awaitInput/release
 ```
 
-### 3.3. Текстовое сообщение (`captureInput`)
+### 3.3. Рендер-политика (§5, владелец — транспорт)
 
-`handleMessage` аналогичен, но маршрут идёт через `session.activeHandler.path`
-(`<controller>/<story>`), а не через `callback_data`. Если `activeHandler` пуст —
-`next()` (сообщение не боту).
+1. **`notify`** — реплика поверх диалога (первой, заголовок по `kind`:
+   🔔/ℹ️/⚠️), сессию, экран и ввод не трогает.
+2. Гашение устаревшего экрана при любом ответе («хлебные крошки»): смена
+   диалога без `screen` не оставляет мёртвую клавиатуру.
+3. **`finalize`** — перезапись своего экрана (фиксация выбора), клавиатура
+   снимается; чужой экран — warn-лог и пропуск.
+4. **`screen`** — свой экран (ownerSeq = seq, без finalize) → edit на месте;
+   иначе retire прежнего (с маркером «Вы выбрали: …» при известном коде
+   нажатой кнопки) + send нового; новый messageId становится `session.screen`.
+5. **`awaitInput` / `release`** — установка/снятие ожидания текстового ввода
+   (`dialog.input.context`).
 
-### 3.4. `/start`, `/help`, `/cancel`
+### 3.4. Проактивные каналы (`ProactiveSender`)
 
-- `/start` → `handleWelcome` → приветствие + главное меню; `activeHandler = null`.
-- `/help` → `handleHelpMessage` → инструкция + список описаний кнопок.
-- `/cancel` → `handleCancel` → активная стори или «Нечего отменять».
-
-### 3.5. Проактивные сообщения
-
-Проактивная отправка идёт по цепочке `ProactiveSender`:
-`story.proactiveSender.send()` → `BotController.send()` (префиксация кнопок
-через `#prefixCommand`) → `BotUiApp.send()` (делегирование) →
-`BotTransport.send()` (исполнение). Каждый уровень передаёт себя вниз через
-`init(resolve, sender)` отдельным аргументом. `BotTransport.send()` сам
-применяет `captureInput`/`releaseInput` и сжатие (`compressCommand`), т.к.
-проактивная отправка минует обработчики `BotUiApp.handleCallback`/`handleMessage`.
-
-**Уведомления** — отдельный тип команды `notify(telegramId, NotificationPayload)`
-(тот же интерфейс `ProactiveSender`, тот же `types.ts`). `NotificationPayload`
-содержит **только текст** — кнопки в уведомлении невозможны по построению
-(на уровне типов). Уведомление не вмешивается в поток пользователя:
-`BotTransport.notify()` передаёт `keepPrevKeyboard: true` (клавиатура
-предыдущего экрана сохраняется), не трогает `session.activeHandler`
-(без `captureInput`/`releaseInput`) и **не занимает слот `lastBotMessage`** —
-логика снятия клавиатуры продолжает работать по предыдущему экрану. Каждое
-уведомление помечается заголовком `🔔 Уведомление:` (первая строка,
-в MarkdownV2 — жирным), чтобы пользователь отличал его от ответов бота.
-
-**Проактивные сообщения с кнопками** — только обычный `send()`
-(`sendMessage` + `keyboard`): новый экран бота ломает текущий флоу —
-транспорт снимает клавиатуру предыдущего сообщения, а сообщение с кнопками
-становится `lastBotMessage`. `captureInput` по-прежнему опционален.
-
-Источники проактивных сообщений — подписки стори на доменные события
-(`UiStory.getEventSubscriptions()` + `uiApp.subscribeEvents()`), telegramId
-резолвится в стори через `appApi.execute('user', 'get-user')`. Домен
-НИКОГДА не отправляет пользовательские тексты — никаких Telegram-портов
-в `packages/*`.
-
-**Чистые уведомления (без кнопок)** — через механизм `userFacade.notify`
-(трек user-notify): UC/ER/Job шлёт `userFacade.notify(userId, text)` → UC
-`notify-user` публикует `user.notified {userId, text}` → подписка — сторя
-`notify` контроллера `user` (резолв telegramId, экранирование, 🔔,
-`proactiveSender.notify`). Текст — plain; экранирование и рендер канала —
-в стори доставки. Без подписчиков — тихий no-op (u7-cli).
+- **`notify(telegramId, { text, kind })`** — единственный постоянный проактив
+  (И3): не трогает сессию/экран/диалог. Источники — подписки стори на доменные
+  события (`getEventSubscriptions` + `uiApp.start()`); тексты домена — plain,
+  экранирование и 🔔-рендер — в стори/транспорте. Чистые уведомления без
+  подписчиков — тихий no-op (u7-cli).
+- **`invite(telegramId, { text, keyboard })`** — ВРЕМЕННЫЙ проактив с кнопками
+  (ФР-6, удаляется с tasks-system): кнопки штампуются seq диалога получателя;
+  без диалога открывается временный якорь `app/invite` (seq = 1).
+- **`kickFromGroup(groupId, userId)`** — мягкий кик (ban 60с + unban).
 
 ---
 
-## 4. Формат `callback_data` и сжатие
+## 4. Формат `callback_data`
 
-Формат: `controller:story:action:...ids`.
+Формат: `controller:story:action[:...ids]:~<seq36>`.
 
-- **Префиксация** — в `BotController` (`#prefixCode`): стори возвращает
-  `story:action`, контроллер превращает в `controller:story:action`. Коды, уже
-  содержащие префикс контроллера (`app:main-menu`), не трогаются.
-- **Кросс-контроллерные коды** — канонические адреса в реестре `Routes`
-  (`apps/u7-bot/src/controllers/shared/routes.ts`), готовые кнопки — в
-  `buttons.mainMenu(text?)` (`apps/u7-bot/src/controllers/shared/buttons.ts`). `delegate.path`
-  всегда полный маршрут: стори пишет относительный путь через `cb`/`cbFor`,
-  контроллер префиксует его в `#prefixResponse`, `BotUiApp` резолвит первый
-  сегмент как контроллер.
-- **Сжатие** — в `BotTransport`: каждый UUID-сегмент заменяется на первые 8
-  hex-символов (`shortIds`), на входе `expandAction` разворачивает обратно.
-  Гарантирует `callback_data ≤ 64 байта`.
+- **Префиксация** — в `BotController`: стори возвращает `story:action`,
+  контроллер добавляет `controller:`; коды с чужим префиксом (`app:main-menu`)
+  не трогаются. Кросс-контроллерные адреса — реестр `Routes`
+  (`apps/u7-bot/src/controllers/shared/routes.ts`), готовые кнопки —
+  `buttons.mainMenu(text?)` (`shared/buttons.ts`).
+- **Штамп `:~<seq36>`** — в транспорте при отправке (после сжатия); сверка на
+  входе. Убивает кнопки старых экранов, истории, гонок и рестартов.
+- **Сжатие UUID** — в транспорте (`shortIds`, первые 8 hex + суффикс при
+  коллизии); гарантия ≤ 64 байта — fail-fast, не ошибка Telegram API.
+- **Системные коды** `app:main-menu` / `app:help` (`shared/app-codes.ts`) —
+  перехватываются `U7BotUiApp.dispatch` до маршрутизации; транспорт их не сжимает.
 
 ---
 
-## 5. Сборка приложения
+## 5. Сборка приложения (`main.ts`)
 
-`main.ts`:
-
-1. `config = loadConfig()`.
-2. `sessionMap = new Map<number, SessionData>()`.
-3. `bot = createBot(config.botToken, sessionMap)`.
-4. `apiBundle = createApiApp(config, logger)` — доменные модули + репозитории (без Telegram-портов).
-5. `createUiApp(apiApp, apiBundle, config)` — все контроллеры + `U7BotUiApp`,
-   `uiApp.init(resolve)` — каскадная инициализация по дереву (resolve = `{ eventBus, actorResolver, appApi, uiApp }`).
-6. `transport = new BotTransport(uiApp, bot.api, sessionMap)`.
-7. Регистрация Grammy-обработчиков → `transport.handle*`.
+1. `config = loadConfig()` → логгер.
+2. `bot = createBot(token)` (без сессий).
+3. `apiBundle = createApiApp(...)` — домены + репозитории.
+4. `uiBundle = createUiApp(...)` — контроллеры + `U7BotUiApp` (без init).
+5. `transport = new BotTransport(uiApp, bot.api)`.
+6. `uiApp.init(resolve, transport)` — каскад вниз до стори; `uiApp.start()` —
+   подписки стори на события (до старта job'ов); `apiApp.start()` — job'ы.
+7. Верификация админа, group-хендлеры, регистрация grammy-обработчиков,
+   allowed_updates (`chat_member` — явно), polling/webhook, graceful shutdown.
 
 ---
 
@@ -262,5 +200,5 @@ Grammy ctx (callback_query.data)
 - [BotController Styleguide](./skills/bot-controller.md)
 - [BotUiStory Styleguide](./skills/bot-ui-story.md)
 - [Тестирование бота](./bot-test.md)
-- [Границы архитектуры](./architecture.md)
-- [Domain boundaries](./domain-boundaries.md)
+- [Границы архитектуры](./architecture.md), [Domain boundaries](./domain-boundaries.md)
+- Материнский документ контракта: `conductor/bot-ui-session-architecture.md`

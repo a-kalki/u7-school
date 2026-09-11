@@ -23,10 +23,10 @@ BotController<TAppMeta, TActor>                        (core, абстрактн
 ```
 
 - **`BotController`** (`@u7-scl/core/ui`) — базовый класс. Общие механизмы: префиксация кнопок, диспетчеризация в сторис, `handleError`.
-- **`U7BotController`** (`@u7-scl/bot/u7-bot-controller`) — специализация для U7-бота: фиксирует `TAppMeta = U7BotAppMeta`, `TActor = User`, добавляет систему меню (`handleStart`, `handleWelcome`, `handleHelpMessage`, `uiApp`).
+- **`U7BotController`** (`@u7-scl/bot/u7-bot-controller`) — специализация для U7-бота: фиксирует `TAppMeta = U7BotAppMeta`, `TActor = User`, добавляет систему меню (`menuButtons`, `errorExitRows`), `uiApp`.
 - **Доменные контроллеры** (`StreamsController` и т.п.) — тонкий реестр: объявляют `name` и массив `stories`, делегируют всю логику в `U7BotUiStory`.
-- **`OnboardingController`** — пример контроллера **без сторис**: вшивает логику анкеты напрямую, использует `this.cb()` для формирования callback.
-- **`AppController`** (`apps/u7-bot/src/controllers/app/app-controller.ts`) — контроллер уровня приложения для сценариев, не привязанных к доменному модулю: приветствие `/start` (`handleWelcome`), помощь `/help` (`handleHelpMessage`), кнопка «Сообщество школы». Переопределяет `handleCallback` для `main-menu` и `help`.
+- **`UserController`** — доставка уведомлений (сторя `notify`).
+- **`AppController`** (`apps/u7-bot/src/controllers/app/app-controller.ts`) — контроллер уровня приложения для сценариев, не привязанных к доменному модулю: кнопка «Сообщество школы» (сторя `community`), скрытая админ-команда `/log_level` (override `handleCommand`). Системные коды `app:main-menu`/`app:help` перехватывает `U7BotUiApp.dispatch` — до контроллера они не доезжают.
 
 ---
 
@@ -47,7 +47,7 @@ init(resolve: TResolve): void  // eventBus + appApi + actorResolver (+ uiApp в 
 reset(): void                  // сброс временного состояния стори
 ```
 
-`init()` вызывается при создании `UiApp` (каскадно из `UiApp.init()`). `reset()` вызывает `reset()` у всех стори — сжатые id и `BotSession`-состояние здесь **не** сбрасываются (они в `BotTransport`).
+`init()` вызывается при создании `UiApp` (каскадно из `UiApp.init()`); транспорт передаётся отдельным аргументом (`ProactiveSender`). `reset()` вызывает `reset()` у всех стори — `BotSession` и shortId здесь не сбрасываются (они в `BotTransport`).
 
 Контроллер сохраняет зависимости:
 - `this.appApi` — для межмодульных вызовов (`appApi.execute(...)`)
@@ -61,18 +61,19 @@ reset(): void                  // сброс временного состоян
 |---|---|
 | `handleCallback(data, actor, session)` | Снимает префикс стори, делегирует в стори, префиксирует коды ответа |
 | `handleMessage(update, actor, session)` | Делегирует стори по `session.dialog.path`; `null` — стори отказалась |
-| `handleCancel(actor, session)` | Делегирует стори по `dialog.path` |
-| `handleStart(actor)` (U7) | Агрегирует кнопки главного меню от всех стори, добавляет префикс `name:` |
-| `handleWelcome` / `handleHelpMessage` (U7) | `Promise<Screen \| null>` — экраны меню/справки (переопределяет `AppController`) |
+| `handleCommand(update, actor, session)` | Pipe команд стори (активная первой): `pass`/`continue{notice}`/`stop{response}` |
+| `menuButtons(actor)` (U7) | Сбор кнопок главного меню от стори, префиксация + сортировка по приоритету |
 
 Диспетчеризация callback: ищет стори по префиксу `${story.name}:`. Если не найдено —
-ответ пустой (`null`), апдейт игнорируется молча. Все сигнатуры принимают `BotSession`.
+экран «⚠️ Неизвестная команда» + warn-лог. Все сигнатуры принимают `BotSession`.
+`/start`, `/help`, `/cancel` и системные коды обрабатывает `U7BotUiApp` —
+контроллеров они не касаются.
 
 ---
 
 ## 5. Префиксация кнопок
 
-`handleCallback`/`handleMessage`/`handleCancel` возвращают ответ стори
+`handleCallback`/`handleMessage`/`handleCommand` (stop-ответ) возвращают ответ стори
 (`DialogResponse`) **с уже добавленным префиксом** `name:` (`#prefixResponse`):
 префиксуются клавиатуры `screen`/`info` и `delegate.path`. Механику рендера
 (edit/send/finalize/retire) контроллер не знает — это транспорт.

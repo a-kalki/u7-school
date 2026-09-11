@@ -10,7 +10,7 @@
 |---|---|---|
 | `UiStory` | `@u7-scl/core/ui` | Канально-независимая базовая стори; объявляет подписки на доменные события (`getEventSubscriptions()`) |
 | `BotUiStory<TAppMeta, TActor>` | `@u7-scl/core/ui` | Абстрактный сценарий бота (extends `UiStory`) |
-| `U7BotUiStory` | `@u7-scl/bot/u7-bot-ui-story` | Специализация для U7-бота: `TAppMeta = U7BotAppMeta`, `TActor = User`, добавляет `handleStart` (кнопка меню) |
+| `U7BotUiStory` | `@u7-scl/bot/u7-bot-ui-story` | Специализация для U7-бота: `TAppMeta = U7BotAppMeta`, `TActor = User`, добавляет `menuButtons` (кнопка меню), `contextHelp`, `/cancel` в pipe |
 
 Контроллер, в котором живёт стори — см. [bot-controller.md](./bot-controller.md).
 
@@ -73,8 +73,9 @@ Wizard (пошаговый ввод) — конечный автомат на `a
 - Финальный шаг (`#handleConfirm`) оборачивай в `try/catch`: при ошибке валидации покажи детали, верни `release: true`, предложи начать заново.
 
 Также у стори:
-- `handleHelp(actor, session): Promise<Screen | null>` — контекстная справка для /help; `null` — общего fallback.
-- `handleCancel(actor, session): Promise<DialogResponse>` — по умолчанию `{ release: true }`; переопределяй при доменной очистке (очистка + возврат экрана; пустой ответ → дефолт-меню).
+- `handleCommand(update, actor, session): Promise<CommandReaction>` — команды в pipe (ФР-4). Дефолт `U7BotUiStory`: `/cancel` при активном диалоге стори — сброс себя + `stop{notify}`; `/start` — исключение-сторож (обрабатывает uiApp); прочее — `pass`. Доменные команды (например, `/log_level`) — override.
+- `contextHelp(actor, session): Promise<MdText | null>` — контекстная справка активной стори для `/help`; `null` — общий справочник. Публичный мост uiApp → стори: спрашивается только активная стори.
+- `menuButtons(actor): MenuButton[]` — кнопка стори в главном меню (декларативные данные: `text`, `action`, `priority`, `description`); экран собирает uiApp.
 
 ---
 
@@ -85,7 +86,7 @@ Wizard (пошаговый ввод) — конечный автомат на `a
 - **Актор:** полный объект `User`, роли через enum `Role` из `@u7-scl/user/domain`.
 - **Моки API:** `as unknown as <реальный тип>` (`StreamApiModule`, `U7BotApp`). Никаких `as any` и общих `test-helpers.ts` — каждый тест самодостаточен.
 - **Локальный хелпер** внутри `describe` для одинаковых моков — допустим и поощряется.
-- **Без вызовов API** (например, `handleStart`) — `init()` не нужен.
+- **Без вызовов API** (например, `menuButtons`) — `init()` не нужен.
 - **MarkdownV2:** `assertDialogResponseMarkdownSafe(response)` после каждого `handle*`.
 
 Живые образцы тестов на новом контракте: `apps/u7-bot/src/controllers/app/stories/community.story.test.ts`, `apps/u7-bot/src/controllers/app/app-controller.test.ts`; базовые сценарии (awaitInput/release, delegate, /help, /cancel) — `packages/core/src/ui/bot/ui-app.test.ts`.
