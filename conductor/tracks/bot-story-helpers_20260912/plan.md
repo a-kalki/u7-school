@@ -17,8 +17,8 @@
 
 ## Фаза 2: Миграция образцовых стори (courses, streams)
 
-- [~] Task: Мигрировать `course-catalog.story.ts` — эталон каталога (26 литералов); тесты стори зелёные без правок
-- [ ] Task: Мигрировать `view-stream.story.ts` — эталон wizard/`awaitInput`/`delegate`/`release` (21)
+- [x] Task: Мигрировать `course-catalog.story.ts` — эталон каталога (26 литералов); тесты стори зелёные без правок `6965493`
+- [~] Task: Мигрировать `view-stream.story.ts` — эталон wizard/`awaitInput`/`delegate`/`release` (21)
 - [ ] Task: Мигрировать `stream-catalog`, `inactivity`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
