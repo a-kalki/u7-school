@@ -5,6 +5,7 @@ import type {
   BotSession,
   BotUpdate,
   DialogResponse,
+  KbButton,
   KeyboardDescription,
 } from '@u7-scl/core/ui';
 import type {
@@ -87,14 +88,13 @@ export class ViewStreamStory extends U7BotUiStory {
     session: BotSession,
   ): Promise<DialogResponse> {
     if (update.type !== 'message') {
-      return {
-        notify: { text: md`Ожидалось текстовое сообщение\\.`, kind: 'warn' },
-      };
+      return this.warn(md`Ожидалось текстовое сообщение\\.`);
     }
 
     const ctx = session.dialog?.input?.context as EnrollKeyContext | undefined;
     if (!ctx) {
-      // Ввод без ожидания — страховочный отказ (диалог не ждёт кодовое слово)
+      // Ввод без ожидания — страховочный отказ (диалог не ждёт кодовое слово).
+      // Литерал: notify без kind — дефолтный вид 🔔 (не info) + release.
       return {
         notify: {
           text: md`Извините, на данном этапе сообщения не принимаются\\.`,
@@ -110,28 +110,24 @@ export class ViewStreamStory extends U7BotUiStory {
       if (attemptsLeft <= 0) {
         return {
           release: true,
-          screen: {
-            text: md`❌ Попытки исчерпаны\\.\nВозврат к потоку — нажмите кнопку ниже\\.`,
-            keyboard: {
-              rows: [
-                [
-                  {
-                    text: '⬅️ Назад к потоку',
-                    code: this.cbFor(this.storyName, 'view', ctx.streamId),
-                  },
-                ],
+          ...this.screen(
+            md`❌ Попытки исчерпаны\\.\nВозврат к потоку — нажмите кнопку ниже\\.`,
+            this.kb([
+              [
+                this.btn(
+                  '⬅️ Назад к потоку',
+                  this.cbFor(this.storyName, 'view', ctx.streamId),
+                ),
               ],
-              isMultiple: false,
-            },
-          },
+            ]),
+          ),
         };
       }
 
       return {
-        notify: {
-          text: md`❌ Неверное слово\\. Осталось попыток: ${attemptsLeft}`,
-          kind: 'warn',
-        },
+        ...this.warn(
+          md`❌ Неверное слово\\. Осталось попыток: ${attemptsLeft}`,
+        ),
         awaitInput: {
           context: {
             ...ctx,
@@ -201,12 +197,7 @@ export class ViewStreamStory extends U7BotUiStory {
 
     const keyboard = this.buildKeyboard(stream, actor);
 
-    return {
-      screen: {
-        text,
-        keyboard: keyboard.rows.length > 0 ? keyboard : undefined,
-      },
-    };
+    return this.screen(text, keyboard.rows.length > 0 ? keyboard : undefined);
   }
 
   protected async handleProgramView(streamId: string): Promise<DialogResponse> {
@@ -216,22 +207,17 @@ export class ViewStreamStory extends U7BotUiStory {
     const snapshot = stream.contentSnapshot;
 
     if (!snapshot || snapshot.length === 0) {
-      return {
-        screen: {
-          text: md`📖 *Программа курса*\n\nПрограмма пока не загружена\\.`,
-          keyboard: {
-            rows: [
-              [
-                {
-                  text: '⬅️ Назад к потоку',
-                  code: this.cbFor(this.storyName, 'view', streamId),
-                },
-              ],
-            ],
-            isMultiple: false,
-          },
-        },
-      };
+      return this.screen(
+        md`📖 *Программа курса*\n\nПрограмма пока не загружена\\.`,
+        this.kb([
+          [
+            this.btn(
+              '⬅️ Назад к потоку',
+              this.cbFor(this.storyName, 'view', streamId),
+            ),
+          ],
+        ]),
+      );
     }
 
     // Собираем дерево проектов для tree-renderer.
@@ -258,22 +244,17 @@ export class ViewStreamStory extends U7BotUiStory {
     const treeText = renderTree(projectNodes);
     const text = mdConcat(md`📖 *Программа курса*\n\n`, mdRaw(treeText));
 
-    return {
-      screen: {
-        text: this.#truncate(text),
-        keyboard: {
-          rows: [
-            [
-              {
-                text: '⬅️ Назад к потоку',
-                code: this.cbFor(this.storyName, 'view', streamId),
-              },
-            ],
-          ],
-          isMultiple: false,
-        },
-      },
-    };
+    return this.screen(
+      this.#truncate(text),
+      this.kb([
+        [
+          this.btn(
+            '⬅️ Назад к потоку',
+            this.cbFor(this.storyName, 'view', streamId),
+          ),
+        ],
+      ]),
+    );
   }
 
   protected async handleDetailsView(streamId: string): Promise<DialogResponse> {
@@ -301,74 +282,61 @@ export class ViewStreamStory extends U7BotUiStory {
       lines.push(md`_Расширенная информация пока не добавлена\\._`);
     }
 
-    return {
-      screen: {
-        text: mdJoin(lines),
-        keyboard: {
-          rows: [
-            [
-              {
-                text: '⬅️ Назад к потоку',
-                code: this.cbFor(this.storyName, 'view', streamId),
-              },
-            ],
-          ],
-          isMultiple: false,
-        },
-      },
-    };
+    return this.screen(
+      mdJoin(lines),
+      this.kb([
+        [
+          this.btn(
+            '⬅️ Назад к потоку',
+            this.cbFor(this.storyName, 'view', streamId),
+          ),
+        ],
+      ]),
+    );
   }
 
   protected buildKeyboard(stream: Stream, actor: User): KeyboardDescription {
     const canEnroll = StreamPolicy.canEnroll(actor);
     const isOwnerMentor = StreamPolicy.canEdit(actor, stream);
-    const rows: Array<Array<{ text: string; code: string }>> = [];
+    const rows: KbButton[][] = [];
 
     // ── Публичные кнопки (всем) ──
 
     rows.push([
-      {
-        text: '📖 Программа курса',
-        code: this.cbFor(this.storyName, 'program', stream.uuid),
-      },
+      this.btn(
+        '📖 Программа курса',
+        this.cbFor(this.storyName, 'program', stream.uuid),
+      ),
     ]);
 
     // Кнопка «👥 Студенты» — свой обработчик
     rows.push([
-      {
-        text: '👥 Студенты',
-        code: this.cbFor(this.storyName, 'students', stream.uuid),
-      },
+      this.btn(
+        '👥 Студенты',
+        this.cbFor(this.storyName, 'students', stream.uuid),
+      ),
     ]);
 
     rows.push([
-      {
-        text: '📋 Детали',
-        code: this.cbFor(this.storyName, 'details', stream.uuid),
-      },
+      this.btn('📋 Детали', this.cbFor(this.storyName, 'details', stream.uuid)),
     ]);
 
     // ── Гостевые кнопки ──
     if (!isOwnerMentor) {
       if (stream.status === 'enrollment' && canEnroll) {
         rows.push([
-          {
-            text: '📝 Записаться',
-            code: this.cbFor(this.storyName, 'enroll', stream.uuid),
-          },
+          this.btn(
+            '📝 Записаться',
+            this.cbFor(this.storyName, 'enroll', stream.uuid),
+          ),
         ]);
       }
     }
 
     // Кнопка «⬅️ Назад к списку» — возврат в каталог
-    rows.push([
-      {
-        text: '⬅️ Назад к списку',
-        code: this.cbFor('catalog', 'list'),
-      },
-    ]);
+    rows.push([this.btn('⬅️ Назад к списку', this.cbFor('catalog', 'list'))]);
 
-    return { rows, isMultiple: false };
+    return this.kb(rows);
   }
 
   // ── Обработчик «👥 Студенты» ──
@@ -388,7 +356,7 @@ export class ViewStreamStory extends U7BotUiStory {
     })) as Stream;
 
     if (!stream) {
-      return { screen: { text: md`⚠️ Поток не найден` } };
+      return this.screen(md`⚠️ Поток не найден`);
     }
 
     // Категоризируем через DS
@@ -460,7 +428,7 @@ export class ViewStreamStory extends U7BotUiStory {
       }
     }
 
-    const keyboardRows: Array<Array<{ text: string; code: string }>> = [];
+    const keyboardRows: KbButton[][] = [];
 
     // Строки студентов для текста
     const studentLines: MdText[] = [];
@@ -496,18 +464,18 @@ export class ViewStreamStory extends U7BotUiStory {
 
       // Публичный режим: только кнопка-имя, ведёт в student-detail
       keyboardRows.push([
-        {
-          text: nameBtn,
-          code: this.cbFor(this.storyName, 'student-detail', r.student.uuid),
-        },
+        this.btn(
+          nameBtn,
+          this.cbFor(this.storyName, 'student-detail', r.student.uuid),
+        ),
       ]);
     }
 
     keyboardRows.push([
-      {
-        text: '⬅️ Назад к потоку',
-        code: this.cbFor(this.storyName, 'view', streamId),
-      },
+      this.btn(
+        '⬅️ Назад к потоку',
+        this.cbFor(this.storyName, 'view', streamId),
+      ),
     ]);
 
     const countLabel = this.#pluralize(
@@ -557,12 +525,7 @@ export class ViewStreamStory extends U7BotUiStory {
       md`✅ завершил модуль, проходит дальше`,
     );
 
-    return {
-      screen: {
-        text: mdJoin(header),
-        keyboard: { rows: keyboardRows, isMultiple: false },
-      },
-    };
+    return this.screen(mdJoin(header), this.kb(keyboardRows));
   }
 
   /**
@@ -595,7 +558,7 @@ export class ViewStreamStory extends U7BotUiStory {
     })) as Stream;
 
     if (!stream) {
-      return { screen: { text: md`⚠️ Поток не найден` } };
+      return this.screen(md`⚠️ Поток не найден`);
     }
 
     // Lag info
@@ -717,21 +680,16 @@ export class ViewStreamStory extends U7BotUiStory {
     }
 
     // Клавиатура: только навигация
-    const keyboardRows: Array<Array<{ text: string; code: string }>> = [
+    const keyboardRows: KbButton[][] = [
       [
-        {
-          text: '⬅️ Назад к списку',
-          code: this.cbFor(this.storyName, 'students', student.streamId),
-        },
+        this.btn(
+          '⬅️ Назад к списку',
+          this.cbFor(this.storyName, 'students', student.streamId),
+        ),
       ],
     ];
 
-    return {
-      screen: {
-        text: mdJoin(lines),
-        keyboard: { rows: keyboardRows, isMultiple: false },
-      },
-    };
+    return this.screen(mdJoin(lines), this.kb(keyboardRows));
   }
 
   /** Возвращает маркер отставания с учётом статуса */
@@ -780,29 +738,22 @@ export class ViewStreamStory extends U7BotUiStory {
 
     // Если есть кодовое слово — запрашиваем его
     if (stream.enrollmentKey) {
-      return {
-        screen: {
-          text: md`🔑 Введите кодовое слово для записи на поток:`,
-          keyboard: {
-            rows: [
-              [
-                {
-                  text: '❌ Отмена',
-                  code: this.cbFor(this.storyName, 'cancel', streamId),
-                },
-              ],
-            ],
-            isMultiple: false,
-          },
-        },
-        awaitInput: {
-          context: {
-            streamId,
-            enrollmentKey: stream.enrollmentKey,
-            attempts: 0,
-          } satisfies EnrollKeyContext,
-        },
-      };
+      return this.ask(
+        md`🔑 Введите кодовое слово для записи на поток:`,
+        {
+          streamId,
+          enrollmentKey: stream.enrollmentKey,
+          attempts: 0,
+        } satisfies EnrollKeyContext,
+        this.kb([
+          [
+            this.btn(
+              '❌ Отмена',
+              this.cbFor(this.storyName, 'cancel', streamId),
+            ),
+          ],
+        ]),
+      );
     }
 
     // Без кодового слова — сразу зачисляем
@@ -814,9 +765,7 @@ export class ViewStreamStory extends U7BotUiStory {
   ): Promise<DialogResponse> {
     return {
       release: true,
-      delegate: {
-        path: this.cbFor(this.storyName, 'view', streamId),
-      },
+      ...this.go(this.cbFor(this.storyName, 'view', streamId)),
     };
   }
 
@@ -863,6 +812,7 @@ export class ViewStreamStory extends U7BotUiStory {
       lines.push(md``, md`🔗 ${stream.telegramGroupInvite}`);
     }
 
+    // Литерал: notify без kind — дефолтный вид 🔔 (не info) + delegate.
     return {
       notify: { text: mdJoin(lines) },
       delegate: { path: Routes.app.mainMenu },
