@@ -10,7 +10,10 @@
 - [x] Task: Мигрировать тесты домена: e2e `mentor-management`, integration `tests/mentor/mentor.integration.test.ts` — на `DialogResponse` (тест-стенд `tests/helpers/test-bot-transport.ts` уже на новом контракте — мигрирован треком bot-ui-dialog-nav [6e1147a4], хелперы нажатий готовы: `pressedCode`/`stampedCode` [94fa7a1e])
 - [x] Task: Перевести все mentor-стори [df4e9892]
 - [x] Task: **Восстановить кнопочные проактивы InactivityStory через `invite`** (решение владельца, ревью трека 3): «🚪 Покинуть учёбу» студенту (предупреждение 5+ дней) и «⚠️ Снять с учёбы» ментору (уведомление об отстающем) — прежние тексты/переходы из [7034c7e~1]; тесты на обе кнопки (keyboard-ассерты + сценарий нажатия)
-- [ ] Conductor - User Manual Verification 'Mentor-стори' (Protocol in workflow.md)
+- [x] Conductor - User Manual Verification 'Mentor-стори' (Protocol in workflow.md) — подтверждена владельцем без ручного прогона (решение 2026-09-12)
+
+## Фаза: Исправления ревью
+- [x] Task: Применить предложения ревью (двойное экранирование в create-stream, формат monitor.ts) [c3263b6e]
 
 ## Фаза 2: Демонтаж старого мира
 
