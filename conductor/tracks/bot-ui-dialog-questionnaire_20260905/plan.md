@@ -19,5 +19,5 @@
 
 - [x] Task: Проверки скоупа зелёные; grep-чистота [d4ad7610]
 - [x] Task: Мигрировать e2e домена анкеты (`questionnaire-ux`, `wish-questionnaire`) на `DialogResponse` [61a58820, 58c85f69]
-- [~] Task: Обновить блоки `ui-spec.md`; создать `summary.md` (спек — источник истины: расхождения с кодом — вопрос владельцу, не подгонка спека)
+- [x] Task: Обновить блоки `ui-spec.md`; создать `summary.md` (спек — источник истины: расхождения с кодом — вопрос владельцу, не подгонка спека) [8054897c]
 - [ ] Conductor - User Manual Verification 'Финал' (Protocol in workflow.md)
