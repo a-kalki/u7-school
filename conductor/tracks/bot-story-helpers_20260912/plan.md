@@ -20,12 +20,12 @@
 - [x] Task: Мигрировать `course-catalog.story.ts` — эталон каталога (26 литералов); тесты стори зелёные без правок `6965493`
 - [x] Task: Мигрировать `view-stream.story.ts` — эталон wizard/`awaitInput`/`delegate`/`release` (21) `c4e416e`
 - [x] Task: Мигрировать `stream-catalog`, `inactivity` `8fdfcd2`
-- [~] Task: Билдер `notify(text)` — дефолтный тон 🔔 (решение владельца): тесты, реализация, делегат; замена 2 литералов в `view-stream`
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
+- [x] Task: Билдер `notify(text)` — дефолтный тон 🔔 (решение владельца): тесты, реализация, делегат; замена 2 литералов в `view-stream` `ec2b1c1`
+- [x] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
 ## Фаза 3: Миграция mentor + questionnaire
 
-- [ ] Task: Мигрировать `create-stream` — самый большой wizard (35 полей, 11 `awaitInput`); локальные kb-хелперы → `kb/btn`
+- [~] Task: Мигрировать `create-stream` — самый большой wizard (35 полей, 11 `awaitInput`); локальные kb-хелперы → `kb/btn`
 - [ ] Task: Мигрировать `monitor`, `my-streams`, `submenu`, `activate-stream`, `view-stream-mentor`
 - [ ] Task: Мигрировать `fill.story`, `invite.story` (wizard + release)
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
