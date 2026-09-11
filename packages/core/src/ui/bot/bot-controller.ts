@@ -140,7 +140,10 @@ export abstract class BotController<
     try {
       const story = this.#storyByPath(session.dialog?.path);
       if (story) {
-        return await story.handleMessage(update, actor, session);
+        // Экран из ответа на ввод несёт кнопки стори — без префикса
+        // контроллера они не маршрутизируются (симметрично handleCallback)
+        const response = await story.handleMessage(update, actor, session);
+        return response === null ? null : this.#prefixResponse(response);
       }
       return null;
     } catch (err) {
@@ -167,7 +170,14 @@ export abstract class BotController<
       }
       if (reaction.reaction === 'pass') continue;
       if (reaction.reaction === 'stop') {
-        return this.#withNotices(reaction, notices);
+        // Экран stop-ответа (например, /cancel-confirm) несёт кнопки
+        // стори — без префикса контроллера они не маршрутизируются
+        // (симметрично handleCallback/handleMessage)
+        const prefixed: CommandReaction = {
+          reaction: 'stop',
+          response: this.#prefixResponse(reaction.response),
+        };
+        return this.#withNotices(prefixed, notices);
       }
       if (reaction.notice !== undefined) notices.push(reaction.notice);
     }

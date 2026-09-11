@@ -30,6 +30,8 @@ class SpyStory extends BotUiStory<AppMeta, TestActor> {
   callbackData: string[] = [];
   messageCalled = 0;
   throwError: unknown = null;
+  messageResult: DialogResponse = { release: true };
+  commandReaction: CommandReaction | null = null;
 
   override async handleCallback(
     action: string,
@@ -47,7 +49,15 @@ class SpyStory extends BotUiStory<AppMeta, TestActor> {
     _session: BotSession,
   ): Promise<DialogResponse> {
     this.messageCalled++;
-    return { release: true };
+    return this.messageResult;
+  }
+
+  override async handleCommand(
+    update: CommandUpdate,
+    actor: TestActor,
+    session: BotSession,
+  ): Promise<CommandReaction> {
+    return this.commandReaction ?? super.handleCommand(update, actor, session);
   }
 }
 
@@ -408,6 +418,68 @@ describe('BotController — маршрутизация callback', () => {
     const text = String(response.screen?.text);
     expect(text).toContain('Курс не найден');
     expect(() => assertMarkdownV2Safe(text)).not.toThrow();
+  });
+});
+
+describe('BotController — префиксация ответов handleMessage', () => {
+  test('коды кнопок экрана из ответа на ввод префиксованы контроллером', async () => {
+    const story = new SpyStory('hub');
+    story.messageResult = {
+      screen: { text: md`Вопрос`, keyboard: kb('hub:next', 'list:open') },
+    };
+    const ctrl = new TestController([story, new SpyStory('list')]);
+    ctrl.init({
+      appApi: {} as never,
+      eventBus: {} as never,
+      actorResolver: async () => ({ id: 'u' }),
+    } as never);
+
+    const response = await ctrl.handleMessage(
+      makeUpdate('ответ'),
+      { id: 'u' },
+      makeSession(),
+    );
+
+    expect(story.messageCalled).toBe(1);
+    const codes = response?.screen?.keyboard?.rows.flatMap((r) =>
+      r.map((b) => b.code),
+    );
+    // Экран после текстового ввода несёт те же маршруты, что и после
+    // кнопки: без префикса контроллера кнопка не маршрутизируется
+    expect(codes).toEqual(['learn:hub:next', 'learn:list:open']);
+  });
+});
+
+describe('BotController — префиксация stop-ответов команд', () => {
+  test('коды кнопок экрана stop-ответа префиксованы контроллером', async () => {
+    const story = new SpyStory('hub');
+    story.commandReaction = {
+      reaction: 'stop',
+      response: {
+        screen: { text: md`Прервать?`, keyboard: kb('hub:cancel', 'hub:back') },
+      },
+    };
+    const ctrl = new TestController([story, new SpyStory('list')]);
+    ctrl.init({
+      appApi: {} as never,
+      eventBus: {} as never,
+      actorResolver: async () => ({ id: 'u' }),
+    } as never);
+
+    const reaction = await ctrl.handleCommand(
+      makeCommandUpdate('cancel'),
+      { id: 'u' },
+      makeSession(),
+    );
+
+    expect(reaction.reaction).toBe('stop');
+    if (reaction.reaction !== 'stop') return;
+    const codes = reaction.response.screen?.keyboard?.rows.flatMap((r) =>
+      r.map((b) => b.code),
+    );
+    // Экран команды (например, /cancel-confirm) несёт маршруты стори:
+    // без префикса контроллера кнопки не маршрутизируются
+    expect(codes).toEqual(['learn:hub:cancel', 'learn:hub:back']);
   });
 });
 
