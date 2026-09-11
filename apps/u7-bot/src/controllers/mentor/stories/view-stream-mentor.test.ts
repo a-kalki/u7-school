@@ -1,25 +1,11 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
+import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
+import { assertDialogResponseMarkdownSafe } from '@u7-scl/core/ui';
 import type { Stream } from '@u7-scl/stream/domain';
 import { StreamStatus } from '@u7-scl/stream/domain';
 import { Role } from '@u7-scl/user/domain';
 import { ViewStreamMentorStory } from './view-stream-mentor';
-
-function createStory(): ViewStreamMentorStory {
-  const story = new ViewStreamMentorStory();
-  Object.assign(story, {
-    appApi: {
-      execute: async (_cmd: string, _params?: Record<string, unknown>) => {
-        if (_cmd === 'get-stream') return mockStream;
-        if (_cmd === 'list-stream-students') return [];
-        if (_cmd === 'get-user')
-          return { name: 'Ментор Тест', roles: [Role.MENTOR] };
-        return {};
-      },
-    },
-  } as any);
-  return story;
-}
 
 const mentorActor: User = {
   uuid: 'mentor-1',
@@ -27,6 +13,10 @@ const mentorActor: User = {
   telegramId: 123,
   roles: [Role.MENTOR],
   createdAt: '2026-01-01T00:00:00.000Z',
+};
+
+const session: BotSession = {
+  dialog: { path: 'mentor/view-stream-mentor', seq: 2 },
 };
 
 const mockStream = {
@@ -51,255 +41,320 @@ const mockStream = {
   ],
 } as Stream;
 
-describe('ViewStreamMentorStory', () => {
-  test('handleStart возвращает null (нет своей кнопки)', async () => {
-    const story = createStory();
-    expect(await story.handleStart(mentorActor)).toBeNull();
+const mockStudent = {
+  uuid: 'student-1',
+  userId: 'user-id-1',
+  status: 'active',
+  joinedAt: '2026-01-01T00:00:00.000Z',
+  streamId: 'stream-1',
+  currentStepId: null,
+  steps: [],
+};
+
+type Handler = (name: string, params?: Record<string, unknown>) => unknown;
+
+function createStory(handler?: Handler) {
+  const story = new ViewStreamMentorStory();
+  const appApi = {
+    execute: mock(async (name: string, params?: Record<string, unknown>) => {
+      if (handler) return handler(name, params);
+      if (name === 'get-stream') return mockStream;
+      if (name === 'list-stream-students') return [];
+      if (name === 'get-user') return { name: 'Ментор Тест', roles: [] };
+      return undefined;
+    }),
+  };
+  story.init({ appApi } as never);
+  return { story, appApi };
+}
+
+function flat(response: DialogResponse) {
+  const rows = response.screen?.keyboard?.rows ?? [];
+  return {
+    rows,
+    texts: rows.flat().map((b) => b.text),
+    codes: rows.flat().map((b) => b.code),
+  };
+}
+
+describe('ViewStreamMentorStory (S02m-карточка) — контракт «Диалог и Экран»', () => {
+  test('menuButtons: пусто (вход только через «Мои потоки»)', () => {
+    const { story } = createStory();
+    expect(story.menuButtons(mentorActor)).toEqual([]);
   });
 
-  test('handleCallback "view" показывает карточку', async () => {
-    const story = createStory();
-    const response = await story.handleCallback('view:stream-1', mentorActor, {
-      activeHandler: null,
+  // ── view: карточка + lifecycle-клавиатура ──
+
+  test('view: карточка потока, enrollment — «🚀 Запустить» и точные коды', async () => {
+    const { story } = createStory();
+    const response = await story.handleCallback(
+      'view:stream-1',
+      mentorActor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    expect(String(response.screen?.text)).toContain('Тестовый поток');
+    const { texts, codes } = flat(response);
+    // Публичные кнопки (инвентаризация)
+    expect(texts).toEqual([
+      '📖 Программа курса',
+      '👥 Студенты',
+      '📋 Детали',
+      '🚀 Запустить',
+      '⬅️ Назад к моим потокам',
+    ]);
+    expect(codes).toContain('view-stream-mentor:program:stream-1');
+    // Студенты — мост в monitor (менторский список)
+    expect(codes).toContain('monitor:students:stream-1');
+    expect(codes).toContain('view-stream-mentor:details:stream-1');
+    expect(codes).toContain('activate-stream:activate:stream-1');
+    expect(codes).toContain('my-streams:list');
+  });
+
+  test('view: active — «✅ Завершить» вместо «Запустить»', async () => {
+    const { story } = createStory((name) => {
+      if (name === 'get-stream')
+        return { ...mockStream, status: StreamStatus.ACTIVE };
+      if (name === 'list-stream-students') return [];
+      if (name === 'get-user') return { name: 'Ментор Тест', roles: [] };
+      return undefined;
     });
-    const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Тестовый поток');
+    const response = await story.handleCallback(
+      'view:stream-1',
+      mentorActor,
+      session,
+    );
+    const { texts, codes } = flat(response);
+    expect(texts).toContain('✅ Завершить');
+    expect(texts).not.toContain('🚀 Запустить');
+    expect(codes).toContain('view-stream-mentor:complete:stream-1');
   });
 
-  test('handleCallback "view" добавляет lifecycle-кнопки для enrollment', async () => {
-    const story = createStory();
-    const response = await story.handleCallback('view:stream-1', mentorActor, {
-      activeHandler: null,
+  test('view: completed — «📁 В архив»', async () => {
+    const { story } = createStory((name) => {
+      if (name === 'get-stream')
+        return { ...mockStream, status: StreamStatus.COMPLETED };
+      if (name === 'list-stream-students') return [];
+      if (name === 'get-user') return { name: 'Ментор Тест', roles: [] };
+      return undefined;
     });
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const allTexts = rows.flat().map((b) => b.text);
-
-    // Публичные кнопки
-    expect(allTexts).toContain('📖 Программа курса');
-    expect(allTexts).toContain('👥 Студенты');
-    expect(allTexts).toContain('📋 Детали');
-    // Lifecycle: enrolment → «Запустить»
-    expect(allTexts).toContain('🚀 Запустить');
-    // Кнопка «Назад к моим потокам»
-    expect(allTexts).toContain('⬅️ Назад к моим потокам');
+    const response = await story.handleCallback(
+      'view:stream-1',
+      mentorActor,
+      session,
+    );
+    const { texts, codes } = flat(response);
+    expect(texts).toContain('📁 В архив');
+    expect(codes).toContain('view-stream-mentor:archive:stream-1');
   });
 
-  test('handleCallback "view" для active показывает «Завершить»', async () => {
-    const story = createStory();
-    // Мокируем active stream
-    Object.assign(story, {
-      appApi: {
-        execute: async (_cmd: string, _params?: Record<string, unknown>) => {
-          if (_cmd === 'get-stream')
-            return { ...mockStream, status: StreamStatus.ACTIVE };
-          if (_cmd === 'list-stream-students') return [];
-          if (_cmd === 'get-user')
-            return { name: 'Ментор Тест', roles: [Role.MENTOR] };
-          return {};
-        },
-      },
-    } as any);
+  // ── program / details: родительский текст, назад — на свою view ──
 
-    const response = await story.handleCallback('view:stream-1', mentorActor, {
-      activeHandler: null,
-    });
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const allTexts = rows.flat().map((b) => b.text);
-    expect(allTexts).toContain('✅ Завершить');
-    expect(allTexts).not.toContain('🚀 Запустить');
-  });
-
-  test('handleCallback "program" показывает программу', async () => {
-    const story = createStory();
+  test('program: программа курса, назад в view-stream-mentor', async () => {
+    const { story } = createStory();
     const response = await story.handleCallback(
       'program:stream-1',
       mentorActor,
-      { activeHandler: null },
+      session,
     );
-    const text = response.sendMessage?.text ?? '';
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text);
     expect(text).toContain('Программа курса');
     expect(text).toContain('Проект 1');
     expect(text).toContain('Урок 1');
+    expect(flat(response).codes).toContain('view-stream-mentor:view:stream-1');
   });
 
-  test('handleCallback "details" показывает детали', async () => {
-    const story = createStory();
-    Object.assign(story, {
-      appApi: {
-        execute: async (_cmd: string, _params?: Record<string, unknown>) => {
-          if (_cmd === 'get-stream')
-            return {
-              ...mockStream,
-              goal: 'Научиться',
-              result: 'Сможете',
-            };
-          return {};
-        },
-      },
-    } as any);
-
+  test('details: показывает заполненные поля', async () => {
+    const { story } = createStory((name) => {
+      if (name === 'get-stream')
+        return { ...mockStream, goal: 'Научиться', result: 'Сможете' };
+      if (name === 'get-user') return { name: 'Ментор Тест', roles: [] };
+      return undefined;
+    });
     const response = await story.handleCallback(
       'details:stream-1',
       mentorActor,
-      { activeHandler: null },
+      session,
     );
-    const text = response.sendMessage?.text ?? '';
+    const text = String(response.screen?.text);
     expect(text).toContain('Детали');
     expect(text).toContain('Научиться');
   });
 
-  test('handleCallback "complete" показывает подтверждение', async () => {
-    const story = createStory();
+  // ── students: менторский режим списка ──
+
+  test('students: кнопка студента — monitor:detail + менторские ⛔✅', async () => {
+    const { story } = createStory((name) => {
+      if (name === 'get-stream')
+        return { ...mockStream, status: StreamStatus.ACTIVE };
+      if (name === 'list-stream-students') return [mockStudent];
+      if (name === 'get-user')
+        return { uuid: 'user-id-1', name: 'Студент Один', roles: [] };
+      return undefined;
+    });
+    const response = await story.handleCallback(
+      'students:stream-1',
+      mentorActor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    const text = String(response.screen?.text);
+    expect(text).toContain('Студенты потока');
+    expect(text).toContain('Студент Один');
+
+    const { texts, codes } = flat(response);
+    // Кнопка студента ведёт в monitor (менторский режим)
+    expect(codes).toContain('monitor:detail:student-1');
+    // Менторские кнопки с точными кодами
+    expect(codes).toContain('monitor:mark-abandoned:student-1');
+    expect(codes).toContain('monitor:complete:student-1');
+    expect(texts).toContain('⛔');
+    expect(texts).toContain('✅');
+    // Назад к потоку — на свою view
+    expect(codes).toContain('view-stream-mentor:view:stream-1');
+  });
+
+  test('students: advanced — только 🔄 (повтор), без ⛔', async () => {
+    const { story } = createStory((name) => {
+      if (name === 'get-stream')
+        return { ...mockStream, status: StreamStatus.ACTIVE };
+      if (name === 'list-stream-students')
+        return [{ ...mockStudent, status: 'advanced' }];
+      if (name === 'get-user')
+        return { uuid: 'user-id-1', name: 'Прошёл Студент', roles: [] };
+      return undefined;
+    });
+    const response = await story.handleCallback(
+      'students:stream-1',
+      mentorActor,
+      session,
+    );
+    const { texts, codes } = flat(response);
+    expect(codes).toContain('monitor:complete:student-1');
+    expect(texts).toContain('🔄');
+    expect(codes.some((c) => c.includes('mark-abandoned'))).toBe(false);
+  });
+
+  test('students: не-owner ментор — без менторских кнопок', async () => {
+    const { story } = createStory((name) => {
+      if (name === 'get-stream')
+        return { ...mockStream, status: StreamStatus.ACTIVE, mentorId: 'x' };
+      if (name === 'list-stream-students') return [mockStudent];
+      if (name === 'get-user')
+        return { uuid: 'user-id-1', name: 'Студент Один', roles: [] };
+      return undefined;
+    });
+    const response = await story.handleCallback(
+      'students:stream-1',
+      mentorActor,
+      session,
+    );
+    const { texts } = flat(response);
+    expect(texts).not.toContain('⛔');
+    expect(texts).not.toContain('✅');
+  });
+
+  // ── complete: confirm → выполнение ──
+
+  test('complete: confirm-экран с точными кнопками', async () => {
+    const { story } = createStory();
     const response = await story.handleCallback(
       'complete:stream-1',
       mentorActor,
-      { activeHandler: null },
+      session,
     );
-    const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Завершить поток');
-  });
-
-  test('handleMessage возвращает заглушку', async () => {
-    const story = createStory();
-    const response = await story.handleMessage();
-    expect(response.sendMessage?.text).toContain('Неизвестное сообщение');
-  });
-
-  // ── handleCallback: делегирует students родителю ──
-
-  test('handleCallback "students" делегирует родителю (ViewStreamStory)', async () => {
-    const story = createStory();
-    // Переопределяем мок чтобы handleStudentsList получил студентов
-    Object.assign(story, {
-      appApi: {
-        execute: async (_cmd: string, _params?: Record<string, unknown>) => {
-          if (_cmd === 'get-stream')
-            return { ...mockStream, status: StreamStatus.ACTIVE };
-          if (_cmd === 'list-stream-students')
-            return [
-              {
-                uuid: 'student-1',
-                userId: 'user-id-1',
-                status: 'active',
-                joinedAt: '2026-01-01T00:00:00.000Z',
-                streamId: 'stream-1',
-                currentStepId: null,
-                steps: [],
-              },
-            ];
-          if (_cmd === 'get-user')
-            return { name: 'Студент Один', roles: [Role.STUDENT] };
-          return {};
+    assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain('Завершить поток');
+    expect(response.screen?.keyboard?.rows).toEqual([
+      [
+        {
+          text: '✅ Да, завершить',
+          code: 'view-stream-mentor:complete-confirm:stream-1',
         },
-      },
-    } as any);
-
-    const response = await story.handleCallback(
-      'students:stream-1',
-      mentorActor,
-      { activeHandler: null },
-    );
-    const text = response.sendMessage?.text ?? '';
-    // Должен показать список студентов (делегировано родителю)
-    expect(text).toContain('Студенты потока');
-    expect(text).toContain('Студент Один');
+        { text: '❌ Отмена', code: 'view-stream-mentor:view:stream-1' },
+      ],
+    ]);
   });
 
-  // ── handleStudentsList: менторский режим ──
-
-  test('handleStudentsList: кнопка студента ведёт в monitor (не view-stream)', async () => {
-    const story = createStory();
-    Object.assign(story, {
-      appApi: {
-        execute: async (_cmd: string, _params?: Record<string, unknown>) => {
-          if (_cmd === 'get-stream')
-            return { ...mockStream, status: StreamStatus.ACTIVE };
-          if (_cmd === 'list-stream-students')
-            return [
-              {
-                uuid: 'student-1',
-                userId: 'user-id-1',
-                status: 'active',
-                joinedAt: '2026-01-01T00:00:00.000Z',
-                streamId: 'stream-1',
-                currentStepId: null,
-                steps: [],
-              },
-            ];
-          if (_cmd === 'get-user')
-            return { name: 'Студент Один', roles: [Role.STUDENT] };
-          return {};
-        },
-      },
-    } as any);
-
+  test('complete-confirm: UC complete-stream, экран успеха с кнопкой назад', async () => {
+    const { story, appApi } = createStory();
     const response = await story.handleCallback(
-      'students:stream-1',
+      'complete-confirm:stream-1',
       mentorActor,
-      { activeHandler: null },
+      session,
     );
-
-    const allCodes =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.code) ?? [];
-
-    // Кнопка студента должна вести в monitor (менторский режим)
-    const hasMonitorDetail = allCodes.some((c) =>
-      c.startsWith('monitor:detail:'),
-    );
-    const hasViewStreamDetail = allCodes.some((c) =>
-      c.startsWith('view-stream:detail:'),
-    );
-    expect(hasMonitorDetail).toBe(true);
-    expect(hasViewStreamDetail).toBe(false);
+    const calls = appApi.execute.mock.calls as unknown[][];
+    expect(calls.find((c) => c[0] === 'complete-stream')?.[1]).toEqual({
+      streamId: 'stream-1',
+    });
+    expect(String(response.screen?.text)).toContain('Поток завершён');
+    expect(response.screen?.keyboard?.rows).toEqual([
+      [{ text: '⬅️ Назад к списку', code: 'my-streams:list' }],
+    ]);
   });
 
-  test('handleStudentsList: содержит менторские кнопки (⛔✅) для активных', async () => {
-    const story = createStory();
-    Object.assign(story, {
-      appApi: {
-        execute: async (_cmd: string, _params?: Record<string, unknown>) => {
-          if (_cmd === 'get-stream')
-            return { ...mockStream, status: StreamStatus.ACTIVE };
-          if (_cmd === 'list-stream-students')
-            return [
-              {
-                uuid: 'student-1',
-                userId: 'user-id-1',
-                status: 'active',
-                joinedAt: '2026-01-01T00:00:00.000Z',
-                streamId: 'stream-1',
-                currentStepId: null,
-                steps: [],
-              },
-            ];
-          if (_cmd === 'get-user')
-            return { name: 'Студент Один', roles: [Role.STUDENT] };
-          return {};
-        },
-      },
-    } as any);
+  // ── archive: confirm → выполнение ──
 
+  test('archive: confirm-экран с точными кнопками', async () => {
+    const { story } = createStory();
     const response = await story.handleCallback(
-      'students:stream-1',
+      'archive:stream-1',
       mentorActor,
-      { activeHandler: null },
+      session,
     );
+    assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain('в архив');
+    expect(response.screen?.keyboard?.rows).toEqual([
+      [
+        {
+          text: '✅ Да, в архив',
+          code: 'view-stream-mentor:archive-confirm:stream-1',
+        },
+        { text: '❌ Отмена', code: 'view-stream-mentor:view:stream-1' },
+      ],
+    ]);
+  });
 
-    const allTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    const allCodes =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+  test('archive-confirm: UC archive-stream, экран успеха с кнопкой назад', async () => {
+    const { story, appApi } = createStory();
+    const response = await story.handleCallback(
+      'archive-confirm:stream-1',
+      mentorActor,
+      session,
+    );
+    const calls = appApi.execute.mock.calls as unknown[][];
+    expect(calls.find((c) => c[0] === 'archive-stream')?.[1]).toEqual({
+      streamId: 'stream-1',
+    });
+    expect(String(response.screen?.text)).toContain('архив');
+    expect(response.screen?.keyboard?.rows).toEqual([
+      [{ text: '⬅️ Назад к списку', code: 'my-streams:list' }],
+    ]);
+  });
 
-    // Должны быть кнопки ⛔ и ✅ для активного студента
-    expect(allTexts).toContain('⛔');
-    expect(allTexts).toContain('✅');
+  // ── Неизвестные действия ──
 
-    // Кнопка ⛔ должна вести в monitor:mark-abandoned
-    const abandonBtn = allCodes.find((_, i) => allTexts[i] === '⛔');
-    expect(abandonBtn).toStartWith('monitor:mark-abandoned:');
+  test('неизвестная команда — экран «Неизвестная команда»', async () => {
+    const { story } = createStory();
+    const response = await story.handleCallback(
+      'bogus:1',
+      mentorActor,
+      session,
+    );
+    expect(String(response.screen?.text)).toContain('Неизвестная');
+  });
 
-    // Кнопка ✅ должна вести в monitor:complete
-    const completeBtn = allCodes.find((_, i) => allTexts[i] === '✅');
-    expect(completeBtn).toStartWith('monitor:complete:');
+  test('handleMessage: дефолт ядра — реплика-отказ + release', async () => {
+    const { story } = createStory();
+    const response = await story.handleMessage(
+      { type: 'message', text: 'что-то', telegramId: 123 },
+      mentorActor,
+      session,
+    );
+    expect(String(response.notify?.text)).toContain('не принимаются');
+    expect(response.release).toBe(true);
   });
 });

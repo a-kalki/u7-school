@@ -1,12 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
+import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
+import { assertDialogResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import { MyStreamsStory } from './my-streams';
-
-function createStory(): MyStreamsStory {
-  const story = new MyStreamsStory();
-  return story;
-}
 
 function mentorActor(): User {
   return {
@@ -18,15 +15,14 @@ function mentorActor(): User {
   };
 }
 
+const session: BotSession = {
+  dialog: { path: 'mentor/my-streams', seq: 2 },
+};
+
 const mockStreams = [
   { uuid: 's1', title: 'Поток 1', status: 'enrollment', mentorId: 'mentor-1' },
   { uuid: 's2', title: 'Поток 2', status: 'active', mentorId: 'mentor-1' },
-  {
-    uuid: 's3',
-    title: 'Поток 3',
-    status: 'completed',
-    mentorId: 'mentor-1',
-  },
+  { uuid: 's3', title: 'Поток 3', status: 'completed', mentorId: 'mentor-1' },
   { uuid: 's4', title: 'Поток 4', status: 'archived', mentorId: 'mentor-1' },
   {
     uuid: 's5',
@@ -36,121 +32,149 @@ const mockStreams = [
   },
 ];
 
-function setupStory() {
-  const story = createStory();
-  // Прямое присваивание — перезаписывает свойство после конструктора
-  Object.assign(story, {
-    appApi: {
-      execute: async (_cmd: string) => mockStreams,
-    },
-  } as any);
+function setupStory(appApi?: {
+  execute: (cmd: string) => Promise<unknown>;
+}): MyStreamsStory {
+  const story = new MyStreamsStory();
+  story.init({
+    appApi: appApi ?? { execute: async () => mockStreams },
+  } as never);
   return story;
 }
 
-describe('MyStreamsStory', () => {
-  test('handleStart возвращает null (нет своей кнопки)', async () => {
-    const story = createStory();
-    const item = await story.handleStart(mentorActor());
-    expect(item).toBeNull();
+function flat(response: DialogResponse) {
+  return {
+    texts: (response.screen?.keyboard?.rows ?? []).flat().map((b) => b.text),
+    codes: (response.screen?.keyboard?.rows ?? []).flat().map((b) => b.code),
+  };
+}
+
+describe('MyStreamsStory — контракт «Диалог и Экран»', () => {
+  // ── menuButtons: своей кнопки в главном меню нет ──
+
+  test('menuButtons: пусто (вход только через подменю ментора)', () => {
+    const story = new MyStreamsStory();
+    expect(story.menuButtons(mentorActor())).toEqual([]);
   });
 
-  test('handleCallback "list" показывает enrollment + active', async () => {
+  // ── list: дефолт (только enrollment + active) ──
+
+  test('list: показывает enrollment + active с точными кодами кнопок', async () => {
     const story = setupStory();
-    const response = await story.handleCallback('list', mentorActor(), {
-      activeHandler: null,
-    });
+    const response = await story.handleCallback('list', mentorActor(), session);
+    assertDialogResponseMarkdownSafe(response);
 
-    const text = response.sendMessage?.text ?? '';
+    const text = String(response.screen?.text);
     expect(text).toContain('Мои потоки');
+    expect(text).toContain('идёт набор');
 
-    // Названия потоков — в кнопках клавиатуры
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const allButtonTexts = rows.flat().map((b) => b.text);
-    expect(allButtonTexts).toContain('🟡 Поток 1');
-    expect(allButtonTexts).toContain('🔵 Поток 2');
-    // Завершённые и архивированные не показываются по умолчанию
-    expect(allButtonTexts).not.toContain('🟢 Поток 3');
-    expect(allButtonTexts).not.toContain('⚫ Поток 4');
+    const { texts, codes } = flat(response);
+    expect(texts).toContain('🟡 Поток 1');
+    expect(texts).toContain('🔵 Поток 2');
+    expect(texts).not.toContain('🟢 Поток 3');
+    expect(texts).not.toContain('⚫ Поток 4');
     // Чужой поток не показывается
-    expect(allButtonTexts).not.toContain('Чужой поток');
+    expect(texts).not.toContain('Чужой поток');
 
-    // Должны быть кнопки-переключатели
-    expect(allButtonTexts).toContain('⚫ Вкл. архивированные');
-    expect(allButtonTexts).toContain('🟢 Вкл. завершённые');
+    // Кнопки потоков ведут в view-stream-mentor
+    expect(codes).toContain('view-stream-mentor:view:s1');
+    expect(codes).toContain('view-stream-mentor:view:s2');
+
+    // Переключатели фильтров (инвентаризация)
+    expect(codes).toContain('my-streams:list:archived:1');
+    expect(codes).toContain('my-streams:list:completed:1');
+    expect(texts).toContain('⚫ Вкл. архивированные');
+    expect(texts).toContain('🟢 Вкл. завершённые');
+
+    // «Назад» — в подменю ментора
+    expect(codes).toContain('submenu:start');
+    expect(texts).toContain('🔙 Назад');
   });
 
-  test('handleCallback "list:completed:1" показывает завершённые', async () => {
+  test('list:completed:1 — завершённые видны, переключатель парный', async () => {
     const story = setupStory();
     const response = await story.handleCallback(
       'list:completed:1',
       mentorActor(),
-      { activeHandler: null },
+      session,
     );
-
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const allButtonTexts = rows.flat().map((b) => b.text);
-    expect(allButtonTexts).toContain('🟢 Поток 3');
-    expect(allButtonTexts).not.toContain('⚫ Поток 4');
+    const { texts, codes } = flat(response);
+    expect(texts).toContain('🟢 Поток 3');
+    expect(texts).not.toContain('⚫ Поток 4');
+    expect(codes).toContain('my-streams:list:completed:1:archived:1');
+    expect(texts).toContain('⚫ Вкл. архивированные');
   });
 
-  test('handleCallback "list:archived:1" показывает архивированные', async () => {
+  test('list:archived:1 — архив виден, переключатель парный', async () => {
     const story = setupStory();
     const response = await story.handleCallback(
       'list:archived:1',
       mentorActor(),
-      { activeHandler: null },
+      session,
     );
-
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const allButtonTexts = rows.flat().map((b) => b.text);
-    expect(allButtonTexts).toContain('⚫ Поток 4');
-    expect(allButtonTexts).not.toContain('🟢 Поток 3');
+    const { texts, codes } = flat(response);
+    expect(texts).toContain('⚫ Поток 4');
+    expect(texts).not.toContain('🟢 Поток 3');
+    expect(codes).toContain('my-streams:list:completed:1:archived:1');
+    expect(texts).toContain('🟢 Вкл. завершённые');
   });
 
-  test('фильтрует только потоки текущего ментора', async () => {
+  test('list:completed:1:archived:1 — оба включены, переключателей нет', async () => {
     const story = setupStory();
-    const response = await story.handleCallback('list', mentorActor(), {
-      activeHandler: null,
-    });
-
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const allButtonTexts = rows.flat().map((b) => b.text);
-    expect(allButtonTexts).not.toContain('Чужой поток');
+    const response = await story.handleCallback(
+      'list:completed:1:archived:1',
+      mentorActor(),
+      session,
+    );
+    const { texts } = flat(response);
+    expect(texts).toContain('🟢 Поток 3');
+    expect(texts).toContain('⚫ Поток 4');
+    expect(texts.some((t) => t.includes('Вкл.'))).toBe(false);
   });
 
-  test('нет потоков — показывает сообщение', async () => {
-    const story = createStory();
-    (story as any).appApi = {
-      execute: async () => [],
-    };
-    const response = await story.handleCallback('list', mentorActor(), {
-      activeHandler: null,
-    });
+  // ── Пустой список ──
 
-    expect(response.sendMessage?.text).toContain('У вас пока нет потоков');
+  test('пустой список — «У вас пока нет потоков» + Назад', async () => {
+    const story = setupStory({ execute: async () => [] });
+    const response = await story.handleCallback('list', mentorActor(), session);
+    expect(String(response.screen?.text)).toContain('У вас пока нет потоков');
+    const { texts, codes } = flat(response);
+    expect(texts).toContain('🔙 Назад');
+    expect(codes).toContain('submenu:start');
   });
 
-  test('ошибка API — показывает сообщение об ошибке', async () => {
-    const story = createStory();
-    (story as any).appApi = {
+  // ── Ошибка API ──
+
+  test('ошибка API — экран «Не удалось загрузить список потоков.»', async () => {
+    const story = setupStory({
       execute: async () => {
         throw new Error('API error');
       },
-    };
-    const response = await story.handleCallback('list', mentorActor(), {
-      activeHandler: null,
     });
-
-    expect(response.sendMessage?.text).toContain('Не удалось загрузить');
+    const response = await story.handleCallback('list', mentorActor(), session);
+    expect(String(response.screen?.text)).toContain('Не удалось загрузить');
   });
 
-  test('handleMessage возвращает заглушку', async () => {
-    const story = createStory();
+  // ── Неизвестный action / текстовый ввод ──
+
+  test('неизвестный action — экран «Неизвестная команда»', async () => {
+    const story = setupStory();
+    const response = await story.handleCallback(
+      'bogus',
+      mentorActor(),
+      session,
+    );
+    expect(String(response.screen?.text)).toContain('Неизвестная');
+  });
+
+  test('handleMessage: дефолт ядра — реплика-отказ + release', async () => {
+    const story = setupStory();
     const response = await story.handleMessage(
       { type: 'message', text: 'что-то', telegramId: 123 },
       mentorActor(),
-      { activeHandler: null },
+      session,
     );
-    expect(response.sendMessage?.text).toContain('Используйте кнопки');
+    expect(String(response.notify?.text)).toContain('не принимаются');
+    expect(response.release).toBe(true);
   });
 });
