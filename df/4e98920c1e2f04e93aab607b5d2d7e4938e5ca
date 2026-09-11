@@ -1,0 +1,16 @@
+Задача: Перевести все mentor-стори (задача 5 Фазы 1) + приёмка задачи 3
+
+Сводка:
+- 6 стори переведены на контракт «Диалог и Экран» (DialogResponse/BotSession,
+  screen/notify, awaitInput/release, menuButtons, handleCommand-cancel, без
+  parseMode/escapeMarkdown/handleTimeout).
+- Задача 3 (приёмка): «⚠️ Снять с учёбы» доступен ментору без проактива —
+  точка входа карточка→список S07 (⛔), confirm-диалог, UC mark-abandoned
+  {streamId, studentId, cause: 'inactivity'} (FR-5), реплика «снят с учёбы»
+  доставлена, delegate monitor→students возвращает к списку. Сценарий зелёный
+  (monitor.test.ts). Кик из TG-группы (FR-6) — в UC/event-цепочке, вне стори.
+- Юнит-тесты: 99 pass / 0 fail; tsc скоупа чист (остались e2e/integration —
+  задача 4 и упущение ядра bot-controller.test.ts — Фаза 2).
+- Изменённые файлы: 6 сторей в apps/u7-bot/src/controllers/mentor/stories/.
+
+Причина: Фаза 1 трека bot-ui-dialog-mentor — миграция без потери функциональности.
