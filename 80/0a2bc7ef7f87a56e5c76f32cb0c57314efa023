@@ -1,0 +1,7 @@
+Задача: Мигрировать learning-стори: hub, step-view, nav-tree, progress (Фаза 4, трек bot-story-helpers_20260912)
+
+Сводка: Перевод четырёх learning-стори на делегаты билдеров ответов (ФР-3/ФР-2). hub.ts: экраны хаба/confirm самовыхода/после выхода — screen()+kb()+btn(), проактивы student.completed — kb() в invite-канале; кнопка «⬅️ В меню» — buttons.mainMenu('⬅️ В меню') (текст сохранён). step-view.ts: все экраны (завершение потока, несоответствие потока, шаг/поток не найдены, переходы lesson/project) — screen(), навигация ◀️/▶️ — btn(), #buildStepKeyboard — kb(). nav-tree.ts: три уровня drill-down — screen()+kb()+btn(). progress.ts: экраны ошибок — screen(), финальный экран — screen()+kb(). Тип rows — KbButton[][].
+
+Файлы: apps/u7-bot/src/controllers/learning/stories/{hub,step-view,nav-tree,progress}.ts
+
+Инвариант: структуры DialogResponse идентичны, 52 теста learning зелёные без правок.
