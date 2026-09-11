@@ -69,17 +69,14 @@ export class InactivityStory extends U7BotUiStory {
         md``,
         md`Если бездействие продлится больше недели, ментор может снять тебя с учёбы за бездействие\\.`,
       ]),
-      keyboard: {
-        rows: [
-          [
-            {
-              text: '🚪 Покинуть учёбу',
-              code: Routes.stream.inactivityDrop(studentId),
-            },
-          ],
+      keyboard: this.kb([
+        [
+          this.btn(
+            '🚪 Покинуть учёбу',
+            Routes.stream.inactivityDrop(studentId),
+          ),
         ],
-        isMultiple: false,
-      },
+      ]),
     });
   }
 
@@ -112,17 +109,14 @@ export class InactivityStory extends U7BotUiStory {
 
     await this.proactiveSender.invite(mentorTelegramId, {
       text: mdJoin(lines),
-      keyboard: {
-        rows: [
-          [
-            {
-              text: '⚠️ Снять с учёбы',
-              code: Routes.stream.inactivityMarkAbandoned(studentId),
-            },
-          ],
+      keyboard: this.kb([
+        [
+          this.btn(
+            '⚠️ Снять с учёбы',
+            Routes.stream.inactivityMarkAbandoned(studentId),
+          ),
         ],
-        isMultiple: false,
-      },
+      ]),
     });
   }
 
@@ -172,7 +166,7 @@ export class InactivityStory extends U7BotUiStory {
     if (cmd === 'mark-abandoned' && id) {
       const student = await this.#getStudent(id, actor);
       if (!student) {
-        return { screen: { text: md`⚠️ Запись студента не найдена` } };
+        return this.screen(md`⚠️ Запись студента не найдена`);
       }
       const name = await this.#resolveName(student.userId);
       return this.confirm(
@@ -199,7 +193,7 @@ export class InactivityStory extends U7BotUiStory {
   async #executeDrop(studentId: string, actor: User): Promise<DialogResponse> {
     const student = await this.#getStudent(studentId, actor);
     if (!student) {
-      return { screen: { text: md`⚠️ Запись студента не найдена` } };
+      return this.screen(md`⚠️ Запись студента не найдена`);
     }
 
     try {
@@ -212,15 +206,10 @@ export class InactivityStory extends U7BotUiStory {
       return this.handleError(err);
     }
 
-    return {
-      screen: {
-        text: md`Ты покинул учёбу\\. Жаль, что не сложилось — возвращайся, когда будешь готов\\!`,
-        keyboard: {
-          rows: [[{ text: '⬅️ В меню', code: Routes.app.mainMenu }]],
-          isMultiple: false,
-        },
-      },
-    };
+    return this.screen(
+      md`Ты покинул учёбу\\. Жаль, что не сложилось — возвращайся, когда будешь готов\\!`,
+      this.kb([[this.btn('⬅️ В меню', Routes.app.mainMenu)]]),
+    );
   }
 
   /** Снятие ментором за бездействие (FR-5): UC mark-abandoned. */
@@ -230,7 +219,7 @@ export class InactivityStory extends U7BotUiStory {
   ): Promise<DialogResponse> {
     const student = await this.#getStudent(studentId, actor);
     if (!student) {
-      return { screen: { text: md`⚠️ Запись студента не найдена` } };
+      return this.screen(md`⚠️ Запись студента не найдена`);
     }
 
     try {
@@ -249,11 +238,9 @@ export class InactivityStory extends U7BotUiStory {
 
     const name = await this.#resolveName(student.userId);
 
-    return {
-      screen: {
-        text: md`✅ Студент *${name}* снят с учёбы за бездействие и исключён из группы потока\\.`,
-      },
-    };
+    return this.screen(
+      md`✅ Студент *${name}* снят с учёбы за бездействие и исключён из группы потока\\.`,
+    );
   }
 
   /** Запись студента (streamId для команды UC); недоступна — undefined. */

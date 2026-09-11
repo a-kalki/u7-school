@@ -2,7 +2,7 @@ import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { MenuButton } from '@u7-scl/bot/u7-menu';
 import { type MdText, md, mdConcat } from '@u7-scl/core/shared';
-import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
+import type { BotSession, DialogResponse, KbButton } from '@u7-scl/core/ui';
 import { StreamStatus } from '@u7-scl/stream/domain';
 import { buttons } from '../../shared/buttons';
 
@@ -89,71 +89,52 @@ export class CatalogStory extends U7BotUiStory {
 
     // Нет потоков для показа
     if (visible.length === 0) {
-      const toggleRows: Array<Array<{ text: string; code: string }>> = [];
+      const toggleRows: KbButton[][] = [];
       if (hasCompleted && !showCompleted) {
         toggleRows.push([
-          {
-            text: '🟢 Вкл. завершённые',
-            code: this.cb('list-with-completed'),
-          },
+          this.btn('🟢 Вкл. завершённые', this.cb('list-with-completed')),
         ]);
       }
       if (hasArchived && !showArchived) {
         toggleRows.push([
-          {
-            text: '⚫ Вкл. архивированные',
-            code: this.cb('list-with-all'),
-          },
+          this.btn('⚫ Вкл. архивированные', this.cb('list-with-all')),
         ]);
       }
       if (toggleRows.length > 0) {
         toggleRows.push([this.#mainMenuButton()]);
-        return {
-          screen: {
-            text: md`📚 *Нет активных потоков*`,
-            keyboard: { rows: toggleRows, isMultiple: false },
-          },
-        };
+        return this.screen(md`📚 *Нет активных потоков*`, this.kb(toggleRows));
       }
 
-      return { screen: { text: md`📚 Нет доступных потоков` } };
+      return this.screen(md`📚 Нет доступных потоков`);
     }
 
     // Кросс-стори колбэки: ссылаемся на ViewStreamStory
-    const rows: Array<Array<{ text: string; code: string }>> = visible.map(
-      (s) => [
-        {
-          text: `${STATUS_EMOJI[s.status] ?? '❓'} ${s.title}`,
-          code: this.cbFor('view-stream', 'view', s.uuid),
-        },
-      ],
-    );
+    const rows: KbButton[][] = visible.map((s) => [
+      this.btn(
+        `${STATUS_EMOJI[s.status] ?? '❓'} ${s.title}`,
+        this.cbFor('view-stream', 'view', s.uuid),
+      ),
+    ]);
 
     // Кнопки-переключатели
-    const toggles: Array<{ text: string; code: string }> = [];
+    const toggles: KbButton[] = [];
     if (hasCompleted && !showCompleted) {
-      toggles.push({
-        text: '🟢 Вкл. завершённые',
-        code: this.cb('list-with-completed'),
-      });
+      toggles.push(
+        this.btn('🟢 Вкл. завершённые', this.cb('list-with-completed')),
+      );
     }
     if (hasArchived && !showArchived) {
-      toggles.push({
-        text: '⚫ Вкл. архивированные',
-        code: this.cb('list-with-all'),
-      });
+      toggles.push(
+        this.btn('⚫ Вкл. архивированные', this.cb('list-with-all')),
+      );
     }
     if (showCompleted && !showArchived && hasArchived) {
-      toggles.push({
-        text: '⚫ Вкл. архивированные',
-        code: this.cb('list-with-all'),
-      });
+      toggles.push(
+        this.btn('⚫ Вкл. архивированные', this.cb('list-with-all')),
+      );
     }
     if ((showCompleted || showArchived) && toggles.length === 0) {
-      toggles.push({
-        text: '🔵 Только активные',
-        code: this.cb('list'),
-      });
+      toggles.push(this.btn('🔵 Только активные', this.cb('list')));
     }
     if (toggles.length > 0) {
       rows.push(toggles);
@@ -162,12 +143,7 @@ export class CatalogStory extends U7BotUiStory {
     // Кнопка «↩️ Главное меню» последней строкой
     rows.push([this.#mainMenuButton()]);
 
-    return {
-      screen: {
-        text: this.#catalogTitle(),
-        keyboard: { rows, isMultiple: false },
-      },
-    };
+    return this.screen(this.#catalogTitle(), this.kb(rows));
   }
 
   /** Заголовок каталога с легендой статусов. */
