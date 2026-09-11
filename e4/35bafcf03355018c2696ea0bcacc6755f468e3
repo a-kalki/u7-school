@@ -1,0 +1,7 @@
+Задача: Мигрировать core: bot-controller.ts (#errorScreen, unknownCommand → билдеры; убрать дубль метода со стори), core/ui-app.ts (4 литерала) (Фаза 4, трек bot-story-helpers_20260912)
+
+Сводка: Миграция core-литералов на билдеры (ФР-4). bot-controller.ts: #unknownCommandScreen → rb.screen(); handleError → локальная errorKb (rb.kb(errorExitRows()) при непустых rows, иначе undefined) + rb.screen(); приватный #errorScreen удалён. bot-ui-story.ts (сопутствующие core-литералы): unknownCommand → this.screen(); дефолт handleMessage → { ...this.notify(...), release: true }; confirm → this.kb()/this.btn()/this.screen(); handleError → делегаты, дубль #errorScreen удалён; errorNotify → this.warn(). ui-app.ts: handleCommand-нотисы → rb.notify(); #attachNotices → { ...response, ...rb.notify(text) }; dispatch — rb.screen(mdRaw(...)). Импорт Screen очищен из обоих файлов.
+
+Файлы: packages/core/src/ui/bot/{bot-controller,bot-ui-story,ui-app}.ts
+
+Инвариант: структуры DialogResponse идентичны (клавиатура ошибок отсутствует при пустых errorExitRows — тест 'без переопределения → экран без клавиатуры' зелёный). Тесты: core 337 pass, u7-bot 637 pass, tsc/biome чисто.
