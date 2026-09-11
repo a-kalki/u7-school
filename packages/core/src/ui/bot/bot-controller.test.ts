@@ -12,6 +12,7 @@ import type {
   BotSession,
   BotUpdate,
   CommandReaction,
+  CommandUpdate,
   DialogResponse,
   KeyboardDescription,
 } from './types';
