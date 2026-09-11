@@ -41,5 +41,5 @@
 ## Фаза 5: Документация и закрытие
 
 - [x] Task: Обновить styleguide `bot-ui-story.md` — раздел «Хелперы ответов» (когда хелпер / когда литерал-спред), живой образец — мигрированная стори `208672d`
-- [ ] Task: Закрытие трека — финальный прогон `bun run check`, `summary.md`, обновление `tracks.md`
+- [x] Task: Закрытие трека — финальный прогон `bun run check`, `summary.md`, обновление `tracks.md` `f9b4914`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md)
