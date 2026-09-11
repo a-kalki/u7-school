@@ -2,6 +2,7 @@ import { type MdText, mdJoin, mdRaw } from '../../shared/markdown';
 import { UiApp } from '../ui-app';
 import type { BotUiAppResolve } from './app-types';
 import type { BotController } from './bot-controller';
+import * as rb from './response-builders';
 import type {
   BotSession,
   BotUpdate,
@@ -97,7 +98,7 @@ export abstract class BotUiApp<
     }
 
     if (notices.length > 0) {
-      return { notify: { text: mdJoin(notices, '\n\n') } };
+      return rb.notify(mdJoin(notices, '\n\n'));
     }
     return null;
   }
@@ -122,7 +123,7 @@ export abstract class BotUiApp<
     const text = merged
       ? mdJoin([...notices, merged], '\n\n')
       : mdJoin(notices, '\n\n');
-    return { ...response, notify: { text } };
+    return { ...response, ...rb.notify(text) };
   }
 
   // ── Обработка callback ──
@@ -218,12 +219,12 @@ export abstract class BotUiApp<
   ): Promise<DialogResponse> {
     const [ctrlName, storyName] = data.split(':');
     if (!ctrlName || !storyName) {
-      return { screen: { text: mdRaw('⚠️ Неизвестный формат команды') } };
+      return rb.screen(mdRaw('⚠️ Неизвестный формат команды'));
     }
 
     const controller = this.controllers.get(ctrlName);
     if (!controller) {
-      return { screen: { text: mdRaw('⚠️ Неизвестная команда') } };
+      return rb.screen(mdRaw('⚠️ Неизвестная команда'));
     }
 
     this.enterDialog(session, `${ctrlName}/${storyName}`, 'switch');

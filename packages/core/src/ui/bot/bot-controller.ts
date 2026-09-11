@@ -8,6 +8,7 @@ import { serializeError } from '#shared/serialize-error';
 import { UiController } from '../ui-controller';
 import type { BotUiAppResolve } from './app-types';
 import type { BotUiStory } from './bot-ui-story';
+import * as rb from './response-builders';
 import type {
   BotSession,
   BotUpdate,
@@ -17,7 +18,6 @@ import type {
   KeyboardDescription,
   NotificationPayload,
   ProactiveSender,
-  Screen,
 } from './types';
 
 /**
@@ -261,7 +261,7 @@ export abstract class BotController<
       dialogPath: session.dialog?.path,
       actor,
     });
-    return { screen: { text: md`⚠️ Неизвестная команда` } };
+    return rb.screen(md`⚠️ Неизвестная команда`);
   }
 
   // ── Префиксация кнопок ──
@@ -326,6 +326,10 @@ export abstract class BotController<
   protected handleError(err: unknown): DialogResponse {
     const appError = fromError(err);
 
+    // Клавиатура выхода на экране ошибки (errorExitRows), если задана
+    const exitRows = this.errorExitRows();
+    const errorKb = exitRows.length > 0 ? rb.kb(exitRows) : undefined;
+
     switch (appError.kind) {
       case 'validation': {
         const payload = appError.payload as
@@ -337,31 +341,27 @@ export abstract class BotController<
           const lines = issues.map(
             (i) => md`• *${i.path ?? ''}*: ${i.message}`,
           );
-          return {
-            screen: this.#errorScreen(
-              mdConcat(
-                md`⚠️ *Некорректные данные*\n\n`,
-                mdJoin(lines),
-                md`\n\nПожалуйста, нажмите /start и попробуйте снова\\.`,
-              ),
+          return rb.screen(
+            mdConcat(
+              md`⚠️ *Некорректные данные*\n\n`,
+              mdJoin(lines),
+              md`\n\nПожалуйста, нажмите /start и попробуйте снова\\.`,
             ),
-          };
+            errorKb,
+          );
         }
 
-        return {
-          screen: this.#errorScreen(
-            md`⚠️ *Некорректные данные*\n\n${appError.message}\n\nПожалуйста, исправьте и попробуйте снова\\.`,
-          ),
-        };
+        return rb.screen(
+          md`⚠️ *Некорректные данные*\n\n${appError.message}\n\nПожалуйста, исправьте и попробуйте снова\\.`,
+          errorKb,
+        );
       }
 
       case 'not-found':
       case 'conflict':
       case 'access-denied':
       case 'bad-request':
-        return {
-          screen: this.#errorScreen(md`⚠️ ${appError.message}`),
-        };
+        return rb.screen(md`⚠️ ${appError.message}`, errorKb);
 
       default: {
         this.logger?.error(
@@ -370,19 +370,11 @@ export abstract class BotController<
           serializeError(err),
         );
 
-        return {
-          screen: this.#errorScreen(
-            md`⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.`,
-          ),
-        };
+        return rb.screen(
+          md`⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.`,
+          errorKb,
+        );
       }
     }
-  }
-
-  /** Экран ошибки: текст + кнопки выхода (errorExitRows), если заданы. */
-  #errorScreen(text: MdText): Screen {
-    const rows = this.errorExitRows();
-    if (rows.length === 0) return { text };
-    return { text, keyboard: { rows, isMultiple: false } };
   }
 }

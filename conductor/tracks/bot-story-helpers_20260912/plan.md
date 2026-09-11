@@ -33,8 +33,8 @@
 ## Фаза 4: Миграция learning, app/user + core-литералы
 
 - [x] Task: Мигрировать learning-стори: `hub`, `step-view`, `nav-tree`, `progress` `800a2bc`
-- [~] Task: Мигрировать `community`, `notify.story`
-- [ ] Task: Мигрировать core: `bot-controller.ts` (`#errorScreen`, `unknownCommand` → билдеры; убрать дубль метода со стори), `core/ui-app.ts` (4 литерала)
+- [x] Task: Мигрировать `community`, `notify.story` `977d2a5`
+- [~] Task: Мигрировать core: `bot-controller.ts` (`#errorScreen`, `unknownCommand` → билдеры; убрать дубль метода со стори), `core/ui-app.ts` (4 литерала)
 - [ ] Task: Мигрировать app-слой: `app/core/ui-app.ts` (7 литералов), `learning/shared.ts`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
 

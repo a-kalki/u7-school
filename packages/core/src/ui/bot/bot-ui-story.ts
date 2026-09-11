@@ -17,7 +17,6 @@ import type {
   DialogResponse,
   KeyboardDescription,
   ProactiveSender,
-  Screen,
 } from './types';
 
 /**
@@ -97,9 +96,7 @@ export abstract class BotUiStory<
       { story: this.name, dialogPath: session.dialog?.path },
     );
     return {
-      notify: {
-        text: md`Извините, на данном этапе сообщения не принимаются\\.`,
-      },
+      ...this.notify(md`Извините, на данном этапе сообщения не принимаются\\.`),
       release: true,
     };
   }
@@ -207,23 +204,18 @@ export abstract class BotUiStory<
     const cancelCode =
       opts?.cancelCode ?? this.cbFor(this.name, 'detail', targetId);
 
-    const keyboard: KeyboardDescription = {
-      rows: [
+    return this.screen(
+      text,
+      this.kb([
         [
-          {
-            text: opts?.confirmButton ?? '✅ Да',
-            code: this.cbFor(this.name, confirmCode, targetId) + extra,
-          },
-          {
-            text: opts?.cancelButton ?? '❌ Отмена',
-            code: cancelCode,
-          },
+          this.btn(
+            opts?.confirmButton ?? '✅ Да',
+            this.cbFor(this.name, confirmCode, targetId) + extra,
+          ),
+          this.btn(opts?.cancelButton ?? '❌ Отмена', cancelCode),
         ],
-      ],
-      isMultiple: false,
-    };
-
-    return { screen: { text, keyboard } };
+      ]),
+    );
   }
 
   // ── Формирование callback_data (только реальные данные, без сжатия) ──
@@ -262,7 +254,7 @@ export abstract class BotUiStory<
       dialogPath: session?.dialog?.path,
       ...(actor !== undefined ? { actor } : {}),
     });
-    return { screen: { text: md`⚠️ Неизвестная команда` } };
+    return this.screen(md`⚠️ Неизвестная команда`);
   }
 
   /** Убирает префикс сценария из callback_data */
@@ -297,6 +289,10 @@ export abstract class BotUiStory<
   protected handleError(err: unknown): DialogResponse {
     const appError = fromError(err);
 
+    // Клавиатура выхода на экране ошибки (errorExitRows), если задана
+    const exitRows = this.errorExitRows();
+    const errorKb = exitRows.length > 0 ? this.kb(exitRows) : undefined;
+
     switch (appError.kind) {
       case 'validation': {
         const payload = appError.payload as
@@ -308,31 +304,27 @@ export abstract class BotUiStory<
           const lines = issues.map(
             (i) => md`• *${i.path ?? ''}*: ${i.message}`,
           );
-          return {
-            screen: this.#errorScreen(
-              mdConcat(
-                md`⚠️ *Ошибка валидации*\n\n`,
-                mdJoin(lines),
-                md`\n\nПожалуйста, попробуйте снова начав с команды /start с исправленными значениями\\.`,
-              ),
+          return this.screen(
+            mdConcat(
+              md`⚠️ *Ошибка валидации*\n\n`,
+              mdJoin(lines),
+              md`\n\nПожалуйста, попробуйте снова начав с команды /start с исправленными значениями\\.`,
             ),
-          };
+            errorKb,
+          );
         }
 
-        return {
-          screen: this.#errorScreen(
-            md`⚠️ *Ошибка валидации*\n\n${appError.message}\n\nПожалуйста, исправьте и попробуйте снова\\.`,
-          ),
-        };
+        return this.screen(
+          md`⚠️ *Ошибка валидации*\n\n${appError.message}\n\nПожалуйста, исправьте и попробуйте снова\\.`,
+          errorKb,
+        );
       }
 
       case 'not-found':
       case 'conflict':
       case 'access-denied':
       case 'bad-request':
-        return {
-          screen: this.#errorScreen(md`⚠️ ${appError.message}`),
-        };
+        return this.screen(md`⚠️ ${appError.message}`, errorKb);
 
       // biome-ignore lint/complexity/noUselessSwitchCase: явно документирует обрабатываемые типы ошибок
       case 'internal':
@@ -340,20 +332,12 @@ export abstract class BotUiStory<
       case 'unauthorized':
       default: {
         this.logger?.error('bot', 'Ошибка в story', serializeError(err));
-        return {
-          screen: this.#errorScreen(
-            md`⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.`,
-          ),
-        };
+        return this.screen(
+          md`⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.`,
+          errorKb,
+        );
       }
     }
-  }
-
-  /** Экран ошибки: текст + кнопки выхода (errorExitRows), если заданы. */
-  #errorScreen(text: MdText): Screen {
-    const rows = this.errorExitRows();
-    if (rows.length === 0) return { text };
-    return { text, keyboard: { rows, isMultiple: false } };
   }
 
   /**
@@ -382,29 +366,17 @@ export abstract class BotUiStory<
           const lines = issues.map(
             (i) => md`• *${i.path ?? ''}*: ${i.message}`,
           );
-          return {
-            notify: {
-              text: mdConcat(md`*Ошибка валидации*\n\n`, mdJoin(lines)),
-              kind: 'warn',
-            },
-          };
+          return this.warn(mdConcat(md`*Ошибка валидации*\n\n`, mdJoin(lines)));
         }
 
-        return {
-          notify: {
-            text: md`*Ошибка валидации*\n\n${appError.message}`,
-            kind: 'warn',
-          },
-        };
+        return this.warn(md`*Ошибка валидации*\n\n${appError.message}`);
       }
 
       case 'not-found':
       case 'conflict':
       case 'access-denied':
       case 'bad-request':
-        return {
-          notify: { text: md`${appError.message}`, kind: 'warn' },
-        };
+        return this.warn(md`${appError.message}`);
 
       // biome-ignore lint/complexity/noUselessSwitchCase: явно документирует обрабатываемые типы ошибок
       case 'internal':
@@ -412,12 +384,9 @@ export abstract class BotUiStory<
       case 'unauthorized':
       default: {
         this.logger?.error('bot', 'Ошибка в story', serializeError(err));
-        return {
-          notify: {
-            text: md`Произошла ошибка\\. Попробуйте ещё раз или обратитесь к администратору\\.`,
-            kind: 'warn',
-          },
-        };
+        return this.warn(
+          md`Произошла ошибка\\. Попробуйте ещё раз или обратитесь к администратору\\.`,
+        );
       }
     }
   }
