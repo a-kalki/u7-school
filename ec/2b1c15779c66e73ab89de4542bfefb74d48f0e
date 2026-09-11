@@ -1,0 +1,7 @@
+Задача: Билдер notify(text) — дефолтный тон 🔔 (решение владельца)
+
+Сводка: Добавлен чистый билдер notify(text) → { notify: { text } } (kind отсутствует — дефолтный вид транспорта 🔔) и protected-делегат this.notify на BotUiStory. Спека трека ФР-1/ФР-2 дополнена. Во view-stream.story 2 литерала notify-без-kind заменены на this.notify со спредом ({ ...this.notify(...), release: true } и { ...this.notify(...), delegate }). Мотивировка дебрифом: дефолтный тон — самый частый (19 мест по проекту), остальная миграция — Фазы 3-4 (вне скоупа задачи).
+
+Файлы: packages/core/src/ui/bot/response-builders.ts, response-builders.test.ts, bot-ui-story.ts, bot-ui-story.test.ts, apps/u7-bot/src/controllers/streams/stories/view-stream.story.ts, conductor/tracks/bot-story-helpers_20260912/spec.md
+
+Причина: без notify хелперы покрывали лишь 2 из 3 тонов уведомлений; параметр тона у note отвергнут — протечка транспортного enum в доменный язык.
