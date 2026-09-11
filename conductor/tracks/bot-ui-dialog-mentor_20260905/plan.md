@@ -17,8 +17,8 @@
 
 ## Фаза 2: Демонтаж старого мира
 
-- [ ] Task: Удалить старые типы и код: `BotCommand`, `BotResponse`, `SessionData`, `SendMessage/EditMessageDescription`, takeover, `handleTimeout`, `escapeMarkdown`, старые ассерты, остатки именных обработчиков команд и `notifyWithButtons`; `context.ts` финально на `BotSession` (временные `invite`/`app/invite` не трогать — их удаляет tasks-system)
-- [ ] Task: Весь репозиторий зелёный: `bun run check` (biome + tsc + тесты — включая tests/helpers и e2e ВСЕХ доменов); grep не находит старых типов
+- [x] Task: Удалить старые типы и код: `BotCommand`, `BotResponse`, `SessionData`, `SendMessage/EditMessageDescription`, takeover, `handleTimeout`, `escapeMarkdown`, старые ассерты, остатки именных обработчиков команд и `notifyWithButtons`; `context.ts` финально на `BotSession` (временные `invite`/`app/invite` не трогать — их удаляет tasks-system) [e12d3d27]
+- [x] Task: Весь репозиторий зелёный: `bun run check` (biome + tsc + тесты — включая tests/helpers и e2e ВСЕХ доменов); grep не находит старых типов [e12d3d27 — прогон и grep на HEAD, см. note]
 - [ ] Conductor - User Manual Verification 'Демонтаж' (Protocol in workflow.md)
 
 ## Фаза 3: Документация и финал трека 5
