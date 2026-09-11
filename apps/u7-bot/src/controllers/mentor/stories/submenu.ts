@@ -19,11 +19,7 @@ export class SubmenuStory extends U7BotUiStory {
     session: BotSession,
   ): Promise<DialogResponse> {
     if (!this.#isMentor(actor)) {
-      return {
-        screen: {
-          text: md`⚠️ У вас нет доступа к инструментам ментора\\.`,
-        },
-      };
+      return this.screen(md`⚠️ У вас нет доступа к инструментам ментора\\.`);
     }
 
     if (action === 'start') {
@@ -58,23 +54,13 @@ export class SubmenuStory extends U7BotUiStory {
   }
 
   #buildSubmenu(): DialogResponse {
-    return {
-      screen: {
-        text: md`🛠️ *Инструменты ментора*`,
-        keyboard: {
-          rows: [
-            [{ text: '📋 Мои потоки', code: this.cbFor('my-streams', 'list') }],
-            [
-              {
-                text: '➕ Создать поток',
-                code: this.cbFor('create-stream', 'start'),
-              },
-            ],
-            [buttons.mainMenu('🔙 Назад')],
-          ],
-          isMultiple: false,
-        },
-      },
-    };
+    return this.screen(
+      md`🛠️ *Инструменты ментора*`,
+      this.kb([
+        [this.btn('📋 Мои потоки', this.cbFor('my-streams', 'list'))],
+        [this.btn('➕ Создать поток', this.cbFor('create-stream', 'start'))],
+        [buttons.mainMenu('🔙 Назад')],
+      ]),
+    );
   }
 }

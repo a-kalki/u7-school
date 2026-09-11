@@ -3,6 +3,7 @@ import { md } from '@u7-scl/core/shared';
 import type {
   BotSession,
   DialogResponse,
+  KbButton,
   KeyboardDescription,
 } from '@u7-scl/core/ui';
 import type { Stream } from '@u7-scl/stream/domain';
@@ -69,53 +70,56 @@ export class ViewStreamMentorStory extends ViewStreamStory {
     actor: User,
   ): KeyboardDescription {
     const canEdit = StreamPolicy.canEdit(actor, stream);
-    const rows: Array<Array<{ text: string; code: string }>> = [];
+    const rows: KbButton[][] = [];
 
     // ── Публичные кнопки (всем) ──
     rows.push([
-      {
-        text: '📖 Программа курса',
-        code: this.cbFor('view-stream-mentor', 'program', stream.uuid),
-      },
+      this.btn(
+        '📖 Программа курса',
+        this.cbFor('view-stream-mentor', 'program', stream.uuid),
+      ),
     ]);
 
     rows.push([
-      {
-        text: '👥 Студенты',
-        code: this.cbFor('monitor', 'students', stream.uuid),
-      },
+      this.btn('👥 Студенты', this.cbFor('monitor', 'students', stream.uuid)),
     ]);
 
     rows.push([
-      {
-        text: '📋 Детали',
-        code: this.cbFor('view-stream-mentor', 'details', stream.uuid),
-      },
+      this.btn(
+        '📋 Детали',
+        this.cbFor('view-stream-mentor', 'details', stream.uuid),
+      ),
     ]);
 
     // ── Lifecycle-кнопки (только для владельца / ADMIN) ──
     if (canEdit) {
-      const lifecycleRow: Array<{ text: string; code: string }> = [];
+      const lifecycleRow: KbButton[] = [];
 
       if (stream.status === 'enrollment') {
-        lifecycleRow.push({
-          text: '🚀 Запустить',
-          code: this.cbFor('activate-stream', 'activate', stream.uuid),
-        });
+        lifecycleRow.push(
+          this.btn(
+            '🚀 Запустить',
+            this.cbFor('activate-stream', 'activate', stream.uuid),
+          ),
+        );
       }
 
       if (stream.status === 'active') {
-        lifecycleRow.push({
-          text: '✅ Завершить',
-          code: this.cbFor('view-stream-mentor', 'complete', stream.uuid),
-        });
+        lifecycleRow.push(
+          this.btn(
+            '✅ Завершить',
+            this.cbFor('view-stream-mentor', 'complete', stream.uuid),
+          ),
+        );
       }
 
       if (stream.status === 'completed') {
-        lifecycleRow.push({
-          text: '📁 В архив',
-          code: this.cbFor('view-stream-mentor', 'archive', stream.uuid),
-        });
+        lifecycleRow.push(
+          this.btn(
+            '📁 В архив',
+            this.cbFor('view-stream-mentor', 'archive', stream.uuid),
+          ),
+        );
       }
 
       if (lifecycleRow.length > 0) {
@@ -125,13 +129,10 @@ export class ViewStreamMentorStory extends ViewStreamStory {
 
     // Кнопка «Назад» — возврат к моим потокам (не в catalog)
     rows.push([
-      {
-        text: '⬅️ Назад к моим потокам',
-        code: this.cbFor('my-streams', 'list'),
-      },
+      this.btn('⬅️ Назад к моим потокам', this.cbFor('my-streams', 'list')),
     ]);
 
-    return { rows, isMultiple: false };
+    return this.kb(rows);
   }
 
   /**
@@ -169,10 +170,10 @@ export class ViewStreamMentorStory extends ViewStreamStory {
         if (btn.code.includes(':student-detail:')) {
           const parts = btn.code.split(':');
           const studentUuid = parts[parts.length - 1];
-          return {
-            text: btn.text,
-            code: this.cbFor('monitor', 'detail', studentUuid!),
-          };
+          return this.btn(
+            btn.text,
+            this.cbFor('monitor', 'detail', studentUuid!),
+          );
         }
         // Кнопку «Назад к потоку» оставляем как есть (view-stream-mentor:view:...)
         return btn;
@@ -195,92 +196,66 @@ export class ViewStreamMentorStory extends ViewStreamStory {
 
       const isActive =
         student.status === 'active' || student.status === 'enrolled';
-      const extraBtns: Array<{ text: string; code: string }> = [];
+      const extraBtns: KbButton[] = [];
 
       if (isActive) {
-        extraBtns.push({
-          text: '⛔',
-          code: this.cbFor('monitor', 'mark-abandoned', studentUuid!),
-        });
-        extraBtns.push({
-          text: '✅',
-          code: this.cbFor('monitor', 'complete', studentUuid!),
-        });
+        extraBtns.push(
+          this.btn('⛔', this.cbFor('monitor', 'mark-abandoned', studentUuid!)),
+        );
+        extraBtns.push(
+          this.btn('✅', this.cbFor('monitor', 'complete', studentUuid!)),
+        );
       } else if (
         student.status === 'advanced' ||
         student.status === 'not_advanced'
       ) {
-        extraBtns.push({
-          text: '🔄',
-          code: this.cbFor('monitor', 'complete', studentUuid!),
-        });
+        extraBtns.push(
+          this.btn('🔄', this.cbFor('monitor', 'complete', studentUuid!)),
+        );
       }
 
       return [...row, ...extraBtns];
     });
 
-    return {
-      screen: {
-        text: baseScreen.text,
-        keyboard: { rows: enrichedRows, isMultiple: false },
-      },
-    };
+    return this.screen(baseScreen.text, this.kb(enrichedRows));
   }
 
   // ── Подтверждения ──
 
   #showCompleteConfirm(streamId: string): DialogResponse {
-    return {
-      screen: {
-        text: md`⚠️ *Завершить поток?*\n\nЭто действие остановит обучение для всех студентов\\. Поток нельзя будет перезапустить\\.`,
-        keyboard: {
-          rows: [
-            [
-              {
-                text: '✅ Да, завершить',
-                code: this.cbFor(
-                  'view-stream-mentor',
-                  'complete-confirm',
-                  streamId,
-                ),
-              },
-              {
-                text: '❌ Отмена',
-                code: this.cbFor('view-stream-mentor', 'view', streamId),
-              },
-            ],
-          ],
-          isMultiple: false,
-        },
-      },
-    };
+    return this.screen(
+      md`⚠️ *Завершить поток?*\n\nЭто действие остановит обучение для всех студентов\\. Поток нельзя будет перезапустить\\.`,
+      this.kb([
+        [
+          this.btn(
+            '✅ Да, завершить',
+            this.cbFor('view-stream-mentor', 'complete-confirm', streamId),
+          ),
+          this.btn(
+            '❌ Отмена',
+            this.cbFor('view-stream-mentor', 'view', streamId),
+          ),
+        ],
+      ]),
+    );
   }
 
   #showArchiveConfirm(streamId: string): DialogResponse {
-    return {
-      screen: {
-        text: md`⚠️ *Отправить поток в архив?*\n\nПоток будет скрыт из витрины\\. Студенты потеряют доступ к обучению\\.`,
-        keyboard: {
-          rows: [
-            [
-              {
-                text: '✅ Да, в архив',
-                code: this.cbFor(
-                  'view-stream-mentor',
-                  'archive-confirm',
-                  streamId,
-                ),
-              },
-              {
-                text: '❌ Отмена',
-                code: this.cbFor('view-stream-mentor', 'view', streamId),
-              },
-            ],
-          ],
-          isMultiple: false,
-        },
-      },
-    };
+    return this.screen(
+      md`⚠️ *Отправить поток в архив?*\n\nПоток будет скрыт из витрины\\. Студенты потеряют доступ к обучению\\.`,
+      this.kb([
+        [
+          this.btn(
+            '✅ Да, в архив',
+            this.cbFor('view-stream-mentor', 'archive-confirm', streamId),
+          ),
+          this.btn(
+            '❌ Отмена',
+            this.cbFor('view-stream-mentor', 'view', streamId),
+          ),
+        ],
+      ]),
+    );
   }
 
   // ── Менторские действия ──
@@ -290,41 +265,21 @@ export class ViewStreamMentorStory extends ViewStreamStory {
     actor: User,
   ): Promise<DialogResponse> {
     await this.appApi.execute('complete-stream', { streamId }, actor.uuid);
-    return {
-      screen: {
-        text: md`✅ *Поток завершён\\!* Обучение окончено\\.`,
-        keyboard: {
-          rows: [
-            [
-              {
-                text: '⬅️ Назад к списку',
-                code: this.cbFor('my-streams', 'list'),
-              },
-            ],
-          ],
-          isMultiple: false,
-        },
-      },
-    };
+    return this.screen(
+      md`✅ *Поток завершён\\!* Обучение окончено\\.`,
+      this.kb([
+        [this.btn('⬅️ Назад к списку', this.cbFor('my-streams', 'list'))],
+      ]),
+    );
   }
 
   async #handleArchive(streamId: string, actor: User): Promise<DialogResponse> {
     await this.appApi.execute('archive-stream', { streamId }, actor.uuid);
-    return {
-      screen: {
-        text: md`📁 *Поток перемещён в архив\\.*`,
-        keyboard: {
-          rows: [
-            [
-              {
-                text: '⬅️ Назад к списку',
-                code: this.cbFor('my-streams', 'list'),
-              },
-            ],
-          ],
-          isMultiple: false,
-        },
-      },
-    };
+    return this.screen(
+      md`📁 *Поток перемещён в архив\\.*`,
+      this.kb([
+        [this.btn('⬅️ Назад к списку', this.cbFor('my-streams', 'list'))],
+      ]),
+    );
   }
 }

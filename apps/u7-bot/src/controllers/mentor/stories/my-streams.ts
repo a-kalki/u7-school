@@ -1,7 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import { md, mdJoin, mdRaw } from '@u7-scl/core/shared';
-import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
+import type { BotSession, DialogResponse, KbButton } from '@u7-scl/core/ui';
 
 interface StreamRow {
   uuid: string;
@@ -52,7 +52,6 @@ export class MyStreamsStory extends U7BotUiStory {
     showCompleted: boolean,
     showArchived: boolean,
   ): Promise<DialogResponse> {
-    let response: DialogResponse;
     try {
       const allStreams = (await this.appApi.execute('list-streams', {})) as
         | StreamRow[]
@@ -77,85 +76,64 @@ export class MyStreamsStory extends U7BotUiStory {
       }
 
       // Кнопки-переключатели
-      const toggleRow: Array<{ text: string; code: string }> = [];
+      const toggleRow: KbButton[] = [];
       if (!showArchived && !showCompleted) {
-        toggleRow.push({
-          text: '⚫ Вкл. архивированные',
-          code: this.cb('list:archived:1'),
-        });
-        toggleRow.push({
-          text: '🟢 Вкл. завершённые',
-          code: this.cb('list:completed:1'),
-        });
+        toggleRow.push(
+          this.btn('⚫ Вкл. архивированные', this.cb('list:archived:1')),
+        );
+        toggleRow.push(
+          this.btn('🟢 Вкл. завершённые', this.cb('list:completed:1')),
+        );
       } else if (showArchived && !showCompleted) {
-        toggleRow.push({
-          text: '🟢 Вкл. завершённые',
-          code: this.cb('list:completed:1:archived:1'),
-        });
+        toggleRow.push(
+          this.btn(
+            '🟢 Вкл. завершённые',
+            this.cb('list:completed:1:archived:1'),
+          ),
+        );
       } else if (!showArchived && showCompleted) {
-        toggleRow.push({
-          text: '⚫ Вкл. архивированные',
-          code: this.cb('list:completed:1:archived:1'),
-        });
+        toggleRow.push(
+          this.btn(
+            '⚫ Вкл. архивированные',
+            this.cb('list:completed:1:archived:1'),
+          ),
+        );
       }
       // Если оба включены — переключателей нет
 
-      const rows: Array<Array<{ text: string; code: string }>> = [];
+      const rows: KbButton[][] = [];
       if (toggleRow.length > 0) {
         rows.push(toggleRow);
       }
 
       if (myStreams.length === 0) {
-        rows.push([
-          {
-            text: '🔙 Назад',
-            code: this.cbFor('submenu', 'start'),
-          },
-        ]);
-        response = {
-          screen: {
-            text: mdJoin([
-              md`📋 *Мои потоки*`,
-              md``,
-              md`У вас пока нет потоков\\.`,
-              LEGEND,
-            ]),
-            keyboard: { rows, isMultiple: false },
-          },
-        };
-        return response;
+        rows.push([this.btn('🔙 Назад', this.cbFor('submenu', 'start'))]);
+        return this.screen(
+          mdJoin([
+            md`📋 *Мои потоки*`,
+            md``,
+            md`У вас пока нет потоков\\.`,
+            LEGEND,
+          ]),
+          this.kb(rows),
+        );
       }
 
       // Строки потоков
       for (const s of myStreams) {
         rows.push([
-          {
-            text: `${STATUS_EMOJI[s.status] ?? '❓'} ${s.title}`,
-            code: this.cbFor('view-stream-mentor', 'view', s.uuid),
-          },
+          this.btn(
+            `${STATUS_EMOJI[s.status] ?? '❓'} ${s.title}`,
+            this.cbFor('view-stream-mentor', 'view', s.uuid),
+          ),
         ]);
       }
 
-      rows.push([
-        {
-          text: '🔙 Назад',
-          code: this.cbFor('submenu', 'start'),
-        },
-      ]);
+      rows.push([this.btn('🔙 Назад', this.cbFor('submenu', 'start'))]);
 
-      response = {
-        screen: {
-          text: mdJoin([md`📋 *Мои потоки*`, LEGEND]),
-          keyboard: { rows, isMultiple: false },
-        },
-      };
-      return response;
+      return this.screen(mdJoin([md`📋 *Мои потоки*`, LEGEND]), this.kb(rows));
     } catch {
-      return {
-        screen: {
-          text: md`⚠️ Не удалось загрузить список потоков\\.`,
-        },
-      };
+      return this.screen(md`⚠️ Не удалось загрузить список потоков\\.`);
     }
   }
 }

@@ -1,7 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import { type MdText, md, mdConcat, mdJoin, mdRaw } from '@u7-scl/core/shared';
-import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
+import type { BotSession, DialogResponse, KbButton } from '@u7-scl/core/ui';
 import type {
   CategorizedStudent,
   Stream,
@@ -31,11 +31,9 @@ export class MonitorStory extends U7BotUiStory {
 
     // История шагов — ещё не реализована
     if (cmd === 'history' && id) {
-      return {
-        screen: {
-          text: md`🚧 История шагов ещё не реализована, но скоро будет\\.`,
-        },
-      };
+      return this.screen(
+        md`🚧 История шагов ещё не реализована, но скоро будет\\.`,
+      );
     }
 
     // mark-abandoned — подтверждение
@@ -93,7 +91,7 @@ export class MonitorStory extends U7BotUiStory {
     })) as Stream | undefined;
 
     if (!stream) {
-      return { screen: { text: md`⚠️ Поток не найден` } };
+      return this.screen(md`⚠️ Поток не найден`);
     }
 
     // FR-8: по умолчанию — только активные (active/enrolled);
@@ -176,7 +174,7 @@ export class MonitorStory extends U7BotUiStory {
     }
 
     // Клавиатура
-    const keyboardRows: Array<Array<{ text: string; code: string }>> = [];
+    const keyboardRows: KbButton[][] = [];
 
     const canManage = StudentPolicy.canManageStudent(actor, stream);
 
@@ -215,30 +213,27 @@ export class MonitorStory extends U7BotUiStory {
       // Кнопка: только эмодзи + имя + процент
       const nameBtn = `${marker} ${r.name} — ${summary.progress.percent}%`;
 
-      const studentRow: Array<{ text: string; code: string }> = [
-        {
-          text: nameBtn,
-          code: this.cbFor('monitor', 'detail', r.student.uuid),
-        },
+      const studentRow: KbButton[] = [
+        this.btn(nameBtn, this.cbFor('monitor', 'detail', r.student.uuid)),
       ];
 
       if (isActive && canManage) {
-        studentRow.push({
-          text: '⛔',
-          code: this.cbFor('monitor', 'mark-abandoned', r.student.uuid),
-        });
-        studentRow.push({
-          text: '✅',
-          code: this.cbFor('monitor', 'complete', r.student.uuid),
-        });
+        studentRow.push(
+          this.btn(
+            '⛔',
+            this.cbFor('monitor', 'mark-abandoned', r.student.uuid),
+          ),
+        );
+        studentRow.push(
+          this.btn('✅', this.cbFor('monitor', 'complete', r.student.uuid)),
+        );
       } else if (
         canManage &&
         (r.student.status === 'advanced' || r.student.status === 'not_advanced')
       ) {
-        studentRow.push({
-          text: '🔄',
-          code: this.cbFor('monitor', 'complete', r.student.uuid),
-        });
+        studentRow.push(
+          this.btn('🔄', this.cbFor('monitor', 'complete', r.student.uuid)),
+        );
       }
 
       keyboardRows.push(studentRow);
@@ -246,21 +241,17 @@ export class MonitorStory extends U7BotUiStory {
 
     // FR-8: кнопка-переключатель фильтра выбывших
     keyboardRows.push([
-      {
-        text: showAll ? '🙈 Скрыть выбывших' : '👁 Показать выбывших',
-        code: this.cbFor(
-          'monitor',
-          showAll ? 'students' : 'students-all',
-          streamId,
-        ),
-      },
+      this.btn(
+        showAll ? '🙈 Скрыть выбывших' : '👁 Показать выбывших',
+        this.cbFor('monitor', showAll ? 'students' : 'students-all', streamId),
+      ),
     ]);
 
     keyboardRows.push([
-      {
-        text: '⬅️ Назад к потоку',
-        code: this.cbFor('view-stream-mentor', 'view', streamId),
-      },
+      this.btn(
+        '⬅️ Назад к потоку',
+        this.cbFor('view-stream-mentor', 'view', streamId),
+      ),
     ]);
 
     // Сводка FR-8: всегда видна, от режима не зависит (по всем студентам)
@@ -316,12 +307,7 @@ export class MonitorStory extends U7BotUiStory {
       md`✅ завершил модуль, проходит дальше`,
     );
 
-    return {
-      screen: {
-        text: mdJoin(header),
-        keyboard: { rows: keyboardRows, isMultiple: false },
-      },
-    };
+    return this.screen(mdJoin(header), this.kb(keyboardRows));
   }
 
   /** Возвращает маркер отставания с учётом статуса */
@@ -380,7 +366,7 @@ export class MonitorStory extends U7BotUiStory {
     })) as Stream | undefined;
 
     if (!stream) {
-      return { screen: { text: md`⚠️ Поток не найден` } };
+      return this.screen(md`⚠️ Поток не найден`);
     }
 
     // Lag info
@@ -501,21 +487,16 @@ export class MonitorStory extends U7BotUiStory {
     }
 
     // Клавиатура: только навигация
-    const keyboardRows: Array<Array<{ text: string; code: string }>> = [
+    const keyboardRows: KbButton[][] = [
       [
-        {
-          text: '⬅️ Назад к списку',
-          code: this.cbFor('monitor', 'students', student.streamId),
-        },
+        this.btn(
+          '⬅️ Назад к списку',
+          this.cbFor('monitor', 'students', student.streamId),
+        ),
       ],
     ];
 
-    return {
-      screen: {
-        text: mdJoin(lines),
-        keyboard: { rows: keyboardRows, isMultiple: false },
-      },
-    };
+    return this.screen(mdJoin(lines), this.kb(keyboardRows));
   }
 
   // ── mark-abandoned ──
@@ -583,51 +564,37 @@ export class MonitorStory extends U7BotUiStory {
     return {
       // Реплика результата — notify (поверх целевого экрана delegate,
       // #resolveDelegate сохраняет initiator.notify над target.screen)
-      notify: { text: md`✅ Студент *${userName}* снят с учёбы\\.` },
-      delegate: {
-        path: this.cbFor('monitor', 'students', student.streamId),
-      },
+      ...this.notify(md`✅ Студент *${userName}* снят с учёбы\\.`),
+      ...this.go(this.cbFor('monitor', 'students', student.streamId)),
     };
   }
 
   // ── complete-student (выбор исхода) ──
 
   async #handleCompleteChoice(studentId: string): Promise<DialogResponse> {
-    const keyboardRows: Array<Array<{ text: string; code: string }>> = [
+    const keyboardRows: KbButton[][] = [
       [
-        {
-          text: '✅ Прошёл',
-          code: `${this.cbFor('monitor', 'complete-confirm', studentId)}:advanced`,
-        },
+        this.btn(
+          '✅ Прошёл',
+          `${this.cbFor('monitor', 'complete-confirm', studentId)}:advanced`,
+        ),
       ],
       [
-        {
-          text: '↩️ Не прошёл',
-          code:
-            this.cbFor('monitor', 'complete-confirm', studentId) +
-            ':not_advanced',
-        },
+        this.btn(
+          '↩️ Не прошёл',
+          `${this.cbFor('monitor', 'complete-confirm', studentId)}:not_advanced`,
+        ),
       ],
       [
-        {
-          text: '🔴 Выбыл',
-          code: `${this.cbFor('monitor', 'complete-confirm', studentId)}:abandoned`,
-        },
+        this.btn(
+          '🔴 Выбыл',
+          `${this.cbFor('monitor', 'complete-confirm', studentId)}:abandoned`,
+        ),
       ],
-      [
-        {
-          text: '❌ Отмена',
-          code: this.cbFor('monitor', 'detail', studentId),
-        },
-      ],
+      [this.btn('❌ Отмена', this.cbFor('monitor', 'detail', studentId))],
     ];
 
-    return {
-      screen: {
-        text: md`Выберите исход для студента:`,
-        keyboard: { rows: keyboardRows, isMultiple: false },
-      },
-    };
+    return this.screen(md`Выберите исход для студента:`, this.kb(keyboardRows));
   }
 
   async #handleCompleteConfirm(
@@ -688,7 +655,7 @@ export class MonitorStory extends U7BotUiStory {
       rawOutcome !== 'not_advanced' &&
       rawOutcome !== 'abandoned'
     ) {
-      return { screen: { text: md`⚠️ Неизвестный исход` } };
+      return this.screen(md`⚠️ Неизвестный исход`);
     }
     const outcome = rawOutcome;
 
@@ -724,10 +691,8 @@ export class MonitorStory extends U7BotUiStory {
 
     return {
       // Реплика результата — notify (см. #handleMarkAbandonedExecute)
-      notify: { text: md`✅ Студент *${userName}* завершён\\.` },
-      delegate: {
-        path: this.cbFor('monitor', 'students', student.streamId),
-      },
+      ...this.notify(md`✅ Студент *${userName}* завершён\\.`),
+      ...this.go(this.cbFor('monitor', 'students', student.streamId)),
     };
   }
 }

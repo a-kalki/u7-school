@@ -21,21 +21,16 @@ export class ActivateStreamStory extends U7BotUiStory {
     }
     await this.appApi.execute('activate-stream', { streamId }, actor.uuid);
 
-    return {
-      screen: {
-        text: md`🚀 *Поток запущен\\!* Первые задания выданы студентам\\. Они увидят их в разделе «🎓 Моя учёба»\\.`,
-        keyboard: {
-          rows: [
-            [
-              {
-                text: '⬅️ Назад к потоку',
-                code: this.cbFor('view-stream-mentor', 'view', streamId),
-              },
-            ],
-          ],
-          isMultiple: false,
-        },
-      },
-    };
+    return this.screen(
+      md`🚀 *Поток запущен\\!* Первые задания выданы студентам\\. Они увидят их в разделе «🎓 Моя учёба»\\.`,
+      this.kb([
+        [
+          this.btn(
+            '⬅️ Назад к потоку',
+            this.cbFor('view-stream-mentor', 'view', streamId),
+          ),
+        ],
+      ]),
+    );
   }
 }
