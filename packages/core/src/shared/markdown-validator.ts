@@ -1,5 +1,5 @@
 /**
- * Валидатор MarkdownV2 для Telegram.
+ * Валидатор MarkdownV2 для Telegram — линейный сканер.
  *
  * Роли функций:
  * - `escapeMarkdown` (markdown.ts) — producer: экранирует спецсимволы перед сборкой текста.
@@ -8,26 +8,42 @@
  *   `MarkdownV2ValidationError` (issues + фрагмент текста) в тестах и в проде
  *   перед отправкой в Telegram.
  *
- * Проверяет, что текст не содержит неэкранированных зарезервированных символов
- * и все форматирующие символы парные.
+ * Семантика Telegram (Bot API, MarkdownV2):
+ *   - вне сущностей: любой символ с кодом 1–126 можно экранировать `\`;
+ *     зарезервированные символы ДОЛЖНЫ быть экранированы;
+ *   - внутри pre (```...```) и инлайн-кода (`...`) обязательны к экранированию
+ *     только `` ` `` и `\` — прочие символы допустимы как есть;
+ *   - `>` валиден в начале строки (blockquote), вне начала — экранируется;
+ *   - ссылка `[label](url)` — защищённая зона: содержимое URL не проверяется.
  *
- * MarkdownV2 резервирует:
- *   Форматирующие (должны быть парными): * _ ~ `
- *   Парные последовательности:         __ (underline)  || (spoiler)
- *   Никогда не форматирующие:          . ! + - = |
- *
- * Символы [ ] ( ) > # { } экранируются escapeMarkdown,
- * но в боте не используются как форматирование — их валидация не требуется.
+ * Почему линейный сканер, а не регулярки: регулярки с lookbehind на один
+ * символ имеют слепую зону — в `\\!` слеш перед `!` уже потреблён парой `\\`,
+ * фактически `!` голый (Telegram ответит 400). Сканер обрабатывает `\\X`
+ * как пару и не пропускает такие случаи.
  */
 
 /** Символы, которые НИКОГДА не форматируют текст и ВСЕГДА должны быть экранированы */
-const NEVER_FORMATTING_RE = /(?<!\\)[.!+\-=|#{}()[\]]/g;
+const NEVER_FORMATTING = new Set([
+  '.',
+  '!',
+  '+',
+  '-',
+  '=',
+  '|',
+  '#',
+  '{',
+  '}',
+  '(',
+  ')',
+  '[',
+  ']',
+]);
 
-/**
- * Неэкранированный `>` — ошибка, КРОМЕ начала строки (blockquote-синтаксис).
- * Telegram MarkdownV2 разрешает `> ` в начале строки как blockquote-маркер.
- */
-const UNESCAPED_GT_RE = /(?<!\\)(?<=[^\n])>/g;
+/** Максимальный код символа, который Telegram разрешает экранировать */
+const MAX_ESCAPABLE_CHARCODE = 126;
+
+/** Ссылка `[label](url)` — целиком защищённая зона */
+const LINK_RE = /^\[[^\]]*\]\([^)]+\)/;
 
 export interface MarkdownIssue {
   /** Проблемный символ */
@@ -42,80 +58,158 @@ export interface MarkdownValidationResult {
 }
 
 /**
- * Проверяет MarkdownV2-текст на ошибки экранирования и парности.
+ * Проверяет MarkdownV2-текст на ошибки экранирования и парности
+ * линейным сканером слева направо с тремя состояниями:
  *
- * Проверки выполняются ТОЛЬКО вне кодовых блоков (```...```) и инлайн-кода (`...`),
- * так как внутри кода действуют другие правила экранирования.
+ * - **outside**: `\X` поглощает 2 символа (X — код 1–126); голые
+ *   зарезервированные символы — issue; `` ` `` открывает инлайн-код,
+ *   ``` ``` ``` — пре-блок; `*` `_` `~` считаются для парности;
+ *   `>` вне начала строки — issue.
+ * - **inline**: валидны только `\`` и `\\`; голый ` закрывает;
+ *   прочие `\X` — issue (внутри code экранируются только ` и \).
+ * - **pre**: те же правила, что и inline; ``` закрывает блок;
+ *   одиночный голый ` внутри — issue.
  *
- * Проверки:
- * 1. Символы . ! + - = | > # { } ( ) [ ] — должны быть экранированы
- * 2. Символ * — количество должно быть чётным (парные жирные)
- * 3. Символ _ — после вычета __ (underline) количество должно быть чётным
- * 4. Символ ~ — количество должно быть чётным (парные зачёркивания)
- * 5. Символ ` — количество должно быть чётным (парные код-блоки)
- * 6. Символ | — после вычета || (spoiler) остаток должен быть 0
+ * Проверки (итоговые):
+ * 1. Символы . ! + - = | > # { } ( ) [ ] вне кода — экранированы
+ * 2. `\` экранирует только символы с кодом 1–126, `\` в конце — issue
+ * 3. `*` `_` `~` вне кода — чётное количество (парные)
+ * 4. Инлайн-код и пре-блок закрыты; внутри — только `\`` и `\\`
+ * 5. Ссылки [text](url) — защищённая зона целиком
  */
 export function validateMarkdownV2(text: string): MarkdownValidationResult {
   const issues: MarkdownIssue[] = [];
+  const pairingCounts: Record<string, number> = { '*': 0, _: 0, '~': 0 };
 
-  // Исключаем кодовые блоки и инлайн-код — внутри них другие правила
-  const outsideCode = stripProtectedSyntax(text);
+  const unescaped = (char: string) =>
+    issues.push({ char, reason: 'unescaped' });
 
-  // ── 1. Никогда не форматирующие ──
-  for (const match of outsideCode.matchAll(NEVER_FORMATTING_RE)) {
-    issues.push({
-      char: match[0],
-      reason: 'unescaped',
-    });
+  let mode: 'outside' | 'inline' | 'pre' = 'outside';
+  let lineStart = true; // позиция в начале строки (blockquote-контекст)
+  let i = 0;
+
+  while (i < text.length) {
+    const c = text.charAt(i);
+
+    // ── Пре-блок: только \` и \\ валидны, ``` закрывает ──
+    if (mode === 'pre') {
+      if (c === '\\') {
+        const next = text[i + 1];
+        if (next !== '`' && next !== '\\') {
+          unescaped('\\'); // голый \ внутри pre съедает следующий символ
+        }
+        i += 2;
+        continue;
+      }
+      if (c === '`') {
+        if (text.startsWith('```', i)) {
+          mode = 'outside';
+          i += 3;
+          continue;
+        }
+        unescaped('`'); // одиночный бэктик внутри pre
+      }
+      i += 1;
+      continue;
+    }
+
+    // ── Инлайн-код: только \` и \\ валидны, голый ` закрывает ──
+    if (mode === 'inline') {
+      if (c === '\\') {
+        const next = text[i + 1];
+        if (next !== '`' && next !== '\\') {
+          unescaped('\\'); // внутри code экранируются только ` и \
+        }
+        i += 2;
+        continue;
+      }
+      if (c === '`') {
+        mode = 'outside';
+      }
+      i += 1;
+      continue;
+    }
+
+    // ── Вне кода ──
+    if (c === '\n') {
+      lineStart = true;
+      i += 1;
+      continue;
+    }
+
+    if (c === '\\') {
+      // Пара \X: X — любой символ с кодом 1–126 (правило Telegram)
+      const next = text[i + 1];
+      if (next === undefined || next.charCodeAt(0) > MAX_ESCAPABLE_CHARCODE) {
+        unescaped('\\'); // \ в конце текста или перед не-ASCII
+        i += 2;
+      } else if (next === '\n') {
+        unescaped('\\'); // \ перед переводом строки невалиден
+        i += 1; // newline обработается отдельно — граница строки сохранится
+      } else {
+        i += 2;
+      }
+      lineStart = false;
+      continue;
+    }
+
+    if (c === '`') {
+      if (text.startsWith('```', i)) {
+        mode = 'pre';
+        i += 3;
+      } else {
+        mode = 'inline';
+        i += 1;
+      }
+      lineStart = false;
+      continue;
+    }
+
+    if (c === '[') {
+      // Ссылка — защищённая зона целиком (в т.ч. символы в URL)
+      const link = LINK_RE.exec(text.slice(i));
+      if (link) {
+        i += link[0].length;
+        lineStart = false;
+        continue;
+      }
+      unescaped('['); // [ без (...) — не ссылка, должен быть экранирован
+      i += 1;
+      lineStart = false;
+      continue;
+    }
+
+    if (c === '>') {
+      // Blockquote-маркер валиден только в начале строки
+      if (!lineStart) {
+        unescaped('>');
+      }
+      i += 1;
+      lineStart = false;
+      continue;
+    }
+
+    if (c in pairingCounts) {
+      pairingCounts[c] = (pairingCounts[c] ?? 0) + 1;
+    } else if (NEVER_FORMATTING.has(c)) {
+      unescaped(c);
+    }
+
+    i += 1;
+    lineStart = false;
   }
 
-  // ── 1b. Неэкранированный `>` только не в начале строки ──
-  for (const _match of outsideCode.matchAll(UNESCAPED_GT_RE)) {
-    issues.push({
-      char: '>',
-      reason: 'unescaped',
-    });
-  }
-
-  // ── 2. Проверка парности форматирующих ──
-  let stripped = outsideCode;
-  stripped = stripped.replace(/\\[_*~`|.!+\-=]/g, '  '); // экранированные
-  stripped = stripped.replace(/__/g, '  '); // underline
-  stripped = stripped.replace(/\|\|/g, '  '); // spoiler
-
-  const stars = (stripped.match(/\*/g) ?? []).length;
-  const underscores = (stripped.match(/_/g) ?? []).length;
-  const tildes = (stripped.match(/~/g) ?? []).length;
-  const backticks = (stripped.match(/`/g) ?? []).length;
-
-  if (stars % 2 !== 0) {
-    issues.push({ char: '*', reason: 'unpaired' });
-  }
-  if (underscores % 2 !== 0) {
-    issues.push({ char: '_', reason: 'unpaired' });
-  }
-  if (tildes % 2 !== 0) {
-    issues.push({ char: '~', reason: 'unpaired' });
-  }
-  if (backticks % 2 !== 0) {
+  // ── Итоги: парность и закрытость код-сущностей ──
+  if (mode === 'inline' || mode === 'pre') {
     issues.push({ char: '`', reason: 'unpaired' });
+  }
+  for (const [char, count] of Object.entries(pairingCounts)) {
+    if (count % 2 !== 0) {
+      issues.push({ char, reason: 'unpaired' });
+    }
   }
 
   return { valid: issues.length === 0, issues };
-}
-
-/**
- * Удаляет защищённые синтаксические конструкции из текста,
- * заменяя их пробелами, чтобы не влияли на проверку парности:
- * - кодовые блоки (```...```)
- * - инлайн-код (`...`)
- * - ссылки [text](url) — _ внутри URL валиден и не должен считаться italic
- */
-function stripProtectedSyntax(text: string): string {
-  return text
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/`[^`]+`/g, ' ')
-    .replace(/\[([^\]]*)\]\([^)]+\)/g, ' ');
 }
 
 /**

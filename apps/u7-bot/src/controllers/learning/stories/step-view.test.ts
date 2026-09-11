@@ -175,6 +175,39 @@ describe('StepViewStory', () => {
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
   });
 
+  test('code-шаг с ` и \\ — содержимое экранировано в блоке кода', async () => {
+    // Прод-кейс: console.log('\n=== Оклады ===') — голый \ внутри ```
+    // съедал 'n', бэктик преждевременно закрывал блок
+    const customStep = {
+      uuid: STEP1_ID,
+      moduleId: 'mod-1',
+      kind: 'code',
+      description: 'Шаблонные строки',
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: ${y} — код урока с шаблонной строкой, проверяем как есть
+      code: 'const s = `x\\n${y}`;',
+      status: 'published',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    };
+
+    const { story } = makeStory({}, customStep);
+
+    const response = await story.handleCallback(
+      'my-study:continue',
+      studentActor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    const text = String(response.screen?.text);
+    // Блок присутствует
+    expect(text).toContain('```');
+    // Бэктик и слеш экранированы: \\`x\\\\n${y}\\`
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: ${y} — из кода урока
+    expect(text).toContain('\\`x\\\\n${y}\\`');
+    // Внутри блока нет голого слеша перед n (признак бага)
+    expect(text).not.toMatch(/[^\\]\\n\$/);
+  });
+
   test('complete — already_completed — показывает актуальный текущий шаг (идемпотентность)', async () => {
     const { story } = makeStory({
       'complete-step': {

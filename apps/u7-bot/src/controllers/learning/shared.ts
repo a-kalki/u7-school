@@ -3,6 +3,7 @@ import type { ApiApp } from '@u7-scl/core/api';
 import {
   type MdText,
   md,
+  mdCodeBlock,
   mdConcat,
   mdJoin,
   mdRaw,
@@ -221,8 +222,10 @@ export function formatStepMessage(
   ];
 
   if (step.kind === 'code' && step.code) {
-    // Блок кода: содержимое не форматируется (валидатор вырезает ```...```)
-    lines.push(md``, mdRaw(`\`\`\`\n${step.code}\n\`\`\``));
+    // Блок кода: содержимое экранируется по правилам pre-entity
+    // Telegram (только ` и \) — голый \ съедает следующий символ,
+    // голой ` преждевременно закрывает блок
+    lines.push(md``, mdCodeBlock(step.code));
   } else if (step.kind === 'text' && step.content) {
     lines.push(md``, mdRaw(safeConvert(step.content)));
   }

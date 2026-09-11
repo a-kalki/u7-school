@@ -1,6 +1,12 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import { type MdText, md, mdConcat, mdJoin, mdRaw } from '@u7-scl/core/shared';
+import {
+  type MdText,
+  md,
+  mdConcat,
+  mdInlineCode,
+  mdJoin,
+} from '@u7-scl/core/shared';
 import type {
   BotSession,
   BotUpdate,
@@ -420,16 +426,18 @@ export class CreateStreamStory extends U7BotUiStory {
     const yyyy = exampleDate.getFullYear();
     const mm = String(exampleDate.getMonth() + 1).padStart(2, '0');
     const dd = String(exampleDate.getDate()).padStart(2, '0');
-    const exampleStr = mdRaw(`${yyyy}\\-${mm}\\-${dd}T10:00`);
+    const exampleStr = mdInlineCode(`${yyyy}-${mm}-${dd}T10:00`);
 
     return {
       screen: {
         // Композиция MdText — через mdConcat: интерполяция готового MdText
-        // в md-шаблон экранирует его повторно (дефисы получали двойной backslash)
+        // в md-шаблон экранирует его повторно. Внутри инлайн-кода дефисы
+        // и двоеточия не экранируются — по правилам Telegram внутри code
+        // обязательны к экранированию только ` и \
         text: mdConcat(
-          md`📅 Введите дату старта в формате \`YYYY\\-MM\\-DD\` или дату время \`YYYY\\-MM\\-DDTHH\\:MM\`\\.\nНапример: \``,
+          md`📅 Введите дату старта в формате \`YYYY-MM-DD\` или дату время \`YYYY-MM-DDTHH:MM\`\\.\nНапример: `,
           exampleStr,
-          md`\`\\.`,
+          md`\\.`,
         ),
       },
       awaitInput: { context: { ...ctx, step: 3, description: text } },

@@ -63,17 +63,60 @@ export function mdJoin(parts: MdText[], separator = '\n'): MdText {
 }
 
 /**
+ * Экранирует текст по правилам code/pre-entity Telegram:
+ * внутри инлайн-кода и пре-блока обязательны к экранированию
+ * только `` ` `` и `\`.
+ *
+ * Порядок важен: сначала удваиваем `\`, потом экранируем бэктики —
+ * иначе бэктик-экранирующий `\` сам был бы удвоен.
+ */
+function escapeCodeEntity(text: string): string {
+  return text.replace(/\\/g, '\\\\').replace(/`/g, '\\`');
+}
+
+/**
+ * Безопасный пре-блок (```...```) из доменных данных.
+ *
+ * Содержимое экранируется по правилам pre-entity Telegram (` и \).
+ * Голый `\` внутри pre «съедает» сам себя и следующий символ
+ * (`\n` в коде урока рендерился бы как `n`), голый `` ` `` —
+ * преждевременно закрывает блок.
+ *
+ * @example
+ * mdCodeBlock("console.log('\\n=== Оклады ===')")
+ * // '```\nconsole.log(\'\\\\n=== Оклады ===\')\n```'
+ */
+export function mdCodeBlock(code: string): MdText {
+  return mdRaw(`\`\`\`\n${escapeCodeEntity(code)}\n\`\`\``);
+}
+
+/**
+ * Безопасный инлайн-код (`...`) из доменных данных.
+ * Те же два экранирования, что и в mdCodeBlock: `` ` `` и `\`.
+ *
+ * @example
+ * mdInlineCode('a ` b') // '`a \\` b`'
+ */
+export function mdInlineCode(text: string): MdText {
+  return mdRaw(`\`${escapeCodeEntity(text)}\``);
+}
+
+/**
  * Экранирует спецсимволы MarkdownV2 для Telegram.
  *
  * MarkdownV2 резервирует символы: _ * [ ] ( ) ~ ` > # + - = | { } . !
- * Если они встречаются в plain text, их нужно экранировать обратным слешем.
+ * и обратный слеш `\`: любой из них в plain text должен быть
+ * экранирован — иначе Telegram либо отвечает 400 (зарезервированный
+ * символ), либо «съедает» `\` вместе со следующим символом
+ * (например, `\n` в данных отрендерится как `n`).
  *
  * @example
  * escapeMarkdown('Анкета прервана.') // 'Анкета прервана\\.'
  * escapeMarkdown('5 + 5 = 10')      // '5 \\+ 5 \\= 10'
+ * escapeMarkdown('C:\\temp')         // 'C:\\\\temp'
  */
 export function escapeMarkdown(text: string): string {
-  return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
+  return text.replace(/[_*[\]()~`>#+\-=|{}.!\\]/g, '\\$&');
 }
 
 /**

@@ -1,8 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  escapeMarkdown,
   type MdText,
   md,
+  mdCodeBlock,
   mdConcat,
+  mdInlineCode,
   mdJoin,
   mdRaw,
   safeConvert,
@@ -132,6 +135,48 @@ describe('safeConvert', () => {
   });
 });
 
+// ── mdCodeBlock / mdInlineCode — безопасные код-сущности ──
+
+describe('mdCodeBlock — пре-блок по правилам Telegram', () => {
+  test('экранирует бэктик и обратный слеш, обёрнуто в ```-блок', () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: ${y} — код урока с шаблонной строкой, проверяем как есть
+    const result = mdCodeBlock('const s = `x\\n${y}`;');
+
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: ожидание содержит ${y} из кода урока
+    expect(String(result)).toBe('```\nconst s = \\`x\\\\n${y}\\`;\n```');
+  });
+
+  test('прод-кейс: \\n в коде урока не съедается Telegram', () => {
+    // ИЗ steps.json (шаг 0f9136e0): console.log('\n=== Оклады ===');
+    // Голый \ внутри pre съедал 'n' → в Telegram приходило 'n=== Оклады ==='
+    const result = String(mdCodeBlock("console.log('\\n=== Оклады ===');"));
+
+    expect(result).toContain("console.log('\\\\n=== Оклады ===');");
+  });
+
+  test('результат проходит валидатор', () => {
+    const result = mdCodeBlock('const path = `C:\\dir\\x`; const t = `a\\`b`;');
+
+    expect(validateMarkdownV2(result).valid).toBe(true);
+  });
+});
+
+describe('mdInlineCode — инлайн-код по правилам Telegram', () => {
+  test('экранирует бэктик и обратный слеш', () => {
+    expect(String(mdInlineCode('a ` b \\ c'))).toBe('`a \\` b \\\\ c`');
+  });
+
+  test('результат проходит валидатор', () => {
+    expect(validateMarkdownV2(mdInlineCode('x\\ny`z')).valid).toBe(true);
+  });
+});
+
+describe('escapeMarkdown — обратный слеш', () => {
+  test('экранирует \\ в plain-данных — Telegram не съедает следующий символ', () => {
+    expect(String(md`Путь: ${'C:\\temp'}`)).toBe('Путь: C:\\\\temp');
+  });
+});
+
 // ── md / mdRaw / MdText — безопасный конструктор MarkdownV2 ──
 
 describe('md — тегированный шаблон', () => {
@@ -217,8 +262,8 @@ describe('mdConcat / mdJoin — композиция MdText', () => {
     const wrong = md`Заголовок\n${part}`;
     const right = mdConcat(md`Заголовок\n`, part);
 
-    // wrong: разметка part экранирована повторно (звёзды и подчёрки удвоены)
-    expect(String(wrong)).toContain('\\*bold\\\\_имя\\*');
+    // wrong: разметка part экранирована повторно (звёзды, подчёрки и слеши удвоены)
+    expect(String(wrong)).toBe(`Заголовок\n${escapeMarkdown(String(part))}`);
     // right: композиция сохраняет разметку, экранирование одинарное
     expect(String(right)).toBe('Заголовок\n*bold\\_имя*');
   });
