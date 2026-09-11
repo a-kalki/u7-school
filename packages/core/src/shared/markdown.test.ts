@@ -132,7 +132,7 @@ describe('safeConvert', () => {
   });
 });
 
-// ── md / mdRaw / MdText — безопасный конструктор MarkdownV2 (трек bot-ui-dialog-core) ──
+// ── md / mdRaw / MdText — безопасный конструктор MarkdownV2 ──
 
 describe('md — тегированный шаблон', () => {
   test('интерполяция экранирует доменные данные', () => {

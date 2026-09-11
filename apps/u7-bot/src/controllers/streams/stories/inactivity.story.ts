@@ -27,12 +27,12 @@ import { Routes } from '../../shared/routes';
  *   «⚠️ Снять с учёбы» (FR-5, cause=inactivity);
  * - student.abandoned → мягкий кик из TG-группы потока.
  *
- * Кнопочные проактивы идут каналом invite (решение владельца, ревью
- * трека 3): получателю без открытого диалога открывается экран «invite»,
+ * Кнопочные проактивы идут каналом invite: получателю без открытого
+ * диалога открывается экран «invite»,
  * кнопки штампуются и валидны. Нажатие обрабатывает handleCallback:
  * confirm-диалог → UC drop-student / mark-abandoned.
  * Текстовые уведомления (#3/#4) отправляют UC drop-student /
- * mark-abandoned через userFacade.notify (трек user-notify).
+ * mark-abandoned через userFacade.notify.
  */
 export class InactivityStory extends U7BotUiStory {
   readonly name = 'inactivity';

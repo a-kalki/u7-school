@@ -3,7 +3,7 @@ import type { DomainEvent } from '../domain/events/domain-event';
 import { InProcEventBus } from './in-proc-event-bus';
 
 // ═══════════════════════════════════════════════════════════════════
-// Фаза 2: Тесты InProcEventBus
+// Тесты InProcEventBus
 // ═══════════════════════════════════════════════════════════════════
 
 function makeEvent(overrides: Partial<DomainEvent> = {}): DomainEvent {

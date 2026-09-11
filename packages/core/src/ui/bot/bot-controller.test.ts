@@ -112,7 +112,7 @@ function makeCommandUpdate(
   return { type: 'command', command, args, telegramId: 7 };
 }
 
-// ── Pipe команд (ФР-4, ревизия 2.1): контроллер агрегирует реакции стори ──
+// ── Pipe команд (ФР-4): контроллер агрегирует реакции стори ──
 
 describe('BotController — handleCommand: pipe стори', () => {
   /** Стори с записью вызовов и запрограммированной реакцией. */
@@ -594,7 +594,7 @@ describe('BotController — handleError: errorExitRows (§10.20)', () => {
     ]);
   });
 
-  test('без переопределения — экран ошибки без клавиатуры, как раньше', async () => {
+  test('без переопределения — экран ошибки без клавиатуры, по умолчанию', async () => {
     const story = new SpyStory('hub');
     story.throwError = new AppException(
       errNotFound('E', 'Объект не найден', undefined),

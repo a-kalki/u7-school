@@ -89,8 +89,8 @@ export class U7BotUiApp extends BotUiApp<
 
     const response = await super.handleCommand(update, tgId, session);
     if (update.command === 'cancel') {
-      // Глобальный сброс диалога — всегда (решение владельца: сброс
-      // активной делает стори в pipe, меню — уровень приложения).
+      // Глобальный сброс диалога — всегда: сброс активной делает
+      // стори в pipe, меню — уровень приложения.
       this.enterDialog(session, this.menuPath, 'reopen');
       if (!response) {
         const actor = await this.resolve.actorResolver(tgId);

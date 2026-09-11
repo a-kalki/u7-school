@@ -40,6 +40,11 @@ const UUID_RE =
  */
 const STAMP_SEGMENT_RE = /^~[0-9a-z]+$/;
 
+/** Лимит Telegram на длину callback_data в байтах. */
+const CALLBACK_DATA_MAX_BYTES = 64;
+
+const callbackDataEncoder = new TextEncoder();
+
 /** Сообщение при нажатии на кнопку без открытого диалога (до /start). */
 const NO_DIALOG_MESSAGE = 'Наберите /start';
 
@@ -291,7 +296,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     if (!tgId) return;
 
     // Быстрая проверка без создания сессии: нечего маршрутизировать.
-    // Бот — единственный обработчик (решение владельца, фаза 2.2):
+    // Бот — единственный обработчик:
     // дальше по grammy-цепочке ввод не уходит, отвечаем подсказкой.
     const existing = this.sessions.get(tgId);
     if (!existing?.dialog?.input) {
@@ -320,7 +325,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       };
       const response = await this.uiApp.handleMessage(update, tgId, session);
       if (response === null) {
-        // Активная стори обязана ответить (контракт фазы 2.2);
+        // Активная стори обязана ответить;
         // null — адресата нет (напр. диалог меню).
         this.#hint(tgId, INPUT_NOT_EXPECTED_MESSAGE);
         return;
@@ -594,11 +599,14 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     seq: number,
     screen: { text: string; keyboard?: KeyboardDescription },
   ): Promise<number | undefined> {
+    // Клавиатура строится до try: превышение лимита callback_data —
+    // fail-fast, а не «ошибка Telegram API».
+    const markup = screen.keyboard
+      ? this.#telegramKeyboard(screen.keyboard, seq)
+      : undefined;
     try {
       const sent = await this.botApi.sendMessage(tgId, screen.text, {
-        reply_markup: screen.keyboard
-          ? this.#telegramKeyboard(screen.keyboard, seq)
-          : undefined,
+        reply_markup: markup,
         parse_mode: 'MarkdownV2',
       });
       return sent.message_id;
@@ -615,16 +623,24 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   ): NonNullable<EditReplyMarkup> {
     return {
       inline_keyboard: kb.rows.map((row) =>
-        row.map((btn) =>
-          btn.url
-            ? { text: btn.text, url: btn.url }
-            : {
-                text: btn.text,
-                callback_data: this.#stamp(this.compressAction(btn.code), seq),
-              },
-        ),
+        row.map((btn) => {
+          if (btn.url) return { text: btn.text, url: btn.url };
+          const callbackData = this.#stamp(this.compressAction(btn.code), seq);
+          this.#assertCallbackDataFits(callbackData);
+          return { text: btn.text, callback_data: callbackData };
+        }),
       ),
     };
+  }
+
+  /** Fail-fast: callback_data длиннее 64 байт Telegram отклоняет целиком. */
+  #assertCallbackDataFits(callbackData: string): void {
+    const bytes = callbackDataEncoder.encode(callbackData).length;
+    if (bytes > CALLBACK_DATA_MAX_BYTES) {
+      throw new Error(
+        `callback_data превышает ${CALLBACK_DATA_MAX_BYTES} байта (${bytes}): ${callbackData}`,
+      );
+    }
   }
 
   async #answerCallbackQuery(ctx: BotContext, text?: string): Promise<void> {

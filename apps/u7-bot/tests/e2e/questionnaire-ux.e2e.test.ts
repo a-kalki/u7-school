@@ -24,8 +24,8 @@ import {
 import { QuestionnaireController } from '../../src/controllers/questionnaire/controller';
 
 /**
- * E2E: UX анкет (spec FR-1/FR-2) и приглашения продолжить (spec FR-5,
- * вариант A — кнопка-мост вместо takeover-предупреждения).
+ * E2E: UX анкет (spec FR-1/FR-2) и приглашения продолжить
+ * (spec FR-5, вариант A — кнопка-мост).
  *
  * Уровень Telegram: проверяются РЕАЛЬНЫЕ вызовы sendMessage/editMessageText —
  * финализация вопросов (маркеры, снятие клавиатур), тогглы на месте,
@@ -359,7 +359,7 @@ describe('Questionnaire UX (e2e)', () => {
     expect(enrollDialog?.input).toBeDefined();
     expect(enrollDialog?.path).not.toBe('questionnaire/fill');
 
-    // 3. Приглашение продолжить: кнопка-мост, БЕЗ takeover-предупреждения
+    // 3. Приглашение продолжить: кнопка-мост
     publishContinueInvite(fillGuest.telegramId);
     const invite = await waitForSent(
       fillGuest.telegramId,

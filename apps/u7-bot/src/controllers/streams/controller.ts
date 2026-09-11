@@ -9,8 +9,7 @@ import { ViewStreamStory } from './stories/view-stream.story';
  * Тонкий реестр — делегирует все действия в U7BotUiStory.
  * Содержит стори: catalog (S01), view-stream (S02-S04)
  * и inactivity (уведомления о бездействии и уходе из учёбы).
- * S11 (приглашение желающих) перенесено в механизм userFacade.notify
- * (ER invite-wishers, трек user-notify).
+ * S11 (приглашение желающих) — ER invite-wishers (userFacade.notify).
  */
 export class StreamsController extends U7BotController {
   readonly name = 'stream';

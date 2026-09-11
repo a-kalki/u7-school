@@ -64,7 +64,7 @@ export abstract class BotUiApp<
     return this.controllers.get(name);
   }
 
-  // ── Pipe команд (ФР-4, решения 2026-09-06) ──
+  // ── Pipe команд (ФР-4) ──
 
   /**
    * Обработка команды, делегирует сторис.

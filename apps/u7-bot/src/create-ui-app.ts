@@ -43,13 +43,13 @@ export function createUiApp(
   const mentorController = new MentorController();
   const questionnaireController = new QuestionnaireController();
   const userController = new UserController();
-  // Админ-гейт /log_level — app-контроллер (ФР-4, ревизия 2.1)
+  // Админ-гейт /log_level — app-контроллер (ФР-4)
   const appController = new AppController(
     config.schoolGroupUrl,
     config.adminTelegramIds,
   );
 
-  // Гост-регистрация /start — uiApp через resolve (ФР-4, ревизия 2.1)
+  // Гост-регистрация /start — uiApp через resolve (ФР-4)
   const uiApp = new U7BotUiApp([
     appController,
     streamController,

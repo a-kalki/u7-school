@@ -9,9 +9,8 @@ import type { MenuButton } from './u7-menu';
  * Специализированный контроллер для U7 Telegram-бота.
  *
  * Закрывает дженерики `U7BotAppMeta`, `User`; в pipe команд — дефолт ядра
- * (свои стори с агрегацией). Именных обработчиков (handleStart /
- * handleWelcome / handleHelpMessage) нет: меню — декларативные
- * `menuButtons`, welcome/help-тексты — U7BotUiApp.
+ * (свои стори с агрегацией). Меню — декларативные `menuButtons`,
+ * welcome/help-тексты — U7BotUiApp.
  */
 export abstract class U7BotController extends BotController<
   U7BotAppMeta,

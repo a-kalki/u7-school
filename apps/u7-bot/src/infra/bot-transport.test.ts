@@ -15,14 +15,14 @@ import type { DialogUiAppPort } from './bot-transport';
 import { BotTransport, parseCommandText } from './bot-transport';
 
 /**
- * Тесты транспорта на контракте «Диалог и Экран»
- * (трек bot-ui-dialog-core, Фаза 2): штампы, per-chat очередь,
- * рендер-политика §5, kind-уведомления (ФР-5), warn-логи ошибок Telegram API.
+ * Тесты транспорта на контракте «Диалог и Экран»:
+ * штампы, per-chat очередь, рендер-политика §5, kind-уведомления (ФР-5),
+ * warn-логи ошибок Telegram API.
  *
  * Транспорт чёрным ящиком: сессия наблюдается через объект, который
  * транспорт передаёт в uiApp; штампованные коды читаются из аргументов
  * моков Grammy Api. Первый экран всегда открывается через /start
- * (handleCommand 'start' выставляет диалог — как конвейер uiApp Фазы 2).
+ * (handleCommand 'start' выставляет диалог — как конвейер uiApp).
  */
 
 // ── Фабрики ──
@@ -952,7 +952,7 @@ describe('BotTransport — рендер-политика', () => {
 
 // ── notify: проактив (И3: сессия не трогается) ──
 
-// ── Единый вход команд (трек 1.1, ФР-4) ──
+// ── Единый вход команд (ФР-4) ──
 
 describe('parseCommandText — конверт слэш-команды', () => {
   test('/help без аргументов → { command: help, args: "" }', () => {
@@ -1249,7 +1249,7 @@ describe('BotTransport — invite (временный, ФР-6)', () => {
   });
 });
 
-// ── Сжатие UUID (перенос из старого контракта) ──
+// ── Сжатие UUID ──
 
 describe('BotTransport — сжатие UUID', () => {
   test('сжимает UUID в callback_data кнопок', async () => {
@@ -1328,7 +1328,7 @@ describe('BotTransport — сжатие UUID', () => {
   });
 });
 
-// ── Инварианты жизненного цикла (трек 1.1, Фаза 1): настоящий BotUiApp + транспорт ──
+// ── Инварианты жизненного цикла: настоящий BotUiApp + транспорт ──
 
 /** Контроллер интеграционной сборки: фикс-ответ на любой callback. */
 class InvController extends BotController {
@@ -1361,7 +1361,7 @@ class InvUiApp extends BotUiApp {
     },
   };
 
-  /** /start — уровень приложения (ФР-4, ревизия 2.1): reopen + welcome-экран. */
+  /** /start — уровень приложения (ФР-4): reopen + welcome-экран. */
   override async handleCommand(
     update: CommandUpdate,
     tgId: number,
@@ -1404,6 +1404,40 @@ function sentButton(api: Api, row: number, col: number): string | undefined {
     }
   )?.reply_markup?.inline_keyboard?.[row]?.[col]?.callback_data;
 }
+
+describe('BotTransport — лимит callback_data (64 байта)', () => {
+  test('итоговый код (сжатие + штамп) длиннее 64 байт — fail-fast', async () => {
+    const longCode = `course:view:${'x'.repeat(50)}`; // 62 + ':~1' = 65 байт
+    await expect(startDialog({ seq: 1, code: longCode })).rejects.toThrow(
+      'callback_data превышает 64 байта (65)',
+    );
+  });
+
+  test('ровно 64 байта — проходит', async () => {
+    const code = `course:view:${'x'.repeat(49)}`; // 61 + ':~1' = 64 байта
+    const { pressed } = await startDialog({ seq: 1, code });
+
+    expect(pressed).toBe(`${code}:~1`);
+  });
+
+  test('битая кнопка не уходит в Telegram: sendMessage не вызван', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeUiApp({
+      handleCommand: mock(async (_u, _t, s: BotSession) => {
+        s.dialog = { path: 'app/menu', seq: 1 };
+        return {
+          screen: { text: mdRaw('Меню'), keyboard: kb('y'.repeat(70)) },
+        };
+      }),
+    });
+    const transport = new BotTransport(uiApp, api);
+
+    await expect(
+      transport.handleCommand(makeCommandCtx('/start')),
+    ).rejects.toThrow('callback_data превышает');
+    expect(callsOf(api.sendMessage)).toHaveLength(0);
+  });
+});
 
 describe('BotTransport — инварианты жизненного цикла (настоящий uiApp)', () => {
   test('первый /start: кнопки welcome со штампом ~1 и живые', async () => {

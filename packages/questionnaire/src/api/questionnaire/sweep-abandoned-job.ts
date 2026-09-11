@@ -43,7 +43,7 @@ interface SweepAbandonedJobMeta extends JobMeta {
 
 /**
  * Обход брошенных анкет — цепочка ступеней простоя (spec FR-4):
- * 3ч → приглашение продолжить (takeover-кнопка),
+ * 3ч → приглашение продолжить (кнопка-мост),
  * 6ч → предупреждение о закрытии,
  * 9ч → принудительное закрытие.
  *
@@ -99,7 +99,7 @@ export class SweepAbandonedJob extends Job<
 
   /**
    * Приглашение продолжить заполнение: continueInvitedAt + событие
-   * questionnaire:continue-invite (UI рендерит takeover-кнопку «Продолжить»).
+   * questionnaire:continue-invite (UI рендерит экран invite с кнопкой «Продолжить»).
    */
   private async inviteToContinue(state: Questionnaire): Promise<void> {
     const ar = new QuestionnaireAr(state);

@@ -22,7 +22,7 @@ import {
 const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
 
 /**
- * Интеграционные тесты: главное меню, /start, /help (домен app — трек 1/2).
+ * Интеграционные тесты: главное меню, /start, /help (домен app).
  * Сквозной путь: transport (штампы, сессии) → U7BotUiApp → контроллеры.
  *
  * Паттерн нажатий (контракт «Диалог и Экран»): коды кнопок берутся
@@ -162,13 +162,13 @@ describe('Главное меню (интеграционные)', () => {
     expect(response.screen).toBeUndefined();
   });
 
-  test('/help для студента: список menuButtons (см. также трек learning)', async () => {
+  test('/help для студента: список menuButtons', async () => {
     const response = await transport.handleHelp(
       transport.makeBotContext(student.telegramId),
     );
     const text = response.notify?.text ?? '';
-    // Справочник собирается из menuButtons актора: с трека learning
-    // включён и пункт «🎓 Моя учёба» (см. describe learning ниже).
+    // Справочник собирается из menuButtons актора: сюда входят
+    // и пункты домена learning (см. describe learning ниже).
     expect(text).toContain('Программы курсов');
     expect(text).toContain('Потоки курсов');
     expect(text).toContain('Моя учёба');
@@ -235,9 +235,8 @@ describe('Главное меню (интеграционные)', () => {
 });
 
 // ══════════════════════════════════════════════════════════════════
-// E2E домена learning — контракт «Диалог и Экран» (мигрировано треком
-// bot-ui-dialog-learning_20260905): отштампованные коды кнопок из
-// Api-записей, ассерты — по DialogResponse (screen).
+// E2E домена learning — контракт «Диалог и Экран»:
+// отштампованные коды кнопок из Api-записей, ассерты — по DialogResponse.
 // ══════════════════════════════════════════════════════════════════
 
 describe('E2E: Студент — «Моя учёба» (learning)', () => {

@@ -17,13 +17,12 @@ import { getStudent } from '../shared';
 /**
  * Хаб «Моя учёба» — главное меню обучения, список действий студента.
  *
- * Самовыход (FR-4, восстановлен треком bot-ui-dialog-learning после
- * [7034c7e]): кнопка «🚪 Покинуть учёбу» в меню хаба → confirm-диалог →
+ * Самовыход (FR-4): кнопка «🚪 Покинуть учёбу» в меню хаба → confirm-диалог →
  * UC drop-student → студент abandoned + мягкий кик из TG-группы (FR-6 —
  * событие student.abandoned слушает InactivityStory).
  *
- * Подписка на student.enrolled удалена (трек user-notify): студент уже
- * получает флоу-ответ view-stream о зачислении с инструкцией по /start.
+ * О зачислении студент узнаёт из флоу-ответа view-stream (с инструкцией
+ * по /start) — подписки на student.enrolled нет.
  */
 export class HubStory extends U7BotUiStory {
   readonly name = 'hub';
@@ -40,11 +39,10 @@ export class HubStory extends U7BotUiStory {
 
   /**
    * student.completed — кнопочные ветки 7a/7b через канал invite
-   * (ФР-6, временное исключение И3 до tasks-system): прежний UX
-   * сохранён — кнопка ведёт в CourseCatalogStory (wish → UC
-   * create-module-wish). Безкнопочные 7c/7d («Курс завершён», место
-   * неизвестно) доставляет механизм userFacade.notify из UC
-   * complete-student — здесь они не рендерятся (трек user-notify).
+   * (ФР-6, временное исключение И3 до tasks-system): кнопка ведёт в
+   * CourseCatalogStory (wish → UC create-module-wish). Безкнопочные
+   * 7c/7d («Курс завершён», место неизвестно) доставляет механизм
+   * userFacade.notify из UC complete-student.
    */
   async #handleCompletedEvent(event: StudentCompletedEvent): Promise<void> {
     const { userId, moduleId, outcome } = event.payload;

@@ -315,7 +315,7 @@ describe('ViewStreamStory (интеграционный)', () => {
     // Реплика содержит инструкцию по /start и кнопке «Моя учёба»
     expect(keyText).toContain('Теперь вы можете получить функционал по учёбе');
 
-    // Без дубля: подписка хаба на student.enrolled удалена (трек user-notify) —
+    // Без дубля: хаб не подписан на student.enrolled —
     // гостю не приходит отдельное «Ты зачислен…» поверх флоу-ответа
     const duplicates = transport.api.sentMessages.filter(
       (m) => m.telegramId === tgId && m.text.includes('зачислен'),

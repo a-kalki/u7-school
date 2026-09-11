@@ -3,7 +3,7 @@ import { md, mdRaw } from '../../shared/markdown';
 import { assertDialogResponseMarkdownSafe } from './response-assert';
 import type { DialogResponse } from './types';
 
-// ── assertDialogResponseMarkdownSafe — fail-fast для контракта «Диалог и Экран» (трек bot-ui-dialog-core) ──
+// ── assertDialogResponseMarkdownSafe — fail-fast для контракта «Диалог и Экран» ──
 
 describe('assertDialogResponseMarkdownSafe', () => {
   test('экранированный md-текст во всех слотах проходит', () => {

@@ -301,7 +301,7 @@ describe('QuestionnaireEngine.getNextQuestion — any-of на multiple-вопр�
     expect(next?.questionCode).toBe('final');
   });
 
-  test('одиночный ответ продолжает работать как раньше (split без изменений)', () => {
+  test('одиночный ответ — тот же путь (split)', () => {
     const engine = new QuestionnaireEngine(pool);
     const next = engine.getNextQuestion('days', daysAnswer('mon'));
     expect(next?.questionCode).toBe('mon_followup');

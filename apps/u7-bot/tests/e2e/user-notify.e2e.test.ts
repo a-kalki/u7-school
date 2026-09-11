@@ -13,7 +13,7 @@ import {
 import { UserController } from '../../src/controllers/user/controller';
 
 /**
- * E2E механизма уведомлений userFacade.notify (трек user-notify):
+ * E2E механизма уведомлений userFacade.notify:
  *   1) открытие набора → желающий получает ОДНО уведомление с контекстом
  *      (поток, дата, ментор) — ER invite-wishers, FR-6 #8;
  *   2) закрытие потока на последнем модуле → студенту «🎉 Курс завершён!»
@@ -51,7 +51,7 @@ async function waitMessageFor(
   return undefined;
 }
 
-describe('E2E: механизм уведомлений userFacade.notify (трек user-notify)', () => {
+describe('E2E: механизм уведомлений userFacade.notify', () => {
   let app: TestApp;
   let transport: TestBotTransport;
   let mentor: User;

@@ -314,7 +314,7 @@ describe('InactivityStory', () => {
     expect(() => assertMarkdownV2Safe(text)).not.toThrow();
   });
 
-  // ── События ухода (кик; текстовые уведомления — в UC, трек user-notify) ──
+  // ── События ухода (кик; текстовые уведомления — в UC) ──
 
   test('abandoned → мягкий кик из группы потока (FR-6)', async () => {
     const { story, kicks } = setupStory({
@@ -355,7 +355,7 @@ describe('InactivityStory', () => {
     expect(kicks).toHaveLength(0);
   });
 
-  // ── Callback: восстановленные кнопочные сценарии (FR-4/FR-5) ──
+  // ── Callback: кнопочные сценарии (FR-4/FR-5) ──
 
   const SESSION = {
     dialog: { path: 'streams/inactivity', seq: 1 },

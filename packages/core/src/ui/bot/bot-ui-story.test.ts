@@ -342,7 +342,7 @@ describe('BotUiStory — errorExitRows (кнопки выхода на экра�
     }
   });
 
-  test('без переопределения — экраны ошибок без клавиатуры, как раньше', () => {
+  test('без переопределения — экраны ошибок без клавиатуры, по умолчанию', () => {
     const story = new TestStory();
 
     const response = story.callHandleError(

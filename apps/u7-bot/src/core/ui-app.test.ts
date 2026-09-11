@@ -130,7 +130,7 @@ function makeUiApp(
   return uiApp;
 }
 
-// ── /start: напрямую в uiApp, без pipe (ФР-4, ревизия 2.1) ──
+// ── /start: напрямую в uiApp, без pipe (ФР-4) ──
 
 describe('U7BotUiApp — /start', () => {
   test('гость регистрируется, диалог reopen меню seq++, welcome из menuButtons', async () => {

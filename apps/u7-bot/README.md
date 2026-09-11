@@ -1,105 +1,85 @@
 # U7 Bot — Telegram-бот школы
 
-Telegram-бот для платформы u7-school. Построен на grammy, использует модульную
-архитектуру с контроллерами. Слои, ответственности и поток данных — см.
-[bot-architecture.md](../../conductor/code_styleguides/bot-architecture.md).
+Telegram-бот платформы u7-school на grammy. Работает на контракте
+**«Диалог и Экран»** (см. [bot-architecture.md](../../conductor/code_styleguides/bot-architecture.md)
+и материнский [bot-ui-session-architecture.md](../../conductor/bot-ui-session-architecture.md)):
+Grammy-слой — тонкий адаптер апдейтов, состоянием диалогов владеет `BotTransport`,
+сценарии отвечают `DialogResponse`, транспорт исполняет его по рендер-политике §5.
 
 ## Структура
 
 ```
 apps/u7-bot/
   src/
-    main.ts                       # Точка входа: config → sessionMap → createBot → createApiApp → createUiApp → BotTransport
-    bot.ts                        # createBot() — Grammy-бот + session middleware (общий sessionMap)
-    context.ts                    # BotContext = Context & SessionFlavor<SessionData>
-    config.ts                     # BotConfig (токен, URL группы школы)
+    main.ts                       # Точка входа: config → logger → createBot → ApiApp → UiApp → BotTransport → jobs
+    bot.ts                        # createBot(token) — Grammy-бот без сессий (диалогами владеет транспорт)
+    context.ts                    # BotContext = Context (реэкспорт BotSession из core)
+    config.ts                     # BotConfig (токены, группа школы, админы)
     create-api-app.ts             # Фабрика ApiApp (доменные модули + репозитории)
-    create-ui-app.ts              # Фабрика U7BotUiApp (все контроллеры + actorResolver)
+    create-ui-app.ts              # Фабрика U7BotUiApp (контроллеры + actorResolver + transport)
+    ensure-registered.ts          # Гост-регистрация пользователя по telegramId
     core/
-      u7-bot-controller.ts        # U7BotController — базовый контроллер
-      u7-bot-user-story.ts        # U7BotUserStory — базовый сценарий
-      u7-bot-app-meta.ts          # U7BotAppMeta — мета-тип приложения
-      ui-app.ts                   # U7BotUiApp — специализация UiApp
+      u7-bot-controller.ts        # U7BotController — базовый контроллер (префиксация кодов)
+      u7-bot-ui-story.ts          # U7BotUiStory — базовая стори (контракт команд ФР-4)
+      u7-bot-app-meta.ts          # U7BotAppMeta — мета-тип приложения (для appApi)
+      ui-app.ts                   # U7BotUiApp — специализация BotUiApp (init/start)
+      u7-menu.ts                  # Декларативные кнопки главного меню
     controllers/
-      app/
-        app-controller.ts         # AppController — /start, /help, главное меню, сообщество
-        stories/community.story.ts
-      courses/
-        controller.ts             # CoursesController — каталог курсов (S00)
-        stories/course-catalog.story.ts
-        ui-spec.md
-      streams/
-        controller.ts             # StreamsController — потоки (S01–S04)
-        stories/
-          stream-catalog.story.ts # S01 — каталог потоков
-          view-stream.story.ts    # S02–S04 — карточка, программа, детали
-        ui-spec.md
-      learning/
-        controller.ts             # LearningController — «Моя учёба» (S05–S06)
-        stories/
-          hub.ts                  # S05 — хаб
-          step-view.ts            # просмотр шага
-          nav-tree.ts             # дерево уроков
-          progress.ts             # S06 — прогресс
-        shared.ts                 # Общая логика (editOrSend, respondInContext)
-        ui-spec.md
-      mentor/
-        controller.ts             # MentorController — инструменты ментора (S07–S09)
-        stories/
-          my-streams.ts           # Мои потоки
-          create-stream.ts        # S09 — wizard создания потока
-          monitor.ts              # S07 — мониторинг студентов
-          view-stream-mentor.ts   # карточка потока (mentor-режим)
-          activate-stream.ts      # Активация потока
-          submenu.ts              # Подменю
-        ui-spec.md
-      questionnaire/
-        controller.ts             # QuestionnaireController — анкета (standalone-модуль)
-        fill.story.ts
+      app/                        # /start, /help, главное меню, сообщество
+      courses/                    # Каталог курсов (S00)
+      streams/                    # Потоки: каталог, карточка, программа; inactivity-проактивы
+      learning/                   # «Моя учёба»: хаб, дерево уроков, шаги, прогресс
+      mentor/                     # Инструменты ментора: мои потоки, monitor, wizard создания, активация
+      questionnaire/              # Анкета: invite/fill стори, render
+      user/                       # Пользовательские уведомления
       shared/
-        routes.ts                 # Routes — канонические кросс-контроллерные маршруты
+        routes.ts                 # Канонические кросс-контроллерные маршруты
         buttons.ts                # Готовые кнопки (buttons.mainMenu и др.)
+    handlers/
+      group-handler.ts            # Групповые апдейты: регистрация при входе в группу школы
     infra/
-      bot-transport.ts            # BotTransport — транспорт/исполнение (сессии, сжатие UUID, execute/send/notify)
-      questionnaire-bot-facade.ts # Proactive-фасад анкеты (transport.send)
+      bot-transport.ts            # BotTransport — сессии, штампы, сжатие UUID, рендер §5, notify/invite
+      short-id.ts                 # Сжатие UUID ↔ короткие id для callback_data
       logger/                     # TelegramLogger
+    shared/
+      app-codes.ts                # Якоря диалогов приложения (app:main-menu, app/invite, ...)
+      tree-renderer.ts            # Отрисовка дерева уроков (ASCII)
   tests/
     helpers/
-      test-app.ts                 # createTestApp() — ApiApp с временными репозиториями
-      test-bot-transport.ts       # TestBotTransport, makeBotContext, createTestBotTransport
-      fixture-loader.ts           # copy-on-write фикстур
-    fixtures/templates/           # эталонные JSON-фикстуры
-    courses/ streams/ learning/ mentor/   # интеграционные тесты
-    e2e/                          # E2E сценарии
+      test-app.ts                 # createTestApp() — ApiApp на временных репозиториях
+      test-bot-transport.ts       # TestBotTransport (обёртка реального BotTransport), RecordingBotApi
+      fixture-loader.ts           # copy-on-write фикстуры
+    fixtures/templates/           # Эталонные JSON-фикстуры
+    courses/ streams/ learning/ mentor/   # Интеграционные тесты
+    e2e/                          # Сквозные сценарии «пользователь жмёт кнопки»
 ```
 
-## Контроллеры
+## Поток данных
 
-Каждый контроллер — класс, наследующий `U7BotController` (`@u7-scl/bot/u7-bot-controller`):
+```
+Grammy → BotTransport (сессии, штампы, shortId, per-chat очередь)
+       → U7BotUiApp → Controller → Story → appApi (доменные UseCase)
+       ← DialogResponse ← ...       ← BotTransport рендерит по §5
+```
 
-- **`AppController`** (`name: 'app'`) — системные сценарии: `/start`, `/help`, главное меню, сообщество.
-- **`CoursesController`** (`name: 'course'`) — каталог курсов (S00).
-- **`StreamsController`** (`name: 'stream'`) — потоки: каталог, карточки, программа, детали.
-- **`LearningController`** (`name: 'learning'`) — обучение: хаб, дерево уроков, шаги, прогресс.
-- **`MentorController`** (`name: 'mentor'`) — ментор: мои потоки, мониторинг, wizard создания.
-- **`QuestionnaireController`** (`name: 'questionnaire'`) — анкета (standalone-модуль).
-
-Контроллеры регистрируются в `U7BotUiApp` при создании (`create-ui-app.ts`). Каждый
-контроллер владеет своим `name`-префиксом для `callback_data` и **префиксирует**
-коды кнопок своих стори.
-
-## Stories
-
-Story — класс, наследующий `U7BotUserStory` (`@u7-scl/bot/u7-bot-user-story`).
-Инкапсулирует логику одного сценария (каталог, карточка, wizard). Регистрируется
-в контроллере через массив `stories`.
+- **BotTransport** владеет `BotSession` (диалог + активный экран), ставит штампы
+  `:~<seq36>` в `callback_data`, сжимает UUID, сериализует апдейты per-chat очередью.
+  Превышение лимита Telegram (64 байта) — fail-fast, битая кнопка не уходит.
+- **U7BotUiApp** маршрутизирует команды (`/start`, `/help`, `/cancel` — конвейер uiApp,
+  доменные команды — стори через `handleCommand`), кнопки и текстовый ввод — активным стори.
+- **Контроллер** префиксирует коды кнопок своих стори (`controller:story:action:...`).
 
 ## Соглашения
 
-- **Callback-данные:** `controller:story:action:...` — префикс `controller:` добавляет `BotController`, сжатие UUID (≤ 64 байта) выполняет `BotTransport`.
-- **Межмодульные вызовы:** через `this.appApi.execute()` (команды других модулей).
-- **Кросс-стори ссылки:** `this.cbFor(storyName, action, ...args)` — для стори того же контроллера; кросс-контроллерные — адрес из `Routes` (`app:main-menu` → `Routes.app.mainMenu`) или готовая кнопка `buttons.mainMenu(text?)`.
-- **MarkdownV2:** экранирование через `this.escapeMarkdown()`, кнопки — всегда plain text.
+- **Ответы стори** — только `DialogResponse`: `screen` / `finalize` / `notify` /
+  `awaitInput` / `release` / `delegate` / `pass`. Ошибки валидации — `errorNotify`.
+- **MarkdownV2:** тексты — `MdText`-литералы (`md` / `mdRaw` из `@u7-scl/core/shared`);
+  динамические вставки экранируются `escapeMarkdown`. Текст кнопок — всегда plain.
+- **Проактивы:** `notify` (без кнопок, вид-заголовок 🔔/ℹ️/⚠️); `invite` — временный
+  канал с кнопками (удаляется с tasks-system).
+- **Межмодульные вызовы:** через `this.appApi.execute()`.
+- **Кросс-стори ссылки:** `this.cbFor(storyName, action, ...args)` внутри контроллера;
+  кросс-контроллерные — адрес из `Routes` или готовая кнопка `buttons.mainMenu(text?)`.
 
 ## Запуск
 
@@ -125,6 +105,6 @@ bun test apps/u7-bot/tests/streams/
 
 - [Архитектура bot-level](../../conductor/code_styleguides/bot-architecture.md)
 - [BotController Styleguide](../../conductor/code_styleguides/skills/bot-controller.md) — иерархия, API
-- [BotUserStory Styleguide](../../conductor/code_styleguides/skills/bot-user-story.md) — написание stories
+- [BotUiStory Styleguide](../../conductor/code_styleguides/skills/bot-ui-story.md) — написание стори
 - [Тестирование бота](../../conductor/code_styleguides/bot-test.md) — уровни и правила
 - [UI Specs](./src/controllers/) — спецификации экранов по модулям

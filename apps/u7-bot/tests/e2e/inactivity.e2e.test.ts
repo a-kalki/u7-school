@@ -29,8 +29,7 @@ import { registerGroupHandlers } from '../../src/handlers/group-handler';
  *   6) mark-abandoned (UC) → abandoned + мягкий кик (FR-6);
  *   7) chat_member left выбывшего студента → уведомления нет (FR-7).
  *
- * Кнопочные проактивы восстановлены треком mentor (решение владельца,
- * ревью трека 3): канал invite — получателю без открытого диалога
+ * Канал invite: получателю без открытого диалога
  * открывается экран app/invite (seq=1), кнопки штампуются и валидны.
  * Текстовые уведомления UC (drop-student / mark-abandoned) доставляются
  * через userFacade.notify — механизм покрыт user-notify e2e.
@@ -185,7 +184,7 @@ function publishAbandoned(app: TestApp): void {
 
 // ═══ Контур A: проактивы бездействия (FR-1) + callback-тупик (И3) ═══
 
-describe('E2E: проактивы бездействия (трек student-inactivity)', () => {
+describe('E2E: проактивы бездействия', () => {
   let stand: Stand;
 
   beforeAll(async () => {
@@ -290,7 +289,7 @@ describe('E2E: проактивы бездействия (трек student-inact
 
 // ═══ Контур B: выход из группы + снятие ментором (FR-6/7) ═══
 
-describe('E2E: выход из группы и снятие ментором (трек student-inactivity)', () => {
+describe('E2E: выход из группы и снятие ментором', () => {
   let stand: Stand;
 
   beforeAll(async () => {
@@ -331,7 +330,7 @@ describe('E2E: выход из группы и снятие ментором (т
     const { app, transport, mentor } = stand;
     transport.reset();
 
-    // UC напрямую (в бою — кнопка в monitor, долг трека mentor):
+    // UC напрямую (в бою — кнопка в monitor):
     // снимает студента, публикует student.abandoned и уведомляет студента
     await app.apiApp.execute(
       'mark-abandoned',

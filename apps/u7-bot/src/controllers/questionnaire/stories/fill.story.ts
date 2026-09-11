@@ -31,7 +31,7 @@ import { renderActionResponse } from './render';
  * Контракт «Диалог и Экран»: анкета держит ввод (awaitInput с контекстом
  * { questionnaireId }) с момента входа в диалог (resume/current/start) до
  * завершения (release при completed/abandoned). Прерывание — только после
- * подтверждения (решение владельца 2026-09-10): /cancel и кнопка «Прервать»
+ * подтверждения: /cancel и кнопка «Прервать»
  * из S07/S09 показывают confirm-экран S05a.
  */
 export class FillStory extends U7BotUiStory {

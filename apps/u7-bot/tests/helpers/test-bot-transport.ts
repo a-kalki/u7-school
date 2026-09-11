@@ -223,7 +223,7 @@ export class TestBotTransport {
 
   /**
    * Эмуляция рестарта сервиса: сессии BotTransport живут в памяти
-   * процесса и теряются (персистентность — трек bot-ui-session-persist).
+   * процесса и теряются при перезапуске.
    */
   dropSession(tgId: number): void {
     sessionsOf(this.transport).delete(tgId);

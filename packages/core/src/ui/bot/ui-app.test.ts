@@ -30,7 +30,7 @@ class Queue<T> {
 class TestStory extends BotUiStory<AppMeta, TestActor> {
   readonly name: string;
 
-  /** Вызовы handleCommand (pipe ФР-4, ревизия 2.1). */
+  /** Вызовы handleCommand (pipe ФР-4). */
   commandCalls: CommandUpdate[] = [];
   /** Реакция на команду (дефолт — pass). */
   commandReaction: CommandReaction = { reaction: 'pass' };
@@ -64,7 +64,7 @@ class TestController extends BotController<AppMeta, TestActor> {
   callbackData: string[] = [];
   messageCalled = 0;
 
-  /** Вызовы handleCommand в pipe uiApp (ревизия 2.1). */
+  /** Вызовы handleCommand в pipe uiApp. */
   commandCalls: CommandUpdate[] = [];
   /** Реакция контроллера в pipe (дефолт — pass). */
   commandReaction: CommandReaction = { reaction: 'pass' };
@@ -325,7 +325,7 @@ describe('BotUiApp — delegate', () => {
   });
 });
 
-// ── Pipe команд (трек 1.1, ФР-4 ревизия 2.1): uiApp агрегирует контроллеры ──
+// ── Pipe команд (ФР-4): uiApp агрегирует контроллеры ──
 
 describe('BotUiApp — handleCommand: pipe контроллеров (ФР-4)', () => {
   test('все контроллеры pass → null (дефолты — уровень приложения)', async () => {
@@ -602,7 +602,7 @@ describe('BotUiApp — awaitInput/release', () => {
   });
 });
 
-// ── Инварианты: операция входа (трек 1.1, ФР-1/ФР-2) ──
+// ── Инварианты: операция входа (ФР-1/ФР-2) ──
 
 describe('BotUiApp — инварианты: операция входа', () => {
   test('handleMessage при закрытом диалоге → null (next), контроллеры не дёргаются', async () => {

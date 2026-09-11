@@ -17,7 +17,7 @@ import { CommunityStory } from './stories/community.story';
  * - callback'и стори (community).
  *
  * Меню и общий help собирает U7BotUiApp (menuButtons — декларативные
- * данные); welcome/main-help-тексты — там же (решения 2026-09-06).
+ * данные); welcome/main-help-тексты — там же.
  */
 export class AppController extends U7BotController {
   readonly name = 'app';
@@ -51,7 +51,7 @@ export class AppController extends U7BotController {
 
   /**
    * `/log_level`: не-админ → stop{} (тишина); админ → stop{info}
-   * (parseLogLevel, тексты прежние). Прочие команды — super (свои стори).
+   * (parseLogLevel). Прочие команды — super (свои стори).
    */
   override async handleCommand(
     update: CommandUpdate,

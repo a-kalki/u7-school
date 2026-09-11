@@ -8,7 +8,7 @@ import type { QuestionnaireAr } from './questionnaire-ar';
  * - чужой код кнопки (устаревшая клавиатура) → stale_answer (stale_button),
  *   состояние анкеты не меняется;
  * - «Далее» без выбора на multiple → stale_answer (empty_selection);
- * - все валидные флоу работают как раньше.
+ * - валидные ответы работают без изменений.
  */
 
 const RESPONDENT_ID = '00000000-0000-0000-0000-000000000007';
