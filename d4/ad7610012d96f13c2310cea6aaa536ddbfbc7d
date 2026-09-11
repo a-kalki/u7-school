@@ -1,0 +1,12 @@
+Задача: Проверки скоупа зелёные; grep-чистота (фаза 3, трек bot-ui-dialog-questionnaire)
+
+Результаты:
+- lint (biome) u7-bot: зелёный, 112 файлов
+- tsc скоупа (src/controllers/questionnaire): зелёный
+- тесты скоупа (stories, 5 файлов): 61 pass / 0 fail
+- grep по скоупу: BotResponse — 0, respondInContext — 0, takeover-подписки — 0 (только UX-термин в названиях e2e-тестов)
+
+Триаж красного вне скоупа (61 fail в u7-bot):
+- 59 — mentor-домен (MonitorStory, CreateStreamStory, ViewStreamMentorStory, mentor-management e2e, CreateStream Wizard) — промежуточное состояние, трек-владелец bot-ui-dialog-mentor_20260905 (задачи миграции в его плане, фаза 1)
+- 12 — e2e анкеты (questionnaire-ux, wish-questionnaire) — задача 2 текущей фазы 3
+- tsc-ошибки вне скоупа: mentor-файлы + create-ui-app.ts/curious-showcase (MentorController) — трек 5
