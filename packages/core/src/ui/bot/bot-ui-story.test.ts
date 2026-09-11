@@ -15,7 +15,23 @@ import { setGlobalLogger } from '#shared/logger';
 import { md, type mdRaw } from '../../shared/markdown';
 import { assertMarkdownV2Safe } from '../../shared/markdown-validator';
 import { BotUiStory } from './bot-ui-story';
-import type { BotSession, BotUpdate, DialogResponse } from './types';
+import {
+  ask,
+  btn,
+  btnUrl,
+  go,
+  type KbButton,
+  kb,
+  note,
+  screen,
+  warn,
+} from './response-builders';
+import type {
+  BotSession,
+  BotUpdate,
+  DialogResponse,
+  KeyboardDescription,
+} from './types';
 
 type TestActor = { id: string };
 
@@ -101,6 +117,45 @@ class TestStory extends BotUiStory<AppMeta, TestActor> {
   }
   callFormatDate(iso: string): string {
     return this.formatDate(iso);
+  }
+  // Делегаты билдеров ответов (ФР-2) — экспонирование для тестов
+  callScreen(
+    text: ReturnType<typeof mdRaw>,
+    keyboard?: KeyboardDescription,
+  ): ReturnType<BotUiStory<AppMeta, TestActor>['screen']> {
+    return this.screen(text, keyboard);
+  }
+  callAsk(
+    text: ReturnType<typeof mdRaw>,
+    context: unknown,
+    keyboard?: KeyboardDescription,
+  ): ReturnType<BotUiStory<AppMeta, TestActor>['ask']> {
+    return this.ask(text, context, keyboard);
+  }
+  callWarn(
+    text: ReturnType<typeof mdRaw>,
+  ): ReturnType<BotUiStory<AppMeta, TestActor>['warn']> {
+    return this.warn(text);
+  }
+  callNote(
+    text: ReturnType<typeof mdRaw>,
+  ): ReturnType<BotUiStory<AppMeta, TestActor>['note']> {
+    return this.note(text);
+  }
+  callGo(path: string): ReturnType<BotUiStory<AppMeta, TestActor>['go']> {
+    return this.go(path);
+  }
+  callKb(
+    rows: KbButton[][],
+    opts?: { multiple?: boolean },
+  ): ReturnType<BotUiStory<AppMeta, TestActor>['kb']> {
+    return this.kb(rows, opts);
+  }
+  callBtn(text: string, code: string): KbButton {
+    return this.btn(text, code);
+  }
+  callBtnUrl(text: string, url: string): KbButton {
+    return this.btnUrl(text, url);
   }
 }
 
@@ -488,5 +543,37 @@ describe('BotUiStory — поверхность', () => {
     expect(
       (await story.handleMessage(update, { id: 'u' }, session)).notify?.text,
     ).toContain('не принимаются');
+  });
+});
+
+describe('BotUiStory — делегаты билдеров ответов (ФР-2)', () => {
+  test('screen/ask/warn/note/go возвращают результат билдеров', () => {
+    const story = new TestStory();
+    const text = md`Текст экрана`;
+
+    expect(story.callScreen(text)).toEqual(screen(text));
+    expect(story.callAsk(text, { step: 1 })).toEqual(ask(text, { step: 1 }));
+    expect(story.callWarn(text)).toEqual(warn(text));
+    expect(story.callNote(text)).toEqual(note(text));
+    expect(story.callGo('menu:main')).toEqual(go('menu:main'));
+  });
+
+  test('kb/btn/btnUrl возвращают результат билдеров', () => {
+    const story = new TestStory();
+
+    expect(story.callKb([[story.callBtn('ОК', 'ok')]])).toEqual(
+      kb([[btn('ОК', 'ok')]]),
+    );
+    expect(story.callBtnUrl('Сайт', 'https://x.y')).toEqual(
+      btnUrl('Сайт', 'https://x.y'),
+    );
+  });
+
+  test('btn + cb: код кнопки собирается через cb-хелпер стори', () => {
+    const story = new TestStory();
+
+    const button = story.callBtn('Далее', story.callCb('next', 'id-7'));
+
+    expect(button).toEqual({ text: 'Далее', code: 'anketa:next:id-7' });
   });
 });

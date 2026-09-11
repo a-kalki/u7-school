@@ -7,6 +7,8 @@ import { type MdText, md, mdConcat, mdJoin } from '#shared/markdown';
 import { serializeError } from '#shared/serialize-error';
 import { UiStory } from '../ui-story';
 import type { BotUiAppResolve } from './app-types';
+import type { KbButton } from './response-builders';
+import * as rb from './response-builders';
 import type {
   BotSession,
   BotUpdate,
@@ -111,6 +113,60 @@ export abstract class BotUiStory<
     _session: BotSession,
   ): Promise<CommandReaction> {
     return { reaction: 'pass' };
+  }
+
+  // ── Делегаты чистых билдеров ответов (ФР-2) ──
+  // Тонкие переадресации: доменный язык ответов прямо в наследниках —
+  // this.screen(...), this.ask(...), this.warn(...) вместо ручных литералов.
+
+  /** Экран: текст + (опц.) клавиатура. */
+  protected screen(
+    text: MdText,
+    keyboard?: KeyboardDescription,
+  ): DialogResponse {
+    return rb.screen(text, keyboard);
+  }
+
+  /** Спросить: экран + ожидание текстового ввода с контекстом. */
+  protected ask(
+    text: MdText,
+    context: unknown,
+    keyboard?: KeyboardDescription,
+  ): DialogResponse {
+    return rb.ask(text, context, keyboard);
+  }
+
+  /** Предупреждение поверх диалога (kind: 'warn'). */
+  protected warn(text: MdText): DialogResponse {
+    return rb.warn(text);
+  }
+
+  /** Инфо-заметка поверх диалога (kind: 'info'). */
+  protected note(text: MdText): DialogResponse {
+    return rb.note(text);
+  }
+
+  /** Уйти: делегировать диалог по пути. */
+  protected go(path: string): DialogResponse {
+    return rb.go(path);
+  }
+
+  /** Клавиатура: isMultiple: false по умолчанию, multiple: true — опция. */
+  protected kb(
+    rows: KbButton[][],
+    opts?: { multiple?: boolean },
+  ): KeyboardDescription {
+    return rb.kb(rows, opts);
+  }
+
+  /** Callback-кнопка. */
+  protected btn(text: string, code: string): KbButton {
+    return rb.btn(text, code);
+  }
+
+  /** Кнопка-ссылка. */
+  protected btnUrl(text: string, url: string): KbButton {
+    return rb.btnUrl(text, url);
   }
 
   // ── Подтверждение действия (confirm-хелпер) ──
