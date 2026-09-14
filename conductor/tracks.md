@@ -10,7 +10,7 @@
 ---
 
 - [x] **Track: core/api — актор-объект вместо actorId (дженерик актора + канонизация User в app + миграция доменов/приложений)** — кодовая часть выполнена; ручные верификации фаз за владельцем
-*Link: [./tracks/core-api-actor_20260914/](./tracks/core-api-actor_20260914/)*
+*Link: [./archive/core-api-actor_20260914/](./archive/core-api-actor_20260914/)*
 
 ---
 
