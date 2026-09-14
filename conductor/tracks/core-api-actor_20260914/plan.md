@@ -18,7 +18,7 @@
   - [x] `CI=true bun run check:p user` и `CI=true bun test apps/u7-bot` — зелёные
 - [ ] Task: Conductor - Ручная верификация 'Фаза 1' (Protocol in workflow.md)
 
-## Фаза 2. core/api — дженерик актора
+## Фаза 2. core/api — дженерик актора [checkpoint: 003dd9c5]
 
 - [x] Task: UcMeta.actor + UseCase (Red: тесты handle/execute/checkAuth на actor-объекте) `4f1c8a5`
   - [x] `UcMeta<TActor = unknown>`: поле `actor: TActor`
