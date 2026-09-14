@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import {
   type ListCoursesCmd,
@@ -27,7 +28,7 @@ export class ListCoursesUc extends CourseUseCase<ListCoursesCmdMeta> {
   protected readonly inputSchema = ListCoursesCmdSchema;
   protected readonly outputSchema = CoursesListOutputSchema;
 
-  async execute(command: ListCoursesCmd, _actorId?: string): Promise<Course[]> {
+  async execute(command: ListCoursesCmd, _actor?: User): Promise<Course[]> {
     const courses = await this.resolve.courseRepo.getAll({
       status: command.status ?? Status.PUBLISHED,
       authorId: command.authorId,

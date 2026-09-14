@@ -1,7 +1,18 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { Role, type User } from '@u7-scl/app/domain';
 import type { WishApiModuleResolver } from '#domain/module';
 import type { Wish } from '#domain/wish/entity';
 import { CancelWishUc } from './cancel-wish-uc';
+
+function makeUser(uuid: string): User {
+  return {
+    uuid,
+    name: 'Актор',
+    telegramId: 1,
+    roles: [Role.STUDENT],
+    createdAt: '2026-01-01T00:00',
+  };
+}
 
 function setupUc() {
   const save = mock(async (_wish: Wish): Promise<void> => {});
@@ -32,6 +43,7 @@ function makeExpressedWish(userId: string, courseId: string): Wish {
 
 describe('CancelWishUc', () => {
   const actorId = crypto.randomUUID();
+  const actor = makeUser(actorId);
   const courseId = crypto.randomUUID();
 
   test('отменяет выраженное желание', async () => {
@@ -40,7 +52,7 @@ describe('CancelWishUc', () => {
       makeExpressedWish(actorId, courseId),
     );
 
-    await uc.handle({ kind: 'course', courseId }, actorId);
+    await uc.handle({ kind: 'course', courseId }, actor);
 
     expect(save).toHaveBeenCalledTimes(1);
     const saved = (save as ReturnType<typeof mock>).mock.calls[0]![0] as Wish;
@@ -54,7 +66,7 @@ describe('CancelWishUc', () => {
       status: 'confirmed' as const,
     });
 
-    await uc.handle({ kind: 'course', courseId }, actorId);
+    await uc.handle({ kind: 'course', courseId }, actor);
 
     expect(save).toHaveBeenCalledTimes(1);
     const saved = (save as ReturnType<typeof mock>).mock.calls[0]![0] as Wish;
@@ -69,7 +81,7 @@ describe('CancelWishUc', () => {
     });
 
     await expect(
-      uc.handle({ kind: 'course', courseId }, actorId),
+      uc.handle({ kind: 'course', courseId }, actor),
     ).rejects.toThrow('Желание не найдено');
     expect(save).toHaveBeenCalledTimes(0);
   });
@@ -78,7 +90,7 @@ describe('CancelWishUc', () => {
     const { uc } = setupUc();
 
     await expect(
-      uc.handle({ kind: 'course', courseId }, actorId),
+      uc.handle({ kind: 'course', courseId }, actor),
     ).rejects.toThrow('Желание не найдено');
   });
 
@@ -90,7 +102,7 @@ describe('CancelWishUc', () => {
     });
 
     await expect(
-      uc.handle({ kind: 'course', courseId }, actorId),
+      uc.handle({ kind: 'course', courseId }, actor),
     ).rejects.toThrow('Желание не найдено');
   });
 
@@ -104,7 +116,7 @@ describe('CancelWishUc', () => {
       target: { kind: 'module', moduleId },
     });
 
-    await uc.handle({ kind: 'module', moduleId }, actorId);
+    await uc.handle({ kind: 'module', moduleId }, actor);
 
     expect(getByUserAndTarget).toHaveBeenCalledWith(actorId, {
       kind: 'module',
@@ -125,7 +137,7 @@ describe('CancelWishUc', () => {
     });
 
     await expect(
-      uc.handle({ kind: 'module', moduleId }, actorId),
+      uc.handle({ kind: 'module', moduleId }, actor),
     ).rejects.toThrow('Желание не найдено');
     expect(save).not.toHaveBeenCalled();
   });

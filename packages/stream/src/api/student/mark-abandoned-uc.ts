@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { errNotFound } from '@u7-scl/core/domain';
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
@@ -30,10 +31,7 @@ export class MarkAbandonedUc extends StreamUseCase<MarkAbandonedCmdMeta> {
   protected readonly inputSchema = MarkAbandonedCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(
-    command: MarkAbandonedCmd,
-    actorId: string,
-  ): Promise<undefined> {
+  async execute(command: MarkAbandonedCmd, actor: User): Promise<undefined> {
     const studentRepo = this.resolve.streamStudentRepo;
     const userFacade = this.resolve.userFacade;
 
@@ -50,7 +48,6 @@ export class MarkAbandonedUc extends StreamUseCase<MarkAbandonedCmdMeta> {
 
     // Проверка прав: ментор потока или админ
     const streamEntity = await this.getStream(command.streamId);
-    const actor = await this.getActor(actorId);
     if (!StudentPolicy.canManageStudent(actor, streamEntity)) {
       this.throwAccessDenied('Недостаточно прав для снятия студента с учёбы');
     }
@@ -66,11 +63,11 @@ export class MarkAbandonedUc extends StreamUseCase<MarkAbandonedCmdMeta> {
     await userFacade.removeRoleFromUser(
       studentEntity.userId,
       Role.STUDENT,
-      actorId,
+      actor,
     );
 
     // Уведомление студенту
-    await this.#notifyStudentAboutAbandon(studentEntity, actorId);
+    await this.#notifyStudentAboutAbandon(studentEntity, actor);
 
     return undefined;
   }
@@ -80,7 +77,7 @@ export class MarkAbandonedUc extends StreamUseCase<MarkAbandonedCmdMeta> {
    */
   async #notifyStudentAboutAbandon(
     student: Pick<Student, 'userId' | 'streamId'>,
-    actorId: string,
+    actor: User,
   ): Promise<void> {
     const stream = await this.resolve.streamRepo.getByUuid(student.streamId);
     if (!stream) return;
@@ -89,7 +86,7 @@ export class MarkAbandonedUc extends StreamUseCase<MarkAbandonedCmdMeta> {
       student.userId,
       `Ты снят с учёбы с потока «${stream.title}» за бездействие и исключён из его группы. Прогресс сохранён — если захочешь вернуться, напиши ментору потока.`,
       'warn',
-      actorId,
+      actor,
     );
   }
 }

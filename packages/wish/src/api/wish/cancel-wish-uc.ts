@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { errNotFound } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import { WishAr } from '#domain/wish/a-root';
@@ -28,13 +29,13 @@ export class CancelWishUc extends WishUseCase<CancelWishCmdMeta> {
   protected readonly inputSchema = CancelWishCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(command: CancelWishCmd, actorId: string): Promise<undefined> {
+  async execute(command: CancelWishCmd, actor: User): Promise<undefined> {
     const target: WishTarget =
       command.kind === 'course'
         ? { kind: 'course', courseId: command.courseId }
         : { kind: 'module', moduleId: command.moduleId };
 
-    const wish = await this.repo.getByUserAndTarget(actorId, target);
+    const wish = await this.repo.getByUserAndTarget(actor.uuid, target);
     // Отмена разрешена только из expressed|confirmed; для pending — только abandon.
     if (!wish || (wish.status !== 'expressed' && wish.status !== 'confirmed')) {
       this.throwError(
@@ -42,8 +43,8 @@ export class CancelWishUc extends WishUseCase<CancelWishCmdMeta> {
           'WISH_NOT_FOUND',
           'Желание не найдено',
           target.kind === 'course'
-            ? { userId: actorId, courseId: target.courseId }
-            : { userId: actorId, moduleId: target.moduleId },
+            ? { userId: actor.uuid, courseId: target.courseId }
+            : { userId: actor.uuid, moduleId: target.moduleId },
         ),
       );
     }

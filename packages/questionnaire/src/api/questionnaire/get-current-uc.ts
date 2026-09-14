@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import type { GetCurrentCmdMeta } from '#domain/questionnaire/commands/get-current-cmd';
 import {
   type GetCurrentCmd,
@@ -22,9 +23,8 @@ export class GetCurrentUc extends QuestionnaireUseCase<GetCurrentCmdMeta> {
 
   async execute(
     command: GetCurrentCmd,
-    actorId: string,
+    actor: User,
   ): Promise<QuestionnaireActionResponse> {
-    const actor = await this.getUser(actorId);
     const state = await this.getQuestionnaireForRead(
       command.questionnaireId,
       actor,

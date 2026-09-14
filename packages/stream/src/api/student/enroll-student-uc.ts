@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { CourseAr } from '@u7-scl/course/domain';
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
@@ -29,10 +30,7 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
   protected readonly inputSchema = EnrollStudentCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(
-    command: EnrollStudentCmd,
-    actorId: string,
-  ): Promise<undefined> {
+  async execute(command: EnrollStudentCmd, actor: User): Promise<undefined> {
     const studentRepo = this.resolve.streamStudentRepo;
     const userFacade = this.resolve.userFacade;
     const courseFacade = this.resolve.courseFacade;
@@ -93,7 +91,7 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
     await studentRepo.save(studentAr.state);
 
     // 5. Выдача роли STUDENT
-    await userFacade.addRoleToUser(command.userId, Role.STUDENT, actorId);
+    await userFacade.addRoleToUser(command.userId, Role.STUDENT, actor);
 
     // 6. Публикация доменного события (подписчики: ER fulfill-wish, сторя hub)
     this.publishEvents(studentAr);

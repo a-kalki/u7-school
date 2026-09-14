@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { CourseAr } from '#domain/course/a-root';
 import {
   type CreateCourseCmd,
@@ -24,14 +25,12 @@ export class CreateCourseUc extends CourseUseCase<CreateCourseCmdMeta> {
   protected readonly inputSchema = CreateCourseCmdSchema;
   protected readonly outputSchema = CourseSchema;
 
-  async execute(command: CreateCourseCmd, actorId: string): Promise<Course> {
-    const actor = await this.getActor(actorId);
-
+  async execute(command: CreateCourseCmd, actor: User): Promise<Course> {
     if (!CoursePolicy.canCreate(actor)) {
       this.throwAccessDenied('Недостаточно прав для создания курса');
     }
 
-    const ar = CourseAr.create(command.title, command.description, actorId);
+    const ar = CourseAr.create(command.title, command.description, actor.uuid);
     await this.resolve.courseRepo.save(ar.state);
 
     return ar.state;

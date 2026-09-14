@@ -104,7 +104,7 @@ describe('GetLessonUc', () => {
       courseGetByUuid.mockResolvedValueOnce(module);
       getUserByUuid.mockResolvedValueOnce(author);
 
-      const result = await uc.handle({ uuid: lesson.uuid }, author.uuid);
+      const result = await uc.handle({ uuid: lesson.uuid }, author);
       expect((result as Lesson).title).toBe('Урок');
     });
   });

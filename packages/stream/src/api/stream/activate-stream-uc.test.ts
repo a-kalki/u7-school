@@ -1,7 +1,17 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { Role } from '@u7-scl/user/domain';
+import { Role, type User } from '@u7-scl/app/domain';
 import type { StreamApiModuleResolver } from '#domain/module';
 import { ActivateStreamUc } from './activate-stream-uc';
+
+function makeActor(uuid: string): User {
+  return {
+    uuid,
+    name: 'Актор',
+    telegramId: 1,
+    roles: [Role.MENTOR],
+    createdAt: '2026-01-01T00:00',
+  };
+}
 
 const mockDate = '2026-06-01T10:00';
 
@@ -89,7 +99,7 @@ describe('ActivateStreamUc', () => {
 
     await uc.execute(
       { streamId: '77777777-7777-4777-8777-777777777777' },
-      '66666666-6666-4666-8666-666666666666',
+      makeActor('66666666-6666-4666-8666-666666666666'),
     );
 
     // streamActivate
@@ -194,7 +204,7 @@ describe('ActivateStreamUc', () => {
 
     await uc.execute(
       { streamId: '77777777-7777-4777-8777-777777777777' },
-      '66666666-6666-4666-8666-666666666666',
+      makeActor('66666666-6666-4666-8666-666666666666'),
     );
 
     // Только один save (только enrolled студент активирован)

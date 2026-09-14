@@ -233,7 +233,7 @@ describe('ResolveContentPathUc', () => {
 
       const result: any = await env.uc.handle(
         { path: '1', courseId: 'cid-1' },
-        student.uuid,
+        student,
       );
 
       expect(result).toBeDefined();
@@ -247,7 +247,7 @@ describe('ResolveContentPathUc', () => {
 
       const result: any = await env.uc.handle(
         { path: '1', courseId: 'cid-1' },
-        mentor.uuid,
+        mentor,
       );
 
       expect(result).toBeDefined();
@@ -319,7 +319,7 @@ describe('ResolveContentPathUc', () => {
 
       const result: any = await env.uc.handle(
         { path: '1:1:1:1', courseId: 'cid-1' },
-        mentor.uuid,
+        mentor,
       );
 
       expect(result.step).toBeDefined();

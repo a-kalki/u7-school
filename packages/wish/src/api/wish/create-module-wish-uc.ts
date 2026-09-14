@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { errConflict, errNotFound } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import { WishAr } from '#domain/wish/a-root';
@@ -34,10 +35,7 @@ export class CreateModuleWishUc extends WishUseCase<CreateModuleWishCmdMeta> {
   protected readonly inputSchema = CreateModuleWishCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(
-    command: CreateModuleWishCmd,
-    actorId: string,
-  ): Promise<undefined> {
+  async execute(command: CreateModuleWishCmd, actor: User): Promise<undefined> {
     // 1. Модуль существует в программе опубликованного курса
     //    (getModulePlace ищет только по опубликованным — отдельная проверка
     //    isCourseEnrollable не нужна, она дублировала бы эту).
@@ -59,7 +57,7 @@ export class CreateModuleWishUc extends WishUseCase<CreateModuleWishCmdMeta> {
     //    оказаться не первым.
     const target: WishTarget = { kind: 'module', moduleId: command.moduleId };
     const active = (
-      await this.repo.findAllByUserAndTarget(actorId, target)
+      await this.repo.findAllByUserAndTarget(actor.uuid, target)
     ).find((w) => WishPolicy.isActive(w.status));
     if (active) {
       this.throwError(
@@ -67,7 +65,7 @@ export class CreateModuleWishUc extends WishUseCase<CreateModuleWishCmdMeta> {
           'WISH_ALREADY_EXISTS',
           'Желание уже выражено',
           {
-            userId: actorId,
+            userId: actor.uuid,
             moduleId: command.moduleId,
             status: active.status,
           },
@@ -76,7 +74,7 @@ export class CreateModuleWishUc extends WishUseCase<CreateModuleWishCmdMeta> {
     }
 
     // 3. Мгновенная фиксация — без анкеты (студент уже верифицирован).
-    const wish = WishAr.express(actorId, target);
+    const wish = WishAr.express(actor.uuid, target);
     await this.repo.save(wish.state);
 
     return undefined;

@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { errNotFound } from '@u7-scl/core/domain';
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
@@ -74,7 +75,7 @@ export class ResolveContentPathUc extends CourseUseCase<ResolveContentPathCmdMet
 
   async execute(
     command: ResolveContentPathCmd,
-    actorId?: string,
+    actor?: User,
   ): Promise<ResolvedContent> {
     const cp = parseContentPath(command.path);
 
@@ -103,7 +104,7 @@ export class ResolveContentPathUc extends CourseUseCase<ResolveContentPathCmdMet
       );
     }
 
-    const actor = actorId ? await this.getUser(actorId, actorId) : undefined;
+    // Актор приходит параметром (объект или undefined для анонимных запросов)
     const isFullAccess = this.hasFullAccess(actor);
 
     const result: ResolvedContent = {

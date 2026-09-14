@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import type {
   ListModulesCmd,
@@ -26,8 +27,8 @@ export class ListModulesUc extends CourseUseCase<ListModulesCmdMeta> {
   protected readonly inputSchema = ListModulesCmdSchema;
   protected readonly outputSchema = ModulesListOutputSchema;
 
-  async execute(command: ListModulesCmd, actorId?: string): Promise<Module[]> {
-    const actor = actorId ? await this.getUser(actorId, actorId) : undefined;
+  async execute(command: ListModulesCmd, actor?: User): Promise<Module[]> {
+    // Актор приходит параметром (объект или undefined для анонимных запросов)
 
     const modules = await this.resolve.moduleRepo.getAll({
       status: command.status,

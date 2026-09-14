@@ -70,7 +70,7 @@ describe('AddPhaseToCourseUc', () => {
 
       const result = await uc.handle(
         { courseId: course.uuid, title: 'Этап 1', track: 'tech' },
-        admin.uuid,
+        admin,
       );
 
       expect((result as Course).phases).toHaveLength(1);
@@ -87,7 +87,7 @@ describe('AddPhaseToCourseUc', () => {
 
       const result = await uc.handle(
         { courseId: course.uuid, title: 'Этап 2' },
-        author.uuid,
+        author,
       );
 
       expect((result as Course).phases).toHaveLength(1);
@@ -103,7 +103,7 @@ describe('AddPhaseToCourseUc', () => {
       courseRepo.getByUuid.mockResolvedValueOnce(course);
 
       await expect(
-        uc.handle({ courseId: course.uuid, title: 'Этап 1' }, mentor.uuid),
+        uc.handle({ courseId: course.uuid, title: 'Этап 1' }, mentor),
       ).rejects.toThrow('Недостаточно прав для редактирования курса');
     });
 
@@ -114,10 +114,7 @@ describe('AddPhaseToCourseUc', () => {
       courseRepo.getByUuid.mockResolvedValueOnce(undefined);
 
       await expect(
-        uc.handle(
-          { courseId: crypto.randomUUID(), title: 'Этап 1' },
-          admin.uuid,
-        ),
+        uc.handle({ courseId: crypto.randomUUID(), title: 'Этап 1' }, admin),
       ).rejects.toThrow('Курс не найден');
     });
   });

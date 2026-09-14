@@ -1,5 +1,5 @@
+import { U7ApiModule } from '@u7-scl/app/domain';
 import type { ErMeta, EventReaction } from '@u7-scl/core/api';
-import { ApiModule } from '@u7-scl/core/api';
 import type { WishApiModuleMeta, WishApiModuleResolver } from '#domain/module';
 import { AbandonWishEr } from './er/abandon-wish-er';
 import { ConfirmWishEr } from './er/confirm-wish-er';
@@ -10,7 +10,7 @@ import { CreateCourseWishUc } from './wish/create-course-wish-uc';
 import { CreateModuleWishUc } from './wish/create-module-wish-uc';
 import { ListUserWishesUc } from './wish/list-user-wishes-uc';
 
-export class WishApiModule extends ApiModule<
+export class WishApiModule extends U7ApiModule<
   WishApiModuleMeta,
   WishApiModuleResolver
 > {

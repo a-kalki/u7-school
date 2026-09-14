@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { ModuleAr } from '#domain/module/a-root';
 import type {
   GetModuleCmd,
@@ -23,9 +24,9 @@ export class GetModuleUc extends CourseUseCase<GetModuleCmdMeta> {
   protected readonly inputSchema = GetModuleCmdSchema;
   protected readonly outputSchema = ModuleSchema;
 
-  async execute(command: GetModuleCmd, actorId?: string): Promise<Module> {
+  async execute(command: GetModuleCmd, actor?: User): Promise<Module> {
     const module = await this.getModule(command.uuid);
-    const actor = actorId ? await this.getUser(actorId, actorId) : undefined;
+    // Актор приходит параметром (объект или undefined для анонимных запросов)
     return this.getOutModule(module, actor);
   }
 }

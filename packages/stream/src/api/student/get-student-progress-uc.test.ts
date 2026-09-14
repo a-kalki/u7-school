@@ -1,8 +1,18 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { Role, type User } from '@u7-scl/app/domain';
 import { isoNow } from '@u7-scl/core/shared';
-import { Role } from '@u7-scl/user/domain';
 import { StreamStatus } from '#domain/status';
 import { GetStudentProgressUc } from './get-student-progress-uc';
+
+function makeActor(uuid: string): User {
+  return {
+    uuid,
+    name: 'Актор',
+    telegramId: 1,
+    roles: [Role.MENTOR],
+    createdAt: '2026-01-01T00:00',
+  };
+}
 
 const streamId = '55555555-5555-4555-8555-555555555555';
 const studentId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
@@ -83,21 +93,21 @@ describe('GetStudentProgressUc', () => {
   test('сам студент видит свой прогресс', async () => {
     const uc = new GetStudentProgressUc();
     uc.init(baseResolve());
-    const result = await uc.execute({ studentId }, userId);
+    const result = await uc.execute({ studentId }, makeActor(userId));
     expect(result.uuid).toBe(studentId);
   });
 
   test('любой пользователь видит прогресс студента (публичный доступ)', async () => {
     const uc = new GetStudentProgressUc();
     uc.init(baseResolve(otherStudent));
-    const result = await uc.execute({ studentId }, 'other');
+    const result = await uc.execute({ studentId }, makeActor('other'));
     expect(result.uuid).toBe(studentId);
   });
 
   test('ментор видит прогресс студента', async () => {
     const uc = new GetStudentProgressUc();
     uc.init(baseResolve(mentor, mockStream));
-    const result = await uc.execute({ studentId }, mentorId);
+    const result = await uc.execute({ studentId }, makeActor(mentorId));
     expect(result.uuid).toBe(studentId);
   });
 });

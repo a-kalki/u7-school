@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import type { DeclineInviteCmdMeta } from '#domain/questionnaire/commands/decline-invite-cmd';
 import {
@@ -19,11 +20,7 @@ export class DeclineInviteUc extends QuestionnaireUseCase<DeclineInviteCmdMeta> 
   protected readonly inputSchema = DeclineInviteCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(
-    command: DeclineInviteCmd,
-    actorId: string,
-  ): Promise<undefined> {
-    const actor = await this.getUser(actorId);
+  async execute(command: DeclineInviteCmd, actor: User): Promise<undefined> {
     const state = await this.getQuestionnaireForEdit(
       command.questionnaireId,
       actor,

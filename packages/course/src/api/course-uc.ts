@@ -1,6 +1,6 @@
-import { type UcMeta, UseCase } from '@u7-scl/core/api';
+import { U7UseCase, type User } from '@u7-scl/app/domain';
+import type { UcMeta } from '@u7-scl/core/api';
 import { errAccessDenied, errNotFound } from '@u7-scl/core/domain';
-import type { User } from '@u7-scl/user/domain';
 import { LessonAr } from '#domain/lesson/a-root';
 import type { Lesson } from '#domain/lesson/entity';
 import type { CourseApiModuleResolver } from '#domain/module';
@@ -16,7 +16,7 @@ import type { Step } from '#domain/step/entity';
 /**
  * Базовый класс для всех use-case'ов модуля курсов.
  */
-export abstract class CourseUseCase<TMeta extends UcMeta> extends UseCase<
+export abstract class CourseUseCase<TMeta extends UcMeta> extends U7UseCase<
   TMeta,
   CourseApiModuleResolver
 > {
@@ -32,20 +32,6 @@ export abstract class CourseUseCase<TMeta extends UcMeta> extends UseCase<
       );
     }
     return module;
-  }
-
-  protected async getActor(actorId: string): Promise<User> {
-    const actor = await this.getUser(actorId, actorId);
-    if (!actor) {
-      this.throwError(
-        errAccessDenied<ModuleAccessDeniedUcError>(
-          'MODULE_ACCESS_DENIED',
-          'Пользователь не найден',
-          undefined,
-        ),
-      );
-    }
-    return actor;
   }
 
   protected throwAccessDenied(
@@ -126,8 +112,8 @@ export abstract class CourseUseCase<TMeta extends UcMeta> extends UseCase<
    */
   protected async getUser(
     userId: string,
-    actorId?: string,
+    actor?: User,
   ): Promise<User | undefined> {
-    return this.resolve.userFacade.getUserByUuid(userId, actorId);
+    return this.resolve.userFacade.getUserByUuid(userId, actor);
   }
 }

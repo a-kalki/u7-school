@@ -1,8 +1,18 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { Role, type User } from '@u7-scl/app/domain';
 import { isoNow } from '@u7-scl/core/shared';
-import { Role } from '@u7-scl/user/domain';
 import { StreamStatus } from '#domain/status';
 import { ArchiveStreamUc } from './archive-stream-uc';
+
+function makeActor(uuid: string): User {
+  return {
+    uuid,
+    name: 'Актор',
+    telegramId: 1,
+    roles: [Role.MENTOR],
+    createdAt: '2026-01-01T00:00',
+  };
+}
 
 const streamId = '55555555-5555-4555-8555-555555555555';
 const mentorId = '33333333-3333-4333-8333-333333333333';
@@ -64,13 +74,13 @@ describe('ArchiveStreamUc', () => {
   test('ментор архивирует поток', async () => {
     const uc = new ArchiveStreamUc();
     uc.init(baseResolve());
-    await uc.execute({ streamId }, mentorId);
+    await uc.execute({ streamId }, makeActor(mentorId));
   });
 
   test('запрет для не-ментора', async () => {
     const uc = new ArchiveStreamUc();
     uc.init(baseResolve(guest));
-    await expect(uc.execute({ streamId }, guest.uuid)).rejects.toThrow(
+    await expect(uc.execute({ streamId }, guest)).rejects.toThrow(
       'Недостаточно прав',
     );
   });

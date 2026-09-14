@@ -102,7 +102,7 @@ describe('GetStepUc', () => {
       courseGetByUuid.mockResolvedValueOnce(module);
       getUserByUuid.mockResolvedValueOnce(author);
 
-      const result = await uc.handle({ uuid: step.uuid }, author.uuid);
+      const result = await uc.handle({ uuid: step.uuid }, author);
       expect((result as Step).description).toBe('Шаг');
     });
   });

@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import type { StartCmdMeta } from '../../domain/questionnaire/commands/start-cmd';
@@ -21,10 +22,9 @@ export class StartUc extends QuestionnaireUseCase<StartCmdMeta> {
   protected readonly inputSchema = StartCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(command: StartCmd, actorId: string): Promise<undefined> {
-    const user = await this.getUser(actorId);
+  async execute(command: StartCmd, actor: User): Promise<undefined> {
     const ar = QuestionnaireFactory.createStandard(
-      user.uuid,
+      actor.uuid,
       command.pool,
       command.ownerInfo,
     );
@@ -40,8 +40,8 @@ export class StartUc extends QuestionnaireUseCase<StartCmdMeta> {
       ownerInfo: command.ownerInfo,
       payload: {
         questionnaireId: ar.state.uuid,
-        respondentId: user.uuid,
-        telegramId: user.telegramId,
+        respondentId: actor.uuid,
+        telegramId: actor.telegramId,
         response,
       },
     };

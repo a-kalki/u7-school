@@ -81,7 +81,7 @@ describe('PublishModuleUc', () => {
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(author);
 
-      const result = await uc.handle({ moduleId: course.uuid }, author.uuid);
+      const result = await uc.handle({ moduleId: course.uuid }, author);
 
       expect((result as Module).status).toBe(Status.PUBLISHED);
       expect(save).toHaveBeenCalledTimes(1);
@@ -94,7 +94,7 @@ describe('PublishModuleUc', () => {
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(admin);
 
-      const result = await uc.handle({ moduleId: course.uuid }, admin.uuid);
+      const result = await uc.handle({ moduleId: course.uuid }, admin);
 
       expect((result as Module).status).toBe(Status.PUBLISHED);
     });
@@ -108,9 +108,9 @@ describe('PublishModuleUc', () => {
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(other);
 
-      await expect(
-        uc.handle({ moduleId: course.uuid }, other.uuid),
-      ).rejects.toThrow('Недостаточно прав');
+      await expect(uc.handle({ moduleId: course.uuid }, other)).rejects.toThrow(
+        'Недостаточно прав',
+      );
     });
 
     test('отклоняет несуществующий курс', async () => {
@@ -120,9 +120,9 @@ describe('PublishModuleUc', () => {
       getByUuid.mockResolvedValueOnce(undefined);
       getUserByUuid.mockResolvedValueOnce(admin);
 
-      await expect(
-        uc.handle({ moduleId: missingId }, admin.uuid),
-      ).rejects.toThrow('Модуль не найден');
+      await expect(uc.handle({ moduleId: missingId }, admin)).rejects.toThrow(
+        'Модуль не найден',
+      );
     });
   });
 });

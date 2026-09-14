@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import type { ContentSnapshot } from '#domain/content-snapshot';
 import { CourseDs } from '#domain/course-ds';
@@ -27,10 +28,10 @@ export class GetModuleSnapshotUc extends CourseUseCase<GetModuleSnapshotCmdMeta>
 
   async execute(
     command: GetModuleSnapshotCmd,
-    actorId?: string,
+    actor?: User,
   ): Promise<ContentSnapshot> {
     const module = await this.getModule(command.moduleId);
-    const actor = actorId ? await this.getUser(actorId, actorId) : undefined;
+    // Актор приходит параметром (объект или undefined для анонимных запросов)
 
     // Проверяем видимость модуля
     this.getOutModule(module, actor);

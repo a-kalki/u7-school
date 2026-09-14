@@ -1,7 +1,17 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { Role } from '@u7-scl/user/domain';
+import { Role, type User } from '@u7-scl/app/domain';
 import type { StreamApiModuleResolver } from '#domain/module';
 import { EnrollStudentUc } from './enroll-student-uc';
+
+function makeActor(uuid: string): User {
+  return {
+    uuid,
+    name: 'Актор',
+    telegramId: 1,
+    roles: [Role.MENTOR],
+    createdAt: '2026-01-01T00:00',
+  };
+}
 
 const mockDate = '2026-06-01T10:00';
 
@@ -76,13 +86,13 @@ describe('EnrollStudentUc', () => {
         streamId: '11111111-1111-4111-8111-111111111111',
         userId: '99999999-9999-4999-8999-999999999999',
       },
-      '99999999-9999-4999-8999-999999999999',
+      makeActor('99999999-9999-4999-8999-999999999999'),
     );
     expect(mockStudentRepo.save).toHaveBeenCalled();
     expect(mockUserFacade.addRoleToUser).toHaveBeenCalledWith(
       '99999999-9999-4999-8999-999999999999',
       Role.STUDENT,
-      '99999999-9999-4999-8999-999999999999',
+      makeActor('99999999-9999-4999-8999-999999999999'),
     );
     // Публикация события student.enrolled с moduleId потока
     expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
@@ -194,7 +204,7 @@ describe('EnrollStudentUc', () => {
           streamId: '11111111-1111-4111-8111-111111111111',
           userId: '99999999-9999-4999-8999-999999999999',
         },
-        '99999999-9999-4999-8999-999999999999',
+        makeActor('99999999-9999-4999-8999-999999999999'),
       ),
     ).rejects.toThrow('Вы уже проходите обучение');
 
@@ -283,7 +293,7 @@ describe('EnrollStudentUc', () => {
         streamId: '11111111-1111-4111-8111-111111111111',
         userId: '99999999-9999-4999-8999-999999999999',
       },
-      '99999999-9999-4999-8999-999999999999',
+      makeActor('99999999-9999-4999-8999-999999999999'),
     );
     expect(mockStudentRepo.save).toHaveBeenCalled();
   });
@@ -360,7 +370,7 @@ describe('EnrollStudentUc', () => {
         userId: '99999999-9999-4999-8999-999999999999',
         enrollmentKey: 'secret',
       },
-      '99999999-9999-4999-8999-999999999999',
+      makeActor('99999999-9999-4999-8999-999999999999'),
     );
     expect(mockStudentRepo.save).toHaveBeenCalled();
   });
@@ -436,7 +446,7 @@ describe('EnrollStudentUc', () => {
           userId: '99999999-9999-4999-8999-999999999999',
           enrollmentKey: 'wrong',
         },
-        '99999999-9999-4999-8999-999999999999',
+        makeActor('99999999-9999-4999-8999-999999999999'),
       ),
     ).rejects.toThrow();
   });
@@ -511,7 +521,7 @@ describe('EnrollStudentUc', () => {
           streamId: '11111111-1111-4111-8111-111111111111',
           userId: '99999999-9999-4999-8999-999999999999',
         },
-        '99999999-9999-4999-8999-999999999999',
+        makeActor('99999999-9999-4999-8999-999999999999'),
       ),
     ).rejects.toThrow();
   });
@@ -584,7 +594,7 @@ describe('EnrollStudentUc', () => {
         streamId: '11111111-1111-4111-8111-111111111111',
         userId: '99999999-9999-4999-8999-999999999999',
       },
-      '99999999-9999-4999-8999-999999999999',
+      makeActor('99999999-9999-4999-8999-999999999999'),
     );
 
     expect(mockStudentRepo.save).toHaveBeenCalled();
@@ -727,7 +737,7 @@ describe('EnrollStudentUc', () => {
     } as unknown as StreamApiModuleResolver);
 
     await expect(
-      uc.execute({ streamId: algoStreamId, userId }, userId),
+      uc.execute({ streamId: algoStreamId, userId }, makeActor(userId)),
     ).rejects.toThrow('Синтаксис');
   });
 
@@ -800,7 +810,7 @@ describe('EnrollStudentUc', () => {
       courseFacade: mockCourseFacade,
     } as unknown as StreamApiModuleResolver);
 
-    await uc.execute({ streamId: algoStreamId, userId }, userId);
+    await uc.execute({ streamId: algoStreamId, userId }, makeActor(userId));
 
     // Новая запись создана
     expect(mockStudentRepo.save).toHaveBeenCalled();
@@ -808,7 +818,7 @@ describe('EnrollStudentUc', () => {
     expect(mockUserFacade.addRoleToUser).toHaveBeenCalledWith(
       userId,
       Role.STUDENT,
-      userId,
+      makeActor(userId),
     );
   });
 
@@ -879,7 +889,7 @@ describe('EnrollStudentUc', () => {
       courseFacade: mockCourseFacade,
     } as unknown as StreamApiModuleResolver);
 
-    await uc.execute({ streamId: algoStreamId, userId }, userId);
+    await uc.execute({ streamId: algoStreamId, userId }, makeActor(userId));
 
     // save вызван ровно 1 раз — только для новой записи
     expect(mockStudentRepo.save).toHaveBeenCalledTimes(1);
@@ -957,7 +967,7 @@ describe('EnrollStudentUc', () => {
       courseFacade: mockCourseFacade,
     } as unknown as StreamApiModuleResolver);
 
-    await uc.execute({ streamId: syntaxStreamId, userId }, userId);
+    await uc.execute({ streamId: syntaxStreamId, userId }, makeActor(userId));
 
     expect(mockStudentRepo.save).toHaveBeenCalled();
   });
@@ -1008,7 +1018,7 @@ describe('EnrollStudentUc', () => {
     } as unknown as StreamApiModuleResolver);
 
     await expect(
-      uc.execute({ streamId: algoStreamId, userId }, userId),
+      uc.execute({ streamId: algoStreamId, userId }, makeActor(userId)),
     ).rejects.toThrow('Синтаксис');
   });
 });

@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { ModuleAr } from '#domain/module/a-root';
 import {
   type CreateModuleCmd,
@@ -27,14 +28,12 @@ export class CreateModuleUc extends CourseUseCase<CreateModuleCmdMeta> {
   protected readonly inputSchema = CreateModuleCmdSchema;
   protected readonly outputSchema = ModuleSchema;
 
-  async execute(command: CreateModuleCmd, actorId: string): Promise<Module> {
-    const actor = await this.getActor(actorId);
-
+  async execute(command: CreateModuleCmd, actor: User): Promise<Module> {
     if (!ModulePolicy.canCreate(actor)) {
       this.throwAccessDenied('Недостаточно прав для создания модуля');
     }
 
-    const ar = ModuleAr.create(command.title, command.description, actorId);
+    const ar = ModuleAr.create(command.title, command.description, actor.uuid);
     await this.resolve.moduleRepo.save(ar.state);
 
     return ar.state;

@@ -1,6 +1,7 @@
-import { type UcMeta, UseCase } from '@u7-scl/core/api';
+import { U7UseCase, type User } from '@u7-scl/app/domain';
+import type { UcMeta } from '@u7-scl/core/api';
 import { errAccessDenied, errNotFound } from '@u7-scl/core/domain';
-import type { User, UserFacade } from '@u7-scl/user/domain';
+import type { UserFacade } from '@u7-scl/user/domain';
 import type { QuestionnaireApiModuleResolver } from '../domain/module';
 import type { QuestionnaireNotFoundUcError } from '../domain/questionnaire/errors';
 import { QuestionnairePolicy } from '../domain/questionnaire/policy';
@@ -11,31 +12,18 @@ import type {
 
 /**
  * Абстрактный UseCase для модуля questionnaire.
+ * Актор — готовый объект User (резолвится на входе приложения),
+ * приходит параметром в execute(command, actor).
  */
 export abstract class QuestionnaireUseCase<
   TMeta extends UcMeta,
-> extends UseCase<TMeta, QuestionnaireApiModuleResolver> {
+> extends U7UseCase<TMeta, QuestionnaireApiModuleResolver> {
   protected get repo(): QuestionnaireRepo {
     return this.resolve.questionnaireRepo;
   }
 
   protected get userFacade(): UserFacade {
     return this.resolve.userFacade;
-  }
-
-  /** Получает пользователя по actorId или выбрасывает ошибку */
-  protected async getUser(actorId: string): Promise<User> {
-    const user = await this.userFacade.getUserByUuid(actorId);
-    if (!user) {
-      this.throwError(
-        errNotFound<QuestionnaireNotFoundUcError>(
-          'QUESTIONNAIRE_NOT_FOUND',
-          'Пользователь не найден',
-          { uuid: actorId },
-        ),
-      );
-    }
-    return user;
   }
 
   /** Получает анкету по UUID (без проверки прав) */

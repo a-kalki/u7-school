@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import type { GetQuestionnairesByUserCmdMeta } from '#domain/questionnaire/commands/get-questionnaires-by-user-cmd';
 import {
@@ -22,9 +23,8 @@ export class GetQuestionnairesByUserUc extends QuestionnaireUseCase<GetQuestionn
 
   async execute(
     command: GetQuestionnairesByUserCmd,
-    actorId: string,
+    actor: User,
   ): Promise<QuestionnaireState[]> {
-    const actor = await this.getUser(actorId);
     this.ensureCanListForUser(actor, command.userId);
     return this.repo.getByRespondentId(command.userId);
   }

@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { StudentAr } from '#domain/student/a-root';
 import {
   type GetStudentProgressCmd,
@@ -22,7 +23,7 @@ export class GetStudentProgressUc extends StreamUseCase<GetStudentProgressCmdMet
 
   async execute(
     command: GetStudentProgressCmd,
-    _actorId: string,
+    _actor: User,
   ): Promise<Student> {
     const student = await this.resolve.streamStudentRepo.getByUuid(
       command.studentId,

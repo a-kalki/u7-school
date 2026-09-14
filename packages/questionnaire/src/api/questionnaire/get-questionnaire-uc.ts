@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import type { GetQuestionnaireCmdMeta } from '#domain/questionnaire/commands/get-questionnaire-cmd';
 import {
   type GetQuestionnaireCmd,
@@ -21,9 +22,8 @@ export class GetQuestionnaireUc extends QuestionnaireUseCase<GetQuestionnaireCmd
 
   async execute(
     command: GetQuestionnaireCmd,
-    actorId: string,
+    actor: User,
   ): Promise<QuestionnaireState> {
-    const actor = await this.getUser(actorId);
     return this.getQuestionnaireForRead(command.uuid, actor);
   }
 }

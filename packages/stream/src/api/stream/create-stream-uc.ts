@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { StreamAr } from '#domain/stream/a-root';
 import {
   type CreateStreamCmd,
@@ -23,11 +24,9 @@ export class CreateStreamUc extends StreamUseCase<CreateStreamCmdMeta> {
   protected readonly inputSchema = CreateStreamCmdSchema;
   protected readonly outputSchema = StreamSchema;
 
-  async execute(command: CreateStreamCmd, actorId: string): Promise<Stream> {
+  async execute(command: CreateStreamCmd, actor: User): Promise<Stream> {
     const repo = this.resolve.streamRepo;
     const courseFacade = this.resolve.courseFacade;
-
-    const actor = await this.getActor(actorId);
     if (!StreamPolicy.canCreate(actor)) {
       this.throwAccessDenied('Недостаточно прав для создания потока');
     }

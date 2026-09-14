@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import type { AbandonCmdMeta } from '#domain/questionnaire/commands/abandon-cmd';
 import {
@@ -19,8 +20,7 @@ export class AbandonUc extends QuestionnaireUseCase<AbandonCmdMeta> {
   protected readonly inputSchema = AbandonCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(command: AbandonCmd, actorId: string): Promise<undefined> {
-    const actor = await this.getUser(actorId);
+  async execute(command: AbandonCmd, actor: User): Promise<undefined> {
     const state = await this.getQuestionnaireForEdit(
       command.questionnaireId,
       actor,

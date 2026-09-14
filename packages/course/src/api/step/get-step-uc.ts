@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { errNotFound } from '@u7-scl/core/domain';
 import { StepAr } from '#domain/step/a-root';
 import type { StepNotFoundUcError } from '#domain/step/commands/errors';
@@ -27,7 +28,7 @@ export class GetStepUc extends CourseUseCase<GetStepCmdMeta> {
   protected readonly inputSchema = GetStepCmdSchema;
   protected readonly outputSchema = StepSchema;
 
-  async execute(command: GetStepCmd, actorId?: string): Promise<Step> {
+  async execute(command: GetStepCmd, actor?: User): Promise<Step> {
     const step = await (this.resolve.stepRepo as StepRepo).getByUuid(
       command.uuid,
     );
@@ -39,7 +40,7 @@ export class GetStepUc extends CourseUseCase<GetStepCmdMeta> {
       );
     }
 
-    const actor = actorId ? await this.getUser(actorId, actorId) : undefined;
+    // Актор приходит параметром (объект или undefined для анонимных запросов)
 
     return this.getOutStep(step, actor);
   }

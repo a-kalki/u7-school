@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import type { LikertQuestionPool } from './questionnaire/likert/likert-question';
 import type { QuestionnairePool } from './questionnaire/question';
 
@@ -9,17 +10,13 @@ export interface QuestionnaireFacade {
   /** Создать и сразу запустить обычную анкету. */
   startStandard<
     TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
-  >(
-    actorId: string,
-    pool: QuestionnairePool,
-    ownerInfo: TOwnerInfo,
-  ): Promise<void>;
+  >(actor: User, pool: QuestionnairePool, ownerInfo: TOwnerInfo): Promise<void>;
 
   /** Отправить приглашение на likert-анкету (invited). */
   sendLikertInvite<
     TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
   >(
-    actorId: string,
+    actor: User,
     pool: LikertQuestionPool,
     ownerInfo: TOwnerInfo,
   ): Promise<void>;

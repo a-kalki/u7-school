@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import { WishAr } from '#domain/wish/a-root';
 import type {
@@ -31,7 +32,7 @@ export class ListUserWishesUc extends WishUseCase<ListUserWishesCmdMeta> {
   protected readonly inputSchema = ListUserWishesCmdSchema;
   protected readonly outputSchema = WishesOutputSchema;
 
-  async execute(_command: ListUserWishesCmd, actorId: string): Promise<Wish[]> {
-    return this.repo.getByUser(actorId);
+  async execute(_command: ListUserWishesCmd, actor: User): Promise<Wish[]> {
+    return this.repo.getByUser(actor.uuid);
   }
 }

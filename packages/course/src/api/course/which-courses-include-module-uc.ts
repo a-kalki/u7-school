@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import {
   type WhichCoursesIncludeModuleCmd,
@@ -29,7 +30,7 @@ export class WhichCoursesIncludeModuleUc extends CourseUseCase<WhichCoursesInclu
 
   async execute(
     command: WhichCoursesIncludeModuleCmd,
-    _actorId?: string,
+    _actor?: User,
   ): Promise<string[]> {
     if (command.courseIds.length === 0) {
       return [];

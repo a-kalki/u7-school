@@ -1,7 +1,17 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { Role } from '@u7-scl/user/domain';
+import { Role, type User } from '@u7-scl/app/domain';
 import type { StreamApiModuleResolver } from '#domain/module';
 import { SetNextPreferenceUc } from './set-next-preference-uc';
+
+function makeActor(uuid: string): User {
+  return {
+    uuid,
+    name: 'Актор',
+    telegramId: 1,
+    roles: [Role.MENTOR],
+    createdAt: '2026-01-01T00:00',
+  };
+}
 
 const mockDate = '2026-06-01T10:00';
 
@@ -53,7 +63,7 @@ describe('SetNextPreferenceUc', () => {
         studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         preference: 'wants_next',
       },
-      '11111111-1111-4111-8111-111111111111',
+      makeActor('11111111-1111-4111-8111-111111111111'),
     );
 
     expect(mockStudentRepo.save).toHaveBeenCalled();
@@ -109,7 +119,7 @@ describe('SetNextPreferenceUc', () => {
         studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         preference: 'wants_repeat',
       },
-      '11111111-1111-4111-8111-111111111111',
+      makeActor('11111111-1111-4111-8111-111111111111'),
     );
 
     const saved = (mockStudentRepo.save as ReturnType<typeof mock>).mock
@@ -161,7 +171,7 @@ describe('SetNextPreferenceUc', () => {
           studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
           preference: 'wants_next',
         },
-        '22222222-2222-4222-8222-222222222222',
+        makeActor('22222222-2222-4222-8222-222222222222'),
       ),
     ).rejects.toThrow();
   });
@@ -209,7 +219,7 @@ describe('SetNextPreferenceUc', () => {
           studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
           preference: 'wants_next',
         },
-        '11111111-1111-4111-8111-111111111111',
+        makeActor('11111111-1111-4111-8111-111111111111'),
       ),
     ).rejects.toThrow();
   });

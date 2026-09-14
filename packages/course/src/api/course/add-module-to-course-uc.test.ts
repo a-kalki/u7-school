@@ -75,7 +75,7 @@ describe('AddModuleToCourseUc', () => {
           phaseTitle: 'Этап 1',
           moduleId,
         },
-        admin.uuid,
+        admin,
       );
 
       expect((result as Course).phases[0]!.moduleIds).toContain(moduleId);
@@ -96,7 +96,7 @@ describe('AddModuleToCourseUc', () => {
           phaseTitle: 'Этап 1',
           moduleId,
         },
-        author.uuid,
+        author,
       );
 
       expect((result as Course).phases[0]!.moduleIds).toContain(moduleId);
@@ -118,7 +118,7 @@ describe('AddModuleToCourseUc', () => {
             phaseTitle: 'Этап 1',
             moduleId: crypto.randomUUID(),
           },
-          mentor.uuid,
+          mentor,
         ),
       ).rejects.toThrow('Недостаточно прав для редактирования курса');
     });
@@ -136,7 +136,7 @@ describe('AddModuleToCourseUc', () => {
             phaseTitle: 'Этап 1',
             moduleId: crypto.randomUUID(),
           },
-          admin.uuid,
+          admin,
         ),
       ).rejects.toThrow('Курс не найден');
     });

@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import {
   type GetCourseByModuleCmd,
@@ -27,7 +28,7 @@ export class GetCourseByModuleUc extends CourseUseCase<GetCourseByModuleCmdMeta>
 
   async execute(
     command: GetCourseByModuleCmd,
-    _actorId?: string,
+    _actor?: User,
   ): Promise<Course | undefined> {
     const courses = await this.resolve.courseRepo.getAll();
     const ds = new CourseDs();

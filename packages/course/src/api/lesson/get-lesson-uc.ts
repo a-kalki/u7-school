@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { errNotFound } from '@u7-scl/core/domain';
 import { LessonAr } from '#domain/lesson/a-root';
 import type { LessonNotFoundUcError } from '#domain/lesson/commands/errors';
@@ -27,7 +28,7 @@ export class GetLessonUc extends CourseUseCase<GetLessonCmdMeta> {
   protected readonly inputSchema = GetLessonCmdSchema;
   protected readonly outputSchema = LessonSchema;
 
-  async execute(command: GetLessonCmd, actorId?: string): Promise<Lesson> {
+  async execute(command: GetLessonCmd, actor?: User): Promise<Lesson> {
     const lesson = await (this.resolve.lessonRepo as LessonRepo).getByUuid(
       command.uuid,
     );
@@ -41,7 +42,7 @@ export class GetLessonUc extends CourseUseCase<GetLessonCmdMeta> {
       );
     }
 
-    const actor = actorId ? await this.getUser(actorId, actorId) : undefined;
+    // Актор приходит параметром (объект или undefined для анонимных запросов)
 
     return this.getOutLesson(lesson, actor);
   }

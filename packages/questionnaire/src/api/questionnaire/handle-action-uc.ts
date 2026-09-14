@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import type { HandleActionCmdMeta } from '#domain/questionnaire/commands/handle-action-cmd';
 import {
   type HandleActionCmd,
@@ -22,9 +23,8 @@ export class HandleActionUc extends QuestionnaireUseCase<HandleActionCmdMeta> {
 
   async execute(
     command: HandleActionCmd,
-    actorId: string,
+    actor: User,
   ): Promise<QuestionnaireActionResponse> {
-    const actor = await this.getUser(actorId);
     const state = await this.getQuestionnaireForEdit(
       command.questionnaireId,
       actor,

@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { errNotFound } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import { StudentAr } from '#domain/student/a-root';
@@ -27,7 +28,7 @@ export class SetNextPreferenceUc extends StreamUseCase<SetNextPreferenceCmdMeta>
 
   async execute(
     command: SetNextPreferenceCmd,
-    actorId: string,
+    actor: User,
   ): Promise<undefined> {
     const studentRepo = this.resolve.streamStudentRepo;
 
@@ -43,7 +44,7 @@ export class SetNextPreferenceUc extends StreamUseCase<SetNextPreferenceCmdMeta>
     }
 
     // Только сам студент может менять предпочтение
-    if (actorId !== studentEntity.userId) {
+    if (actor.uuid !== studentEntity.userId) {
       this.throwAccessDenied(
         'Вы не можете менять предпочтения другого студента',
       );

@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { errNotFound } from '@u7-scl/core/domain';
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
@@ -29,10 +30,7 @@ export class CompleteStudentUc extends StreamUseCase<CompleteStudentCmdMeta> {
   protected readonly inputSchema = CompleteStudentCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(
-    command: CompleteStudentCmd,
-    actorId: string,
-  ): Promise<undefined> {
+  async execute(command: CompleteStudentCmd, actor: User): Promise<undefined> {
     const studentRepo = this.resolve.streamStudentRepo;
     const userFacade = this.resolve.userFacade;
 
@@ -49,7 +47,6 @@ export class CompleteStudentUc extends StreamUseCase<CompleteStudentCmdMeta> {
 
     // Проверка прав: ментор потока или админ
     const streamEntity = await this.getStream(command.streamId);
-    const actor = await this.getActor(actorId);
     if (!StudentPolicy.canManageStudent(actor, streamEntity)) {
       this.throwAccessDenied('Недостаточно прав для завершения студента');
     }
@@ -74,7 +71,7 @@ export class CompleteStudentUc extends StreamUseCase<CompleteStudentCmdMeta> {
     await userFacade.removeRoleFromUser(
       studentEntity.userId,
       Role.STUDENT,
-      actorId,
+      actor,
     );
 
     // Публикация доменного события (подписчики: сторя hub — уведомление)
@@ -82,7 +79,7 @@ export class CompleteStudentUc extends StreamUseCase<CompleteStudentCmdMeta> {
 
     // Уведомление студенту при advanced (сценарии #7c/7d, трек user-notify)
     if (command.outcome === 'advanced') {
-      await this.#notifyCompletion(studentEntity, streamEntity, actorId);
+      await this.#notifyCompletion(studentEntity, streamEntity, actor);
     }
 
     return undefined;
@@ -97,7 +94,7 @@ export class CompleteStudentUc extends StreamUseCase<CompleteStudentCmdMeta> {
   async #notifyCompletion(
     student: Pick<Student, 'userId'>,
     stream: Pick<Stream, 'moduleId'>,
-    actorId: string,
+    actor: User,
   ): Promise<void> {
     const place = await this.resolve.courseFacade.getModulePlace(
       stream.moduleId,
@@ -108,6 +105,6 @@ export class CompleteStudentUc extends StreamUseCase<CompleteStudentCmdMeta> {
     const text = place?.isLast
       ? '🎉 Курс завершён! Поздравляем — ты прошёл всю программу.'
       : '🏁 Модуль завершён!';
-    await this.resolve.userFacade.notify(student.userId, text, 'info', actorId);
+    await this.resolve.userFacade.notify(student.userId, text, 'info', actor);
   }
 }

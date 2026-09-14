@@ -108,7 +108,7 @@ describe('CreateLessonUc', () => {
           projectId,
           title: 'Урок 1',
         },
-        author.uuid,
+        author,
       );
 
       expect((result as Lesson).title).toBe('Урок 1');
@@ -119,8 +119,8 @@ describe('CreateLessonUc', () => {
 
   describe('FAIL', () => {
     test('отклоняет STUDENT без прав', async () => {
-      const { getUserByUuid, uc } = setupUc();
-      getUserByUuid.mockResolvedValueOnce(makeUser([Role.STUDENT]));
+      const { uc } = setupUc();
+      const actor = makeUser([Role.STUDENT]);
 
       await expect(
         uc.handle(
@@ -129,14 +129,14 @@ describe('CreateLessonUc', () => {
             projectId: crypto.randomUUID(),
             title: 'У',
           },
-          'actor-id',
+          actor,
         ),
       ).rejects.toThrow('Недостаточно прав для создания урока');
     });
 
     test('отклоняет MENTOR без AUTHOR', async () => {
-      const { getUserByUuid, uc } = setupUc();
-      getUserByUuid.mockResolvedValueOnce(makeUser([Role.MENTOR]));
+      const { uc } = setupUc();
+      const actor = makeUser([Role.MENTOR]);
 
       await expect(
         uc.handle(
@@ -145,16 +145,15 @@ describe('CreateLessonUc', () => {
             projectId: crypto.randomUUID(),
             title: 'У',
           },
-          'actor-id',
+          actor,
         ),
       ).rejects.toThrow('Недостаточно прав для создания урока');
     });
 
     test('отклоняет AUTHOR не автора модуля', async () => {
-      const { courseGetByUuid, getUserByUuid, uc } = setupUc();
+      const { courseGetByUuid, uc } = setupUc();
       const author = makeUser([Role.AUTHOR]);
       const module = makeModule(crypto.randomUUID());
-      getUserByUuid.mockResolvedValueOnce(author);
       courseGetByUuid.mockResolvedValueOnce(module);
 
       await expect(
@@ -166,25 +165,9 @@ describe('CreateLessonUc', () => {
                 ?.uuid ?? '',
             title: 'У',
           },
-          author.uuid,
+          author,
         ),
       ).rejects.toThrow('Вы не являетесь автором модуля');
-    });
-
-    test('отклоняет несуществующего пользователя', async () => {
-      const { getUserByUuid, uc } = setupUc();
-      getUserByUuid.mockResolvedValueOnce(undefined);
-
-      await expect(
-        uc.handle(
-          {
-            moduleId: crypto.randomUUID(),
-            projectId: crypto.randomUUID(),
-            title: 'У',
-          },
-          'noone',
-        ),
-      ).rejects.toThrow('Пользователь не найден');
     });
   });
 });

@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { errNotFound } from '@u7-scl/core/domain';
 import type { CourseNotFoundUcError } from '#domain/course/commands/errors';
 import {
@@ -25,7 +26,7 @@ export class GetCourseUc extends CourseUseCase<GetCourseCmdMeta> {
   protected readonly inputSchema = GetCourseCmdSchema;
   protected readonly outputSchema = CourseSchema;
 
-  async execute(command: GetCourseCmd, _actorId?: string): Promise<Course> {
+  async execute(command: GetCourseCmd, _actor?: User): Promise<Course> {
     const course = await this.resolve.courseRepo.getByUuid(command.uuid);
     if (!course) {
       this.throwError(

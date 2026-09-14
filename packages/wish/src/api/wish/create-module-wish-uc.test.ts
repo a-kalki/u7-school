@@ -1,7 +1,18 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { Role, type User } from '@u7-scl/app/domain';
 import type { WishApiModuleResolver } from '#domain/module';
 import type { Wish, WishStatus } from '#domain/wish/entity';
 import { CreateModuleWishUc } from './create-module-wish-uc';
+
+function makeUser(uuid: string): User {
+  return {
+    uuid,
+    name: 'Актор',
+    telegramId: 1,
+    roles: [Role.STUDENT],
+    createdAt: '2026-01-01T00:00',
+  };
+}
 
 const moduleId = '33333333-3333-4333-8333-333333333333';
 const courseId = '44444444-4444-4444-8444-444444444444';
@@ -54,13 +65,14 @@ function makeActiveWish(status: WishStatus): Wish {
 
 describe('CreateModuleWishUc', () => {
   const actorId = crypto.randomUUID();
+  const actor = makeUser(actorId);
 
   test('создаёт expressed-желание на модуль без анкеты', async () => {
     const { wishRepo, startStandard, uc } = setupUc({
       place: { courseId },
     });
 
-    await uc.handle({ moduleId }, actorId);
+    await uc.handle({ moduleId }, actor);
 
     expect(wishRepo.save).toHaveBeenCalledTimes(1);
     const saved = (wishRepo.save as ReturnType<typeof mock>).mock
@@ -75,7 +87,7 @@ describe('CreateModuleWishUc', () => {
   test('валидация: модуль вне опубликованных курсов → MODULE_NOT_FOUND', async () => {
     const { wishRepo, uc } = setupUc({ place: undefined });
 
-    await expect(uc.handle({ moduleId }, actorId)).rejects.toThrow(
+    await expect(uc.handle({ moduleId }, actor)).rejects.toThrow(
       'Модуль не найден',
     );
     expect(wishRepo.save).not.toHaveBeenCalled();
@@ -87,7 +99,7 @@ describe('CreateModuleWishUc', () => {
       existing: makeActiveWish('expressed'),
     });
 
-    await expect(uc.handle({ moduleId }, actorId)).rejects.toThrow(
+    await expect(uc.handle({ moduleId }, actor)).rejects.toThrow(
       'Желание уже выражено',
     );
     expect(wishRepo.save).not.toHaveBeenCalled();
@@ -99,7 +111,7 @@ describe('CreateModuleWishUc', () => {
       existing: makeActiveWish('fulfilled'),
     });
 
-    await uc.handle({ moduleId }, actorId);
+    await uc.handle({ moduleId }, actor);
 
     expect(wishRepo.save).toHaveBeenCalledTimes(1);
   });

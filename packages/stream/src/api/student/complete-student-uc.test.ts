@@ -1,7 +1,17 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { Role } from '@u7-scl/user/domain';
+import { Role, type User } from '@u7-scl/app/domain';
 import type { StreamApiModuleResolver } from '#domain/module';
 import { CompleteStudentUc } from './complete-student-uc';
+
+function makeActor(uuid: string): User {
+  return {
+    uuid,
+    name: 'Актор',
+    telegramId: 1,
+    roles: [Role.MENTOR],
+    createdAt: '2026-01-01T00:00',
+  };
+}
 
 const mockDate = '2026-06-01T10:00';
 const STUDENT_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
@@ -108,7 +118,7 @@ describe('CompleteStudentUc', () => {
         studentId: STUDENT_ID,
         outcome: 'advanced',
       },
-      MENTOR_ID,
+      makeActor(MENTOR_ID),
     );
 
     expect(mockStudentRepo.save).toHaveBeenCalled();
@@ -120,7 +130,7 @@ describe('CompleteStudentUc', () => {
     expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalledWith(
       STUDENT_USER_ID,
       Role.STUDENT,
-      MENTOR_ID,
+      makeActor(MENTOR_ID),
     );
 
     // Публикуется событие student.completed с полным payload
@@ -151,7 +161,7 @@ describe('CompleteStudentUc', () => {
         studentId: STUDENT_ID,
         outcome: 'not_advanced',
       },
-      MENTOR_ID,
+      makeActor(MENTOR_ID),
     );
 
     const saved = (mockStudentRepo.save as ReturnType<typeof mock>).mock
@@ -177,7 +187,7 @@ describe('CompleteStudentUc', () => {
         studentId: STUDENT_ID,
         outcome: 'abandoned',
       },
-      MENTOR_ID,
+      makeActor(MENTOR_ID),
     );
 
     const saved = (mockStudentRepo.save as ReturnType<typeof mock>).mock
@@ -220,7 +230,7 @@ describe('CompleteStudentUc', () => {
           studentId: STUDENT_ID,
           outcome: 'advanced',
         },
-        '22222222-2222-4222-8222-222222222222',
+        makeActor('22222222-2222-4222-8222-222222222222'),
       ),
     ).rejects.toThrow();
   });
@@ -240,7 +250,7 @@ describe('CompleteStudentUc', () => {
 
     await uc.execute(
       { streamId: STREAM_ID, studentId: STUDENT_ID, outcome: 'advanced' },
-      MENTOR_ID,
+      makeActor(MENTOR_ID),
     );
 
     expect(mockUserFacade.notify).toHaveBeenCalledTimes(1);
@@ -248,7 +258,7 @@ describe('CompleteStudentUc', () => {
       STUDENT_USER_ID,
       '🎉 Курс завершён! Поздравляем — ты прошёл всю программу.',
       'info',
-      MENTOR_ID,
+      makeActor(MENTOR_ID),
     );
   });
 
@@ -260,7 +270,7 @@ describe('CompleteStudentUc', () => {
 
     await uc.execute(
       { streamId: STREAM_ID, studentId: STUDENT_ID, outcome: 'advanced' },
-      MENTOR_ID,
+      makeActor(MENTOR_ID),
     );
 
     expect(mockUserFacade.notify).toHaveBeenCalledTimes(1);
@@ -268,7 +278,7 @@ describe('CompleteStudentUc', () => {
       STUDENT_USER_ID,
       '🏁 Модуль завершён!',
       'info',
-      MENTOR_ID,
+      makeActor(MENTOR_ID),
     );
   });
 
@@ -285,7 +295,7 @@ describe('CompleteStudentUc', () => {
 
     await uc.execute(
       { streamId: STREAM_ID, studentId: STUDENT_ID, outcome: 'advanced' },
-      MENTOR_ID,
+      makeActor(MENTOR_ID),
     );
 
     expect(mockUserFacade.notify).not.toHaveBeenCalled();
@@ -303,7 +313,7 @@ describe('CompleteStudentUc', () => {
 
     await uc.execute(
       { streamId: STREAM_ID, studentId: STUDENT_ID, outcome: 'not_advanced' },
-      MENTOR_ID,
+      makeActor(MENTOR_ID),
     );
 
     expect(mockUserFacade.notify).not.toHaveBeenCalled();

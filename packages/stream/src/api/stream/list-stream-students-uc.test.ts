@@ -1,8 +1,18 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { Role, type User } from '@u7-scl/app/domain';
 import { isoNow } from '@u7-scl/core/shared';
-import { Role } from '@u7-scl/user/domain';
 import { StreamStatus } from '#domain/status';
 import { ListStreamStudentsUc } from './list-stream-students-uc';
+
+function makeActor(uuid: string): User {
+  return {
+    uuid,
+    name: 'Актор',
+    telegramId: 1,
+    roles: [Role.MENTOR],
+    createdAt: '2026-01-01T00:00',
+  };
+}
 
 const streamId = '55555555-5555-4555-8555-555555555555';
 const mentorId = '33333333-3333-4333-8333-333333333333';
@@ -91,7 +101,7 @@ describe('ListStreamStudentsUc', () => {
     const uc = new ListStreamStudentsUc();
     uc.init(baseResolve());
 
-    const result = await uc.execute({ streamId }, mentorId);
+    const result = await uc.execute({ streamId }, makeActor(mentorId));
     expect(result).toHaveLength(2);
     expect(result[0]!.userId).toBe('u1');
     expect(result[1]!.userId).toBe('u2');
@@ -110,7 +120,7 @@ describe('ListStreamStudentsUc', () => {
     const uc = new ListStreamStudentsUc();
     uc.init(resolve);
 
-    const result = await uc.execute({ streamId }, mentorId);
+    const result = await uc.execute({ streamId }, makeActor(mentorId));
     expect(result).toHaveLength(0);
   });
 
@@ -134,7 +144,7 @@ describe('ListStreamStudentsUc', () => {
     const uc = new ListStreamStudentsUc();
     uc.init(resolve);
 
-    const result = await uc.execute({ streamId }, guest.uuid);
+    const result = await uc.execute({ streamId }, guest);
     expect(result).toHaveLength(1);
     expect(result[0]!.uuid).toBe(student1.uuid);
   });

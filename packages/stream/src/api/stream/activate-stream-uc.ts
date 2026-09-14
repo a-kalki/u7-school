@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
 import {
@@ -21,15 +22,11 @@ export class ActivateStreamUc extends StreamUseCase<ActivateStreamCmdMeta> {
   protected readonly inputSchema = ActivateStreamCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(
-    command: ActivateStreamCmd,
-    actorId: string,
-  ): Promise<undefined> {
+  async execute(command: ActivateStreamCmd, actor: User): Promise<undefined> {
     const streamEntity = await this.getStream(command.streamId);
     const streamAr = new StreamAr(streamEntity);
 
     // Проверка прав: ментор потока или админ
-    const actor = await this.getActor(actorId);
     if (!StreamPolicy.canEdit(actor, streamEntity)) {
       this.throwAccessDenied();
     }

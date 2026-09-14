@@ -1,5 +1,5 @@
+import { U7ApiModule } from '@u7-scl/app/domain';
 import type { ErMeta, EventReaction } from '@u7-scl/core/api';
-import { ApiModule } from '@u7-scl/core/api';
 import type {
   CourseApiModuleMeta,
   CourseApiModuleResolver,
@@ -27,7 +27,7 @@ import { CreateStepUc } from './step/create-step-uc';
 import { GetStepUc } from './step/get-step-uc';
 import { GetStepsByLessonsUc } from './step/get-steps-by-lessons-uc';
 
-export class CourseApiModule extends ApiModule<
+export class CourseApiModule extends U7ApiModule<
   CourseApiModuleMeta,
   CourseApiModuleResolver
 > {

@@ -87,7 +87,7 @@ describe('EnrichModuleUc', () => {
 
       const result = await uc.handle(
         { moduleId: course.uuid, targetAudience: 'Новички', goal: 'Научиться' },
-        author.uuid,
+        author,
       );
 
       const res = result as Module;
@@ -106,7 +106,7 @@ describe('EnrichModuleUc', () => {
 
       const result = await uc.handle(
         { moduleId: course.uuid, tags: ['js'] },
-        admin.uuid,
+        admin,
       );
 
       expect((result as Module).tags).toEqual(['js']);
@@ -123,7 +123,7 @@ describe('EnrichModuleUc', () => {
       getUserByUuid.mockResolvedValueOnce(other);
 
       await expect(
-        uc.handle({ moduleId: course.uuid, targetAudience: 'X' }, other.uuid),
+        uc.handle({ moduleId: course.uuid, targetAudience: 'X' }, other),
       ).rejects.toThrow('Недостаточно прав для редактирования модуля');
     });
 
@@ -135,22 +135,8 @@ describe('EnrichModuleUc', () => {
       getUserByUuid.mockResolvedValueOnce(admin);
 
       await expect(
-        uc.handle({ moduleId: missingId, targetAudience: 'X' }, admin.uuid),
+        uc.handle({ moduleId: missingId, targetAudience: 'X' }, admin),
       ).rejects.toThrow('Модуль не найден');
-    });
-
-    test('отклоняет несуществующего пользователя', async () => {
-      const { getByUuid, getUserByUuid, uc } = setupUc();
-      const course = makeModule('author-id');
-      getByUuid.mockResolvedValueOnce(course);
-      getUserByUuid.mockResolvedValueOnce(undefined);
-
-      await expect(
-        uc.handle(
-          { moduleId: course.uuid, targetAudience: 'X' },
-          'nonexistent',
-        ),
-      ).rejects.toThrow('Пользователь не найден');
     });
   });
 });

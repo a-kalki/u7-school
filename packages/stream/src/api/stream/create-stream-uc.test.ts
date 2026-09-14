@@ -1,8 +1,18 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { Role, type User } from '@u7-scl/app/domain';
 import { isoNow } from '@u7-scl/core/shared';
-import { Role } from '@u7-scl/user/domain';
 import type { StreamApiModuleResolver } from '#domain/module';
 import { CreateStreamUc } from './create-stream-uc';
+
+function makeActor(uuid: string): User {
+  return {
+    uuid,
+    name: 'Актор',
+    telegramId: 1,
+    roles: [Role.MENTOR],
+    createdAt: '2026-01-01T00:00',
+  };
+}
 
 /** Фасад пользователей с ментором m1 (паттерн существующих тестов файла). */
 function makeMentorFacade() {
@@ -86,7 +96,7 @@ describe('CreateStreamUc', () => {
       targetAudience: 'Студенты',
     };
 
-    const result = await uc.execute(cmd, 'm1');
+    const result = await uc.execute(cmd, makeActor('m1'));
     expect(result.title).toBe(cmd.title);
     expect(mockRepo.save).toHaveBeenCalled();
   });
@@ -118,7 +128,7 @@ describe('CreateStreamUc', () => {
       streamStudentRepo: {},
     } as unknown as StreamApiModuleResolver);
 
-    await expect(uc.execute({} as any, 'g1')).rejects.toThrow();
+    await expect(uc.execute({} as any, makeActor('g1'))).rejects.toThrow();
   });
 
   test('сохраняет enrollmentKey при создании потока с ключом', async () => {
@@ -165,7 +175,7 @@ describe('CreateStreamUc', () => {
       enrollmentKey: 'секретное-слово',
     };
 
-    const result = await uc.execute(cmd, 'm1');
+    const result = await uc.execute(cmd, makeActor('m1'));
     expect(result.enrollmentKey).toBe('секретное-слово');
   });
 
@@ -192,7 +202,7 @@ describe('CreateStreamUc', () => {
 
     const cmd = makeCreateCmd();
 
-    const result = await uc.execute(cmd, 'm1');
+    const result = await uc.execute(cmd, makeActor('m1'));
 
     expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
     const event = (mockEventBus.publish as ReturnType<typeof mock>).mock
@@ -225,7 +235,7 @@ describe('CreateStreamUc', () => {
       streamStudentRepo: {},
     } as unknown as StreamApiModuleResolver);
 
-    const result = await uc.execute(makeCreateCmd(), 'm1');
+    const result = await uc.execute(makeCreateCmd(), makeActor('m1'));
     expect(result.title).toBe('Новый курс');
   });
 
@@ -272,7 +282,7 @@ describe('CreateStreamUc', () => {
       startDate: '2026-06-01T12:00',
     };
 
-    const result = await uc.execute(cmd, 'm1');
+    const result = await uc.execute(cmd, makeActor('m1'));
     expect(result.enrollmentKey).toBeUndefined();
   });
 });

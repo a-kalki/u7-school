@@ -1,5 +1,5 @@
+import { U7ApiModule } from '@u7-scl/app/domain';
 import type { ErMeta, EventReaction } from '@u7-scl/core/api';
-import { ApiModule } from '@u7-scl/core/api';
 import type {
   StreamApiModuleMeta,
   StreamApiModuleResolver,
@@ -21,7 +21,7 @@ import { InactivitySweepJob } from './student/inactivity-sweep-job';
 import { MarkAbandonedUc } from './student/mark-abandoned-uc';
 import { SetNextPreferenceUc } from './student/set-next-preference-uc';
 
-export class StreamApiModule extends ApiModule<
+export class StreamApiModule extends U7ApiModule<
   StreamApiModuleMeta,
   StreamApiModuleResolver
 > {

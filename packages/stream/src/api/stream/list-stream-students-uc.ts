@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import {
   type ListStreamStudentsCmd,
@@ -21,7 +22,7 @@ export class ListStreamStudentsUc extends StreamUseCase<ListStreamStudentsCmdMet
 
   async execute(
     command: ListStreamStudentsCmd,
-    _actorId: string,
+    _actor: User,
   ): Promise<ListStreamStudentsCmdMeta['output']> {
     const students = await this.resolve.streamStudentRepo.getByStream(
       command.streamId,

@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { ModuleAr } from '#domain/module/a-root';
 import {
   type AddProjectCmd,
@@ -25,9 +26,8 @@ export class AddProjectUc extends CourseUseCase<AddProjectCmdMeta> {
   protected readonly inputSchema = AddProjectCmdSchema;
   protected readonly outputSchema = ModuleSchema;
 
-  async execute(command: AddProjectCmd, actorId: string): Promise<Module> {
+  async execute(command: AddProjectCmd, actor: User): Promise<Module> {
     const module = await this.getModule(command.moduleId);
-    const actor = await this.getActor(actorId);
 
     if (!ModulePolicy.canEdit(actor, module)) {
       this.throwAccessDenied('Недостаточно прав для редактирования модуля');

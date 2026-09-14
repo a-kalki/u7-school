@@ -111,7 +111,7 @@ describe('CreateStepUc', () => {
           description: 'Описание',
           content: 'Шаг 1',
         },
-        author.uuid,
+        author,
       );
 
       expect((result as Step).kind).toBe('text');
@@ -121,8 +121,8 @@ describe('CreateStepUc', () => {
 
   describe('FAIL', () => {
     test('отклоняет STUDENT', async () => {
-      const { getUserByUuid, uc } = setupUc();
-      getUserByUuid.mockResolvedValueOnce(makeUser([Role.STUDENT]));
+      const { uc } = setupUc();
+      const actor = makeUser([Role.STUDENT]);
 
       await expect(
         uc.handle(
@@ -133,14 +133,14 @@ describe('CreateStepUc', () => {
             description: 'Описание',
             content: 'Ш',
           },
-          'actor-id',
+          actor,
         ),
       ).rejects.toThrow('Недостаточно прав для создания шага');
     });
 
     test('отклоняет MENTOR без AUTHOR', async () => {
-      const { getUserByUuid, uc } = setupUc();
-      getUserByUuid.mockResolvedValueOnce(makeUser([Role.MENTOR]));
+      const { uc } = setupUc();
+      const actor = makeUser([Role.MENTOR]);
 
       await expect(
         uc.handle(
@@ -151,15 +151,14 @@ describe('CreateStepUc', () => {
             description: 'Описание',
             content: 'Ш',
           },
-          'actor-id',
+          actor,
         ),
       ).rejects.toThrow('Недостаточно прав для создания шага');
     });
 
     test('отклоняет AUTHOR не автора модуля', async () => {
-      const { courseGetByUuid, getUserByUuid, uc } = setupUc();
+      const { courseGetByUuid, uc } = setupUc();
       const author = makeUser([Role.AUTHOR]);
-      getUserByUuid.mockResolvedValueOnce(author);
       courseGetByUuid.mockResolvedValueOnce(makeModule(crypto.randomUUID()));
 
       await expect(
@@ -171,7 +170,7 @@ describe('CreateStepUc', () => {
             description: 'Описание',
             content: 'Ш',
           },
-          author.uuid,
+          author,
         ),
       ).rejects.toThrow('Вы не являетесь автором модуля');
     });

@@ -1,6 +1,17 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { Role, type User } from '@u7-scl/app/domain';
 import type { StreamApiModuleResolver } from '#domain/module';
 import { CompleteStepUc } from './complete-step-uc';
+
+function makeActor(uuid: string): User {
+  return {
+    uuid,
+    name: 'Актор',
+    telegramId: 1,
+    roles: [Role.MENTOR],
+    createdAt: '2026-01-01T00:00',
+  };
+}
 
 const mockDate = '2026-06-01T10:00';
 
@@ -76,7 +87,7 @@ describe('CompleteStepUc', () => {
         streamId: '11111111-1111-4111-8111-111111111111',
         stepId: '66666666-6666-4666-8666-666666666666',
       },
-      '99999999-9999-4999-8999-999999999999',
+      makeActor('99999999-9999-4999-8999-999999999999'),
     );
 
     expect(result.level).toBe('step');

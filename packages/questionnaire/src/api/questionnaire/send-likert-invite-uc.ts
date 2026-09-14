@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import type { SendLikertInviteCmdMeta } from '../../domain/questionnaire/commands/send-likert-invite-cmd';
@@ -21,13 +22,9 @@ export class SendLikertInviteUc extends QuestionnaireUseCase<SendLikertInviteCmd
   protected readonly inputSchema = SendLikertInviteCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(
-    command: SendLikertInviteCmd,
-    actorId: string,
-  ): Promise<undefined> {
-    const user = await this.getUser(actorId);
+  async execute(command: SendLikertInviteCmd, actor: User): Promise<undefined> {
     const ar = QuestionnaireFactory.createLikert(
-      user.uuid,
+      actor.uuid,
       command.pool,
       command.ownerInfo,
     );
@@ -43,8 +40,8 @@ export class SendLikertInviteUc extends QuestionnaireUseCase<SendLikertInviteCmd
       ownerInfo: command.ownerInfo,
       payload: {
         questionnaireId: ar.state.uuid,
-        respondentId: user.uuid,
-        telegramId: user.telegramId,
+        respondentId: actor.uuid,
+        telegramId: actor.telegramId,
         response,
       },
     };

@@ -1,6 +1,6 @@
-import { type UcMeta, UseCase } from '@u7-scl/core/api';
+import { U7UseCase } from '@u7-scl/app/domain';
+import type { UcMeta } from '@u7-scl/core/api';
 import { errAccessDenied, errNotFound } from '@u7-scl/core/domain';
-import type { User } from '@u7-scl/user/domain';
 import type { StreamApiModuleResolver } from '#domain/module';
 import type { Stream } from '#domain/stream/entity';
 import type {
@@ -12,7 +12,7 @@ import type {
 /**
  * Базовый класс для всех use-case'ов модуля потоков.
  */
-export abstract class StreamUseCase<TMeta extends UcMeta> extends UseCase<
+export abstract class StreamUseCase<TMeta extends UcMeta> extends U7UseCase<
   TMeta,
   StreamApiModuleResolver
 > {
@@ -28,20 +28,6 @@ export abstract class StreamUseCase<TMeta extends UcMeta> extends UseCase<
       );
     }
     return stream;
-  }
-
-  protected async getActor(actorId: string): Promise<User> {
-    const actor = await this.resolve.userFacade.getUserByUuid(actorId, actorId);
-    if (!actor) {
-      this.throwError(
-        errNotFound<StreamNotFoundUcError>(
-          'STREAM_NOT_FOUND',
-          'Пользователь не найден',
-          { uuid: actorId },
-        ) as StreamUcErrors,
-      );
-    }
-    return actor;
   }
 
   protected throwAccessDenied(

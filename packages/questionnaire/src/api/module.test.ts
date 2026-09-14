@@ -95,6 +95,7 @@ async function seedStandardInvite(
 }
 
 const USER_ID = '00000000-0000-0000-0000-000000000001';
+const USER = mockUser({ uuid: USER_ID });
 
 function makeResolve(overrides: any = {}) {
   return {
@@ -126,7 +127,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     );
     mod.init();
 
-    await mod.execute('start', { pool: simplePool(), ownerInfo: {} }, USER_ID);
+    await mod.execute('start', { pool: simplePool(), ownerInfo: {} }, USER);
 
     expect(received.length).toBe(1);
     expect(received[0]!.eventName).toBe('questionnaire:start');
@@ -148,7 +149,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const result = await mod.execute(
       'start-by-invite',
       { questionnaireId: qId },
-      USER_ID,
+      USER,
     );
 
     expect(result).toBeDefined();
@@ -165,12 +166,12 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
 
     const qId = await seedStandardInvite(repo, USER_ID);
 
-    await mod.execute('decline-invite', { questionnaireId: qId }, USER_ID);
+    await mod.execute('decline-invite', { questionnaireId: qId }, USER);
 
     const q = (await mod.execute(
       'get-questionnaire',
       { uuid: qId },
-      USER_ID,
+      USER,
     )) as any;
     expect(q.status).toBe('abandoned');
   });
@@ -186,12 +187,12 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
 
     const qId = await seedStandardInvite(repo, USER_ID);
 
-    await mod.execute('start-by-invite', { questionnaireId: qId }, USER_ID);
+    await mod.execute('start-by-invite', { questionnaireId: qId }, USER);
 
     const result = await mod.execute(
       'handle-action',
       { questionnaireId: qId, type: 'callback', value: 'a' },
-      USER_ID,
+      USER,
     );
 
     expect(result).toBeDefined();
@@ -208,13 +209,13 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
 
     const qId = await seedStandardInvite(repo, USER_ID);
 
-    await mod.execute('start-by-invite', { questionnaireId: qId }, USER_ID);
-    await mod.execute('abandon', { questionnaireId: qId }, USER_ID);
+    await mod.execute('start-by-invite', { questionnaireId: qId }, USER);
+    await mod.execute('abandon', { questionnaireId: qId }, USER);
 
     const q = (await mod.execute(
       'get-questionnaire',
       { uuid: qId },
-      USER_ID,
+      USER,
     )) as any;
     expect(q.status).toBe('abandoned');
   });
@@ -234,16 +235,16 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const resp1 = (await mod.execute(
       'get-current',
       { questionnaireId: qId },
-      USER_ID,
+      USER,
     )) as any;
     expect(resp1.type).toBe('invited');
 
     // После запуска — вопрос
-    await mod.execute('start-by-invite', { questionnaireId: qId }, USER_ID);
+    await mod.execute('start-by-invite', { questionnaireId: qId }, USER);
     const resp2 = (await mod.execute(
       'get-current',
       { questionnaireId: qId },
-      USER_ID,
+      USER,
     )) as any;
     expect(resp2.type).toBe('new_question');
   });
@@ -259,11 +260,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
 
     const qId = await seedStandardInvite(repo, USER_ID);
 
-    const found = await mod.execute(
-      'get-questionnaire',
-      { uuid: qId },
-      USER_ID,
-    );
+    const found = await mod.execute('get-questionnaire', { uuid: qId }, USER);
     expect(found).toBeDefined();
   });
 
@@ -277,7 +274,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       mod.execute(
         'get-questionnaires-by-user',
         { userId: '00000000-0000-0000-0000-000000000999' },
-        USER_ID,
+        USER,
       ),
     ).rejects.toThrow('Нет доступа к списку анкет пользователя');
   });
@@ -331,7 +328,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     await mod.execute(
       'send-likert-invite',
       { pool: likertPool, ownerInfo },
-      USER_ID,
+      USER,
     );
 
     expect(inviteEvents.length).toBe(1);
@@ -341,22 +338,22 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const all = (await mod.execute(
       'get-questionnaires-by-user',
       { userId: USER_ID },
-      USER_ID,
+      USER,
     )) as any[];
     expect(all.length).toBe(1);
     expect(all[0]!.kind).toBe('likert');
 
     const qId = all[0]!.uuid;
-    await mod.execute('start-by-invite', { questionnaireId: qId }, USER_ID);
+    await mod.execute('start-by-invite', { questionnaireId: qId }, USER);
     await mod.execute(
       'handle-action',
       { questionnaireId: qId, type: 'callback', value: '4' },
-      USER_ID,
+      USER,
     );
     await mod.execute(
       'handle-action',
       { questionnaireId: qId, type: 'callback', value: '2' },
-      USER_ID,
+      USER,
     );
 
     expect(received.length).toBe(1);
@@ -395,19 +392,15 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     mod.init();
 
     const declinedId = await seedStandardInvite(repo, USER_ID);
-    await mod.execute(
-      'decline-invite',
-      { questionnaireId: declinedId },
-      USER_ID,
-    );
+    await mod.execute('decline-invite', { questionnaireId: declinedId }, USER);
 
     const abandonedId = await seedStandardInvite(repo, USER_ID);
     await mod.execute(
       'start-by-invite',
       { questionnaireId: abandonedId },
-      USER_ID,
+      USER,
     );
-    await mod.execute('abandon', { questionnaireId: abandonedId }, USER_ID);
+    await mod.execute('abandon', { questionnaireId: abandonedId }, USER);
 
     expect(received.map((e) => e.eventName)).toEqual([
       'questionnaire:decline',

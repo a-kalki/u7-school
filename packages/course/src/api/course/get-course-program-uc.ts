@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { errNotFound } from '@u7-scl/core/domain';
 import type * as v from 'valibot';
 import type { ContentSnapshot } from '#domain/content-snapshot';
@@ -32,7 +33,7 @@ export class GetCourseProgramUc extends CourseUseCase<GetCourseProgramCmdMeta> {
 
   async execute(
     command: GetCourseProgramCmd,
-    _actorId?: string,
+    _actor?: User,
   ): Promise<v.InferOutput<typeof CourseProgramSchema>> {
     const course = await this.resolve.courseRepo.getByUuid(command.courseId);
     if (!course) {

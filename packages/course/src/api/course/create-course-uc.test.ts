@@ -55,7 +55,7 @@ describe('CreateCourseUc', () => {
 
       const result = await uc.handle(
         { title: 'Курс JS', description: 'Описание' },
-        author.uuid,
+        author,
       );
 
       expect((result as Course).title).toBe('Курс JS');
@@ -70,7 +70,7 @@ describe('CreateCourseUc', () => {
 
       const result = await uc.handle(
         { title: 'Курс Python', description: 'Описание' },
-        author.uuid,
+        author,
       );
 
       expect((result as Course).title).toBe('Курс Python');
@@ -85,7 +85,7 @@ describe('CreateCourseUc', () => {
       getUserByUuid.mockResolvedValueOnce(admin);
 
       await expect(
-        uc.handle({ title: 'Курс', description: 'Описание' }, admin.uuid),
+        uc.handle({ title: 'Курс', description: 'Описание' }, admin),
       ).rejects.toThrow('Недостаточно прав для создания курса');
     });
 
@@ -95,7 +95,7 @@ describe('CreateCourseUc', () => {
       getUserByUuid.mockResolvedValueOnce(mentor);
 
       await expect(
-        uc.handle({ title: 'Курс', description: 'Описание' }, mentor.uuid),
+        uc.handle({ title: 'Курс', description: 'Описание' }, mentor),
       ).rejects.toThrow('Недостаточно прав для создания курса');
     });
 
@@ -105,7 +105,7 @@ describe('CreateCourseUc', () => {
       getUserByUuid.mockResolvedValueOnce(student);
 
       await expect(
-        uc.handle({ title: 'Курс', description: 'Описание' }, student.uuid),
+        uc.handle({ title: 'Курс', description: 'Описание' }, student),
       ).rejects.toThrow('Недостаточно прав для создания курса');
     });
 
@@ -115,7 +115,7 @@ describe('CreateCourseUc', () => {
       getUserByUuid.mockResolvedValueOnce(author);
 
       await expect(
-        uc.handle({ title: '', description: 'Описание' }, author.uuid),
+        uc.handle({ title: '', description: 'Описание' }, author),
       ).rejects.toThrow('Переданы некорректные данные');
     });
   });

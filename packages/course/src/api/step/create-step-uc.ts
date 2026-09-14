@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { errNotFound } from '@u7-scl/core/domain';
 import { CourseDs } from '#domain/course-ds';
 import { LessonAr } from '#domain/lesson/a-root';
@@ -30,9 +31,7 @@ export class CreateStepUc extends CourseUseCase<CreateStepCmdMeta> {
   protected readonly inputSchema = CreateStepCmdSchema;
   protected readonly outputSchema = StepSchema;
 
-  async execute(command: CreateStepCmd, actorId: string): Promise<Step> {
-    const actor = await this.getActor(actorId);
-
+  async execute(command: CreateStepCmd, actor: User): Promise<Step> {
     if (!StepPolicy.canCreate(actor)) {
       this.throwAccessDenied('Недостаточно прав для создания шага');
     }

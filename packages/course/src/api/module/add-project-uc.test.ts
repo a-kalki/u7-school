@@ -83,7 +83,7 @@ describe('AddProjectUc', () => {
 
       const result = await uc.handle(
         { moduleId: course.uuid, title: 'Проект 1' },
-        author.uuid,
+        author,
       );
 
       const res = result as Module & { projects: { title: string }[] };
@@ -102,7 +102,7 @@ describe('AddProjectUc', () => {
       getUserByUuid.mockResolvedValueOnce(other);
 
       await expect(
-        uc.handle({ moduleId: course.uuid, title: 'П' }, other.uuid),
+        uc.handle({ moduleId: course.uuid, title: 'П' }, other),
       ).rejects.toThrow('Недостаточно прав');
     });
   });

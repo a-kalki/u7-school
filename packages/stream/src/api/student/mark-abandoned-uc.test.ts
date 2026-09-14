@@ -1,7 +1,17 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { Role } from '@u7-scl/user/domain';
+import { Role, type User } from '@u7-scl/app/domain';
 import type { StreamApiModuleResolver } from '#domain/module';
 import { MarkAbandonedUc } from './mark-abandoned-uc';
+
+function makeActor(uuid: string): User {
+  return {
+    uuid,
+    name: 'Актор',
+    telegramId: 1,
+    roles: [Role.MENTOR],
+    createdAt: '2026-01-01T00:00',
+  };
+}
 
 const mockDate = '2026-06-01T10:00';
 
@@ -74,7 +84,7 @@ describe('MarkAbandonedUc', () => {
         studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         cause: 'by_mentor',
       },
-      '66666666-6666-4666-8666-666666666666',
+      makeActor('66666666-6666-4666-8666-666666666666'),
     );
 
     expect(mockStudentRepo.save).toHaveBeenCalled();
@@ -89,7 +99,7 @@ describe('MarkAbandonedUc', () => {
     expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalledWith(
       '11111111-1111-4111-8111-111111111111',
       Role.STUDENT,
-      '66666666-6666-4666-8666-666666666666',
+      makeActor('66666666-6666-4666-8666-666666666666'),
     );
   });
 
@@ -161,7 +171,7 @@ describe('MarkAbandonedUc', () => {
         studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         cause: 'inactivity',
       },
-      '66666666-6666-4666-8666-666666666666',
+      makeActor('66666666-6666-4666-8666-666666666666'),
     );
 
     const saved = (mockStudentRepo.save as ReturnType<typeof mock>).mock
@@ -238,7 +248,7 @@ describe('MarkAbandonedUc', () => {
         studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         cause: 'inactivity',
       },
-      '66666666-6666-4666-8666-666666666666',
+      makeActor('66666666-6666-4666-8666-666666666666'),
     );
 
     expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
@@ -308,7 +318,7 @@ describe('MarkAbandonedUc', () => {
           studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
           cause: 'by_mentor',
         },
-        '22222222-2222-4222-8222-222222222222',
+        makeActor('22222222-2222-4222-8222-222222222222'),
       ),
     ).rejects.toThrow();
   });
@@ -383,7 +393,7 @@ describe('MarkAbandonedUc', () => {
         studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         cause: 'inactivity',
       },
-      ACTOR_ID,
+      makeActor(ACTOR_ID),
     );
 
     expect(notify).toHaveBeenCalledTimes(1);
@@ -391,7 +401,7 @@ describe('MarkAbandonedUc', () => {
       STUDENT_USER_ID,
       'Ты снят с учёбы с потока «Поток JS» за бездействие и исключён из его группы. Прогресс сохранён — если захочешь вернуться, напиши ментору потока.',
       'warn',
-      ACTOR_ID,
+      makeActor(ACTOR_ID),
     );
   });
 });

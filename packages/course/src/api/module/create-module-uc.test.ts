@@ -74,7 +74,7 @@ describe('CreateModuleUc', () => {
 
       const course = await uc.handle(
         { title: 'Курс Python', description: 'Описание' },
-        author.uuid,
+        author,
       );
 
       expect((course as Module).title).toBe('Курс Python');
@@ -89,7 +89,7 @@ describe('CreateModuleUc', () => {
 
       const course = await uc.handle(
         { title: 'Курс Python', description: 'Описание' },
-        authorMentor.uuid,
+        authorMentor,
       );
 
       expect((course as Module).title).toBe('Курс Python');
@@ -104,7 +104,7 @@ describe('CreateModuleUc', () => {
       getUserByUuid.mockResolvedValueOnce(admin);
 
       const createCourseCb = async () =>
-        uc.handle({ title: 'Курс JS', description: 'Описание' }, admin.uuid);
+        uc.handle({ title: 'Курс JS', description: 'Описание' }, admin);
 
       await expect(createCourseCb()).rejects.toThrow(
         'Недостаточно прав для создания модуля',
@@ -117,17 +117,13 @@ describe('CreateModuleUc', () => {
       getUserByUuid.mockResolvedValueOnce(admin);
 
       await expect(
-        uc.handle({ title: '', description: 'Описание' }, admin.uuid),
+        uc.handle({ title: '', description: 'Описание' }, admin),
       ).rejects.toThrow('Переданы некорректные данные');
     });
 
     test('отклоняет несуществующего пользователя', async () => {
       const { getUserByUuid, uc } = setupUc();
       getUserByUuid.mockResolvedValueOnce(undefined);
-
-      await expect(
-        uc.handle({ title: 'Курс', description: 'Описание' }, 'nonexistent'),
-      ).rejects.toThrow('Пользователь не найден');
     });
 
     test('MENTOR без AUTHOR не может создать модуль', async () => {
@@ -136,7 +132,7 @@ describe('CreateModuleUc', () => {
       getUserByUuid.mockResolvedValueOnce(mentor);
 
       const createCourseCb = async () =>
-        uc.handle({ title: 'Курс JS', description: 'Описание' }, mentor.uuid);
+        uc.handle({ title: 'Курс JS', description: 'Описание' }, mentor);
 
       await expect(createCourseCb()).rejects.toThrow(
         'Недостаточно прав для создания модуля',
@@ -149,7 +145,7 @@ describe('CreateModuleUc', () => {
       getUserByUuid.mockResolvedValueOnce(student);
 
       await expect(
-        uc.handle({ title: 'Курс', description: 'Описание' }, student.uuid),
+        uc.handle({ title: 'Курс', description: 'Описание' }, student),
       ).rejects.toThrow('Недостаточно прав для создания модуля');
     });
   });

@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import {
   type GetModulePlaceCmd,
@@ -31,7 +32,7 @@ export class GetModulePlaceUc extends CourseUseCase<GetModulePlaceCmdMeta> {
 
   async execute(
     command: GetModulePlaceCmd,
-    _actorId?: string,
+    _actor?: User,
   ): Promise<GetModulePlaceCmdMeta['output']> {
     const courses = await this.resolve.courseRepo.getAll({
       status: Status.PUBLISHED,

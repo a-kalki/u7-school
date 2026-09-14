@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import type { StartByInviteCmdMeta } from '#domain/questionnaire/commands/start-by-invite-cmd';
 import {
   type StartByInviteCmd,
@@ -22,9 +23,8 @@ export class StartByInviteUc extends QuestionnaireUseCase<StartByInviteCmdMeta> 
 
   async execute(
     command: StartByInviteCmd,
-    actorId: string,
+    actor: User,
   ): Promise<QuestionnaireActionResponse> {
-    const actor = await this.getUser(actorId);
     const state = await this.getQuestionnaireForEdit(
       command.questionnaireId,
       actor,

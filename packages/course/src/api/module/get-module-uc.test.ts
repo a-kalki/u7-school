@@ -67,7 +67,7 @@ describe('GetModuleUc', () => {
       });
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(author);
-      const result = await uc.handle({ uuid: course.uuid }, author.uuid);
+      const result = await uc.handle({ uuid: course.uuid }, author);
       expect((result as Module).title).toBe('Курс');
     });
 
@@ -80,7 +80,7 @@ describe('GetModuleUc', () => {
       });
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(admin);
-      const result = await uc.handle({ uuid: course.uuid }, admin.uuid);
+      const result = await uc.handle({ uuid: course.uuid }, admin);
       expect((result as Module).title).toBe('Курс');
     });
 
@@ -90,7 +90,7 @@ describe('GetModuleUc', () => {
       const course = makeModule({ status: Status.PUBLISHED });
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(student);
-      const result = await uc.handle({ uuid: course.uuid }, student.uuid);
+      const result = await uc.handle({ uuid: course.uuid }, student);
       expect((result as Module).title).toBe('Курс');
     });
   });
@@ -121,9 +121,9 @@ describe('GetModuleUc', () => {
       });
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(student);
-      await expect(
-        uc.handle({ uuid: course.uuid }, student.uuid),
-      ).rejects.toThrow('Нет доступа к модулю');
+      await expect(uc.handle({ uuid: course.uuid }, student)).rejects.toThrow(
+        'Нет доступа к модулю',
+      );
     });
   });
 });

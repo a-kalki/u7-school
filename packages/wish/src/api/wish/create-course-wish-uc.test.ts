@@ -1,9 +1,20 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { Role, type User } from '@u7-scl/app/domain';
 import { AppException } from '@u7-scl/core/domain';
 import type { WishApiModuleResolver } from '#domain/module';
 import type { Wish, WishStatus } from '#domain/wish/entity';
 import coursePools from '../../domain/wish/pools/course.json';
 import { CreateCourseWishUc } from './create-course-wish-uc';
+
+function makeUser(uuid: string): User {
+  return {
+    uuid,
+    name: 'Актор',
+    telegramId: 1,
+    roles: [Role.STUDENT],
+    createdAt: '2026-01-01T00:00',
+  };
+}
 
 const pooledCourseId = Object.keys(coursePools)[0]!;
 const pooledCoursePool =
@@ -72,13 +83,14 @@ function makeActiveWish(
 
 describe('CreateCourseWishUc', () => {
   const actorId = crypto.randomUUID();
+  const actor = makeUser(actorId);
   const plainCourseId = crypto.randomUUID();
 
   describe('курс без пула — мгновенная фиксация', () => {
     test('создаёт expressed-желание и возвращает instant', async () => {
       const { wishRepo, startStandard, uc } = setupUc();
 
-      const result = await uc.handle({ courseId: plainCourseId }, actorId);
+      const result = await uc.handle({ courseId: plainCourseId }, actor);
 
       expect(result).toEqual({ outcome: 'instant' });
       expect(wishRepo.save).toHaveBeenCalledTimes(1);
@@ -97,7 +109,7 @@ describe('CreateCourseWishUc', () => {
     test('создаёт pending-желание, запускает анкету, возвращает questionnaire', async () => {
       const { wishRepo, startStandard, uc } = setupUc();
 
-      const result = await uc.handle({ courseId: pooledCourseId }, actorId);
+      const result = await uc.handle({ courseId: pooledCourseId }, actor);
 
       expect(result).toEqual({ outcome: 'questionnaire' });
       expect(wishRepo.save).toHaveBeenCalledTimes(1);
@@ -124,7 +136,7 @@ describe('CreateCourseWishUc', () => {
         ]);
 
         const err = (await uc
-          .handle({ courseId: plainCourseId }, actorId)
+          .handle({ courseId: plainCourseId }, actor)
           .catch((e: unknown) => e)) as AppException;
         expect(err).toBeInstanceOf(AppException);
         expect(err.error.kind).toBe('conflict');
@@ -142,7 +154,7 @@ describe('CreateCourseWishUc', () => {
         makeActiveWish(actorId, plainCourseId, 'cancelled'),
       ]);
 
-      const result = await uc.handle({ courseId: plainCourseId }, actorId);
+      const result = await uc.handle({ courseId: plainCourseId }, actor);
 
       expect(result).toEqual({ outcome: 'instant' });
     });
@@ -158,7 +170,7 @@ describe('CreateCourseWishUc', () => {
             : [],
       );
 
-      const result = await uc.handle({ courseId: plainCourseId }, actorId);
+      const result = await uc.handle({ courseId: plainCourseId }, actor);
 
       expect(result).toEqual({ outcome: 'instant' });
     });
@@ -170,7 +182,7 @@ describe('CreateCourseWishUc', () => {
       isCourseEnrollable.mockResolvedValueOnce(false);
 
       await expect(
-        uc.handle({ courseId: plainCourseId }, actorId),
+        uc.handle({ courseId: plainCourseId }, actor),
       ).rejects.toThrow('Курс не найден');
     });
   });
@@ -187,7 +199,7 @@ describe('CreateCourseWishUc', () => {
         isCourseEnrollable.mockResolvedValueOnce(enrollable);
 
         await expect(
-          uc.handle({ courseId: plainCourseId }, actorId),
+          uc.handle({ courseId: plainCourseId }, actor),
         ).rejects.toThrow('Курс не найден');
       });
     }
@@ -199,7 +211,7 @@ describe('CreateCourseWishUc', () => {
       getCourseStartModuleId.mockResolvedValueOnce(undefined);
 
       await expect(
-        uc.handle({ courseId: plainCourseId }, actorId),
+        uc.handle({ courseId: plainCourseId }, actor),
       ).rejects.toThrow('Курс не найден');
     });
   });

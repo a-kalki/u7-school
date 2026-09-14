@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { CourseDs } from '#domain/course-ds';
 import { LessonAr } from '#domain/lesson/a-root';
 import {
@@ -29,9 +30,7 @@ export class CreateLessonUc extends CourseUseCase<CreateLessonCmdMeta> {
   protected readonly inputSchema = CreateLessonCmdSchema;
   protected readonly outputSchema = LessonSchema;
 
-  async execute(command: CreateLessonCmd, actorId: string): Promise<Lesson> {
-    const actor = await this.getActor(actorId);
-
+  async execute(command: CreateLessonCmd, actor: User): Promise<Lesson> {
     if (!LessonPolicy.canCreate(actor)) {
       this.throwAccessDenied('Недостаточно прав для создания урока');
     }

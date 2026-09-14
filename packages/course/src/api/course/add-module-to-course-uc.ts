@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { errNotFound } from '@u7-scl/core/domain';
 import { CourseAr } from '#domain/course/a-root';
 import {
@@ -27,11 +28,7 @@ export class AddModuleToCourseUc extends CourseUseCase<AddModuleToCourseCmdMeta>
   protected readonly inputSchema = AddModuleToCourseCmdSchema;
   protected readonly outputSchema = CourseSchema;
 
-  async execute(
-    command: AddModuleToCourseCmd,
-    actorId: string,
-  ): Promise<Course> {
-    const actor = await this.getActor(actorId);
+  async execute(command: AddModuleToCourseCmd, actor: User): Promise<Course> {
     const course = await this.getCourse(command.courseId);
 
     if (!CoursePolicy.canEdit(actor, course)) {

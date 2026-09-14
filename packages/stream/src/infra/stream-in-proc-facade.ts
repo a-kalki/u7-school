@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { AppException } from '@u7-scl/core/domain';
 import type { StreamApiModule } from '#api/module';
 import type { StreamFacade } from '#domain/facade';
@@ -14,15 +15,12 @@ export class StreamInProcFacade implements StreamFacade {
     this.#streamApi = streamApi;
   }
 
-  async getStream(
-    streamId: string,
-    actorId?: string,
-  ): Promise<Stream | undefined> {
+  async getStream(streamId: string, actor?: User): Promise<Stream | undefined> {
     try {
       const result = await this.#streamApi.execute(
         'get-stream',
         { streamId },
-        actorId,
+        actor,
       );
       return result as Stream;
     } catch (err) {

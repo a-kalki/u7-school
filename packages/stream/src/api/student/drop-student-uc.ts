@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { errNotFound } from '@u7-scl/core/domain';
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
@@ -28,7 +29,7 @@ export class DropStudentUc extends StreamUseCase<DropStudentCmdMeta> {
   protected readonly inputSchema = DropStudentCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(command: DropStudentCmd, actorId: string): Promise<undefined> {
+  async execute(command: DropStudentCmd, actor: User): Promise<undefined> {
     const studentRepo = this.resolve.streamStudentRepo;
     const userFacade = this.resolve.userFacade;
 
@@ -44,7 +45,7 @@ export class DropStudentUc extends StreamUseCase<DropStudentCmdMeta> {
     }
 
     // Только сам студент может выйти
-    if (actorId !== studentEntity.userId) {
+    if (actor.uuid !== studentEntity.userId) {
       this.throwAccessDenied('Вы не можете выйти из чужого потока');
     }
 
@@ -59,11 +60,11 @@ export class DropStudentUc extends StreamUseCase<DropStudentCmdMeta> {
     await userFacade.removeRoleFromUser(
       studentEntity.userId,
       Role.STUDENT,
-      actorId,
+      actor,
     );
 
     // Уведомление ментору (перенос из InactivityStory, сценарий #3)
-    await this.#notifyMentorAboutDrop(studentEntity, actorId);
+    await this.#notifyMentorAboutDrop(studentEntity, actor);
 
     return undefined;
   }
@@ -74,7 +75,7 @@ export class DropStudentUc extends StreamUseCase<DropStudentCmdMeta> {
    */
   async #notifyMentorAboutDrop(
     student: Pick<Student, 'userId' | 'streamId'>,
-    actorId: string,
+    actor: User,
   ): Promise<void> {
     const stream = await this.resolve.streamRepo.getByUuid(student.streamId);
     if (!stream) return;
@@ -86,7 +87,7 @@ export class DropStudentUc extends StreamUseCase<DropStudentCmdMeta> {
       stream.mentorId,
       `🚪 Студент ${studentName} покинул учёбу с потока «${stream.title}» по собственному желанию.`,
       'info',
-      actorId,
+      actor,
     );
   }
 }

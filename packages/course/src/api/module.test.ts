@@ -42,14 +42,19 @@ class MockUserFacade implements UserFacade {
     return undefined;
   }
 
-  async registerGuest(_telegramId: number, _name: string): Promise<User> {
+  async registerGuest(
+    _telegramId: number,
+    _name: string,
+    _nick?: string,
+    _actor?: User,
+  ): Promise<User> {
     throw new Error('Not implemented in mock');
   }
 
   async addRoleToUser(
     _uuid: string,
     _role: Role,
-    _actorId?: string,
+    _actor?: User,
   ): Promise<void> {
     // ok
   }
@@ -57,7 +62,7 @@ class MockUserFacade implements UserFacade {
   async updateUserRole(
     _userId: string,
     _role: Role,
-    _actorId?: string,
+    _actor?: User,
   ): Promise<void> {
     // ok
   }
@@ -65,7 +70,7 @@ class MockUserFacade implements UserFacade {
   async removeRoleFromUser(
     _userId: string,
     _role: Role,
-    _actorId?: string,
+    _actor?: User,
   ): Promise<void> {
     throw new Error('Method not implemented.');
   }
@@ -74,7 +79,7 @@ class MockUserFacade implements UserFacade {
     _userId: string,
     _text: string,
     _kind?: NotifyKind,
-    _actorId?: string,
+    _actor?: User,
   ): Promise<void> {
     // уведомления в тестах курсов не проверяются
   }
@@ -128,7 +133,7 @@ async function createModuleAsAuthor(
   const result = await mod.execute(
     'create-module',
     { title: 'Модуль', description: 'Описание' },
-    author.uuid,
+    author,
   );
   return (result as { uuid: string }).uuid;
 }
@@ -147,7 +152,7 @@ describe('CourseApiModule', () => {
     const result = await mod.execute(
       'create-module',
       { title: 'Курс JS', description: 'Описание' },
-      author.uuid,
+      author,
     );
 
     expect((result as { title: string }).title).toBe('Курс JS');
@@ -161,11 +166,7 @@ describe('CourseApiModule', () => {
     const mod = setupModule(facade);
 
     await expect(
-      mod.execute(
-        'create-module',
-        { title: 'X', description: 'X' },
-        admin.uuid,
-      ),
+      mod.execute('create-module', { title: 'X', description: 'X' }, admin),
     ).rejects.toThrow('Недостаточно прав для создания модуля');
   });
 
@@ -187,7 +188,7 @@ describe('CourseApiModule', () => {
         goal: 'Научиться',
         tags: ['js'],
       },
-      admin.uuid,
+      admin,
     );
 
     expect((result as { targetAudience?: string }).targetAudience).toBe(
@@ -203,11 +204,7 @@ describe('CourseApiModule', () => {
     const mod = setupModule(facade);
     const moduleId = await createModuleAsAuthor(mod, author);
 
-    const result = await mod.execute(
-      'publish-module',
-      { moduleId },
-      author.uuid,
-    );
+    const result = await mod.execute('publish-module', { moduleId }, author);
 
     expect((result as { status: string }).status).toBe(Status.PUBLISHED);
   });
@@ -220,11 +217,7 @@ describe('CourseApiModule', () => {
     const mod = setupModule(facade);
     const moduleId = await createModuleAsAuthor(mod, author);
 
-    const result = await mod.execute(
-      'get-module',
-      { uuid: moduleId },
-      author.uuid,
-    );
+    const result = await mod.execute('get-module', { uuid: moduleId }, author);
 
     expect((result as { title: string }).title).toBe('Модуль');
   });
@@ -276,7 +269,7 @@ describe('CourseApiModule', () => {
     const mod = setupModule(facade);
     await createModuleAsAuthor(mod, author);
 
-    const result = await mod.execute('list-modules', {}, author.uuid);
+    const result = await mod.execute('list-modules', {}, author);
 
     expect(result as unknown[]).toHaveLength(1);
   });
@@ -292,14 +285,14 @@ describe('CourseApiModule', () => {
     const withProject = (await mod.execute(
       'add-project',
       { moduleId, title: 'Проект 1' },
-      author.uuid,
+      author,
     )) as { projects?: { uuid: string }[] };
     const projectId = withProject.projects?.[0]?.uuid ?? '';
 
     const result = await mod.execute(
       'create-lesson',
       { moduleId, projectId, title: 'Урок 1' },
-      author.uuid,
+      author,
     );
 
     expect((result as { title: string }).title).toBe('Урок 1');
@@ -316,14 +309,14 @@ describe('CourseApiModule', () => {
     const withProject = (await mod.execute(
       'add-project',
       { moduleId, title: 'Проект 1' },
-      author.uuid,
+      author,
     )) as { projects?: { uuid: string }[] };
     const projectId = withProject.projects?.[0]?.uuid ?? '';
 
     const lesson = (await mod.execute(
       'create-lesson',
       { moduleId, projectId, title: 'Урок 1' },
-      author.uuid,
+      author,
     )) as { uuid: string };
 
     const result = await mod.execute(
@@ -335,7 +328,7 @@ describe('CourseApiModule', () => {
         description: 'Описание',
         content: 'Шаг 1',
       },
-      author.uuid,
+      author,
     );
 
     expect((result as { kind: string }).kind).toBe('text');

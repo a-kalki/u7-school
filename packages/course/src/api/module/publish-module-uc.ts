@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { ModuleAr } from '#domain/module/a-root';
 import {
   type PublishModuleCmd,
@@ -25,9 +26,8 @@ export class PublishModuleUc extends CourseUseCase<PublishModuleCmdMeta> {
   protected readonly inputSchema = PublishModuleCmdSchema;
   protected readonly outputSchema = ModuleSchema;
 
-  async execute(command: PublishModuleCmd, actorId: string): Promise<Module> {
+  async execute(command: PublishModuleCmd, actor: User): Promise<Module> {
     const module = await this.getModule(command.moduleId);
-    const actor = await this.getActor(actorId);
 
     if (!ModulePolicy.canEdit(actor, module)) {
       this.throwAccessDenied('Недостаточно прав для редактирования модуля');

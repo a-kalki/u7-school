@@ -1,7 +1,17 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { Role } from '@u7-scl/user/domain';
+import { Role, type User } from '@u7-scl/app/domain';
 import type { StreamApiModuleResolver } from '#domain/module';
 import { DropStudentUc } from './drop-student-uc';
+
+function makeActor(uuid: string): User {
+  return {
+    uuid,
+    name: 'Актор',
+    telegramId: 1,
+    roles: [Role.MENTOR],
+    createdAt: '2026-01-01T00:00',
+  };
+}
 
 const mockDate = '2026-06-01T10:00';
 
@@ -56,7 +66,7 @@ describe('DropStudentUc', () => {
         streamId: '77777777-7777-4777-8777-777777777777',
         studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
       },
-      '11111111-1111-4111-8111-111111111111',
+      makeActor('11111111-1111-4111-8111-111111111111'),
     );
 
     // studentRepo.save был вызван
@@ -73,7 +83,7 @@ describe('DropStudentUc', () => {
     expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalledWith(
       '11111111-1111-4111-8111-111111111111',
       Role.STUDENT,
-      '11111111-1111-4111-8111-111111111111',
+      makeActor('11111111-1111-4111-8111-111111111111'),
     );
   });
 
@@ -119,7 +129,7 @@ describe('DropStudentUc', () => {
           streamId: '77777777-7777-4777-8777-777777777777',
           studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         },
-        '22222222-2222-4222-8222-222222222222',
+        makeActor('22222222-2222-4222-8222-222222222222'),
       ),
     ).rejects.toThrow();
   });
@@ -167,7 +177,7 @@ describe('DropStudentUc', () => {
           streamId: '77777777-7777-4777-8777-777777777777',
           studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         },
-        '11111111-1111-4111-8111-111111111111',
+        makeActor('11111111-1111-4111-8111-111111111111'),
       ),
     ).rejects.toThrow();
   });
@@ -220,7 +230,7 @@ describe('DropStudentUc', () => {
         streamId: '77777777-7777-4777-8777-777777777777',
         studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
       },
-      '11111111-1111-4111-8111-111111111111',
+      makeActor('11111111-1111-4111-8111-111111111111'),
     );
 
     expect(mockStudentRepo.save).toHaveBeenCalled();
@@ -288,7 +298,7 @@ describe('DropStudentUc', () => {
         streamId: '77777777-7777-4777-8777-777777777777',
         studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
       },
-      '11111111-1111-4111-8111-111111111111',
+      makeActor('11111111-1111-4111-8111-111111111111'),
     );
 
     expect(notify).toHaveBeenCalledTimes(1);
@@ -296,7 +306,7 @@ describe('DropStudentUc', () => {
       MENTOR_ID,
       '🚪 Студент Student покинул учёбу с потока «Поток JS» по собственному желанию.',
       'info',
-      '11111111-1111-4111-8111-111111111111',
+      makeActor('11111111-1111-4111-8111-111111111111'),
     );
   });
 
@@ -348,14 +358,14 @@ describe('DropStudentUc', () => {
         streamId: '77777777-7777-4777-8777-777777777777',
         studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
       },
-      '11111111-1111-4111-8111-111111111111',
+      makeActor('11111111-1111-4111-8111-111111111111'),
     );
 
     expect(notify).toHaveBeenCalledWith(
       MENTOR_ID,
       '🚪 Студент 11111111 покинул учёбу с потока «Поток JS» по собственному желанию.',
       'info',
-      '11111111-1111-4111-8111-111111111111',
+      makeActor('11111111-1111-4111-8111-111111111111'),
     );
   });
 });

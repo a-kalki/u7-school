@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import type { LessonRepo } from '#domain/lesson/repo';
 import {
@@ -37,7 +38,7 @@ export class GetStepsByLessonsUc extends CourseUseCase<GetStepsByLessonsCmdMeta>
 
   async execute(
     command: GetStepsByLessonsCmd,
-    actorId?: string,
+    actor?: User,
   ): Promise<StepsByLesson> {
     const repo = this.resolve.stepRepo as StepRepo;
     const lessonRepo = this.resolve.lessonRepo as LessonRepo;
@@ -63,7 +64,7 @@ export class GetStepsByLessonsUc extends CourseUseCase<GetStepsByLessonsCmdMeta>
 
     // Фильтруем видимые и группируем по уроку
     const result: StepsByLesson = {};
-    const actor = actorId ? await this.getUser(actorId, actorId) : undefined;
+    // Актор приходит параметром (объект или undefined для анонимных запросов)
 
     for (const l of lessons) {
       const ids = lessonStepMap.get(l.uuid) ?? [];

@@ -1,5 +1,5 @@
+import { U7ApiModule } from '@u7-scl/app/domain';
 import type { ErMeta, EventReaction } from '@u7-scl/core/api';
-import { ApiModule } from '@u7-scl/core/api';
 import type {
   QuestionnaireApiModuleMeta,
   QuestionnaireApiModuleResolver,
@@ -15,7 +15,7 @@ import { StartByInviteUc } from './questionnaire/start-by-invite-uc';
 import { StartUc } from './questionnaire/start-uc';
 import { SweepAbandonedJob } from './questionnaire/sweep-abandoned-job';
 
-export class QuestionnaireApiModule extends ApiModule<
+export class QuestionnaireApiModule extends U7ApiModule<
   QuestionnaireApiModuleMeta,
   QuestionnaireApiModuleResolver
 > {

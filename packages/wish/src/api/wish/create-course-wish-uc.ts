@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { errConflict, errNotFound } from '@u7-scl/core/domain';
 import { WishAr } from '#domain/wish/a-root';
 import type {
@@ -40,7 +41,7 @@ export class CreateCourseWishUc extends WishUseCase<CreateCourseWishCmdMeta> {
 
   async execute(
     command: CreateCourseWishCmd,
-    actorId: string,
+    actor: User,
   ): Promise<CreateCourseWishOutput> {
     // 1. Курс должен быть доступен для записи и иметь стартовый модуль
     //    (draft/archived/пустая программа для студента неотличимы от «не найден»).
@@ -65,7 +66,7 @@ export class CreateCourseWishUc extends WishUseCase<CreateCourseWishCmdMeta> {
     //    оказаться не первым.
     const target: WishTarget = { kind: 'course', courseId: command.courseId };
     const active = (
-      await this.repo.findAllByUserAndTarget(actorId, target)
+      await this.repo.findAllByUserAndTarget(actor.uuid, target)
     ).find((w) => WishPolicy.isActive(w.status));
 
     if (active) {
@@ -74,7 +75,7 @@ export class CreateCourseWishUc extends WishUseCase<CreateCourseWishCmdMeta> {
           'WISH_ALREADY_EXISTS',
           'Желание уже выражено',
           {
-            userId: actorId,
+            userId: actor.uuid,
             courseId: command.courseId,
             status: active.status,
           },
@@ -85,16 +86,16 @@ export class CreateCourseWishUc extends WishUseCase<CreateCourseWishCmdMeta> {
     // 3. Курс с пулом анкеты — анкетная ветка: pending + запуск анкеты.
     const pool = findCoursePool(command.courseId);
     if (pool) {
-      const wish = WishAr.pending(actorId, target);
+      const wish = WishAr.pending(actor.uuid, target);
       await this.repo.save(wish.state);
       await this.resolve.questionnaireFacade.startStandard<{
         courseId: string;
-      }>(actorId, pool, { courseId: command.courseId });
+      }>(actor.uuid, pool, { courseId: command.courseId });
       return { outcome: 'questionnaire' };
     }
 
     // 4. Курс без пула — мгновенная фиксация.
-    const wish = WishAr.express(actorId, target);
+    const wish = WishAr.express(actor.uuid, target);
     await this.repo.save(wish.state);
 
     return { outcome: 'instant' };

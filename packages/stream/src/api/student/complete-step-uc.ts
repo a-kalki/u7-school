@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
 import { StreamDs } from '#domain/stream-ds';
@@ -47,7 +48,7 @@ export class CompleteStepUc extends StreamUseCase<CompleteStepCmdMeta> {
 
   async execute(
     command: CompleteStepCmd,
-    _actorId: string,
+    _actor: User,
   ): Promise<CompletionResult> {
     const studentRepo = this.resolve.streamStudentRepo;
 
