@@ -56,7 +56,7 @@
   - [x] `CI=true bun run check:p wish && CI=true bun run check:p course && CI=true bun run check:p stream && CI=true bun run check:p questionnaire` — зелёные (wish 107 / course 364 / stream 264 / questionnaire 130 тестов)
 - [ ] Task: Conductor - Ручная верификация 'Фаза 4' (Protocol in workflow.md)
 
-## Фаза 5. Приложения u7-bot и u7-cli — актор-объект
+## Фаза 5. Приложения u7-bot и u7-cli — актор-объект [checkpoint: 0f231e14]
 
 - [x] Task: u7-bot — `U7BotApp = U7ApiApp<U7BotAppMeta>`; системный актор бота: botAdminUser (User) резолвится при старте (main.ts + async createUiApp), `U7BotUiAppResolve.botAdminUser` (group-handler, ensure-registered) `f891d7a`
 - [x] Task: u7-bot — стори/контроллеры: `appApi.execute(..., actor)` вместо `actor.uuid`; фасадные вызовы с объектом; getStudent(appApi, actor) `f891d7a`
