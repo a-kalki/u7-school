@@ -1,0 +1,1 @@
+Фаза 6 + финализация трека core-api-actor_20260914. Чистка остатков actorId (докстринги, мок-подписи), styleguides обновлены (usecase/facade/architecture), summary.md написан, metadata status=done, реестр tracks.md отмечен выполненным. Гейт: 2092 теста / 0 fail. Ручные верификации фаз 1-6 остаются за владельцем.
