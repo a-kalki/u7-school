@@ -42,7 +42,7 @@ describe('CourseAccess (интеграционный)', () => {
     const course = await app.apiApp.execute(
       'create-course',
       { title: 'Новый курс', description: 'Описание' },
-      author.uuid,
+      author,
     );
 
     expect(course.uuid).toBeDefined();
@@ -56,13 +56,13 @@ describe('CourseAccess (интеграционный)', () => {
       app.apiApp.execute(
         'create-course',
         { title: 'Курс студента', description: '...' },
-        student.uuid,
+        student,
       ),
     ).rejects.toThrow('Недостаточно прав для создания курса');
   });
 
   test('list-courses доступен гостю', async () => {
-    const courses = await app.apiApp.execute('list-courses', {}, guest.uuid);
+    const courses = await app.apiApp.execute('list-courses', {}, guest);
 
     expect(Array.isArray(courses)).toBe(true);
   });
@@ -72,7 +72,7 @@ describe('CourseAccess (интеграционный)', () => {
     const created = await app.apiApp.execute(
       'create-course',
       { title: 'Видимый курс', description: '...' },
-      author.uuid,
+      author,
     );
 
     // Получаем курс (без actorId — публичный доступ)
@@ -87,7 +87,7 @@ describe('CourseAccess (интеграционный)', () => {
     const courses = await app.apiApp.execute(
       'list-courses',
       { status: Status.DRAFT },
-      author.uuid,
+      author,
     );
 
     const found = courses.find(

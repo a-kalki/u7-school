@@ -83,7 +83,7 @@ export class MonitorStory extends U7BotUiStory {
     const students = (await this.appApi.execute(
       'list-stream-students',
       { streamId },
-      actor.uuid,
+      actor,
     )) as Student[];
 
     const stream = (await this.appApi.execute('get-stream', {
@@ -348,7 +348,7 @@ export class MonitorStory extends U7BotUiStory {
     const student = (await this.appApi.execute(
       'get-student-progress',
       { studentId },
-      actor.uuid,
+      actor,
     )) as Student;
 
     let userName = student.userId.slice(0, 8);
@@ -508,7 +508,7 @@ export class MonitorStory extends U7BotUiStory {
     const student = (await this.appApi.execute(
       'get-student-progress',
       { studentId },
-      actor.uuid,
+      actor,
     )) as Student;
 
     let userName = student.userId.slice(0, 8);
@@ -538,7 +538,7 @@ export class MonitorStory extends U7BotUiStory {
     const student = (await this.appApi.execute(
       'get-student-progress',
       { studentId },
-      actor.uuid,
+      actor,
     )) as Student;
 
     let userName = student.userId.slice(0, 8);
@@ -555,7 +555,7 @@ export class MonitorStory extends U7BotUiStory {
       await this.appApi.execute(
         'mark-abandoned',
         { streamId: student.streamId, studentId, cause: 'inactivity' as const },
-        actor.uuid,
+        actor,
       );
     } catch (err: unknown) {
       return this.handleError(err);
@@ -609,7 +609,7 @@ export class MonitorStory extends U7BotUiStory {
     const student = (await this.appApi.execute(
       'get-student-progress',
       { studentId },
-      actor.uuid,
+      actor,
     )) as Student;
 
     let userName = student.userId.slice(0, 8);
@@ -662,7 +662,7 @@ export class MonitorStory extends U7BotUiStory {
     const student = (await this.appApi.execute(
       'get-student-progress',
       { studentId },
-      actor.uuid,
+      actor,
     )) as Student;
 
     let userName = student.userId.slice(0, 8);
@@ -683,7 +683,7 @@ export class MonitorStory extends U7BotUiStory {
           studentId,
           outcome,
         },
-        actor.uuid,
+        actor,
       );
     } catch (err: unknown) {
       return this.handleError(err);

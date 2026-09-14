@@ -360,7 +360,7 @@ describe('ViewStreamStory (S02-S04)', () => {
     expect(mockAppApi.execute).toHaveBeenCalledWith(
       'enroll-student',
       { streamId: STREAM_ID, userId: guest.uuid, enrollmentKey: undefined },
-      guest.uuid,
+      guest,
     );
     expect(String(response.notify?.text)).toContain('успешно записаны');
     // delegate: enroll→menu (сохранённое использование)
@@ -457,7 +457,7 @@ describe('ViewStreamStory (S02-S04)', () => {
     expect(mockAppApi.execute).toHaveBeenCalledWith(
       'enroll-student',
       { streamId: STREAM_ID, userId: guest.uuid, enrollmentKey: 'дракон' },
-      guest.uuid,
+      guest,
     );
     expect(String(response.notify?.text)).toContain('успешно записаны');
     expect(response.delegate?.path).toBe('app:main-menu');

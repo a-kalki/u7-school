@@ -1,4 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { Role, type User } from '@u7-scl/app';
 import type { UserFacade } from '@u7-scl/user/domain';
 import { ensureRegisteredGuest } from './ensure-registered';
 
@@ -13,11 +14,19 @@ function makeFacade(existing?: unknown) {
   } as unknown as UserFacade;
 }
 
+const BOT_ACTOR: User = {
+  uuid: BOT_ACTOR_UUID,
+  name: 'Bot Admin',
+  telegramId: 0,
+  roles: [Role.ADMIN],
+  createdAt: '2026-01-01T00:00',
+};
+
 describe('ensureRegisteredGuest', () => {
   test('новый пользователь → registerGuest от имени бота (first_name + username)', async () => {
     const facade = makeFacade(undefined);
 
-    await ensureRegisteredGuest(facade, BOT_ACTOR_UUID, {
+    await ensureRegisteredGuest(facade, BOT_ACTOR, {
       id: 555,
       first_name: 'Анна',
       username: 'anna_u7',
@@ -27,11 +36,11 @@ describe('ensureRegisteredGuest', () => {
       facade as unknown as { registerGuest: ReturnType<typeof mock> }
     ).registerGuest;
     expect(registerMock).toHaveBeenCalledTimes(1);
-    const [tgId, name, actorId, nick] = registerMock.mock.calls[0]!;
+    const [tgId, name, nick, actor] = registerMock.mock.calls[0]!;
     expect(tgId).toBe(555);
     expect(name).toBe('Анна');
-    expect(actorId).toBe(BOT_ACTOR_UUID);
     expect(nick).toBe('anna_u7');
+    expect(actor).toBe(BOT_ACTOR);
   });
 
   test('существующий пользователь → регистрация не вызывается', async () => {
@@ -40,7 +49,7 @@ describe('ensureRegisteredGuest', () => {
       name: 'Анна',
     });
 
-    await ensureRegisteredGuest(facade, BOT_ACTOR_UUID, {
+    await ensureRegisteredGuest(facade, BOT_ACTOR, {
       id: 555,
       first_name: 'Анна',
     });
@@ -54,7 +63,7 @@ describe('ensureRegisteredGuest', () => {
   test('без username → nick не передаётся', async () => {
     const facade = makeFacade(undefined);
 
-    await ensureRegisteredGuest(facade, BOT_ACTOR_UUID, {
+    await ensureRegisteredGuest(facade, BOT_ACTOR, {
       id: 556,
       first_name: 'Пётр',
     });
@@ -62,7 +71,7 @@ describe('ensureRegisteredGuest', () => {
     const registerMock = (
       facade as unknown as { registerGuest: ReturnType<typeof mock> }
     ).registerGuest;
-    const [, , , nick] = registerMock.mock.calls[0]!;
+    const [, , nick] = registerMock.mock.calls[0]!;
     expect(nick).toBeUndefined();
   });
 });

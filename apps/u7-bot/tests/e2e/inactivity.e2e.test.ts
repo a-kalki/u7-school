@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { Role } from '@u7-scl/app';
 import type { User } from '@u7-scl/app/domain';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
 import { ConsoleLogger } from '@u7-scl/core/shared';
@@ -42,6 +43,14 @@ import { registerGroupHandlers } from '../../src/handlers/group-handler';
 const STUDENT_TG = 1003; // «Студент» (active, поток e1e1e1e1)
 const MENTOR_TG = 1004; // «Ментор» (ментор обоих потоков)
 const BOT_ADMIN_UUID = 'ae00f3f6-1392-4b98-b178-41c27e794b7f'; // «Бот-админ» из фикстур
+
+const BOT_ADMIN: User = {
+  uuid: BOT_ADMIN_UUID,
+  name: 'Бот-админ',
+  telegramId: 0,
+  roles: [Role.ADMIN],
+  createdAt: '2026-01-01T00:00',
+};
 const STREAM2_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1';
 const STUDENT_F0 = 'f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0';
 const STUDENT_USER_ID = '33333333-3333-3333-3333-333333333333';
@@ -81,7 +90,7 @@ async function createInactivityStand(tag: string): Promise<Stand> {
     {
       apiApp: app.apiApp,
       transport: transport.transport,
-      actorId: BOT_ADMIN_UUID,
+      actor: BOT_ADMIN,
       schoolGroupId: SCHOOL_GROUP_ID,
     },
   );
@@ -321,7 +330,7 @@ describe('E2E: выход из группы и снятие ментором', (
     const record = (await app.apiApp.execute(
       'get-student-progress',
       { studentId: STUDENT_F0 },
-      mentor.uuid,
+      mentor,
     )) as unknown as { status: string };
     expect(record.status).toBe('active');
   });
@@ -335,14 +344,14 @@ describe('E2E: выход из группы и снятие ментором', (
     await app.apiApp.execute(
       'mark-abandoned',
       { studentId: STUDENT_F0, streamId: STREAM2_ID, cause: 'inactivity' },
-      mentor.uuid,
+      mentor,
     );
 
     // Студент abandoned в репозитории
     const record = (await app.apiApp.execute(
       'get-student-progress',
       { studentId: STUDENT_F0 },
-      mentor.uuid,
+      mentor,
     )) as unknown as { status: string };
     expect(record.status).toBe('abandoned');
 

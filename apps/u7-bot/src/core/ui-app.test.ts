@@ -125,7 +125,13 @@ function makeUiApp(
     eventBus: { subscribe: () => () => {} } as never,
     actorResolver: async () => actor,
     userFacade: opts.userFacade ?? makeUserFacade(),
-    botAdminUuid: BOT_ADMIN_UUID,
+    botAdminUser: {
+      uuid: BOT_ADMIN_UUID,
+      name: 'Бот-админ',
+      telegramId: 0,
+      roles: [Role.ADMIN],
+      createdAt: '2026-01-01T00:00',
+    },
   } as never);
   return uiApp;
 }
@@ -147,11 +153,11 @@ describe('U7BotUiApp — /start', () => {
     );
 
     expect(facade.registerGuest).toHaveBeenCalledTimes(1);
-    const [tgId, name, actorId] = facade.registerGuest.mock
+    const [tgId, name, nick, actor] = facade.registerGuest.mock
       .calls[0] as unknown[];
     expect(tgId).toBe(777);
     expect(name).toBe('Анна');
-    expect(actorId).toBe(BOT_ADMIN_UUID);
+    expect(actor).toMatchObject({ uuid: BOT_ADMIN_UUID });
 
     // welcome-экран: приветствие + клавиатура menuButtons
     expect(String(response?.screen?.text)).toContain('Привет');

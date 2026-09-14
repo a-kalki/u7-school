@@ -32,11 +32,11 @@ export interface UiAppBundle {
  * Создание и init разделены: init (с передачей transport) выполняется
  * вызывающим кодом (main.ts) после создания BotTransport.
  */
-export function createUiApp(
+export async function createUiApp(
   apiApp: ApiApp<U7BotAppMeta>,
   bundle: ApiAppBundle,
   config: BotConfig,
-): UiAppBundle {
+): Promise<UiAppBundle> {
   const streamController = new StreamsController();
   const courseController = new CoursesController();
   const learningController = new LearningController();
@@ -62,7 +62,15 @@ export function createUiApp(
 
   // resolve для каскадной инициализации UiApp → контроллеры → стори.
   // actorResolver: резолвит User по telegramId через userFacade;
-  // userFacade + botAdminUuid — идемпотентная гост-регистрация на /start.
+  // userFacade + botAdminUser — идемпотентная гост-регистрация на /start.
+  const botAdminUser = await bundle.userFacade.getUserByUuid(
+    config.botAdminUuid,
+  );
+  if (!botAdminUser) {
+    throw new Error(
+      `BOT_ADMIN_UUID не найден: пользователь ${config.botAdminUuid} не существует`,
+    );
+  }
   const resolve: U7BotUiAppResolve = {
     eventBus: bundle.eventBus,
     actorResolver: async (tgId: number) => {
@@ -72,7 +80,7 @@ export function createUiApp(
     },
     appApi: apiApp,
     userFacade: bundle.userFacade,
-    botAdminUuid: config.botAdminUuid,
+    botAdminUser,
   };
 
   return {

@@ -71,27 +71,23 @@ describe('Wish: жизненный цикл желания курса (инте�
     const course = await app.apiApp.execute(
       'create-course',
       { title, description: 'Интеграционный тест' },
-      author.uuid,
+      author,
     );
     const mod = await app.apiApp.execute(
       'create-module',
       { title: 'Модуль', description: 'Тестовый модуль' },
-      author.uuid,
+      author,
     );
-    await app.apiApp.execute(
-      'publish-module',
-      { moduleId: mod.uuid },
-      author.uuid,
-    );
+    await app.apiApp.execute('publish-module', { moduleId: mod.uuid }, author);
     await app.apiApp.execute(
       'add-phase-to-course',
       { courseId: course.uuid, title: 'Этап 1', track: 'tech' },
-      author.uuid,
+      author,
     );
     await app.apiApp.execute(
       'add-module-to-course',
       { courseId: course.uuid, phaseTitle: 'Этап 1', moduleId: mod.uuid },
-      author.uuid,
+      author,
     );
     return course.uuid;
   }

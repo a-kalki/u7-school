@@ -120,7 +120,7 @@ describe('CreateCourseWishUc', () => {
       const [calledActor, calledPool, calledOwner] = (
         startStandard as ReturnType<typeof mock>
       ).mock.calls[0]!;
-      expect(calledActor).toBe(actorId);
+      expect(calledActor).toBe(actor);
       expect(calledPool).toEqual(pooledCoursePool);
       expect(calledOwner).toEqual({ courseId: pooledCourseId });
     });

@@ -30,7 +30,7 @@ export class ProgressStory extends U7BotUiStory {
   }
 
   async #showProgress(actor: User, streamId: string): Promise<DialogResponse> {
-    const studentResult = await getStudent(this.appApi, actor.uuid);
+    const studentResult = await getStudent(this.appApi, actor);
     if (!studentResult.ok) return studentResult.value;
 
     const student = studentResult.value;

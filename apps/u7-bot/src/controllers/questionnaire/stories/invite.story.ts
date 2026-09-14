@@ -77,7 +77,7 @@ export class InviteStory extends U7BotUiStory {
         await this.appApi.execute(
           'start-by-invite',
           { questionnaireId: qId },
-          actor.uuid,
+          actor,
         );
         return this.go(this.cbFor('fill', 'current', qId));
       } catch (err) {
@@ -119,7 +119,7 @@ export class InviteStory extends U7BotUiStory {
       const current = await this.appApi.execute(
         'get-current',
         { questionnaireId: qId },
-        actor.uuid,
+        actor,
       );
       // whyText/inviteText определены только в состоянии invited
       const invited = current.type === 'invited' ? current : undefined;
@@ -138,7 +138,7 @@ export class InviteStory extends U7BotUiStory {
       const current = await this.appApi.execute(
         'get-current',
         { questionnaireId: qId },
-        actor.uuid,
+        actor,
       );
       // inviteText/whyText определены только в состоянии invited
       const invited = current.type === 'invited' ? current : undefined;
@@ -162,7 +162,7 @@ export class InviteStory extends U7BotUiStory {
       const current = await this.appApi.execute(
         'get-current',
         { questionnaireId: qId },
-        actor.uuid,
+        actor,
       );
       // cancelWarning есть у всех вариантов ответа, кроме completed
       const warningRaw =
@@ -191,7 +191,7 @@ export class InviteStory extends U7BotUiStory {
       await this.appApi.execute(
         'decline-invite',
         { questionnaireId: qId },
-        actor.uuid,
+        actor,
       );
 
       return {

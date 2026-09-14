@@ -22,15 +22,15 @@ import type { U7BotAppMeta } from '../../core/u7-bot-app-meta';
  */
 export async function getStudent(
   appApi: ApiApp<U7BotAppMeta>,
-  userId: string,
+  actor: User,
 ): Promise<
   { ok: true; value: Student } | { ok: false; value: DialogResponse }
 > {
   try {
     const user = await appApi.execute(
       'get-student-by-user',
-      { userId },
-      userId,
+      { userId: actor.uuid },
+      actor,
     );
     return { ok: true, value: user as Student };
   } catch {
@@ -53,7 +53,7 @@ export async function getStudentAndStream(
   student: Student | null;
   stream: { title: string; contentSnapshot: ContentSnapshot } | null;
 }> {
-  const studentResult = await getStudent(appApi, actor.uuid);
+  const studentResult = await getStudent(appApi, actor);
   if (!studentResult.ok) return { student: null, stream: null };
 
   const student = studentResult.value;

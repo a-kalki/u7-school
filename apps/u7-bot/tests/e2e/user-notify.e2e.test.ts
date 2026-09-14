@@ -94,7 +94,7 @@ describe('E2E: механизм уведомлений userFacade.notify', () =>
     await app.apiApp.execute(
       'create-course-wish',
       { courseId: COURSE_ID },
-      wisher.uuid,
+      wisher,
     );
 
     // 2. Ментор открывает набор на первый модуль курса
@@ -107,7 +107,7 @@ describe('E2E: механизм уведомлений userFacade.notify', () =>
         moduleId: FIRST_MODULE,
         startDate: '2026-10-01T00:00',
       },
-      mentor.uuid,
+      mentor,
     )) as Stream;
 
     // 3. Желающему доставлено ровно одно кнопочное приглашение (канал
@@ -174,19 +174,19 @@ describe('E2E: механизм уведомлений userFacade.notify', () =>
         moduleId: LAST_MODULE,
         startDate: '2026-11-01T00:00',
       },
-      mentor.uuid,
+      mentor,
     )) as Stream;
 
     // 2. Студент, прошедший первый модуль, записывается (gate пройден)
     await app.apiApp.execute(
       'enroll-student',
       { streamId: stream.uuid, userId: studentAdvanced.uuid },
-      studentAdvanced.uuid,
+      studentAdvanced,
     );
     const record = (await app.apiApp.execute(
       'get-student-by-user',
       { userId: studentAdvanced.uuid },
-      mentor.uuid,
+      mentor,
     )) as unknown as { uuid: string; streamId: string };
     expect(record.streamId).toBe(stream.uuid);
 
@@ -194,14 +194,14 @@ describe('E2E: механизм уведомлений userFacade.notify', () =>
     await app.apiApp.execute(
       'activate-stream',
       { streamId: stream.uuid },
-      mentor.uuid,
+      mentor,
     );
 
     // 4. Ментор завершает студента с исходом «прошёл»
     await app.apiApp.execute(
       'complete-student',
       { streamId: stream.uuid, studentId: record.uuid, outcome: 'advanced' },
-      mentor.uuid,
+      mentor,
     );
 
     // 5. Студенту доставлено поздравление с завершением курса
@@ -218,7 +218,7 @@ describe('E2E: механизм уведомлений userFacade.notify', () =>
     const record = (await app.apiApp.execute(
       'get-student-by-user',
       { userId: studentActive.uuid },
-      mentor.uuid,
+      mentor,
     )) as unknown as { uuid: string; streamId: string };
 
     await app.apiApp.execute(
@@ -228,7 +228,7 @@ describe('E2E: механизм уведомлений userFacade.notify', () =>
         studentId: record.uuid,
         outcome: 'advanced',
       },
-      mentor.uuid,
+      mentor,
     );
 
     // Небольшая пауза: подписки шины синхронные, но доставка асинхронна

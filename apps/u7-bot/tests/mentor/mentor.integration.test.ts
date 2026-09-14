@@ -65,7 +65,7 @@ describe('MentorController (интеграционный)', () => {
     const stream = await app.apiApp.execute(
       'get-stream',
       { streamId: ENROLLMENT_ID },
-      mentor.uuid,
+      mentor,
     );
     expect((stream as { status: string }).status).toBe('enrollment');
     expect((stream as { mentorId: string }).mentorId).toBe(mentor.uuid);
@@ -75,7 +75,7 @@ describe('MentorController (интеграционный)', () => {
     const stream = await app.apiApp.execute(
       'get-stream',
       { streamId: ACTIVE_ID },
-      mentor.uuid,
+      mentor,
     );
     expect((stream as { status: string }).status).toBe('active');
   });
@@ -86,7 +86,7 @@ describe('MentorController (интеграционный)', () => {
     const students = await app.apiApp.execute(
       'list-stream-students',
       { streamId: ENROLLMENT_ID },
-      mentor.uuid,
+      mentor,
     );
     expect(Array.isArray(students)).toBe(true);
   });

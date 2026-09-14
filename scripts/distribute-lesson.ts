@@ -61,7 +61,7 @@
  *   добавится флаг `--mentor` для их рассылки.
  */
 import { safeConvert } from '../packages/core/src/shared/markdown.ts';
-import { createApp, NUR_UUID } from './_app-factory';
+import { createApp, NUR_UUID, resolveActor } from './_app-factory';
 
 const BOT_TOKEN = '8781337572:AAGWv3f924aZisUW3z47n8BPDusyfKAjIWg';
 const DEFAULT_CHAT_ID = '-1003960918937'; // группа потока
@@ -337,13 +337,14 @@ async function main() {
   // ─── Получаем данные через API ───
 
   const app = createApp(preview);
+  const actor = await resolveActor(app, NUR_UUID);
 
   // Загружаем список модулей для получения UUID
   type ModuleEntry = { uuid: string; title: string };
   const modules = (await app.execute(
     'list-modules',
     {},
-    NUR_UUID,
+    actor,
   )) as ModuleEntry[];
 
   const moduleEntry = modules[parsed.module - 1];
@@ -358,7 +359,7 @@ async function main() {
   const snapshot = (await app.execute(
     'get-module-snapshot',
     { moduleId: moduleEntry.uuid },
-    NUR_UUID,
+    actor,
   )) as SnapshotProject[];
 
   const project = snapshot[parsed.project - 1];
@@ -396,7 +397,7 @@ async function main() {
       const detail = (await app.execute(
         'get-lesson',
         { uuid: lesson.lessonId },
-        NUR_UUID,
+        actor,
       )) as LessonDetail;
 
       console.log(`   Шагов: ${detail.stepIds.length}`);
@@ -407,7 +408,7 @@ async function main() {
         const step = (await app.execute(
           'get-step',
           { uuid: stepId },
-          NUR_UUID,
+          actor,
         )) as StepDetail;
 
         const order = step.order ?? si + 1;
@@ -473,7 +474,7 @@ async function main() {
   const detail = (await app.execute(
     'get-lesson',
     { uuid: lesson.lessonId },
-    NUR_UUID,
+    actor,
   )) as LessonDetail;
 
   console.log(
@@ -503,7 +504,7 @@ async function main() {
     const step = (await app.execute(
       'get-step',
       { uuid: stepId },
-      NUR_UUID,
+      actor,
     )) as StepDetail;
 
     const order = step.order ?? detail.stepIds.indexOf(stepId) + 1;

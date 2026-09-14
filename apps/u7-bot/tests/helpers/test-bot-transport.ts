@@ -1,3 +1,4 @@
+import { Role } from '@u7-scl/app';
 import type { User } from '@u7-scl/app/domain';
 import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { U7BotController } from '@u7-scl/bot/u7-bot-controller';
@@ -177,7 +178,7 @@ export class TestBotTransport {
       /** Фасад пользователей — гост-регистрация на /start (см. ensureRegisteredGuest). */
       userFacade?: U7BotUiAppResolve['userFacade'];
       /** Системный актор-бот: от его имени регистрируются гости. */
-      botAdminUuid?: string;
+      botAdminUser?: User;
     } = {},
   ) {
     this.uiApp = new ExposedMenuUiApp(controllers);
@@ -196,7 +197,13 @@ export class TestBotTransport {
             // заглушка сохраняет форму resolve, не пишя в хранилище.
             registerGuest: async () => undefined,
           } as unknown as U7BotUiAppResolve['userFacade']),
-        botAdminUuid: opts.botAdminUuid ?? EMPTY_UUID,
+        botAdminUser: opts.botAdminUser ?? {
+          uuid: EMPTY_UUID,
+          name: 'Бот-админ',
+          telegramId: 0,
+          roles: [Role.ADMIN],
+          createdAt: '2026-01-01T00:00',
+        },
       },
       this.transport,
     );

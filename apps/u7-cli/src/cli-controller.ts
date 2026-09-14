@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { stdin as input, stdout as output } from 'node:process';
 import * as readline from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
+import type { User } from '@u7-scl/app';
 import type { ApiApp, UcDocType } from '@u7-scl/core/api';
 import type * as v from 'valibot';
 import { formatValibotErrors } from './controller/format-valibot-errors';
@@ -106,7 +107,7 @@ function parseKeyValueLines(
 
 // TODO: [Refactor] Вынести общую логику текстового UI (bot/cli) в BaseTextController в packages/core
 export class CliController {
-  private currentActor: { uuid: string; name: string } | null = null;
+  private currentActor: User | null = null;
   private rl: readline.Interface;
 
   constructor(private app: ApiApp<CliAppMeta>) {
@@ -320,7 +321,7 @@ export class CliController {
       const result = await this.app.execute(
         ucName as CliAppMeta['moduleMetas']['ucMetas']['ucName'],
         payload,
-        this.currentActor?.uuid,
+        this.currentActor ?? undefined,
       );
       console.log('\nУспех:');
       console.log(JSON.stringify(result, null, 2));
@@ -372,7 +373,7 @@ export class CliController {
       const result = (await this.app.execute(
         'list-users',
         {},
-        this.currentActor?.uuid,
+        this.currentActor ?? undefined,
       )) as {
         users: Array<{ uuid: string; name: string; telegramId: number }>;
       };
@@ -404,7 +405,11 @@ export class CliController {
       }
 
       if (targetUser) {
-        this.currentActor = { uuid: targetUser.uuid, name: targetUser.name };
+        // Полный User-объект: актор передаётся в execute целиком
+        const fullUser = (await this.app.execute('get-user', {
+          uuid: targetUser.uuid,
+        })) as User;
+        this.currentActor = fullUser;
         console.log(
           `Вход выполнен. Активный пользователь: ${this.currentActor.name}`,
         );

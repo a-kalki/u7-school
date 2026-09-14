@@ -732,7 +732,7 @@ export class CreateStreamStory extends U7BotUiStory {
       cmd.telegramGroupInvite = context.telegramGroupInvite;
 
     try {
-      await this.appApi.execute('create-stream', cmd, actor.uuid);
+      await this.appApi.execute('create-stream', cmd, actor);
     } catch (err: unknown) {
       return this.handleError(err);
     }

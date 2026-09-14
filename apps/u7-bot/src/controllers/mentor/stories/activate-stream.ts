@@ -19,7 +19,7 @@ export class ActivateStreamStory extends U7BotUiStory {
     if (cmd !== 'activate' || !streamId) {
       return this.unknownCommand(action, actor, session);
     }
-    await this.appApi.execute('activate-stream', { streamId }, actor.uuid);
+    await this.appApi.execute('activate-stream', { streamId }, actor);
 
     return this.screen(
       md`🚀 *Поток запущен\\!* Первые задания выданы студентам\\. Они увидят их в разделе «🎓 Моя учёба»\\.`,

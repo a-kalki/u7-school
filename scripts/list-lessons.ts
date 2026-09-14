@@ -27,7 +27,7 @@
  *   на `app.execute('get-step', { uuid })`.
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { createApp, NUR_UUID } from './_app-factory';
+import { createApp, NUR_UUID, resolveActor } from './_app-factory';
 
 const DATA_DIR = 'data/fullstack-js';
 
@@ -138,6 +138,7 @@ async function main() {
   }
 
   const app = createApp(true); // всегда silent — консольная утилита
+  const actor = await resolveActor(app, NUR_UUID);
 
   const filter = args[0] ? parseFilter(args[0]) : undefined;
 
@@ -152,7 +153,7 @@ async function main() {
   const modules = (await app.execute(
     'list-modules',
     {},
-    NUR_UUID,
+    actor,
   )) as ModuleEntry[];
 
   let mi = 0;
@@ -173,7 +174,7 @@ async function main() {
     const snapshot = (await app.execute(
       'get-module-snapshot',
       { moduleId: mod.uuid },
-      NUR_UUID,
+      actor,
     )) as SnapshotProject[];
 
     // Детальный вывод одного урока
@@ -196,7 +197,7 @@ async function main() {
       const lessonDetail = (await app.execute(
         'get-lesson',
         { uuid: lesson.lessonId },
-        NUR_UUID,
+        actor,
       )) as LessonDetail;
 
       const dir = findLessonDir(
@@ -252,7 +253,7 @@ async function main() {
         const detail = (await app.execute(
           'get-lesson',
           { uuid: lesson.lessonId },
-          NUR_UUID,
+          actor,
         )) as LessonDetail;
 
         totalSteps += detail.stepIds.length;
@@ -280,7 +281,7 @@ async function main() {
         const detail = (await app.execute(
           'get-lesson',
           { uuid: lesson.lessonId },
-          NUR_UUID,
+          actor,
         )) as LessonDetail;
 
         const steps = detail.stepIds.length;

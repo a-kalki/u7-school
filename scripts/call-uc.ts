@@ -59,6 +59,7 @@ import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 import { WishApiModule } from '@u7-scl/wish/api';
 import type { WishApiModuleResolver } from '@u7-scl/wish/domain';
 import { WishJsonRepo } from '@u7-scl/wish/infra';
+import { resolveActor } from './_app-factory';
 
 const NUR_UUID = '8d9a56f6-51e7-49f0-ba58-2832b157e718';
 
@@ -114,8 +115,6 @@ async function main() {
     console.error('   Получено:', paramsJson);
     process.exit(1);
   }
-
-  const actorId = actorIdOverride || NUR_UUID;
 
   // ─── Инициализация (порядок как в create-api-app.ts) ────────
   const db = new BaseJsonDb();
@@ -198,9 +197,12 @@ async function main() {
   // таймеры job'ов в одноразовом скрипте не нужны (паттерн _app-factory)
   app.init(new InProcJobScheduler({ logger: console as unknown as Logger }));
 
+  // Актор — полный User-объект (по умолчанию Nur)
+  const actor = await resolveActor(app, actorIdOverride || NUR_UUID);
+
   // ─── Вызов UseCase ────────────────────────────────
   try {
-    const result = await app.execute(ucName, params, actorId);
+    const result = await app.execute(ucName, params, actor);
     console.log(JSON.stringify(result, null, 2));
   } catch (e: unknown) {
     const err = e as {

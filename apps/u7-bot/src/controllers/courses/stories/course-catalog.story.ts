@@ -123,7 +123,7 @@ export class CourseCatalogStory extends U7BotUiStory {
     const wishes = ((await this.appApi.execute(
       'list-user-wishes',
       {},
-      actor.uuid,
+      actor,
     )) ?? []) as Wish[];
     const wishStatusByCourse = this.#activeCourseWishStatuses(wishes);
 
@@ -533,7 +533,7 @@ export class CourseCatalogStory extends U7BotUiStory {
       const { outcome } = (await this.appApi.execute(
         'create-course-wish',
         { courseId },
-        actor.uuid,
+        actor,
       )) as { outcome: 'instant' | 'questionnaire' };
 
       if (outcome === 'questionnaire') {
@@ -594,7 +594,7 @@ export class CourseCatalogStory extends U7BotUiStory {
     actor: User,
   ): Promise<DialogResponse> {
     try {
-      await this.appApi.execute('create-module-wish', { moduleId }, actor.uuid);
+      await this.appApi.execute('create-module-wish', { moduleId }, actor);
 
       return this.screen(
         md`✅ Записали\\! Мы сообщим, когда откроется набор на модуль\\.`,
@@ -621,7 +621,7 @@ export class CourseCatalogStory extends U7BotUiStory {
       await this.appApi.execute(
         'cancel-wish',
         { kind: 'course', courseId },
-        actor.uuid,
+        actor,
       );
 
       return this.screen(
@@ -649,7 +649,7 @@ export class CourseCatalogStory extends U7BotUiStory {
       await this.appApi.execute(
         'cancel-wish',
         { kind: 'module', moduleId },
-        actor.uuid,
+        actor,
       );
 
       return this.screen(

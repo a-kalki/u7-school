@@ -54,6 +54,18 @@ import { UserInProcFacade } from '../packages/user/src/infra/user-in-proc-facade
 /** UUID автора-ментора (Нур) */
 export const NUR_UUID = '8d9a56f6-51e7-49f0-ba58-2832b157e718';
 
+/**
+ * Резолвит полный User-объект по UUID через UC 'get-user'
+ * (сам UC публичный — actor не требуется).
+ */
+export async function resolveActor(
+  app: ReturnType<typeof createApp>,
+  uuid: string,
+) {
+  const user = await app.execute('get-user', { uuid });
+  return user;
+}
+
 /** No-op логгер для подавления служебных логов API-модулей */
 const silentLogger: Logger = {
   info: () => {},

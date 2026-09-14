@@ -74,27 +74,23 @@ describe('CourseCatalogStory (интеграционный)', () => {
     const course = await app.apiApp.execute(
       'create-course',
       { title, description: 'Интеграционный тест' },
-      author.uuid,
+      author,
     );
     const mod = await app.apiApp.execute(
       'create-module',
       { title: 'Модуль', description: 'Тестовый модуль' },
-      author.uuid,
+      author,
     );
-    await app.apiApp.execute(
-      'publish-module',
-      { moduleId: mod.uuid },
-      author.uuid,
-    );
+    await app.apiApp.execute('publish-module', { moduleId: mod.uuid }, author);
     await app.apiApp.execute(
       'add-phase-to-course',
       { courseId: course.uuid, title: 'Этап 1', track: 'tech' },
-      author.uuid,
+      author,
     );
     await app.apiApp.execute(
       'add-module-to-course',
       { courseId: course.uuid, phaseTitle: 'Этап 1', moduleId: mod.uuid },
-      author.uuid,
+      author,
     );
     return { courseId: course.uuid, moduleId: mod.uuid };
   }
@@ -156,12 +152,12 @@ describe('CourseCatalogStory (интеграционный)', () => {
     const course = await app.apiApp.execute(
       'create-course',
       { title: 'Курс с проектами', description: 'Тест' },
-      author.uuid,
+      author,
     );
     await app.apiApp.execute(
       'add-phase-to-course',
       { courseId: course.uuid, title: 'Этап', track: 'tech' },
-      author.uuid,
+      author,
     );
     await app.apiApp.execute(
       'add-module-to-course',
@@ -170,7 +166,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
         phaseTitle: 'Этап',
         moduleId: FIXTURE_MODULE_UUID,
       },
-      author.uuid,
+      author,
     );
 
     const response = await openCourse(
@@ -193,12 +189,12 @@ describe('CourseCatalogStory (интеграционный)', () => {
     const course = await app.apiApp.execute(
       'create-course',
       { title: 'Курс с шагами', description: 'Тест' },
-      author.uuid,
+      author,
     );
     await app.apiApp.execute(
       'add-phase-to-course',
       { courseId: course.uuid, title: 'Этап', track: 'tech' },
-      author.uuid,
+      author,
     );
     await app.apiApp.execute(
       'add-module-to-course',
@@ -207,7 +203,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
         phaseTitle: 'Этап',
         moduleId: FIXTURE_MODULE_UUID,
       },
-      author.uuid,
+      author,
     );
 
     const response = await openCourse(

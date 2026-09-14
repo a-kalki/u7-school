@@ -200,7 +200,7 @@ export class InactivityStory extends U7BotUiStory {
       await this.appApi.execute(
         'drop-student',
         { streamId: student.streamId, studentId },
-        actor.uuid,
+        actor,
       );
     } catch (err: unknown) {
       return this.handleError(err);
@@ -230,7 +230,7 @@ export class InactivityStory extends U7BotUiStory {
           studentId,
           cause: 'inactivity' as const,
         },
-        actor.uuid,
+        actor,
       );
     } catch (err: unknown) {
       return this.handleError(err);
@@ -252,7 +252,7 @@ export class InactivityStory extends U7BotUiStory {
       return await this.appApi.execute(
         'get-student-progress',
         { studentId },
-        actor.uuid,
+        actor,
       );
     } catch {
       return undefined;

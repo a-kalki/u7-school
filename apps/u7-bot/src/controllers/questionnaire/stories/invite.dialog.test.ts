@@ -63,7 +63,7 @@ describe('InviteStory — invite:start: делегирование fill-стор
     expect(appApi.execute).toHaveBeenCalledWith(
       'start-by-invite',
       { questionnaireId: 'q-1' },
-      actor.uuid,
+      actor,
     );
 
     // Делегат строится cbFor: контроллер префиксует до dispatch

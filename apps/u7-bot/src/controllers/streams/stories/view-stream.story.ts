@@ -154,7 +154,7 @@ export class ViewStreamStory extends U7BotUiStory {
       const students = await this.appApi.execute(
         'list-stream-students',
         { streamId },
-        actor.uuid,
+        actor,
       );
       studentCount = (students as unknown[]).length;
     } catch {
@@ -346,7 +346,7 @@ export class ViewStreamStory extends U7BotUiStory {
     const students = (await this.appApi.execute(
       'list-stream-students',
       { streamId },
-      actor.uuid,
+      actor,
     )) as Student[];
 
     const stream = (await this.appApi.execute('get-stream', {
@@ -538,7 +538,7 @@ export class ViewStreamStory extends U7BotUiStory {
     const student = (await this.appApi.execute(
       'get-student-progress',
       { studentId },
-      actor.uuid,
+      actor,
     )) as Student;
 
     let userName = student.userId.slice(0, 8);
@@ -789,7 +789,7 @@ export class ViewStreamStory extends U7BotUiStory {
           userId: actor.uuid,
           enrollmentKey,
         },
-        actor.uuid,
+        actor,
       );
     } catch (err) {
       // Ошибки валидации/конфликты — реплика-переспрос без захвата экрана

@@ -157,7 +157,7 @@ export class U7BotUiApp extends BotUiApp<
     );
     await ensureRegisteredGuest(
       this.resolve.userFacade,
-      this.resolve.botAdminUuid,
+      this.resolve.botAdminUser,
       {
         id: tgId,
         first_name: update.name ?? 'друг',

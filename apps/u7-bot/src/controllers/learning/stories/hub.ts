@@ -119,7 +119,7 @@ export class HubStory extends U7BotUiStory {
 
   /** Экран хаба «Моя учёба» с кнопками действий. */
   async #showHub(actor: User): Promise<DialogResponse> {
-    const studentResult = await getStudent(this.appApi, actor.uuid);
+    const studentResult = await getStudent(this.appApi, actor);
     if (!studentResult.ok) return studentResult.value;
 
     const student = studentResult.value;
@@ -160,7 +160,7 @@ export class HubStory extends U7BotUiStory {
   // ── Приватные методы: самовыход из учёбы (FR-4) ──
 
   async #showLeaveConfirm(actor: User): Promise<DialogResponse> {
-    const studentResult = await getStudent(this.appApi, actor.uuid);
+    const studentResult = await getStudent(this.appApi, actor);
     if (!studentResult.ok) return studentResult.value;
 
     return this.screen(
@@ -175,7 +175,7 @@ export class HubStory extends U7BotUiStory {
   }
 
   async #executeLeave(actor: User): Promise<DialogResponse> {
-    const studentResult = await getStudent(this.appApi, actor.uuid);
+    const studentResult = await getStudent(this.appApi, actor);
     if (!studentResult.ok) return studentResult.value;
 
     const student = studentResult.value;
@@ -184,7 +184,7 @@ export class HubStory extends U7BotUiStory {
       await this.appApi.execute(
         'drop-student',
         { streamId: student.streamId, studentId: student.uuid },
-        actor.uuid,
+        actor,
       );
     } catch (err) {
       return this.handleError(err);

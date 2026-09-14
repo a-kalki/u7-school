@@ -144,7 +144,7 @@ describe('Wish: анкетная ветка (e2e)', () => {
     const states = await app.apiApp.execute(
       'get-questionnaires-by-user',
       { userId: user.uuid },
-      user.uuid,
+      user,
     );
     return states.find(
       (s) => s.kind === 'standard' && s.ownerInfo.courseId === courseId,

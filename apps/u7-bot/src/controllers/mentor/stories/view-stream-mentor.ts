@@ -154,7 +154,7 @@ export class ViewStreamMentorStory extends ViewStreamStory {
     const students = (await this.appApi.execute(
       'list-stream-students',
       { streamId },
-      actor.uuid,
+      actor,
     )) as Array<{ uuid: string; userId: string; status: string }>;
 
     const stream = (await this.appApi.execute('get-stream', {
@@ -264,7 +264,7 @@ export class ViewStreamMentorStory extends ViewStreamStory {
     streamId: string,
     actor: User,
   ): Promise<DialogResponse> {
-    await this.appApi.execute('complete-stream', { streamId }, actor.uuid);
+    await this.appApi.execute('complete-stream', { streamId }, actor);
     return this.screen(
       md`✅ *Поток завершён\\!* Обучение окончено\\.`,
       this.kb([
@@ -274,7 +274,7 @@ export class ViewStreamMentorStory extends ViewStreamStory {
   }
 
   async #handleArchive(streamId: string, actor: User): Promise<DialogResponse> {
-    await this.appApi.execute('archive-stream', { streamId }, actor.uuid);
+    await this.appApi.execute('archive-stream', { streamId }, actor);
     return this.screen(
       md`📁 *Поток перемещён в архив\\.*`,
       this.kb([

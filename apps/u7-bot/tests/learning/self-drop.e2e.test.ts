@@ -90,7 +90,7 @@ describe('E2E: Самовыход из учёбы (learning/hub, FR-4/FR-6)', ()
     const studentAfter = await app.apiApp.execute(
       'get-student-by-user',
       { userId: student.uuid },
-      student.uuid,
+      student,
     );
     expect((studentAfter as { status: string }).status).toBe('abandoned');
   });

@@ -59,7 +59,7 @@ export class StepViewStory extends U7BotUiStory {
     actor: User,
     _overrideStepId?: string,
   ): Promise<DialogResponse> {
-    const studentResult = await getStudent(this.appApi, actor.uuid);
+    const studentResult = await getStudent(this.appApi, actor);
     if (!studentResult.ok) return studentResult.value;
 
     const student = studentResult.value;
@@ -94,7 +94,7 @@ export class StepViewStory extends U7BotUiStory {
       return this.unknownCommand(action, actor);
     }
 
-    const studentResult = await getStudent(this.appApi, actor.uuid);
+    const studentResult = await getStudent(this.appApi, actor);
     if (!studentResult.ok) return studentResult.value;
 
     const student = studentResult.value;
@@ -108,7 +108,7 @@ export class StepViewStory extends U7BotUiStory {
     const result = (await this.appApi.execute(
       'complete-step',
       { studentId: student.uuid, streamId, stepId },
-      actor.uuid,
+      actor,
     )) as {
       level: 'step' | 'lesson' | 'project' | 'stream' | 'already_completed';
       completedLessonId?: string;
@@ -133,7 +133,7 @@ export class StepViewStory extends U7BotUiStory {
       const freshStudent = (await this.appApi.execute(
         'get-student-progress',
         { studentId: student.uuid },
-        actor.uuid,
+        actor,
       )) as Student;
       return this.#announceTransition(
         result as {
@@ -160,7 +160,7 @@ export class StepViewStory extends U7BotUiStory {
   ): Promise<DialogResponse> {
     const { student, stream } = await getStudentAndStream(this.appApi, actor);
     if (!student || !stream) {
-      const studentResult = await getStudent(this.appApi, actor.uuid);
+      const studentResult = await getStudent(this.appApi, actor);
       return studentResult.ok
         ? this.screen(md`⚠️ Поток не найден`)
         : studentResult.value;

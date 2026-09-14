@@ -90,7 +90,7 @@ export class CreateCourseWishUc extends WishUseCase<CreateCourseWishCmdMeta> {
       await this.repo.save(wish.state);
       await this.resolve.questionnaireFacade.startStandard<{
         courseId: string;
-      }>(actor.uuid, pool, { courseId: command.courseId });
+      }>(actor, pool, { courseId: command.courseId });
       return { outcome: 'questionnaire' };
     }
 

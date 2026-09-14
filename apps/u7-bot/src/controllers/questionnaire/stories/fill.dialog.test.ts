@@ -117,7 +117,7 @@ describe('FillStory — finalize-паттерн («зафиксируй выбо
     expect(executeMock).toHaveBeenCalledWith(
       'handle-action',
       { questionnaireId: 'q-1', type: 'callback', value: 'novice' },
-      actor.uuid,
+      actor,
     );
 
     // Предыдущий вопрос зафиксирован: выбранный отмечен, прочие — нет
@@ -183,7 +183,7 @@ describe('FillStory — finalize-паттерн («зафиксируй выбо
     expect(executeMock).toHaveBeenCalledWith(
       'handle-action',
       { questionnaireId: 'q-1', type: 'text', value: '3 года фронтенда' },
-      actor.uuid,
+      actor,
     );
 
     expect(res.finalize?.text).toContain('Какой у тебя опыт?');

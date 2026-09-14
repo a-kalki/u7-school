@@ -204,7 +204,7 @@ export class FillStory extends U7BotUiStory {
           'handle-action',
           // Протокол UC: выбор — callback (value = код ответа)
           { questionnaireId: qId, type: 'callback', value: aCode },
-          actor.uuid,
+          actor,
         );
         return this.#renderUc(response, qId, aCode);
       } catch (err) {
@@ -223,7 +223,7 @@ export class FillStory extends U7BotUiStory {
         const response = await this.appApi.execute(
           'handle-action',
           { questionnaireId: qId, type: 'callback', value: `next:${qCode}` },
-          actor.uuid,
+          actor,
         );
         return this.#renderUc(response, qId, `next:${qCode}`);
       } catch (err) {
@@ -261,7 +261,7 @@ export class FillStory extends U7BotUiStory {
       const response = await this.appApi.execute(
         'handle-action',
         { questionnaireId: qId, type: 'text', value: update.text },
-        actor.uuid,
+        actor,
       );
       return this.#renderUc(response, qId, update.text);
     } catch (err) {
@@ -313,7 +313,7 @@ export class FillStory extends U7BotUiStory {
       const states = await this.appApi.execute(
         'get-questionnaires-by-user',
         { userId: actor.uuid },
-        actor.uuid,
+        actor,
       );
 
       const active = (
@@ -349,7 +349,7 @@ export class FillStory extends U7BotUiStory {
       const response = await this.appApi.execute(
         'get-current',
         { questionnaireId: qId },
-        actor.uuid,
+        actor,
       );
       const res = renderActionResponse(response);
       // Ввод ждём только пока есть вопрос; completed сам несёт release
@@ -370,7 +370,7 @@ export class FillStory extends U7BotUiStory {
     const current = await this.appApi.execute(
       'get-current',
       { questionnaireId: qId },
-      actor.uuid,
+      actor,
     );
     // cancelWarning есть у всех вариантов ответа, кроме completed
     const warningRaw =
@@ -394,11 +394,7 @@ export class FillStory extends U7BotUiStory {
     actor: User,
   ): Promise<DialogResponse> {
     try {
-      await this.appApi.execute(
-        'abandon',
-        { questionnaireId: qId },
-        actor.uuid,
-      );
+      await this.appApi.execute('abandon', { questionnaireId: qId }, actor);
 
       return {
         ...this.screen(md`Анкета прервана\\.`, this.kb([[buttons.mainMenu()]])),

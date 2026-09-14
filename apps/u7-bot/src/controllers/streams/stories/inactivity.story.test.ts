@@ -407,7 +407,7 @@ describe('InactivityStory', () => {
         streamId: STREAM_ID,
         studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
       },
-      student.uuid,
+      student,
     );
     expect(String(response.screen?.text)).toContain('Ты покинул учёбу');
     expect(buttonCodes(response)).toEqual([
@@ -428,7 +428,7 @@ describe('InactivityStory', () => {
     expect(execute).toHaveBeenCalledWith(
       'get-student-progress',
       { studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' },
-      student.uuid,
+      student,
     );
     expect(String(response.screen?.text)).toContain(
       'Снять студента *Иван Студент*',
@@ -477,7 +477,7 @@ describe('InactivityStory', () => {
         studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         cause: 'inactivity',
       },
-      student.uuid,
+      student,
     );
     expect(String(response.screen?.text)).toContain(
       'снят с учёбы за бездействие и исключён из группы потока',

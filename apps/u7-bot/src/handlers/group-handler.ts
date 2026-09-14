@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app';
 import type { Logger } from '@u7-scl/core/shared';
 import { md } from '@u7-scl/core/shared';
 import type { ProactiveSender } from '@u7-scl/core/ui';
@@ -15,7 +16,7 @@ export interface GroupHandlerDeps {
   transport: ProactiveSender;
   /** uuid бота (BOT_ADMIN_UUID): системный актор для регистрации гостей
    * и операций с ролями (UC требуют ADMIN) */
-  actorId: string;
+  actor: User;
   /** chat id школьной группы (SCHOOL_GROUP_ID): единственная группа,
    * события которой влияют на регистрацию гостей и роли */
   schoolGroupId: number;
@@ -27,7 +28,7 @@ export interface GroupHandlerDeps {
  * - `my_chat_member` — бот добавлен/удалён из группы.
  *   При добавлении в школьную группу (deps.schoolGroupId) — выдаёт
  *   SUBSCRIBER тому, кто добавил (регистрация и выдача роли — от имени
- *   бота, deps.actorId). Остальные группы игнорируются.
+ *   бота, deps.actor). Остальные группы игнорируются.
  *   При удалении — ничего не делает.
  *
  * - `chat_member` — пользователь присоединился/покинул группу
@@ -39,7 +40,7 @@ export interface GroupHandlerDeps {
  *   выход из других групп на роли не влияет) и уведомляет ментора
  *   потока «Студент A покинул группу» (spec FR-7, матчится по
  *   telegramGroupId потока); статус студента не меняется.
- *   Все операции с ролями выполняются от имени бота (deps.actorId):
+ *   Все операции с ролями выполняются от имени бота (deps.actor):
  *   UC add/remove-role требуют ADMIN, а гость/участник таких прав не имеет.
  */
 export function registerGroupHandlers(
@@ -69,14 +70,15 @@ export function registerGroupHandlers(
           user = await userFacade.registerGuest(
             adderId,
             ctx.myChatMember.from.first_name,
-            deps.actorId,
+            undefined,
+            deps.actor,
           );
         }
         if (user) {
           await userFacade.addRoleToUser(
             user.uuid,
             Role.SUBSCRIBER,
-            deps.actorId,
+            deps.actor,
           );
         }
       } catch (err) {
@@ -114,14 +116,15 @@ export function registerGroupHandlers(
           user = await userFacade.registerGuest(
             userId,
             member.new_chat_member.user.first_name,
-            deps.actorId,
+            undefined,
+            deps.actor,
           );
         }
         if (user) {
           await userFacade.addRoleToUser(
             user.uuid,
             Role.SUBSCRIBER,
-            deps.actorId,
+            deps.actor,
           );
         }
       } catch (err) {
@@ -159,7 +162,7 @@ export function registerGroupHandlers(
             await userFacade.removeRoleFromUser(
               user.uuid,
               Role.SUBSCRIBER,
-              deps.actorId,
+              deps.actor,
             );
           }
         }
@@ -196,7 +199,7 @@ async function notifyMentorsAboutGroupLeft(
       const students = await deps.apiApp.execute(
         'list-stream-students',
         { streamId: stream.uuid },
-        userUuid,
+        deps.actor,
       );
       const isActive = students.some(
         (s) =>

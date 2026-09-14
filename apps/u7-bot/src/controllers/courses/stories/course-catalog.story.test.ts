@@ -71,11 +71,11 @@ describe('CourseCatalogStory', () => {
         async (
           ucName: string,
           attrs: Record<string, unknown>,
-          actorId?: string,
+          actor?: User,
         ) => {
           if (ucName === 'list-courses') return courses;
           if (ucName === 'list-user-wishes') {
-            return wishes.filter((w) => w.userId === actorId);
+            return wishes.filter((w) => w.userId === actor?.uuid);
           }
           if (ucName === 'get-course') {
             const found = courses.find((c) => c.uuid === attrs.uuid);
@@ -683,7 +683,7 @@ describe('CourseCatalogStory', () => {
       );
       expect(call).toBeDefined();
       expect(call![1]).toEqual({ moduleId });
-      expect(call![2]).toBe(actor.uuid);
+      expect(call![2]).toBe(actor);
 
       expect(String(response.screen?.text)).toContain('Записали');
     });
@@ -913,7 +913,7 @@ describe('CourseCatalogStory', () => {
       );
       expect(call).toBeDefined();
       expect(call![1]).toEqual({ courseId });
-      expect(call![2]).toBe(actor.uuid);
+      expect(call![2]).toBe(actor);
 
       const text = String(response.screen?.text ?? '');
       expect(text).toContain('зафиксировано');
@@ -1120,7 +1120,7 @@ describe('CourseCatalogStory', () => {
       );
       expect(call).toBeDefined();
       expect(call![1]).toEqual({ kind: 'course', courseId });
-      expect(call![2]).toBe(actor.uuid);
+      expect(call![2]).toBe(actor);
 
       const text = String(response.screen?.text ?? '');
       expect(text).toContain('отменено');
@@ -1210,7 +1210,7 @@ describe('CourseCatalogStory', () => {
       );
       expect(call).toBeDefined();
       expect(call![1]).toEqual({ kind: 'module', moduleId });
-      expect(call![2]).toBe(actor.uuid);
+      expect(call![2]).toBe(actor);
 
       const text = String(response.screen?.text ?? '');
       expect(text).toContain('отменено');

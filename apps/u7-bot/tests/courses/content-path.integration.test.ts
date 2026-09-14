@@ -40,7 +40,7 @@ describe('ResolveContentPath (интеграционный)', () => {
         title: 'Тестовый курс',
         description: 'Курс для тестов ContentPath',
       },
-      author.uuid,
+      author,
     );
     courseUuid = course.uuid;
 
@@ -51,7 +51,7 @@ describe('ResolveContentPath (интеграционный)', () => {
         title: 'Фаза 1: Основы',
         track: 'tech',
       },
-      author.uuid,
+      author,
     );
 
     await app.apiApp.execute(
@@ -61,7 +61,7 @@ describe('ResolveContentPath (интеграционный)', () => {
         phaseTitle: 'Фаза 1: Основы',
         moduleId: FIXTURE_MODULE_UUID,
       },
-      author.uuid,
+      author,
     );
   });
 
@@ -157,7 +157,7 @@ describe('ResolveContentPath (интеграционный)', () => {
     const result: any = await app.apiApp.execute(
       'resolve-content-path',
       { path: '1:1:1', courseId: courseUuid },
-      mentor.uuid,
+      mentor,
     );
 
     expect(result.path).toBe('1:1:1');
@@ -213,7 +213,7 @@ describe('ResolveContentPath (интеграционный)', () => {
     const result: any = await app.apiApp.execute(
       'resolve-content-path',
       { path: '1:1:1:1', courseId: courseUuid },
-      mentor.uuid,
+      mentor,
     );
 
     expect(result.step).toBeDefined();

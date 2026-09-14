@@ -38,14 +38,14 @@ describe('CourseProgram (интеграционный)', () => {
         title: 'Алгоритмика (тест)',
         description: 'Тестовый модуль для интеграционного теста',
       },
-      author.uuid,
+      author,
     );
 
     // Публикуем модуль, чтобы getModuleSnapshot видел его без actorId
     await app.apiApp.execute(
       'publish-module',
       { moduleId: newModule.uuid },
-      author.uuid,
+      author,
     );
 
     // 2. Создаём курс
@@ -55,7 +55,7 @@ describe('CourseProgram (интеграционный)', () => {
         title: 'Полный курс JS',
         description: 'Интеграционный тестовый курс',
       },
-      author.uuid,
+      author,
     );
 
     // 3. Добавляем фазу
@@ -66,7 +66,7 @@ describe('CourseProgram (интеграционный)', () => {
         title: 'Этап 1: Основы',
         track: 'tech',
       },
-      author.uuid,
+      author,
     );
 
     // 4. Добавляем модули в фазу
@@ -77,7 +77,7 @@ describe('CourseProgram (интеграционный)', () => {
         phaseTitle: 'Этап 1: Основы',
         moduleId: FIXTURE_MODULE_UUID,
       },
-      author.uuid,
+      author,
     );
 
     await app.apiApp.execute(
@@ -87,7 +87,7 @@ describe('CourseProgram (интеграционный)', () => {
         phaseTitle: 'Этап 1: Основы',
         moduleId: newModule.uuid,
       },
-      author.uuid,
+      author,
     );
 
     // 5. Получаем программу курса

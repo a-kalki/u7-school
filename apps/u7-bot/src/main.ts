@@ -30,7 +30,7 @@ const logger = loggers;
 const bot = createBot(config.botToken);
 
 const apiBundle = createApiApp(config, logger);
-const uiBundle = createUiApp(apiBundle.apiApp, apiBundle, config);
+const uiBundle = await createUiApp(apiBundle.apiApp, apiBundle, config);
 
 // ══ BotTransport — единый слой Grammy ↔ UiApp (контракт «Диалог и Экран») ══
 // Сессиями BotSession владеет транспорт (внутренняя мапа).
@@ -66,30 +66,27 @@ if (config.adminTelegramIds.length > 0) {
 }
 
 // ══ Верификация бота при старте ══
-{
-  const { userFacade } = apiBundle;
-  const adminUser = await userFacade.getUserByUuid(config.botAdminUuid);
-  if (!adminUser) {
-    throw new Error(
-      `BOT_ADMIN_UUID не найден: пользователь ${config.botAdminUuid} не существует`,
-    );
-  }
-  if (!UserPolicy.isAdmin(adminUser)) {
-    throw new Error(
-      `BOT_ADMIN_UUID имеет недостаточные права: у пользователя ${config.botAdminUuid} нет роли ADMIN`,
-    );
-  }
-  logger.info('main', 'Верификация бота пройдена: ADMIN подтверждён');
+const adminUser = await apiBundle.userFacade.getUserByUuid(config.botAdminUuid);
+if (!adminUser) {
+  throw new Error(
+    `BOT_ADMIN_UUID не найден: пользователь ${config.botAdminUuid} не существует`,
+  );
 }
+if (!UserPolicy.isAdmin(adminUser)) {
+  throw new Error(
+    `BOT_ADMIN_UUID имеет недостаточные права: у пользователя ${config.botAdminUuid} нет роли ADMIN`,
+  );
+}
+logger.info('main', 'Верификация бота пройдена: ADMIN подтверждён');
 
 // ══ Групповые события — на исходный бот (chat_member, my_chat_member) ══
 // FR-7: при выходе студента из группы — уведомление ментору потока.
-// actorId — бот как системный актор: регистрация гостей в group-handler.
+// Актор — бот как системный актор (User-объект): регистрация гостей в group-handler.
 // Регистрация гостей и роли (SUBSCRIBER) — только для школьной группы.
 registerGroupHandlers(bot, apiBundle.userFacade, logger, {
   apiApp: apiBundle.apiApp,
   transport,
-  actorId: config.botAdminUuid,
+  actor: adminUser,
   schoolGroupId: config.schoolGroupId,
 });
 

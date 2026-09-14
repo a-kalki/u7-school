@@ -1,4 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { Role, type User } from '@u7-scl/app';
 import type { Logger } from '@u7-scl/core/shared';
 import type { UserFacade } from '@u7-scl/user/domain';
 import { type GroupHandlerDeps, registerGroupHandlers } from './group-handler';
@@ -13,6 +14,13 @@ const STUDENT_UUID = '33333333-3333-3333-3333-333333333333';
 const MENTOR_UUID = '44444444-4444-4444-4444-444444444444';
 const STREAM_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1';
 const BOT_ACTOR_UUID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+const BOT_ACTOR: User = {
+  uuid: BOT_ACTOR_UUID,
+  name: 'Bot Admin',
+  telegramId: 0,
+  roles: [Role.ADMIN],
+  createdAt: '2026-01-01T00:00',
+};
 const NEW_USER_UUID = '77777777-7777-4777-8777-777777777777';
 
 interface HandlerBag {
@@ -156,7 +164,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
     registerGroupHandlers(bot, userFacade, logger, {
       apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
       transport: { notify } as unknown as GroupHandlerDeps['transport'],
-      actorId: BOT_ACTOR_UUID,
+      actor: BOT_ACTOR,
       schoolGroupId: SCHOOL_GROUP_ID,
     });
 
@@ -210,7 +218,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
     registerGroupHandlers(bot, userFacade, logger, {
       apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
       transport: { notify } as unknown as GroupHandlerDeps['transport'],
-      actorId: BOT_ACTOR_UUID,
+      actor: BOT_ACTOR,
       schoolGroupId: SCHOOL_GROUP_ID,
     });
 
@@ -221,7 +229,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
     expect(notify).not.toHaveBeenCalled();
     expect(
       (userFacade.removeRoleFromUser as ReturnType<typeof mock>).mock.calls,
-    ).toEqual([[STUDENT_UUID, 'SUBSCRIBER', BOT_ACTOR_UUID]]);
+    ).toEqual([[STUDENT_UUID, 'SUBSCRIBER', BOT_ACTOR]]);
   });
 
   test('выход не-студента потока (нет активной записи) — ментору ничего не приходит', async () => {
@@ -247,7 +255,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
     registerGroupHandlers(bot, userFacade, logger, {
       apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
       transport: { notify } as unknown as GroupHandlerDeps['transport'],
-      actorId: BOT_ACTOR_UUID,
+      actor: BOT_ACTOR,
       schoolGroupId: SCHOOL_GROUP_ID,
     });
 
@@ -280,7 +288,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
     registerGroupHandlers(bot, userFacade, logger, {
       apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
       transport: { notify } as unknown as GroupHandlerDeps['transport'],
-      actorId: BOT_ACTOR_UUID,
+      actor: BOT_ACTOR,
       schoolGroupId: SCHOOL_GROUP_ID,
     });
 
@@ -326,7 +334,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
     registerGroupHandlers(bot, userFacade, logger, {
       apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
       transport: { notify } as unknown as GroupHandlerDeps['transport'],
-      actorId: BOT_ACTOR_UUID,
+      actor: BOT_ACTOR,
       schoolGroupId: SCHOOL_GROUP_ID,
     });
 
@@ -365,7 +373,7 @@ describe('registerGroupHandlers — регистрация гостей', () => 
       transport: {
         notify: mock(async () => {}),
       } as unknown as GroupHandlerDeps['transport'],
-      actorId: BOT_ACTOR_UUID,
+      actor: BOT_ACTOR,
       schoolGroupId: SCHOOL_GROUP_ID,
     });
 
@@ -377,15 +385,16 @@ describe('registerGroupHandlers — регистрация гостей', () => 
     );
 
     expect(registerGuest).toHaveBeenCalledTimes(1);
-    const [tgId, name, actorId] = (registerGuest as ReturnType<typeof mock>)
+    const [tgId, name, nick, actor] = (registerGuest as ReturnType<typeof mock>)
       .mock.calls[0]!;
     expect(tgId).toBe(555);
     expect(name).toBe('Анна');
-    expect(actorId).toBe(BOT_ACTOR_UUID);
+    expect(nick).toBeUndefined();
+    expect(actor).toBe(BOT_ACTOR);
     expect(addRoleToUser).toHaveBeenCalledWith(
       NEW_USER_UUID,
       'SUBSCRIBER',
-      BOT_ACTOR_UUID,
+      BOT_ACTOR,
     );
   });
 
@@ -411,7 +420,7 @@ describe('registerGroupHandlers — регистрация гостей', () => 
       transport: {
         notify: mock(async () => {}),
       } as unknown as GroupHandlerDeps['transport'],
-      actorId: BOT_ACTOR_UUID,
+      actor: BOT_ACTOR,
       schoolGroupId: SCHOOL_GROUP_ID,
     });
 
@@ -458,7 +467,7 @@ describe('registerGroupHandlers — регистрация гостей', () => 
       transport: {
         notify: mock(async () => {}),
       } as unknown as GroupHandlerDeps['transport'],
-      actorId: BOT_ACTOR_UUID,
+      actor: BOT_ACTOR,
       schoolGroupId: SCHOOL_GROUP_ID,
     });
 
@@ -469,7 +478,7 @@ describe('registerGroupHandlers — регистрация гостей', () => 
     expect(addRoleToUser).toHaveBeenCalledWith(
       STUDENT_UUID,
       'SUBSCRIBER',
-      BOT_ACTOR_UUID,
+      BOT_ACTOR,
     );
   });
 
@@ -497,7 +506,7 @@ describe('registerGroupHandlers — регистрация гостей', () => 
       transport: {
         notify: mock(async () => {}),
       } as unknown as GroupHandlerDeps['transport'],
-      actorId: BOT_ACTOR_UUID,
+      actor: BOT_ACTOR,
       schoolGroupId: SCHOOL_GROUP_ID,
     });
 
@@ -505,11 +514,16 @@ describe('registerGroupHandlers — регистрация гостей', () => 
       makeMyChatMemberContext(SCHOOL_GROUP_ID, 'administrator'),
     );
 
-    expect(registerGuest).toHaveBeenCalledWith(888, 'Пётр', BOT_ACTOR_UUID);
+    expect(registerGuest).toHaveBeenCalledWith(
+      888,
+      'Пётр',
+      undefined,
+      BOT_ACTOR,
+    );
     expect(addRoleToUser).toHaveBeenCalledWith(
       NEW_USER_UUID,
       'SUBSCRIBER',
-      BOT_ACTOR_UUID,
+      BOT_ACTOR,
     );
   });
 
@@ -535,7 +549,7 @@ describe('registerGroupHandlers — регистрация гостей', () => 
       transport: {
         notify: mock(async () => {}),
       } as unknown as GroupHandlerDeps['transport'],
-      actorId: BOT_ACTOR_UUID,
+      actor: BOT_ACTOR,
       schoolGroupId: SCHOOL_GROUP_ID,
     });
 
