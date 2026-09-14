@@ -49,11 +49,11 @@
 
 ## Фаза 4. Домены wish, course, stream, questionnaire — актор-объект
 
-- [ ] Task: wish — UC `extends U7UseCase`, сигнатуры execute(actor), модуль `extends U7ApiModule`, тесты
-- [ ] Task: course — UC `extends U7UseCase`, упростить `CourseUseCase` (удалить getActor/getUser), модуль `extends U7ApiModule`, тесты
-- [ ] Task: stream — UC `extends U7UseCase`, `StreamUseCase` (getActor-хелпер), Job/ER — фасадные вызовы с actor-объектом/undefined, тесты
-- [ ] Task: questionnaire — UC `extends U7UseCase`, QuestionnaireFacade/InProc — `actor?: User`, тесты
-  - [ ] `CI=true bun run check:p wish && CI=true bun run check:p course && CI=true bun run check:p stream && CI=true bun run check:p questionnaire` — зелёные (u7-bot/u7-cli красные — промежуточное состояние, чинится Фазой 5)
+- [x] Task: wish — UC `extends U7UseCase`, сигнатуры execute(actor), модуль `extends U7ApiModule`, тесты `ba7dce8`
+- [x] Task: course — UC `extends U7UseCase`, упростить `CourseUseCase` (удалить getActor/getUser), модуль `extends U7ApiModule`, тесты `ba7dce8` (удалены кейсы «несуществующий пользователь» — резолв перенесён на вход приложения)
+- [x] Task: stream — UC `extends U7UseCase`, `StreamUseCase` (getActor-хелпер удалён), Job/ER — фасадные вызовы с actor-объектом/undefined, тесты `ba7dce8`
+- [x] Task: questionnaire — UC `extends U7UseCase`, QuestionnaireFacade/InProc — `actor?: User`, тесты `ba7dce8`
+  - [x] `CI=true bun run check:p wish && CI=true bun run check:p course && CI=true bun run check:p stream && CI=true bun run check:p questionnaire` — зелёные (wish 107 / course 364 / stream 264 / questionnaire 130 тестов)
 - [ ] Task: Conductor - Ручная верификация 'Фаза 4' (Protocol in workflow.md)
 
 ## Фаза 5. Приложения u7-bot и u7-cli — актор-объект
