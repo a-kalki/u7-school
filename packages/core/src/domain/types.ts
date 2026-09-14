@@ -46,13 +46,6 @@ export type GetUcNamesFromMeta<TMeta> = TMeta extends AppMeta
     ? TMeta['ucMetas']['ucName']
     : never;
 
-/** Извлекает тип актора из метаданных (AppMeta или ApiModuleMeta) */
-export type GetUcActorFromMeta<TMeta> = TMeta extends AppMeta
-  ? TMeta['moduleMetas']['ucMetas']['actor']
-  : TMeta extends ApiModuleMeta
-    ? TMeta['ucMetas']['actor']
-    : never;
-
 /** Извлекает метаданные конкретного use-case по имени */
 export type ExtractUcMetaFromMeta<
   TMeta,
@@ -68,13 +61,13 @@ export type ExtractUcMetaFromMeta<
  * Реализуется как ApiApp (для вызовов уровня приложения),
  * так и ApiModule (для вызовов внутри модуля).
  *
- * actor — готовый объект актора (например User), резолвимый один раз
+ * TActor — тип объекта актора (например User), резолвимого один раз
  * на входе приложения; передаётся вниз до UseCase.execute.
  */
-export interface ApiExecutor<TMeta> {
+export interface ApiExecutor<TMeta, TActor = unknown> {
   execute<N extends GetUcNamesFromMeta<TMeta>>(
     ucName: N,
     attrs: ExtractUcMetaFromMeta<TMeta, N>['input'],
-    actor?: GetUcActorFromMeta<TMeta>,
+    actor?: TActor,
   ): Promise<ExtractUcMetaFromMeta<TMeta, N>['output']>;
 }

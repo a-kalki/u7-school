@@ -22,7 +22,6 @@ interface TestModuleMeta extends ApiModuleMeta {
     output: unknown;
     errors: never;
     requiresAuth: false;
-    actor: { uuid: string };
     type: 'command';
   };
 }

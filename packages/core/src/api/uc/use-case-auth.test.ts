@@ -58,7 +58,6 @@ interface AuthUcMeta<TAuth extends boolean = boolean> {
   output: { result: string };
   errors: AuthTestError;
   requiresAuth: TAuth;
-  actor: TestActor;
   type: 'command' | 'query';
 }
 
@@ -69,7 +68,11 @@ type AuthResolve = {
 } & ModuleResolver;
 
 /** UseCase, требующий авторизацию */
-class AuthRequiredUseCase extends UseCase<AuthUcMeta<true>, AuthResolve> {
+class AuthRequiredUseCase extends UseCase<
+  AuthUcMeta<true>,
+  AuthResolve,
+  TestActor
+> {
   protected readonly ucName = 'test-auth' as const;
   protected readonly ucLabel = 'Тестовый UC с авторизацией';
   protected readonly arMeta = {
@@ -87,7 +90,11 @@ class AuthRequiredUseCase extends UseCase<AuthUcMeta<true>, AuthResolve> {
 }
 
 /** UseCase без авторизации */
-class AuthOptionalUseCase extends UseCase<AuthUcMeta<false>, AuthResolve> {
+class AuthOptionalUseCase extends UseCase<
+  AuthUcMeta<false>,
+  AuthResolve,
+  TestActor
+> {
   protected readonly ucName = 'test-auth' as const;
   protected readonly ucLabel = 'Тестовый UC без авторизации';
   protected readonly arMeta = {

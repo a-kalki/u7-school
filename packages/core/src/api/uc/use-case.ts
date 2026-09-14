@@ -17,7 +17,7 @@ import type { ModuleResolver } from '#domain/types';
 
 type UseCaseType = 'command' | 'query';
 
-export interface UcMeta<TActor = unknown> {
+export interface UcMeta {
   /** Уникальное имя use-case (например "create-course") */
   ucName: string;
   /** Метаданные агрегата, к которому привязан use-case */
@@ -29,12 +29,6 @@ export interface UcMeta<TActor = unknown> {
   requiresAuth: boolean;
   /** Тип use-case: команда или запрос */
   type: 'command' | 'query';
-  /**
-   * Тип актора, выполняющего use-case.
-   * Резолвится один раз на входе приложения (UI-слоем) и передаётся
-   * готовым объектом через ApiApp → ApiModule → UseCase.execute.
-   */
-  actor: TActor;
 }
 
 export interface UcDocType {
@@ -51,6 +45,7 @@ export interface UcDocType {
 export abstract class UseCase<
   TMeta extends UcMeta,
   TResolve extends ModuleResolver = ModuleResolver,
+  TActor = unknown,
 > {
   /** Уникальное имя use-case (например "create-course") */
   protected abstract readonly ucName: TMeta['ucName'];
@@ -117,20 +112,16 @@ export abstract class UseCase<
   /**
    * Основной метод выполнения use-case.
    * @param command Входящие данные (невалидированные)
-   * @param actor Объект актора, выполняющего действие (резолвится на входе
-   * приложения; опционален для use-case без авторизации)
+   * @param actor Объект актора, выполняющего действие (резолвится один раз
+   * на входе приложения и передаётся готовым объектом; опционален
+   * для use-case без авторизации)
    */
-  async handle(
-    command: unknown,
-    actor?: TMeta['actor'],
-  ): Promise<TMeta['output']> {
+  async handle(command: unknown, actor?: TActor): Promise<TMeta['output']> {
     this.checkAuth(actor);
     const validatedCommand = this.validateInput(command);
     const result = await this.execute(
       validatedCommand,
-      actor as TMeta['requiresAuth'] extends true
-        ? TMeta['actor']
-        : TMeta['actor'] | undefined,
+      actor as TMeta['requiresAuth'] extends true ? TActor : TActor | undefined,
     );
     return this.validateOutput(result);
   }
@@ -140,9 +131,7 @@ export abstract class UseCase<
    */
   protected abstract execute(
     command: TMeta['input'],
-    actor: TMeta['requiresAuth'] extends true
-      ? TMeta['actor']
-      : TMeta['actor'] | undefined,
+    actor: TMeta['requiresAuth'] extends true ? TActor : TActor | undefined,
   ): Promise<TMeta['output']> | TMeta['output'];
 
   /**
@@ -178,7 +167,7 @@ export abstract class UseCase<
    * Проверяет авторизацию (наличие объекта актора).
    * Можно переопределить для кастомной логики.
    */
-  protected checkAuth(actor?: TMeta['actor']): void {
+  protected checkAuth(actor?: TActor): void {
     if (this.requiresAuth && actor === undefined) {
       this.throwBaseErrors(
         errUnauthorized<AuthError>(

@@ -34,12 +34,11 @@ interface TestUcMeta extends UcMeta {
   input: { foo: string };
   output: { bar: string };
   errors: never;
-  actor: TestActor;
 }
 
 // ══ Тестовый UseCase с доступом к resolve ══
 
-class TestUseCase extends UseCase<TestUcMeta, TestResolve> {
+class TestUseCase extends UseCase<TestUcMeta, TestResolve, TestActor> {
   protected readonly ucName = 'test-cmd' as const;
   protected readonly ucLabel = 'Тестовый UC' as const;
   protected readonly arMeta = {
@@ -71,7 +70,7 @@ interface TestModuleMeta extends ApiModuleMeta {
 
 // ══ Тестовый модуль (расширяет ApiModule с новым контрактом) ══
 
-class TestModule extends ApiModule<TestModuleMeta, TestResolve> {
+class TestModule extends ApiModule<TestModuleMeta, TestResolve, TestActor> {
   readonly name = 'TestModule';
   readonly useCases = [new TestUseCase()];
   readonly reactions: EventReaction<ErMeta>[] = [];
@@ -240,7 +239,8 @@ interface TestReactionsModuleMeta extends ApiModuleMeta {
 
 class TestReactionsModule extends ApiModule<
   TestReactionsModuleMeta,
-  TestResolve
+  TestResolve,
+  TestActor
 > {
   readonly name = 'TestReactionsModule';
   readonly useCases = [new TestUseCase()];

@@ -4,7 +4,6 @@ import type {
   ApiExecutor,
   AppMeta,
   ExtractUcMetaFromMeta,
-  GetUcActorFromMeta,
   GetUcNamesFromMeta,
 } from '#domain/types';
 import type { JobScheduler } from '../job/job-scheduler';
@@ -13,10 +12,13 @@ import { App } from './app';
 /**
  * API-приложение. Модули передаются в конструктор (доменные зависимости),
  * планировщик заданий — через init() (техническая зависимость из core/infra).
+ *
+ * @typeParam TActor — тип объекта актора (например User), резолвимого
+ * на входе приложения и передаваемого вниз до UseCase.execute
  */
-export class ApiApp<TMeta extends AppMeta>
+export class ApiApp<TMeta extends AppMeta, TActor = unknown>
   extends App
-  implements ApiExecutor<TMeta>
+  implements ApiExecutor<TMeta, TActor>
 {
   #scheduler: JobScheduler | undefined;
 
@@ -57,7 +59,7 @@ export class ApiApp<TMeta extends AppMeta>
   async execute<N extends GetUcNamesFromMeta<TMeta>>(
     ucName: N,
     attrs: ExtractUcMetaFromMeta<TMeta, N>['input'],
-    actor?: GetUcActorFromMeta<TMeta>,
+    actor?: TActor,
   ): Promise<ExtractUcMetaFromMeta<TMeta, N>['output']> {
     const module = this.getModules().find((m) => m.hasCommand(ucName));
     if (!module) {

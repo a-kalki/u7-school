@@ -139,7 +139,6 @@ describe('ApiApp.execute() — проброс actor-объекта', () => {
         output: { ok: boolean };
         errors: never;
         requiresAuth: false;
-        actor: { uuid: string; name: string };
         type: 'command';
       };
     };
@@ -159,7 +158,9 @@ describe('ApiApp.execute() — проброс actor-объекта', () => {
       execute: executeMock,
       getDocTypes: () => [],
     };
-    const app = new ApiApp<ExecutorAppMeta>([mod] as never);
+    const app = new ApiApp<ExecutorAppMeta, { uuid: string; name: string }>([
+      mod,
+    ] as never);
     app.init(scheduler);
 
     const result = await app.execute('any-cmd', { x: 1 }, actor);

@@ -59,7 +59,6 @@ type TestMeta = {
   output: { ok: boolean };
   errors: never;
   requiresAuth: false;
-  actor: { uuid: string };
   type: 'command';
 };
 
@@ -85,7 +84,6 @@ class TestUc extends UseCase<TestMeta> {
 
   protected async execute(
     command: TestMeta['input'],
-    _actor: TestMeta['actor'] | undefined,
   ): Promise<TestMeta['output']> {
     return { ok: command.action === 'ok' };
   }

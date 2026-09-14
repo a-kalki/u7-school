@@ -18,39 +18,47 @@
   - [x] `CI=true bun run check:p user` и `CI=true bun test apps/u7-bot` — зелёные
 - [ ] Task: Conductor - Ручная верификация 'Фаза 1' (Protocol in workflow.md)
 
-## Фаза 2. core/api — дженерик актора [checkpoint: 003dd9c5]
+## Фаза 2. core/api — дженерик актора [checkpoint: 003dd9c5; переделан: актор — дженерик-параметр класса, не поле меты]
 
-- [x] Task: UcMeta.actor + UseCase (Red: тесты handle/execute/checkAuth на actor-объекте) `4f1c8a5`
-  - [x] `UcMeta<TActor = unknown>`: поле `actor: TActor`
-  - [x] `UseCase.handle(command, actor?)`, `execute(command, actor)` с условным типом по `requiresAuth`, `checkAuth(actor?)`
-  - [x] Обновить `use-case.test.ts`, `use-case-auth.test.ts`, `use-case-output.test.ts`, `use-case-publish-events.test.ts`, `job.test.ts` на actor-объекты
-- [x] Task: ApiExecutor/ApiModule/ApiApp — прокидка actor-объекта `4f1c8a5`
-  - [x] `GetUcActorFromMeta<TMeta>` тип-хелпер в `core/domain/types.ts`
-  - [x] `ApiExecutor<TMeta>.execute(ucName, attrs, actor?)`
-  - [x] `ApiModule.execute(..., actor?)`, `ApiApp.execute(..., actor?)` + тесты (`api-module.test.ts`, `api-app.test.ts`)
-  - [x] `CI=true bun run check:p core` — зелёный (домены красные — легальное промежуточное состояние, чинится Фазами 3–4)
+> **Изменение дизайна (решение владельца):** актор — отдельный дженерик-параметр класса
+> (`UseCase<TMeta, TResolve, TActor>`), зеркально UI-слою (`BotUiApp<TAppMeta, TActor, TResolve>`);
+> `UcMeta` остаётся чистой (без actor). Специализация User закрывается в модуле app
+> (`U7UseCase`/`U7ApiModule`/`U7ApiApp`/`U7ApiExecutor`). Первая реализация через
+> `UcMeta<TActor>`/`GetUcActorFromMeta` (коммит 4f1c8a5) заменена.
+
+- [x] Task: UseCase — дженерик-параметр TActor (Red: тесты на actor-объект)
+  - [x] `UseCase<TMeta, TResolve, TActor = unknown>`: `handle(command, actor?)`, `execute(command, actor)` с условным типом по `requiresAuth`, `checkAuth(actor?)`
+  - [x] `UcMeta` — без actor (чистые данные)
+  - [x] Тесты: `use-case.test.ts`, `use-case-auth.test.ts`, `use-case-output.test.ts`, `use-case-publish-events.test.ts`, `job.test.ts` — актор в дженерик-аргументах
+- [x] Task: ApiExecutor/ApiModule/ApiApp — дженерик-параметр TActor
+  - [x] `ApiExecutor<TMeta, TActor = unknown>.execute(ucName, attrs, actor?)`
+  - [x] `ApiModule<TMeta, TResolve, TActor>` / `ApiApp<TMeta, TActor>` — прокидка actor-объекта; `GetUcActorFromMeta` удалён
+  - [x] Тесты `api-module.test.ts`, `api-app.test.ts`; `CI=true bun run check:p core` — зелёный
+- [x] Task: Специализация User в модуле app (закрытие дженерика, как в UI)
+  - [x] `packages/app/src/domain/api.ts`: `U7UseCase`, `U7ApiModule` (базовые классы), `U7ApiApp`, `U7ApiExecutor` (типы)
+  - [x] Экспорт из `@u7-scl/app/domain` и `@u7-scl/app`; тест `api.test.ts` (3 сценария)
+  - [x] `CI=true bun run check:p app` — зелёный; корневой tsc — зелёный (строки совместимы с unknown до миграции доменов)
 - [ ] Task: Conductor - Ручная верификация 'Фаза 2' (Protocol in workflow.md)
 
 ## Фаза 3. Домен user — актор-объект
 
-- [ ] Task: CmdMeta домена user: поле `actor: User`
-- [ ] Task: UC домена user — сигнатуры execute(command, actor), удалить `UserUseCase.getActor()`
-- [ ] Task: UserFacade + UserInProcFacade — `actor?: User`; module.test.ts и прочие тесты домена
+- [ ] Task: UC домена user: база `UserUseCase extends U7UseCase`, сигнатуры `execute(command, actor: User)`, удалить `getActor()`; модуль `UserApiModule extends U7ApiModule`
+- [ ] Task: UserFacade + UserInProcFacade — `actor?: User`; `#userApi: U7ApiExecutor`; тесты домена
   - [ ] `CI=true bun run check:p user` — зелёный
 - [ ] Task: Conductor - Ручная верификация 'Фаза 3' (Protocol in workflow.md)
 
 ## Фаза 4. Домены wish, course, stream, questionnaire — актор-объект
 
-- [ ] Task: wish — CmdMeta + actor, UC-сигнатуры, тесты
-- [ ] Task: course — CmdMeta + actor, UC-сигнатуры, упростить `CourseUseCase.getActor/getUser`, тесты
-- [ ] Task: stream — CmdMeta + actor, UC-сигнатуры, `StreamUseCase` (getActor-хелпер), Job/ER — фасадные вызовы с actor-объектом/undefined, тесты
-- [ ] Task: questionnaire — CmdMeta + actor, UC-сигнатуры, QuestionnaireFacade/InProc — `actor?: User`, тесты
+- [ ] Task: wish — UC `extends U7UseCase`, сигнатуры execute(actor), модуль `extends U7ApiModule`, тесты
+- [ ] Task: course — UC `extends U7UseCase`, упростить `CourseUseCase` (удалить getActor/getUser), модуль `extends U7ApiModule`, тесты
+- [ ] Task: stream — UC `extends U7UseCase`, `StreamUseCase` (getActor-хелпер), Job/ER — фасадные вызовы с actor-объектом/undefined, тесты
+- [ ] Task: questionnaire — UC `extends U7UseCase`, QuestionnaireFacade/InProc — `actor?: User`, тесты
   - [ ] `CI=true bun run check:p wish && CI=true bun run check:p course && CI=true bun run check:p stream && CI=true bun run check:p questionnaire` — зелёные (u7-bot/u7-cli красные — промежуточное состояние, чинится Фазой 5)
 - [ ] Task: Conductor - Ручная верификация 'Фаза 4' (Protocol in workflow.md)
 
 ## Фаза 5. Приложения u7-bot и u7-cli — актор-объект
 
-- [ ] Task: u7-bot — системный актор бота: резолв BOT_ADMIN в User при старте, `U7BotUiAppResolve.botAdminUuid` → объект User (main.ts, group-handler, ensure-registered)
+- [ ] Task: u7-bot — `U7BotApp = U7ApiApp<U7BotAppMeta>`; системный актор бота: резолв BOT_ADMIN в User при старте, `U7BotUiAppResolve.botAdminUuid` → объект User (main.ts, group-handler, ensure-registered)
 - [ ] Task: u7-bot — стори/контроллеры: `appApi.execute(..., actor)` вместо `actor.uuid`; фасадные вызовы с объектом
 - [ ] Task: u7-bot — тесты (юнит, интеграционные, e2e): моки execute/фасадов на actor-объекты
 - [ ] Task: u7-cli — вызовы `app.execute(..., actor)`; тесты

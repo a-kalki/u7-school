@@ -9,7 +9,6 @@ import type {
   ApiModuleMeta,
   AppEnvMode,
   ExtractUcMetaFromMeta,
-  GetUcActorFromMeta,
   GetUcNamesFromMeta,
   ModuleResolver,
 } from '#domain/types';
@@ -20,14 +19,20 @@ import type { Logger } from '#shared/logger';
  *
  * @typeParam TMeta — метаданные модуля (команды, URL, имя)
  * @typeParam TResolve — резолвер зависимостей (расширяет ModuleResolver)
+ * @typeParam TActor — тип объекта актора (например User)
  */
 export abstract class ApiModule<
   TMeta extends ApiModuleMeta,
   TResolve extends ModuleResolver,
-> implements ApiExecutor<TMeta>
+  TActor = unknown,
+> implements ApiExecutor<TMeta, TActor>
 {
   abstract readonly name: TMeta['name'];
-  abstract readonly useCases: UseCase<ApiModuleMeta['ucMetas'], TResolve>[];
+  abstract readonly useCases: UseCase<
+    ApiModuleMeta['ucMetas'],
+    TResolve,
+    TActor
+  >[];
   abstract readonly reactions: EventReaction<ErMeta, ModuleResolver>[];
   /** Задания модуля: наследники обязаны объявить явно, даже пустой список */
   abstract readonly jobs: Job[];
@@ -42,7 +47,7 @@ export abstract class ApiModule<
 
   private useCaseMap = new Map<
     string,
-    UseCase<ApiModuleMeta['ucMetas'], TResolve>
+    UseCase<ApiModuleMeta['ucMetas'], TResolve, TActor>
   >();
 
   constructor(resolve: TResolve) {
@@ -89,7 +94,7 @@ export abstract class ApiModule<
   async execute<N extends GetUcNamesFromMeta<TMeta>>(
     ucName: N,
     attrs: ExtractUcMetaFromMeta<TMeta, N>['input'],
-    actor?: GetUcActorFromMeta<TMeta>,
+    actor?: TActor,
   ): Promise<ExtractUcMetaFromMeta<TMeta, N>['output']> {
     const start = performance.now();
 

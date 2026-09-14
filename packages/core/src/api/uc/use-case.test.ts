@@ -58,7 +58,6 @@ interface TestUcMeta {
   output: { bar: string };
   errors: TestUcError;
   requiresAuth: false;
-  actor: TestActor;
   type: 'command';
 }
 
@@ -68,7 +67,7 @@ type TestResolve = {
   appResolver: typeof mockAppResolver;
 } & ModuleResolver;
 
-class TestUseCase extends UseCase<TestUcMeta, TestResolve> {
+class TestUseCase extends UseCase<TestUcMeta, TestResolve, TestActor> {
   protected readonly ucName = 'test-cmd' as const;
   protected readonly ucLabel = 'Тестовый UC' as const;
   protected readonly arMeta = {
