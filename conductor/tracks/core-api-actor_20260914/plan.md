@@ -20,15 +20,15 @@
 
 ## Фаза 2. core/api — дженерик актора
 
-- [~] Task: UcMeta.actor + UseCase (Red: тесты handle/execute/checkAuth на actor-объекте)
-  - [ ] `UcMeta<TActor = unknown>`: поле `actor: TActor`
-  - [ ] `UseCase.handle(command, actor?)`, `execute(command, actor)` с условным типом по `requiresAuth`, `checkAuth(actor?)`
-  - [ ] Обновить `use-case.test.ts`, `use-case-auth.test.ts`, `use-case-output.test.ts`, `use-case-publish-events.test.ts` на actor-объекты
-- [~] Task: ApiExecutor/ApiModule/ApiApp — прокидка actor-объекта
-  - [ ] `GetUcActorFromMeta<TMeta>` тип-хелпер в `core/domain/types.ts`
-  - [ ] `ApiExecutor<TMeta>.execute(ucName, attrs, actor?)`
-  - [ ] `ApiModule.execute(..., actor?)`, `ApiApp.execute(..., actor?)` + тесты (`api-module.test.ts`, `api-app.test.ts`)
-  - [ ] `CI=true bun run check:p core` — зелёный (домены красные — легальное промежуточное состояние, чинится Фазами 3–4)
+- [x] Task: UcMeta.actor + UseCase (Red: тесты handle/execute/checkAuth на actor-объекте) `4f1c8a5`
+  - [x] `UcMeta<TActor = unknown>`: поле `actor: TActor`
+  - [x] `UseCase.handle(command, actor?)`, `execute(command, actor)` с условным типом по `requiresAuth`, `checkAuth(actor?)`
+  - [x] Обновить `use-case.test.ts`, `use-case-auth.test.ts`, `use-case-output.test.ts`, `use-case-publish-events.test.ts`, `job.test.ts` на actor-объекты
+- [x] Task: ApiExecutor/ApiModule/ApiApp — прокидка actor-объекта `4f1c8a5`
+  - [x] `GetUcActorFromMeta<TMeta>` тип-хелпер в `core/domain/types.ts`
+  - [x] `ApiExecutor<TMeta>.execute(ucName, attrs, actor?)`
+  - [x] `ApiModule.execute(..., actor?)`, `ApiApp.execute(..., actor?)` + тесты (`api-module.test.ts`, `api-app.test.ts`)
+  - [x] `CI=true bun run check:p core` — зелёный (домены красные — легальное промежуточное состояние, чинится Фазами 3–4)
 - [ ] Task: Conductor - Ручная верификация 'Фаза 2' (Protocol in workflow.md)
 
 ## Фаза 3. Домен user — актор-объект
