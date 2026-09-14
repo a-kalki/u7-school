@@ -6,16 +6,16 @@
 
 ## Фаза 1. Канонизация User в модуле app
 
-- [~] Task: Перенести канонические схемы User в app (Red: тесты схем в app)
-  - [ ] Обновить `packages/app/src/domain/user.ts`: Role/RoleSchema/UserSchema (с `nick?`, полный набор ролей), User, UserArMeta — источник: актуальные схемы user-пакета
-  - [ ] Перенести тесты схем в app (`user.test.ts`), включив сценарии из `packages/user/src/domain/user/entity.test.ts` и `roles.test.ts` (сверить список сценариев — ничего не теряется)
-  - [ ] `CI=true bun run check:p app` — зелёный
-- [~] Task: Перевести user-пакет на реэкспорты из app
-  - [ ] `packages/user/src/domain/user/entity.ts` → реэкспорт из `@u7-scl/app/domain`
-  - [ ] `packages/user/src/domain/user/roles.ts` → реэкспорт из `@u7-scl/app/domain`
-  - [ ] Добавить зависимость `@u7-scl/app` в `packages/user/package.json`
-  - [ ] Удалить перенесённые тесты user-пакета (`entity.test.ts`, `roles.test.ts`) после сверки переноса сценариев
-  - [ ] `CI=true bun run check:p user` и `CI=true bun test apps/u7-bot` — зелёные
+- [x] Task: Перенести канонические схемы User в app (Red: тесты схем в app) `95cfc19`
+  - [x] Обновить `packages/app/src/domain/user.ts`: Role/RoleSchema/UserSchema (с `nick?`, полный набор ролей), User, UserArMeta — источник: актуальные схемы user-пакета
+  - [x] Перенести тесты схем в app (`user.test.ts`), включив сценарии из `packages/user/src/domain/user/entity.test.ts` и `roles.test.ts` (сверить список сценариев — ничего не теряется)
+  - [x] `CI=true bun run check:p app` — зелёный
+- [x] Task: Перевести user-пакет на реэкспорты из app `95cfc19`
+  - [x] `packages/user/src/domain/user/entity.ts` → реэкспорт из `@u7-scl/app/domain`
+  - [x] `packages/user/src/domain/user/roles.ts` → реэкспорт из `@u7-scl/app/domain`
+  - [x] Добавить зависимость `@u7-scl/app` в `packages/user/package.json`
+  - [x] Удалить перенесённые тесты user-пакета (`entity.test.ts`, `roles.test.ts`) после сверки переноса сценариев
+  - [x] `CI=true bun run check:p user` и `CI=true bun test apps/u7-bot` — зелёные
 - [ ] Task: Conductor - Ручная верификация 'Фаза 1' (Protocol in workflow.md)
 
 ## Фаза 2. core/api — дженерик актора
