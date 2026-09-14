@@ -58,11 +58,11 @@
 
 ## Фаза 5. Приложения u7-bot и u7-cli — актор-объект
 
-- [ ] Task: u7-bot — `U7BotApp = U7ApiApp<U7BotAppMeta>`; системный актор бота: резолв BOT_ADMIN в User при старте, `U7BotUiAppResolve.botAdminUuid` → объект User (main.ts, group-handler, ensure-registered)
-- [ ] Task: u7-bot — стори/контроллеры: `appApi.execute(..., actor)` вместо `actor.uuid`; фасадные вызовы с объектом
-- [ ] Task: u7-bot — тесты (юнит, интеграционные, e2e): моки execute/фасадов на actor-объекты
-- [ ] Task: u7-cli — вызовы `app.execute(..., actor)`; тесты
-  - [ ] `CI=true bun run check:a u7-bot && CI=true bun run check:a u7-cli` — зелёные
+- [x] Task: u7-bot — `U7BotApp = U7ApiApp<U7BotAppMeta>`; системный актор бота: botAdminUser (User) резолвится при старте (main.ts + async createUiApp), `U7BotUiAppResolve.botAdminUser` (group-handler, ensure-registered) `f891d7a`
+- [x] Task: u7-bot — стори/контроллеры: `appApi.execute(..., actor)` вместо `actor.uuid`; фасадные вызовы с объектом; getStudent(appApi, actor) `f891d7a`
+- [x] Task: u7-bot — тесты (юнит, интеграционные, e2e): моки execute/фасадов на actor-объекты (655/655) `f891d7a`
+- [x] Task: u7-cli — `currentActor: User` (полный объект через get-user при /login); scripts — resolveActor() в _app-factory `f891d7a`
+  - [x] Полный гейт репозитория `CI=true bun run check` — зелёный: 2092 теста / 0 fail, biome + tsc чисты
 - [ ] Task: Conductor - Ручная верификация 'Фаза 5' (Protocol in workflow.md)
 
 ## Фаза 6. Чистка, документация, финализация
