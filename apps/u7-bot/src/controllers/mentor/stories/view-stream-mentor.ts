@@ -73,22 +73,22 @@ export class ViewStreamMentorStory extends ViewStreamStory {
     const rows: KbButton[][] = [];
 
     // ── Публичные кнопки (всем) ──
+
+    // Информационные кнопки о курсе — рядом, первой строкой
+    // (единый вид со студенческой карточкой ViewStreamStory)
     rows.push([
       this.btn(
         '📖 Программа курса',
         this.cbFor('view-stream-mentor', 'program', stream.uuid),
       ),
-    ]);
-
-    rows.push([
-      this.btn('👥 Студенты', this.cbFor('monitor', 'students', stream.uuid)),
-    ]);
-
-    rows.push([
       this.btn(
         '📋 Детали',
         this.cbFor('view-stream-mentor', 'details', stream.uuid),
       ),
+    ]);
+
+    rows.push([
+      this.btn('👥 Студенты', this.cbFor('monitor', 'students', stream.uuid)),
     ]);
 
     // ── Lifecycle-кнопки (только для владельца / ADMIN) ──
