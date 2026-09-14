@@ -67,8 +67,8 @@
 
 ## Фаза 6. Чистка, документация, финализация
 
-- [ ] Task: Полный гейт: `CI=true bun run check` по репозиторию — зелёный
-- [ ] Task: Чистка остатков actorId (rg-аудит по ФР/КП спеки)
-- [ ] Task: Обновить styleguides: `conductor/code_styleguides/skills/usecase.md`, `facade.md`, `domain-boundaries.md`, `architecture.md` — паттерн actor-объекта
-- [ ] Task: summary.md трека + реестр tracks.md
+- [x] Task: Полный гейт: `CI=true bun run check` по репозиторию — зелёный (2092 теста / 0 fail, biome + tsc) `f891d7a`
+- [x] Task: Чистка остатков actorId (rg-аудит) — докстринги/мок-подписи обновлены; остались только локальные uuid-переменные тестов (легитимно) `fde497bd`
+- [x] Task: Обновить styleguides: `skills/usecase.md`, `skills/facade.md`, `architecture.md` — паттерн actor-объекта (в domain-boundaries.md правок не потребовалось) `fde497bd`
+- [x] Task: summary.md трека + реестр tracks.md + metadata.json (status: done)
 - [ ] Task: Conductor - Ручная верификация 'Фаза 6' (Protocol in workflow.md)
