@@ -41,7 +41,7 @@ describe('UserApiModule + UserJsonRepo', () => {
     const result = await mod.execute(
       'create-user',
       { name: 'Студент', telegramId: 2, roles: [Role.STUDENT] },
-      admin.uuid,
+      admin,
     );
     expect((result as User).roles).toEqual([Role.STUDENT]);
 

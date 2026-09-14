@@ -25,8 +25,7 @@ export class RegisterGuestUc extends UserUseCase<RegisterGuestCmdMeta> {
   protected readonly inputSchema = RegisterGuestCmdSchema;
   protected readonly outputSchema = UserSchema;
 
-  async execute(command: RegisterGuestCmd, actorId: string): Promise<User> {
-    const actor = await this.getActor(actorId);
+  async execute(command: RegisterGuestCmd, actor: User): Promise<User> {
     if (!actor.roles.includes(Role.ADMIN)) {
       this.throwAccessDenied(
         'Только администратор может регистрировать гостей',

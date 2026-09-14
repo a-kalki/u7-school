@@ -51,12 +51,11 @@ describe('AddRoleToUserUc', () => {
       const admin = makeUser();
       const target = makeUser({ roles: [Role.STUDENT], telegramId: 2 });
 
-      getByUuid.mockResolvedValueOnce(admin);
       getByUuid.mockResolvedValueOnce(target);
 
       const user = await uc.handle(
         { userId: target.uuid, role: Role.MENTOR },
-        admin.uuid,
+        admin,
       );
 
       expect(user.roles).toEqual([Role.STUDENT, Role.MENTOR]);
@@ -71,12 +70,11 @@ describe('AddRoleToUserUc', () => {
         telegramId: 2,
       });
 
-      getByUuid.mockResolvedValueOnce(admin);
       getByUuid.mockResolvedValueOnce(target);
 
       const user = await uc.handle(
         { userId: target.uuid, role: Role.MENTOR },
-        admin.uuid,
+        admin,
       );
 
       expect(user.roles).toEqual([Role.STUDENT, Role.MENTOR]);
@@ -89,14 +87,10 @@ describe('AddRoleToUserUc', () => {
       const { getByUuid, uc } = setupUc();
       const admin = makeUser();
 
-      getByUuid.mockResolvedValueOnce(admin);
       getByUuid.mockResolvedValueOnce(undefined);
 
       await expect(
-        uc.handle(
-          { userId: crypto.randomUUID(), role: Role.MENTOR },
-          admin.uuid,
-        ),
+        uc.handle({ userId: crypto.randomUUID(), role: Role.MENTOR }, admin),
       ).rejects.toThrow('Пользователь не найден');
     });
 
@@ -105,11 +99,10 @@ describe('AddRoleToUserUc', () => {
       const student = makeUser({ roles: [Role.STUDENT], telegramId: 2 });
       const target = makeUser({ roles: [Role.STUDENT], telegramId: 3 });
 
-      getByUuid.mockResolvedValueOnce(student);
       getByUuid.mockResolvedValueOnce(target);
 
       await expect(
-        uc.handle({ userId: target.uuid, role: Role.MENTOR }, student.uuid),
+        uc.handle({ userId: target.uuid, role: Role.MENTOR }, student),
       ).rejects.toThrow('Недостаточно прав для выполнения действия');
     });
 
@@ -118,10 +111,9 @@ describe('AddRoleToUserUc', () => {
       const student = makeUser({ roles: [Role.STUDENT], telegramId: 2 });
 
       getByUuid.mockResolvedValueOnce(student);
-      getByUuid.mockResolvedValueOnce(student);
 
       await expect(
-        uc.handle({ userId: student.uuid, role: Role.MENTOR }, student.uuid),
+        uc.handle({ userId: student.uuid, role: Role.MENTOR }, student),
       ).rejects.toThrow('Недостаточно прав для выполнения действия');
     });
 
@@ -134,13 +126,11 @@ describe('AddRoleToUserUc', () => {
     });
 
     test('отклоняет невалидную команду', async () => {
-      const { getByUuid, uc } = setupUc();
+      const { uc } = setupUc();
       const admin = makeUser();
 
-      getByUuid.mockResolvedValueOnce(admin);
-
       await expect(
-        uc.handle({ userId: 'bad', role: 'UNKNOWN' as Role }, admin.uuid),
+        uc.handle({ userId: 'bad', role: 'UNKNOWN' as Role }, admin),
       ).rejects.toThrow('Переданы некорректные данные');
     });
   });

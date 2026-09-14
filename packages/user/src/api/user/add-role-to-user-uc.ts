@@ -25,10 +25,8 @@ export class AddRoleToUserUc extends UserUseCase<AddRoleToUserCmdMeta> {
   protected readonly inputSchema = AddRoleToUserCmdSchema;
   protected readonly outputSchema = UserSchema;
 
-  async execute(command: AddRoleToUserCmd, actorId: string): Promise<User> {
+  async execute(command: AddRoleToUserCmd, actor: User): Promise<User> {
     const repo = this.resolve.userRepo;
-
-    const actor = await this.getActor(actorId);
 
     const target = await repo.getByUuid(command.userId);
     if (!target) {

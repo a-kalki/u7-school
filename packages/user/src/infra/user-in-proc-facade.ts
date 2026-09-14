@@ -15,12 +15,9 @@ export class UserInProcFacade implements UserFacade {
     this.#userApi = userApi;
   }
 
-  async getUserByUuid(
-    uuid: string,
-    actorId?: string,
-  ): Promise<User | undefined> {
+  async getUserByUuid(uuid: string, actor?: User): Promise<User | undefined> {
     try {
-      const result = await this.#userApi.execute('get-user', { uuid }, actorId);
+      const result = await this.#userApi.execute('get-user', { uuid }, actor);
       return result as User;
     } catch (err) {
       if (err instanceof AppException && err.error.kind === 'not-found') {
@@ -30,48 +27,40 @@ export class UserInProcFacade implements UserFacade {
     }
   }
 
-  async userExists(uuid: string, actorId?: string): Promise<boolean> {
-    const user = await this.getUserByUuid(uuid, actorId);
+  async userExists(uuid: string, actor?: User): Promise<boolean> {
+    const user = await this.getUserByUuid(uuid, actor);
     return user !== undefined;
   }
 
   async updateUserRole(
     userId: string,
     role: Role,
-    actorId?: string,
+    actor?: User,
   ): Promise<void> {
-    await this.#userApi.execute('add-role-to-user', { userId, role }, actorId);
+    await this.#userApi.execute('add-role-to-user', { userId, role }, actor);
   }
 
-  async addRoleToUser(
-    userId: string,
-    role: Role,
-    actorId?: string,
-  ): Promise<void> {
-    await this.#userApi.execute('add-role-to-user', { userId, role }, actorId);
+  async addRoleToUser(userId: string, role: Role, actor?: User): Promise<void> {
+    await this.#userApi.execute('add-role-to-user', { userId, role }, actor);
   }
 
   async removeRoleFromUser(
     userId: string,
     role: Role,
-    actorId?: string,
+    actor?: User,
   ): Promise<void> {
-    await this.#userApi.execute(
-      'remove-role-to-user',
-      { userId, role },
-      actorId,
-    );
+    await this.#userApi.execute('remove-role-to-user', { userId, role }, actor);
   }
 
   async getUserByTelegramId(
     telegramId: number,
-    actorId?: string,
+    actor?: User,
   ): Promise<User | undefined> {
     try {
       const result = await this.#userApi.execute(
         'get-user-by-telegram-id',
         { telegramId },
-        actorId,
+        actor,
       );
       return result as User;
     } catch (err) {
@@ -85,13 +74,13 @@ export class UserInProcFacade implements UserFacade {
   async registerGuest(
     telegramId: number,
     name: string,
-    actorId?: string,
     nick?: string,
+    actor?: User,
   ): Promise<User> {
     const result = await this.#userApi.execute(
       'register-guest',
       { telegramId, name, nick },
-      actorId,
+      actor,
     );
     return result as User;
   }
@@ -100,8 +89,8 @@ export class UserInProcFacade implements UserFacade {
     userId: string,
     text: string,
     kind?: NotifyKind,
-    actorId?: string,
+    actor?: User,
   ): Promise<void> {
-    await this.#userApi.execute('notify-user', { userId, text, kind }, actorId);
+    await this.#userApi.execute('notify-user', { userId, text, kind }, actor);
   }
 }

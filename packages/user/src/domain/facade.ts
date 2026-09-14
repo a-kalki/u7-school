@@ -6,39 +6,38 @@ import type { Role } from './user/roles';
  * Фасад модуля пользователей для внешних модулей.
  * Предоставляет методы получения информации о пользователях,
  * не раскрывая внутреннее устройство модуля @u7-scl/user.
+ *
+ * actor — готовый объект актора (User): резолвится на входе приложения
+ * и передаётся через appApi.execute до use-case.
  */
 export interface UserFacade {
   /** Получить пользователя по UUID */
-  getUserByUuid(uuid: string, actorId?: string): Promise<User | undefined>;
+  getUserByUuid(uuid: string, actor?: User): Promise<User | undefined>;
 
   /** Проверить, существует ли пользователь с указанным UUID */
-  userExists(uuid: string, actorId?: string): Promise<boolean>;
+  userExists(uuid: string, actor?: User): Promise<boolean>;
 
   /** Добавить роль пользователю */
-  addRoleToUser(userId: string, role: Role, actorId?: string): Promise<void>;
+  addRoleToUser(userId: string, role: Role, actor?: User): Promise<void>;
 
   /** Обновить роль пользователя (заменить все роли на одну) */
-  updateUserRole(userId: string, role: Role, actorId?: string): Promise<void>;
+  updateUserRole(userId: string, role: Role, actor?: User): Promise<void>;
 
   /** Получить пользователя по Telegram ID */
   getUserByTelegramId(
     telegramId: number,
-    actorId?: string,
+    actor?: User,
   ): Promise<User | undefined>;
 
   /** Удалить роль у пользователя */
-  removeRoleFromUser(
-    userId: string,
-    role: Role,
-    actorId?: string,
-  ): Promise<void>;
+  removeRoleFromUser(userId: string, role: Role, actor?: User): Promise<void>;
 
   /** Зарегистрировать гостя по telegramId и имени (создаст, если нет) */
   registerGuest(
     telegramId: number,
     name: string,
-    actorId?: string,
     nick?: string,
+    actor?: User,
   ): Promise<User>;
 
   /**
@@ -55,6 +54,6 @@ export interface UserFacade {
     userId: string,
     text: string,
     kind?: NotifyKind,
-    actorId?: string,
+    actor?: User,
   ): Promise<void>;
 }

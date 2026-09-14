@@ -25,10 +25,8 @@ export class RemoveRoleToUserUc extends UserUseCase<RemoveRoleToUserCmdMeta> {
   protected readonly inputSchema = RemoveRoleToUserCmdSchema;
   protected readonly outputSchema = UserSchema;
 
-  async execute(command: RemoveRoleToUserCmd, actorId: string): Promise<User> {
+  async execute(command: RemoveRoleToUserCmd, actor: User): Promise<User> {
     const repo = this.resolve.userRepo;
-
-    const actor = await this.getActor(actorId);
 
     const target = await repo.getByUuid(command.userId);
     if (!target) {

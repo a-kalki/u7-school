@@ -1,5 +1,5 @@
+import { U7ApiModule } from '@u7-scl/app/domain';
 import type { ErMeta, EventReaction } from '@u7-scl/core/api';
-import { ApiModule } from '@u7-scl/core/api';
 import type { UserApiModuleMeta, UserApiModuleResolver } from '#domain/module';
 import { AddRoleToUserUc } from './user/add-role-to-user-uc';
 import { CreateUserUc } from './user/create-user-uc';
@@ -10,7 +10,7 @@ import { NotifyUserUc } from './user/notify-user-uc';
 import { RegisterGuestUc } from './user/register-guest-uc';
 import { RemoveRoleToUserUc } from './user/remove-role-to-user-uc';
 
-export class UserApiModule extends ApiModule<
+export class UserApiModule extends U7ApiModule<
   UserApiModuleMeta,
   UserApiModuleResolver
 > {

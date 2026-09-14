@@ -1,4 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { Role } from '#domain/user/roles';
 import { UserInProcFacade } from './user-in-proc-facade';
 
 const userId = '550e8400-e29b-41d4-a716-446655440000';
@@ -24,17 +25,23 @@ describe('UserInProcFacade.notify', () => {
     );
   });
 
-  test('передаёт kind и actorId, если они указаны', async () => {
+  test('передаёт kind и actor, если они указаны', async () => {
     const mod = makeMockModule();
     const facade = new UserInProcFacade(mod as never);
-    const actorId = '11111111-1111-4111-8111-111111111111';
+    const actor = {
+      uuid: '11111111-1111-4111-8111-111111111111',
+      name: 'Иван',
+      telegramId: 1,
+      roles: [Role.ADMIN],
+      createdAt: '2026-05-01T12:00',
+    };
 
-    await facade.notify(userId, 'Текст', 'warn', actorId);
+    await facade.notify(userId, 'Текст', 'warn', actor);
 
     expect(mod.execute).toHaveBeenCalledWith(
       'notify-user',
       { userId, text: 'Текст', kind: 'warn' },
-      actorId,
+      actor,
     );
   });
 

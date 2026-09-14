@@ -63,10 +63,9 @@ describe('CreateUserUc', () => {
       const { getByUuid, uc } = setupUc();
       const admin = makeUser();
 
-      getByUuid.mockResolvedValueOnce(admin);
       const user = await uc.handle(
         { name: 'Студент', telegramId: 2, roles: [Role.STUDENT] },
-        admin.uuid,
+        admin,
       );
 
       expect(user.roles).toEqual([Role.STUDENT]);
@@ -76,11 +75,9 @@ describe('CreateUserUc', () => {
       const { getByUuid, save, uc } = setupUc();
       const admin = makeUser();
 
-      getByUuid.mockResolvedValueOnce(admin);
-
       const user = await uc.handle(
         { name: 'Новый студент', telegramId: 2, roles: [Role.STUDENT] },
-        admin.uuid,
+        admin,
       );
 
       expect(user.roles).toEqual([Role.STUDENT]);
@@ -94,25 +91,19 @@ describe('CreateUserUc', () => {
       const { getByUuid, isTelegramIdTaken, uc } = setupUc();
       const admin = makeUser();
 
-      getByUuid.mockResolvedValueOnce(admin);
       isTelegramIdTaken.mockResolvedValueOnce(true);
 
       await expect(
-        uc.handle(
-          { name: 'Б', telegramId: 1, roles: [Role.STUDENT] },
-          admin.uuid,
-        ),
+        uc.handle({ name: 'Б', telegramId: 1, roles: [Role.STUDENT] }, admin),
       ).rejects.toThrow('Пользователь с таким telegramId уже существует');
     });
 
     test('отклоняет невалидную команду', async () => {
-      const { getByUuid, uc } = setupUc();
+      const { uc } = setupUc();
       const admin = makeUser();
 
-      getByUuid.mockResolvedValueOnce(admin);
-
       await expect(
-        uc.handle({ name: '', telegramId: -1, roles: [] }, admin.uuid),
+        uc.handle({ name: '', telegramId: -1, roles: [] }, admin),
       ).rejects.toThrow('Переданы некорректные данные');
     });
 
@@ -128,12 +119,10 @@ describe('CreateUserUc', () => {
       const { getByUuid, uc } = setupUc();
       const student = makeUser({ roles: [Role.STUDENT], telegramId: 2 });
 
-      getByUuid.mockResolvedValueOnce(student);
-
       await expect(
         uc.handle(
           { name: 'Хакер', telegramId: 3, roles: [Role.ADMIN] },
-          student.uuid,
+          student,
         ),
       ).rejects.toThrow('Недостаточно прав для создания пользователя');
     });

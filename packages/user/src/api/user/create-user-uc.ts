@@ -27,10 +27,9 @@ export class CreateUserUc extends UserUseCase<CreateUserCmdMeta> {
   protected readonly inputSchema = CreateUserCmdSchema;
   protected readonly outputSchema = UserSchema;
 
-  async execute(command: CreateUserCmd, actorId: string): Promise<User> {
+  async execute(command: CreateUserCmd, actor: User): Promise<User> {
     const repo = this.resolve.userRepo;
 
-    const actor = await this.getActor(actorId);
     if (!UserPolicy.canCreate(actor)) {
       this.throwAccessDenied('Недостаточно прав для создания пользователя');
     }

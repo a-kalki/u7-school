@@ -20,6 +20,13 @@ describe('RegisterGuestUc', () => {
   let apiApp: ApiApp<any>;
   let tmpDir: string;
   const adminUuid = '00000000-0000-4000-a000-000000000000';
+  const adminUser = {
+    uuid: adminUuid,
+    name: 'Admin',
+    telegramId: 1,
+    roles: [Role.ADMIN],
+    createdAt: '2024-01-01T00:00',
+  };
 
   beforeEach(async () => {
     tmpDir = mkdtempSync('/tmp/user-reg-test-');
@@ -57,7 +64,7 @@ describe('RegisterGuestUc', () => {
     const result = (await apiApp.execute(
       'register-guest',
       { telegramId: 12345, name: 'Ivan' },
-      adminUuid,
+      adminUser,
     )) as any;
 
     expect(result.telegramId).toBe(12345);
@@ -69,7 +76,7 @@ describe('RegisterGuestUc', () => {
     const result = (await apiApp.execute(
       'register-guest',
       { telegramId: 12345, name: 'Ivan', nick: 'ivan_tg' },
-      adminUuid,
+      adminUser,
     )) as any;
 
     expect(result.nick).toBe('ivan_tg');
@@ -79,7 +86,7 @@ describe('RegisterGuestUc', () => {
     const result = (await apiApp.execute(
       'register-guest',
       { telegramId: 12345, name: 'Ivan' },
-      adminUuid,
+      adminUser,
     )) as any;
 
     expect(result.nick).toBeUndefined();
@@ -101,7 +108,7 @@ describe('RegisterGuestUc', () => {
     const result = (await apiApp.execute(
       'register-guest',
       { telegramId: 12345, name: 'New Name' },
-      adminUuid,
+      adminUser,
     )) as any;
 
     expect(result.uuid).toBe(userUuid);
@@ -124,7 +131,13 @@ describe('RegisterGuestUc', () => {
     const promise = apiApp.execute(
       'register-guest',
       { telegramId: 12345, name: 'Ivan' },
-      userUuid,
+      {
+        uuid: userUuid,
+        name: 'User',
+        telegramId: 999,
+        roles: [Role.GUEST],
+        createdAt: '2024-01-01T00:00',
+      },
     );
 
     expect(promise).rejects.toThrow('Только администратор');

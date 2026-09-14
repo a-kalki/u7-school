@@ -25,6 +25,12 @@ export class GetUserUc extends UserUseCase<GetUserCmdMeta> {
   protected readonly outputSchema = UserSchema;
 
   async execute(command: GetUserCmd): Promise<User> {
-    return this.getActor(command.uuid);
+    const user = await this.resolve.userRepo.getByUuid(command.uuid);
+    if (!user) {
+      this.throwNotFound('USER_NOT_FOUND', 'Пользователь не найден', {
+        uuid: command.uuid,
+      });
+    }
+    return user;
   }
 }
