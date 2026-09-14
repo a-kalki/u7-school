@@ -758,7 +758,8 @@ describe('BotTransport — рендер-политика', () => {
     const sends = callsOf(api.sendMessage);
     expect(sends.at(-1)?.[1]).toBe('ℹ️ *Информация:*\n\nⓘ Подсказка');
     expect(
-      (sends.at(-1)?.[2] as { reply_markup?: unknown }).reply_markup,
+      (sends.at(-1)?.[2] as { reply_markup?: unknown } | undefined)
+        ?.reply_markup,
     ).toBeUndefined();
     expect(callsOf(api.editMessageText).length).toBe(0);
     expect(session.screen).toBe(screenBefore);
@@ -1295,17 +1296,21 @@ describe('BotTransport — сжатие UUID', () => {
     await transport.handleCommand(makeCommandCtx('/start'));
     const sent = callsOf(api.sendMessage)[0];
     const kbSent = (
-      sent?.[2] as {
-        reply_markup: { inline_keyboard: { callback_data: string }[][] };
-      }
-    ).reply_markup.inline_keyboard;
-    expect(kbSent[0]?.[0]?.callback_data).toBe('stream:view:~a1b2c3d4:~1');
-    expect(kbSent[1]?.[0]?.callback_data).toBe('stream:view:~a1b2c3d4-1:~1');
+      sent?.[2] as
+        | {
+            reply_markup?: {
+              inline_keyboard: { callback_data: string }[][];
+            };
+          }
+        | undefined
+    )?.reply_markup?.inline_keyboard;
+    expect(kbSent?.[0]?.[0]?.callback_data).toBe('stream:view:~a1b2c3d4:~1');
+    expect(kbSent?.[1]?.[0]?.callback_data).toBe('stream:view:~a1b2c3d4-1:~1');
 
     await transport.handleCallback(
       makeCtx({
         callbackQuery: {
-          data: kbSent[1]?.[0]?.callback_data,
+          data: kbSent?.[1]?.[0]?.callback_data,
         } as BotContext['callbackQuery'],
       }),
     );

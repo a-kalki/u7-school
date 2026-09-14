@@ -58,41 +58,57 @@ describe('CourseCatalogStory', () => {
       }>
     > = {},
     steps: Record<string, Array<{ uuid: string; description: string }>> = {},
+    wishes: Array<{
+      userId: string;
+      target:
+        | { kind: 'course'; courseId: string }
+        | { kind: 'module'; moduleId: string };
+      status: string;
+    }> = [],
   ) {
     return {
-      execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
-        if (ucName === 'list-courses') return courses;
-        if (ucName === 'get-course') {
-          const found = courses.find((c) => c.uuid === attrs.uuid);
-          if (!found)
-            throw Object.assign(new Error('Курс не найден'), {
-              name: 'COURSE_NOT_FOUND',
-            });
-          return found;
-        }
-        if (ucName === 'get-module') {
-          const mod = modules[attrs.uuid as string];
-          if (!mod)
-            throw Object.assign(new Error('Модуль не найден'), {
-              name: 'MODULE_NOT_FOUND',
-            });
-          return mod;
-        }
-        if (ucName === 'get-module-snapshot') {
-          return snapshots[attrs.moduleId as string] ?? [];
-        }
-        if (ucName === 'get-steps-by-lessons') {
-          const result: Record<
-            string,
-            Array<{ uuid: string; description: string }>
-          > = {};
-          for (const id of attrs.lessonIds as string[]) {
-            if (steps[id]) result[id] = steps[id]!;
+      execute: mock(
+        async (
+          ucName: string,
+          attrs: Record<string, unknown>,
+          actorId?: string,
+        ) => {
+          if (ucName === 'list-courses') return courses;
+          if (ucName === 'list-user-wishes') {
+            return wishes.filter((w) => w.userId === actorId);
           }
-          return result;
-        }
-        return undefined;
-      }),
+          if (ucName === 'get-course') {
+            const found = courses.find((c) => c.uuid === attrs.uuid);
+            if (!found)
+              throw Object.assign(new Error('Курс не найден'), {
+                name: 'COURSE_NOT_FOUND',
+              });
+            return found;
+          }
+          if (ucName === 'get-module') {
+            const mod = modules[attrs.uuid as string];
+            if (!mod)
+              throw Object.assign(new Error('Модуль не найден'), {
+                name: 'MODULE_NOT_FOUND',
+              });
+            return mod;
+          }
+          if (ucName === 'get-module-snapshot') {
+            return snapshots[attrs.moduleId as string] ?? [];
+          }
+          if (ucName === 'get-steps-by-lessons') {
+            const result: Record<
+              string,
+              Array<{ uuid: string; description: string }>
+            > = {};
+            for (const id of attrs.lessonIds as string[]) {
+              if (steps[id]) result[id] = steps[id]!;
+            }
+            return result;
+          }
+          return undefined;
+        },
+      ),
     };
   }
 
@@ -405,6 +421,11 @@ describe('CourseCatalogStory', () => {
     const text = String(response.screen?.text ?? '');
 
     expect(text).toContain('Модуль: Модуль X');
+    expect(text).toContain('Проект: ToDo App');
+    expect(text).toContain('Урок: HTML разметка');
+    expect(text).toContain('Урок: CSS стили');
+    expect(text).toContain('Проект: Chat');
+    expect(text).toContain('Урок: WebSocket');
     expect(text).toContain('ToDo App');
     expect(text).toContain('HTML разметка');
     expect(text).toContain('CSS стили');
@@ -727,21 +748,35 @@ describe('CourseCatalogStory', () => {
       };
     }
 
-    function makeCatalogApi() {
-      return makeAppApi([
-        {
-          uuid: courseId,
-          title: 'JS Basics',
-          description: '...',
-          authorId: 'a',
-          phases: [{ title: 'Синтаксис', track: 'tech', moduleIds: [] }],
-          status: 'published',
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ]);
+    function makeCatalogApi(
+      wishes: Array<{
+        userId: string;
+        target:
+          | { kind: 'course'; courseId: string }
+          | { kind: 'module'; moduleId: string };
+        status: string;
+      }> = [],
+    ) {
+      return makeAppApi(
+        [
+          {
+            uuid: courseId,
+            title: 'JS Basics',
+            description: '...',
+            authorId: 'a',
+            phases: [{ title: 'Синтаксис', track: 'tech', moduleIds: [] }],
+            status: 'published',
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        {},
+        {},
+        {},
+        wishes,
+      );
     }
 
-    test('list: кнопка «🎓 Хочу пройти курс» на карточке курса', async () => {
+    test('list: кнопка «🎓 Хочу пройти курс» на карточке курса (желания нет)', async () => {
       const appApi = makeCatalogApi();
       const story = new CourseCatalogStory();
       initStory(story, appApi);
@@ -755,6 +790,110 @@ describe('CourseCatalogStory', () => {
         .find((b) => b.text.includes('Хочу пройти курс'));
       expect(applyBtn).toBeDefined();
       expect(applyBtn!.code).toBe(`course-catalog:apply:${courseId}`);
+    });
+
+    test('list: expressed-желание → кнопка «🗑️ Отменить желание» (W05)', async () => {
+      const appApi = makeCatalogApi([
+        {
+          userId: actor.uuid,
+          target: { kind: 'course', courseId },
+          status: 'expressed',
+        },
+      ]);
+      const story = new CourseCatalogStory();
+      initStory(story, appApi);
+
+      const response = await story.handleCallback('list', actor, session);
+      const buttons = (response.screen?.keyboard?.rows ?? []).flat();
+
+      expect(
+        buttons.some(
+          (b) =>
+            b.text.includes('Отменить желание') &&
+            b.code === `course-catalog:cancel:${courseId}`,
+        ),
+      ).toBe(true);
+      expect(buttons.some((b) => b.text.includes('Хочу пройти курс'))).toBe(
+        false,
+      );
+    });
+
+    test('list: confirmed-желание → кнопка «🗑️ Отменить желание»', async () => {
+      const appApi = makeCatalogApi([
+        {
+          userId: actor.uuid,
+          target: { kind: 'course', courseId },
+          status: 'confirmed',
+        },
+      ]);
+      const story = new CourseCatalogStory();
+      initStory(story, appApi);
+
+      const response = await story.handleCallback('list', actor, session);
+      const buttons = (response.screen?.keyboard?.rows ?? []).flat();
+
+      expect(buttons.some((b) => b.text.includes('Отменить желание'))).toBe(
+        true,
+      );
+    });
+
+    test('list: pending-желание → кнопка «📝 Продолжить анкету»', async () => {
+      const appApi = makeCatalogApi([
+        {
+          userId: actor.uuid,
+          target: { kind: 'course', courseId },
+          status: 'pending',
+        },
+      ]);
+      const story = new CourseCatalogStory();
+      initStory(story, appApi);
+
+      const response = await story.handleCallback('list', actor, session);
+      const buttons = (response.screen?.keyboard?.rows ?? []).flat();
+
+      const resumeBtn = buttons.find((b) =>
+        b.text.includes('Продолжить анкету'),
+      );
+      expect(resumeBtn).toBeDefined();
+      expect(resumeBtn!.code).toBe(`questionnaire:fill:resume:${courseId}`);
+    });
+
+    test('list: fulfilled-желание (обучение) → обычная кнопка «Хочу пройти курс»', async () => {
+      const appApi = makeCatalogApi([
+        {
+          userId: actor.uuid,
+          target: { kind: 'course', courseId },
+          status: 'fulfilled',
+        },
+      ]);
+      const story = new CourseCatalogStory();
+      initStory(story, appApi);
+
+      const response = await story.handleCallback('list', actor, session);
+      const buttons = (response.screen?.keyboard?.rows ?? []).flat();
+
+      expect(buttons.some((b) => b.text.includes('Хочу пройти курс'))).toBe(
+        true,
+      );
+    });
+
+    test('list: желание другого пользователя не влияет на кнопки', async () => {
+      const appApi = makeCatalogApi([
+        {
+          userId: 'other-user',
+          target: { kind: 'course', courseId },
+          status: 'expressed',
+        },
+      ]);
+      const story = new CourseCatalogStory();
+      initStory(story, appApi);
+
+      const response = await story.handleCallback('list', actor, session);
+      const buttons = (response.screen?.keyboard?.rows ?? []).flat();
+
+      expect(buttons.some((b) => b.text.includes('Хочу пройти курс'))).toBe(
+        true,
+      );
     });
 
     test('apply instant: вызывает create-course-wish и рендерит W03', async () => {
@@ -804,69 +943,75 @@ describe('CourseCatalogStory', () => {
       expect(response.notify).toBeUndefined();
     });
 
-    test.each([
-      'expressed',
-      'confirmed',
-    ] as const)('apply конфликт %s: W04 с кнопкой отмены и меню', async (status) => {
-      const { errConflict, AppException } = await import('@u7-scl/core/domain');
-      const error = new AppException(
-        errConflict('WISH_ALREADY_EXISTS', 'Желание уже выражено', {
-          userId: actor.uuid,
-          courseId,
-          status,
-        }),
-      );
-      const appApi = makeApplyApi(undefined, error);
-      const story = new CourseCatalogStory();
-      initStory(story, appApi as never);
+    test.each(['expressed', 'confirmed'] as const)(
+      'apply конфликт %s: W04 с кнопкой отмены и меню',
+      async (status) => {
+        const { errConflict, AppException } = await import(
+          '@u7-scl/core/domain'
+        );
+        const error = new AppException(
+          errConflict('WISH_ALREADY_EXISTS', 'Желание уже выражено', {
+            userId: actor.uuid,
+            courseId,
+            status,
+          }),
+        );
+        const appApi = makeApplyApi(undefined, error);
+        const story = new CourseCatalogStory();
+        initStory(story, appApi as never);
 
-      const response = await story.handleCallback(
-        `apply:${courseId}`,
-        actor,
-        session,
-      );
-      assertDialogResponseMarkdownSafe(response);
+        const response = await story.handleCallback(
+          `apply:${courseId}`,
+          actor,
+          session,
+        );
+        assertDialogResponseMarkdownSafe(response);
 
-      const text = String(response.screen?.text ?? '');
-      expect(text).not.toContain('⚠️');
-      const rows = response.screen?.keyboard?.rows ?? [];
-      const flat = rows.flat();
-      expect(flat.some((b) => b.text.includes('Отменить желание'))).toBe(true);
-      expect(
-        flat.some((b) => b.code === `course-catalog:cancel:${courseId}`),
-      ).toBe(true);
-      expect(flat.some((b) => b.code === Routes.app.mainMenu)).toBe(true);
-    });
+        const text = String(response.screen?.text ?? '');
+        expect(text).not.toContain('⚠️');
+        const rows = response.screen?.keyboard?.rows ?? [];
+        const flat = rows.flat();
+        expect(flat.some((b) => b.text.includes('Отменить желание'))).toBe(
+          true,
+        );
+        expect(
+          flat.some((b) => b.code === `course-catalog:cancel:${courseId}`),
+        ).toBe(true);
+        expect(flat.some((b) => b.code === Routes.app.mainMenu)).toBe(true);
+      },
+    );
 
-    test.each([
-      'expressed',
-      'confirmed',
-    ] as const)('apply конфликт %s: текст ветвится', async (status) => {
-      const { errConflict, AppException } = await import('@u7-scl/core/domain');
-      const error = new AppException(
-        errConflict('WISH_ALREADY_EXISTS', 'Желание уже выражено', {
-          userId: actor.uuid,
-          courseId,
-          status,
-        }),
-      );
-      const appApi = makeApplyApi(undefined, error);
-      const story = new CourseCatalogStory();
-      initStory(story, appApi as never);
+    test.each(['expressed', 'confirmed'] as const)(
+      'apply конфликт %s: текст ветвится',
+      async (status) => {
+        const { errConflict, AppException } = await import(
+          '@u7-scl/core/domain'
+        );
+        const error = new AppException(
+          errConflict('WISH_ALREADY_EXISTS', 'Желание уже выражено', {
+            userId: actor.uuid,
+            courseId,
+            status,
+          }),
+        );
+        const appApi = makeApplyApi(undefined, error);
+        const story = new CourseCatalogStory();
+        initStory(story, appApi as never);
 
-      const response = await story.handleCallback(
-        `apply:${courseId}`,
-        actor,
-        session,
-      );
+        const response = await story.handleCallback(
+          `apply:${courseId}`,
+          actor,
+          session,
+        );
 
-      const text = String(response.screen?.text ?? '');
-      if (status === 'confirmed') {
-        expect(text).toContain('обучаешься');
-      } else {
-        expect(text).toContain('выразил желание');
-      }
-    });
+        const text = String(response.screen?.text ?? '');
+        if (status === 'confirmed') {
+          expect(text).toContain('обучаешься');
+        } else {
+          expect(text).toContain('выразил желание');
+        }
+      },
+    );
 
     test('apply конфликт pending: W04 — продолжить анкету', async () => {
       const { errConflict, AppException } = await import('@u7-scl/core/domain');

@@ -35,7 +35,11 @@ export const RoleSchema = v.picklist(
 
 // ══ Сущность пользователя ══
 
-/** Valibot-схема пользователя */
+/**
+ * Каноническая схема пользователя платформы.
+ * Владелец — модуль app: core/api специализируется этим типом актора,
+ * домен user реэкспортирует его для своих доменных объектов.
+ */
 export const UserSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),
   name: v.pipe(v.string(), v.trim(), v.nonEmpty('Имя не может быть пустым')),
@@ -51,6 +55,9 @@ export const UserSchema = v.object({
   createdAt: v.pipe(v.string(), v.isoDateTime('Некорректный формат даты')),
   updatedAt: v.optional(
     v.pipe(v.string(), v.isoDateTime('Некорректный формат даты')),
+  ),
+  nick: v.optional(
+    v.pipe(v.string(), v.trim(), v.nonEmpty('Ник не может быть пустым')),
   ),
 });
 

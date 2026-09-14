@@ -1,34 +1,9 @@
-import * as v from 'valibot';
-import { RoleSchema } from './roles';
-
-/** Схема пользователя с поддержкой нескольких ролей */
-export const UserSchema = v.object({
-  uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),
-  name: v.pipe(v.string(), v.trim(), v.nonEmpty('Имя не может быть пустым')),
-  telegramId: v.pipe(
-    v.number(),
-    v.integer('telegramId должен быть целым числом'),
-    v.minValue(1, 'telegramId должен быть положительным'),
-  ),
-  roles: v.pipe(
-    v.array(RoleSchema),
-    v.minLength(1, 'Пользователь должен иметь хотя бы одну роль'),
-  ),
-  createdAt: v.pipe(v.string(), v.isoDateTime('Некорректный формат даты')),
-  updatedAt: v.optional(
-    v.pipe(v.string(), v.isoDateTime('Некорректный формат даты')),
-  ),
-  nick: v.optional(
-    v.pipe(v.string(), v.trim(), v.nonEmpty('Ник не может быть пустым')),
-  ),
-});
-
-export type User = v.InferOutput<typeof UserSchema>;
-
-/** Метаданные агрегата пользователя */
-export interface UserArMeta {
-  name: 'User';
-  label: 'Пользователь';
-  errors: never;
-  state: User;
-}
+/**
+ * Сущность пользователя — реэкспорт канонического типа из модуля app.
+ *
+ * Канонический владелец User/UserSchema/UserArMeta — @u7-scl/app
+ * (специализация актора core/api). Домен user импортирует его и строит
+ * поверх агрегат, политики и репозиторий.
+ */
+export type { User, UserArMeta } from '@u7-scl/app/domain';
+export { UserSchema } from '@u7-scl/app/domain';

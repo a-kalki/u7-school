@@ -6,11 +6,11 @@
 
 ## Фаза 1. Канонизация User в модуле app
 
-- [ ] Task: Перенести канонические схемы User в app (Red: тесты схем в app)
+- [~] Task: Перенести канонические схемы User в app (Red: тесты схем в app)
   - [ ] Обновить `packages/app/src/domain/user.ts`: Role/RoleSchema/UserSchema (с `nick?`, полный набор ролей), User, UserArMeta — источник: актуальные схемы user-пакета
   - [ ] Перенести тесты схем в app (`user.test.ts`), включив сценарии из `packages/user/src/domain/user/entity.test.ts` и `roles.test.ts` (сверить список сценариев — ничего не теряется)
   - [ ] `CI=true bun run check:p app` — зелёный
-- [ ] Task: Перевести user-пакет на реэкспорты из app
+- [~] Task: Перевести user-пакет на реэкспорты из app
   - [ ] `packages/user/src/domain/user/entity.ts` → реэкспорт из `@u7-scl/app/domain`
   - [ ] `packages/user/src/domain/user/roles.ts` → реэкспорт из `@u7-scl/app/domain`
   - [ ] Добавить зависимость `@u7-scl/app` в `packages/user/package.json`

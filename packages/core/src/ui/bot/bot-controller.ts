@@ -38,7 +38,7 @@ export abstract class BotController<
   extends UiController<TResolve>
   implements ProactiveSender
 {
-  protected declare readonly stories: BotUiStory<TAppMeta, TActor, TResolve>[];
+  declare protected readonly stories: BotUiStory<TAppMeta, TActor, TResolve>[];
 
   /** Публичный доступ к stories */
   getStories(): BotUiStory<TAppMeta, TActor>[] {

@@ -32,7 +32,7 @@ async function main() {
   const activeStreams: StreamInfo[] = [];
   for (let i = 0; i < streams.length; i++) {
     const s = streams[i];
-    if (!s || s.status !== 'active') continue;
+    if (s?.status !== 'active') continue;
     const snap = s.contentSnapshot as Array<{ lessons: unknown[] }> | undefined;
     activeStreams.push({
       index: i,

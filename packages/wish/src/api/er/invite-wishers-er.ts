@@ -1,8 +1,10 @@
 import type { ErMeta } from '@u7-scl/core/api';
 import { EventReaction } from '@u7-scl/core/api';
+import { isoNow } from '@u7-scl/core/shared';
 import type { StreamCreatedEvent } from '@u7-scl/stream/domain';
 import type { WishApiModuleResolver } from '#domain/module';
 import type { Wish } from '#domain/wish/entity';
+import type { WishInvitedEvent } from '#domain/wish/events';
 
 /** Метаданные реакции приглашения желающих при открытии набора. */
 export interface InviteWishersErMeta extends ErMeta<StreamCreatedEvent> {
@@ -18,10 +20,11 @@ export interface InviteWishersErMeta extends ErMeta<StreamCreatedEvent> {
  * (ретейкеры, «следующий модуль»).
  * Историческая идентичность (форки) решается только фасадом курсов.
  *
- * Приглашение — чистое уведомление через userFacade.notify (трек
- * user-notify): текст FR-6 #8 с контекстом (поток, дата, ментор) ER
- * собирает сам; доставку и резолв telegramId выполняет сторя notify.
- * Поток недоступен — рассылка невозможна, молчаливый пропуск.
+ * Приглашение — событие wish.invited с адресацией (userId, telegramId)
+ * и целью желания; карточку с кнопкой отмены рендерит UI-сторя
+ * wish-invite (контроллер courses, канал invite). Тексты карточки —
+ * забота UI, ER только адресует. Поток недоступен или у желающего нет
+ * telegramId — приглашение невозможно, пропуск (лог-предупреждение).
  */
 export class InviteWishersEr extends EventReaction<
   InviteWishersErMeta,
@@ -87,30 +90,36 @@ export class InviteWishersEr extends EventReaction<
     }
   }
 
-  /** Уведомление желающему (текст FR-6 #8). Поток недоступен — пропуск. */
+  /** Публикация события приглашения. Поток недоступен — пропуск. */
   async #invite(wish: Wish, streamId: string): Promise<void> {
     const stream = await this.resolve.streamFacade.getStream(streamId);
     if (!stream) return;
 
-    const mentor = await this.resolve.userFacade.getUserByUuid(stream.mentorId);
-
-    // Старт: дд.мм.гггг (UTC потока); сбой формата — исходная строка
-    let dateText = stream.startDate;
-    try {
-      const d = new Date(stream.startDate);
-      dateText = [
-        String(d.getUTCDate()).padStart(2, '0'),
-        String(d.getUTCMonth() + 1).padStart(2, '0'),
-        d.getUTCFullYear(),
-      ].join('.');
-    } catch {
-      // оставляем ISO-строку
+    const addressee = await this.resolve.userFacade.getUserByUuid(wish.userId);
+    if (!addressee?.telegramId) {
+      this.resolve.appResolver.logger.warn(
+        'invite-wishers',
+        `У желающего ${wish.userId} нет telegramId — приглашение не отправлено`,
+      );
+      return;
     }
 
-    const mentorLine = mentor?.name ? ` Ментор: ${mentor.name}.` : '';
-
-    const text = `📣 Открылся набор на «${stream.title}», который ты хотел пройти! Старт: ${dateText}.${mentorLine} Подробности: /start → 📚 Потоки курсов. Для записи нужен ключ — его выдаёт ментор. Не актуально — отмени желание: 📖 Программы курсов → карточка курса → 🗑️.`;
-
-    await this.resolve.userFacade.notify(wish.userId, text);
+    const event: WishInvitedEvent = {
+      eventId: crypto.randomUUID(),
+      eventName: 'wish.invited',
+      occurredAt: isoNow(),
+      aggregateName: 'Wish',
+      aggregateId: wish.uuid,
+      payload: {
+        userId: wish.userId,
+        telegramId: addressee.telegramId,
+        streamId,
+        targetKind: wish.target.kind,
+        ...(wish.target.kind === 'course'
+          ? { courseId: wish.target.courseId }
+          : { moduleId: wish.target.moduleId }),
+      },
+    };
+    this.resolve.eventBus.publish(event);
   }
 }

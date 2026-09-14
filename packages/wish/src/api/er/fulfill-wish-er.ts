@@ -32,10 +32,9 @@ export class FulfillWishEr extends EventReaction<
 
     const wishes = await this.resolve.wishRepo.getByUser(userId);
 
-    // Кандидаты: активные желания обоих видов.
-    const active = wishes.filter(
-      (w) => w.status === 'expressed' || w.status === 'confirmed',
-    );
+    // Кандидаты: желания, реализуемые зачислением (expressed | confirmed) —
+    // вопрос «реализуемо ли» решает агрегат — предикат, не статус-поле.
+    const active = wishes.filter((w) => new WishAr(w).canFulfill());
     if (active.length === 0) {
       return;
     }

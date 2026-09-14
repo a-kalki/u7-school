@@ -101,7 +101,7 @@ export class QuestionnaireEngine {
   /** Текст ответа для choice-вопроса по кодам */
   getAnswerText(questionCode: string, answerCode: string): string {
     const q = this.index.get(questionCode);
-    if (!q || q.type !== 'choice') return '';
+    if (q?.type !== 'choice') return '';
     const codes = answerCode.split(',').filter(Boolean);
     return codes
       .map((c) => q.answers.find((a) => a.answerCode === c)?.answer ?? c)
@@ -111,7 +111,7 @@ export class QuestionnaireEngine {
   /** Все варианты ответа для choice-вопроса */
   getChoices(questionCode: string): { code: string; text: string }[] {
     const q = this.index.get(questionCode);
-    if (!q || q.type !== 'choice') return [];
+    if (q?.type !== 'choice') return [];
     return q.answers.map((a) => ({ code: a.answerCode, text: a.answer }));
   }
 

@@ -440,7 +440,7 @@ describe('E2E: Витрина для любопытного', () => {
           callbackData: pressedCode(transport, tgId, 'Главное меню'),
         }),
       );
-      expect(mainResp.screen?.text).toContain('Выберите действие');
+      expect(mainResp.screen?.text).toContain('Главное меню');
     });
   });
 
@@ -514,7 +514,7 @@ describe('E2E: Витрина для любопытного', () => {
           callbackData: pressedCode(transport, tgId, 'Главное меню'),
         }),
       );
-      expect(mainResp.screen?.text).toContain('Выберите действие');
+      expect(mainResp.screen?.text).toContain('Главное меню');
     });
 
     test('несуществующий поток — экран ошибки', async () => {
@@ -550,7 +550,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(courses.screen?.text).toContain('Курсы');
 
       const main1 = await press('Главное меню');
-      expect(main1.screen?.text).toContain('Выберите действие');
+      expect(main1.screen?.text).toContain('Главное меню');
 
       // Кнопки меню есть на экране короткого меню — pressedCode их найдёт
       const catalog = await press('Потоки курсов');

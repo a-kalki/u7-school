@@ -15,7 +15,11 @@ function makeEvent(
     occurredAt: '2026-09-02T12:00:00.000Z',
     aggregateName: 'User',
     aggregateId: USER_ID,
-    payload: { userId: USER_ID, text: 'Уведомление о событии.', ...overrides },
+    payload: {
+      userId: USER_ID,
+      text: 'Уведомление о событии.',
+      ...overrides,
+    },
   };
 }
 
@@ -89,27 +93,36 @@ describe('NotifyStory', () => {
       .calls[0] as [number, NotificationPayload];
     expect(tgId).toBe(1003);
     expect(payload.kind).toBe('notify');
-    // спецсимвол «!» экранирован md-интерполяцией
+    // «!» экранирован safeConvert'ом в точке доставки, а не отправителем
     expect(payload.text).toContain('Привет, мир\\!');
   });
 
-  test('экранирует спецсимволы MarkdownV2 в доменном тексте', async () => {
+  test('конвертирует упрощённый markdown в MarkdownV2 в точке доставки', async () => {
     const { story, notify } = setupStory();
 
-    await subHandler(story)(
-      makeEvent({ text: 'Поток «JS Core — Поток 2» (старт!)' }),
-    );
+    await subHandler(story)(makeEvent({ text: 'Уже *размеченный* текст.' }));
 
     const [, payload] = (notify as ReturnType<typeof mock>).mock.calls[0] as [
       number,
       NotificationPayload,
     ];
-    // ( ) ! — спецсимволы MarkdownV2, должны быть экранированы
-    expect(payload.text).toContain('\\(');
-    expect(payload.text).toContain('\\)');
-    expect(payload.text).toContain('\\!');
-    // «» и — не экранируются (валидные в MarkdownV2)
-    expect(payload.text).toContain('«JS Core — Поток 2»');
+    // CommonMark-курсив → диалект MarkdownV2, пунктуация экранирована
+    expect(payload.text).toContain('_размеченный_');
+    expect(payload.text).toContain('текст\\.');
+    // исходный CommonMark-синтаксис заменён, а не продублирован
+    expect(payload.text).not.toContain('*размеченный*');
+  });
+
+  test('пробрасывает kind из события (warn → ⚠️)', async () => {
+    const { story, notify } = setupStory();
+
+    await subHandler(story)(makeEvent({ kind: 'warn' }));
+
+    const [, payload] = (notify as ReturnType<typeof mock>).mock.calls[0] as [
+      number,
+      NotificationPayload,
+    ];
+    expect(payload.kind).toBe('warn');
   });
 
   test('пользователь не найден → лог-ошибка, доставка пропущена, без исключения', async () => {

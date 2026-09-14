@@ -247,6 +247,7 @@ describe('CompleteStudentUc', () => {
     expect(mockUserFacade.notify).toHaveBeenCalledWith(
       STUDENT_USER_ID,
       '🎉 Курс завершён! Поздравляем — ты прошёл всю программу.',
+      'info',
       MENTOR_ID,
     );
   });
@@ -266,6 +267,7 @@ describe('CompleteStudentUc', () => {
     expect(mockUserFacade.notify).toHaveBeenCalledWith(
       STUDENT_USER_ID,
       '🏁 Модуль завершён!',
+      'info',
       MENTOR_ID,
     );
   });

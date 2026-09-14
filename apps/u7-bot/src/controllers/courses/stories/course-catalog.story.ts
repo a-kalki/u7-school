@@ -5,6 +5,7 @@ import { fromError } from '@u7-scl/core/domain';
 import { type MdText, md, mdConcat, mdJoin, mdRaw } from '@u7-scl/core/shared';
 import type { BotSession, DialogResponse, KbButton } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
+import type { Wish } from '@u7-scl/wish/domain';
 import { renderTree, type TreeNode } from '../../../shared/tree-renderer';
 import { buttons } from '../../shared/buttons';
 import { Routes } from '../../shared/routes';
@@ -59,7 +60,7 @@ export class CourseCatalogStory extends U7BotUiStory {
 
     switch (cmd) {
       case 'list':
-        return this.#handleList();
+        return this.#handleList(actor);
       case 'phases':
         return this.#handlePhases(ids[0] ?? '');
       case 'modules':
@@ -108,7 +109,7 @@ export class CourseCatalogStory extends U7BotUiStory {
 
   // ═══ Уровень 0: Курсы + этапы inline ═══
 
-  async #handleList(): Promise<DialogResponse> {
+  async #handleList(actor: User): Promise<DialogResponse> {
     const courses = (await this.appApi.execute('list-courses', {})) as Course[];
 
     if (courses.length === 0) {
@@ -117,6 +118,14 @@ export class CourseCatalogStory extends U7BotUiStory {
         this.kb([[buttons.mainMenu()]]),
       );
     }
+
+    // Батч-запрос желаний пользователя: одна выборка на весь каталог
+    const wishes = ((await this.appApi.execute(
+      'list-user-wishes',
+      {},
+      actor.uuid,
+    )) ?? []) as Wish[];
+    const wishStatusByCourse = this.#activeCourseWishStatuses(wishes);
 
     const lines: MdText[] = [md`📖 *Курсы*`, md``];
     const rows: KbButton[][] = [];
@@ -144,13 +153,50 @@ export class CourseCatalogStory extends U7BotUiStory {
           `${direction} ${course.title}`,
           this.cb('phases', course.uuid),
         ),
-        this.btn('🎓 Хочу пройти курс', this.cb('apply', course.uuid)),
+        ...this.#courseWishButtons(
+          course.uuid,
+          wishStatusByCourse.get(course.uuid),
+        ),
       ]);
     }
 
     rows.push([buttons.mainMenu()]);
 
     return this.screen(mdJoin(lines), this.kb(rows));
+  }
+
+  /**
+   * Активные course-желания пользователя: карта courseId → статус.
+   * fulfilled (обучение) не попадает — карточка остаётся с кнопкой
+   * «Хочу пройти курс» (клик → W04 «уже обучаешься»).
+   */
+  #activeCourseWishStatuses(wishes: Wish[]): Map<string, string> {
+    const map = new Map<string, string>();
+    for (const wish of wishes ?? []) {
+      if (wish.target.kind !== 'course') continue;
+      if (
+        wish.status === 'pending' ||
+        wish.status === 'expressed' ||
+        wish.status === 'confirmed'
+      ) {
+        map.set(wish.target.courseId, wish.status);
+      }
+    }
+    return map;
+  }
+
+  /** Кнопка желания на карточке курса — по статусу (W01). */
+  #courseWishButtons(courseId: string, status: string | undefined): KbButton[] {
+    if (status === 'pending') {
+      // Анкета начата — путь к желанию лежит через её продолжение
+      return [
+        this.btn('📝 Продолжить анкету', Routes.questionnaire.resume(courseId)),
+      ];
+    }
+    if (status === 'expressed' || status === 'confirmed') {
+      return [this.btn('🗑️ Отменить желание', this.cb('cancel', courseId))];
+    }
+    return [this.btn('🎓 Хочу пройти курс', this.cb('apply', courseId))];
   }
 
   // ═══ Уровень 1: Этапы + модули inline ═══
@@ -325,12 +371,13 @@ export class CourseCatalogStory extends U7BotUiStory {
     // Строим дерево через tree-renderer.
     // Контракт TreeNode.title — «уже экранированный для MarkdownV2»,
     // поэтому заголовки пропускаем через md-интерполяцию ДО renderTree.
+    // Тип объекта подписан явно («Проект:», «Урок:») — как на других уровнях.
     const treeNodes: TreeNode[] = snapshot.map((project) => ({
-      title: md`${project.projectTitle}`,
+      title: md`Проект: ${project.projectTitle}`,
       emoji: '📁',
       meta: this.#lessonSummary(project.lessons),
       children: project.lessons.map((lesson) => ({
-        title: md`${lesson.lessonTitle}`,
+        title: md`Урок: ${lesson.lessonTitle}`,
         emoji: '📝',
         meta: `${lesson.stepIds.length} шаг${this.#plural(lesson.stepIds.length, '', 'а', 'ов')}`,
       })),

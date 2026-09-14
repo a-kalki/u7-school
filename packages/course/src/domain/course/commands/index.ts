@@ -8,18 +8,6 @@ import type { GetModulePlaceCmdMeta } from './get-module-place-cmd';
 import type { ListCoursesCmdMeta } from './list-courses-cmd';
 import type { WhichCoursesIncludeModuleCmdMeta } from './which-courses-include-module-cmd';
 
-export type {
-  AddModuleToCourseCmdMeta,
-  AddPhaseToCourseCmdMeta,
-  CreateCourseCmdMeta,
-  GetCourseByModuleCmdMeta,
-  GetCourseCmdMeta,
-  GetCourseProgramCmdMeta,
-  GetModulePlaceCmdMeta,
-  ListCoursesCmdMeta,
-  WhichCoursesIncludeModuleCmdMeta,
-};
-
 export type { AddModuleToCourseCmd } from './add-module-to-course-cmd';
 export { AddModuleToCourseCmdSchema } from './add-module-to-course-cmd';
 export type { AddPhaseToCourseCmd } from './add-phase-to-course-cmd';
@@ -55,3 +43,14 @@ export type { ListCoursesCmd } from './list-courses-cmd';
 export { ListCoursesCmdSchema } from './list-courses-cmd';
 export type { WhichCoursesIncludeModuleCmd } from './which-courses-include-module-cmd';
 export { WhichCoursesIncludeModuleCmdSchema } from './which-courses-include-module-cmd';
+export type {
+  AddModuleToCourseCmdMeta,
+  AddPhaseToCourseCmdMeta,
+  CreateCourseCmdMeta,
+  GetCourseByModuleCmdMeta,
+  GetCourseCmdMeta,
+  GetCourseProgramCmdMeta,
+  GetModulePlaceCmdMeta,
+  ListCoursesCmdMeta,
+  WhichCoursesIncludeModuleCmdMeta,
+};

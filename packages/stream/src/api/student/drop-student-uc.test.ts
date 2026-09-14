@@ -295,6 +295,7 @@ describe('DropStudentUc', () => {
     expect(notify).toHaveBeenCalledWith(
       MENTOR_ID,
       '🚪 Студент Student покинул учёбу с потока «Поток JS» по собственному желанию.',
+      'info',
       '11111111-1111-4111-8111-111111111111',
     );
   });
@@ -353,6 +354,7 @@ describe('DropStudentUc', () => {
     expect(notify).toHaveBeenCalledWith(
       MENTOR_ID,
       '🚪 Студент 11111111 покинул учёбу с потока «Поток JS» по собственному желанию.',
+      'info',
       '11111111-1111-4111-8111-111111111111',
     );
   });

@@ -1,3 +1,4 @@
+import type { NotifyKind } from '@u7-scl/core/domain';
 import type { User } from './user/entity';
 import type { Role } from './user/roles';
 
@@ -43,6 +44,17 @@ export interface UserFacade {
   /**
    * Уведомить пользователя — единый механизм уведомлений модуля.
    * Публикует user.notified; доставку выполняет подписчик UI-слоя.
+   *
+   * @param text  упрощённый markdown без экранирования: пунктуация и
+   *              разметка пишутся как в обычном тексте; диалект канала —
+   *              забота доставщика
+   * @param kind  вид уведомления (оформление реплики транспортом);
+   *              по умолчанию — notify
    */
-  notify(userId: string, text: string, actorId?: string): Promise<void>;
+  notify(
+    userId: string,
+    text: string,
+    kind?: NotifyKind,
+    actorId?: string,
+  ): Promise<void>;
 }

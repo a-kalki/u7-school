@@ -21,6 +21,8 @@ export const Routes = {
   stream: {
     /** Экран потока: обработчик в view-stream стори streams-контроллера */
     view: (streamId: string) => `stream:view-stream:view:${streamId}`,
+    /** Запись на поток: обработчик в view-stream стори streams-контроллера */
+    enroll: (streamId: string) => `stream:view-stream:enroll:${streamId}`,
     /** Самовыход из invite-проактива: обработчик в inactivity стори (FR-4) */
     inactivityDrop: (studentId: string) =>
       `stream:inactivity:drop-student:${studentId}`,

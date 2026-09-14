@@ -227,12 +227,13 @@ export class ViewStreamStory extends U7BotUiStory {
         projectTitle: string;
         lessons: Array<{ lessonTitle: string; stepIds: string[] }>;
       }) => ({
-        title: md`${p.projectTitle}`,
+        // префиксы «Проект:»/«Урок:» — как в каталоге «Программы курсов»
+        title: md`Проект: ${p.projectTitle}`,
         emoji: '📁',
         children: p.lessons.map(
           (l: { lessonTitle: string; stepIds: string[] }) =>
             ({
-              title: md`${l.lessonTitle}`,
+              title: md`Урок: ${l.lessonTitle}`,
               emoji: '📝',
               meta: `${l.stepIds.length} шаг${this.#plural(l.stepIds.length, '', 'а', 'ов')}`,
             }) as TreeNode,
@@ -301,11 +302,13 @@ export class ViewStreamStory extends U7BotUiStory {
 
     // ── Публичные кнопки (всем) ──
 
+    // Информационные кнопки о курсе — рядом, первой строкой
     rows.push([
       this.btn(
         '📖 Программа курса',
         this.cbFor(this.storyName, 'program', stream.uuid),
       ),
+      this.btn('📋 Детали', this.cbFor(this.storyName, 'details', stream.uuid)),
     ]);
 
     // Кнопка «👥 Студенты» — свой обработчик
@@ -314,10 +317,6 @@ export class ViewStreamStory extends U7BotUiStory {
         '👥 Студенты',
         this.cbFor(this.storyName, 'students', stream.uuid),
       ),
-    ]);
-
-    rows.push([
-      this.btn('📋 Детали', this.cbFor(this.storyName, 'details', stream.uuid)),
     ]);
 
     // ── Гостевые кнопки ──

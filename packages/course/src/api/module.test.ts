@@ -1,7 +1,7 @@
 import { afterAll, describe, expect, mock, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import type { AppResolver } from '@u7-scl/core/domain';
+import type { AppResolver, NotifyKind } from '@u7-scl/core/domain';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
 import { Status } from '#domain/status';
@@ -73,6 +73,7 @@ class MockUserFacade implements UserFacade {
   async notify(
     _userId: string,
     _text: string,
+    _kind?: NotifyKind,
     _actorId?: string,
   ): Promise<void> {
     // уведомления в тестах курсов не проверяются

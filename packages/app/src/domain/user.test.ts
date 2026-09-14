@@ -8,6 +8,7 @@ describe('Роли пользователей (Roles)', () => {
     expect(Role.SUBSCRIBER as string).toBe('SUBSCRIBER');
     expect(Role.STUDENT as string).toBe('STUDENT');
     expect(Role.MENTOR as string).toBe('MENTOR');
+    expect(Role.AUTHOR as string).toBe('AUTHOR');
     expect(Role.ADMIN as string).toBe('ADMIN');
   });
 
@@ -16,6 +17,7 @@ describe('Роли пользователей (Roles)', () => {
     expect(v.safeParse(RoleSchema, Role.SUBSCRIBER).success).toBe(true);
     expect(v.safeParse(RoleSchema, Role.STUDENT).success).toBe(true);
     expect(v.safeParse(RoleSchema, Role.MENTOR).success).toBe(true);
+    expect(v.safeParse(RoleSchema, Role.AUTHOR).success).toBe(true);
     expect(v.safeParse(RoleSchema, Role.ADMIN).success).toBe(true);
   });
 
@@ -60,10 +62,10 @@ describe('Схема пользователя', () => {
     test('отклоняет невалидный UUID', () => {
       const invalidUuids = [
         'bad',
-        '550e8400-e29b-41d4-a716',
-        '550e8400-e29b-41d4-a716-4466554400001',
-        '550e8400-e29b-41d4-a716-44665544000g',
-        '550e8400e29b41d4a716446655440000',
+        '550e8400-e29b-41d4-a716', // слишком короткий
+        '550e8400-e29b-41d4-a716-4466554400001', // слишком длинный
+        '550e8400-e29b-41d4-a716-44665544000g', // не hex символ
+        '550e8400e29b41d4a716446655440000', // без дефисов
         '',
         ' ',
       ];
@@ -223,14 +225,14 @@ describe('Схема пользователя', () => {
 
     test('отклоняет некорректный формат даты', () => {
       const invalidDates = [
-        '2026-05-01T12:00:00.000Z',
-        '2026-05-01',
+        '2026-05-01T12:00:00.000Z', // с миллисекундами и Z
+        '2026-05-01', // только дата
         '01.05.2026',
         'invalid-date',
         '',
         ' ',
-        '2026-13-01T12:00',
-        '2026-05-32T12:00',
+        '2026-13-01T12:00', // неверный месяц
+        '2026-05-32T12:00', // неверный день
       ];
       invalidDates.forEach((createdAt) => {
         const result = v.safeParse(UserSchema, { ...valid, createdAt });
@@ -268,10 +270,44 @@ describe('Схема пользователя', () => {
       const invalidDates = [
         '2026-05-01',
         'invalid-date',
-        '2023-12-31T23:59.999Z',
+        '2023-12-31T23:59:59.999Z', // с миллисекундами и Z
       ];
       invalidDates.forEach((updatedAt) => {
         const result = v.safeParse(UserSchema, { ...valid, updatedAt });
+        expect(result.success).toBe(false);
+      });
+    });
+  });
+
+  describe('поле nick', () => {
+    test('принимает непустую строку', () => {
+      const nicks = ['john_doe', 'maria', 'ivan_petrov'];
+      nicks.forEach((nick) => {
+        const result = v.safeParse(UserSchema, { ...valid, nick });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.output).toMatchObject({ nick });
+        }
+      });
+    });
+
+    test('принимает отсутствующее поле nick (опционально)', () => {
+      const result = v.safeParse(UserSchema, valid);
+      expect(result.success).toBe(true);
+    });
+
+    test('отклоняет пустую строку', () => {
+      const emptyNicks = ['', ' ', '  '];
+      emptyNicks.forEach((nick) => {
+        const result = v.safeParse(UserSchema, { ...valid, nick });
+        expect(result.success).toBe(false);
+      });
+    });
+
+    test('отклоняет nick не строкового типа', () => {
+      const invalidTypes = [123, true, null, [], {}];
+      invalidTypes.forEach((nick) => {
+        const result = v.safeParse(UserSchema, { ...valid, nick });
         expect(result.success).toBe(false);
       });
     });

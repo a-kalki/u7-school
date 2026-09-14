@@ -8,21 +8,26 @@ import type { TestApp } from '@u7-scl/test-helpers/test-app';
 import { createTestApp } from '@u7-scl/test-helpers/test-app';
 import {
   createTestBotTransport,
+  pressedCode,
   type TestBotTransport,
 } from '@u7-scl/test-helpers/test-bot-transport';
+import { CoursesController } from '../../src/controllers/courses/controller';
 import { UserController } from '../../src/controllers/user/controller';
 
 /**
- * E2E механизма уведомлений userFacade.notify:
- *   1) открытие набора → желающий получает ОДНО уведомление с контекстом
- *      (поток, дата, ментор) — ER invite-wishers, FR-6 #8;
+ * E2E механизма уведомлений:
+ *   1) открытие набора → желающий получает ОДНО кнопочное приглашение
+ *      с контекстом (курс, поток, дата, ментор) — ER invite-wishers
+ *      публикует wish.invited, карточку рендерит WishInviteStory
+ *      (канал invite), FR-6 #8;
  *   2) закрытие потока на последнем модуле → студенту «🎉 Курс завершён!»
  *      — UC complete-student, FR-6 #7c;
  *   3) закрытие на модуле с следующим → уведомления нет (кнопка 7a
  *      рендерится HubStory — покрыто юнит-тестами хаба).
  *
- * Доставка — через контроллер user (сторя notify): резолв telegramId,
- * proactiveSender.notify. Стенд: TestApp + TestBotTransport.
+ * Доставка текстовых уведомлений — сторя notify контроллера user;
+ * приглашение — кнопочный проактив канала invite. Стенд: TestApp +
+ * TestBotTransport.
  */
 
 const COURSE_ID = 'fafafafa-baba-4aba-8aba-babababababa'; // Основы программирования (2 фазы)
@@ -66,6 +71,7 @@ describe('E2E: механизм уведомлений userFacade.notify', () =>
       new StreamsController(),
       new MentorController(),
       new UserController(),
+      new CoursesController(),
     ]);
     mentor = (await app.userFacade.getUserByTelegramId(MENTOR_TG))!;
     wisher = (await app.userFacade.getUserByTelegramId(WISHER_TG))!;
@@ -104,20 +110,55 @@ describe('E2E: механизм уведомлений userFacade.notify', () =>
       mentor.uuid,
     )) as Stream;
 
-    // 3. Желающему доставлено ровно одно уведомление с полным контекстом
-    //    (текст экранируется сторей доставки — MarkdownV2)
+    // 3. Желающему доставлено ровно одно кнопочное приглашение (канал
+    //    invite): курс, поток, дата, ментор, кнопка отмены (MarkdownV2)
     const text = await waitMessageFor(transport, WISHER_TG);
     expect(text).toBeDefined();
-    expect(text).toContain('Открылся набор на «Основы JS — Поток осени»');
-    expect(text).toContain('Старт: 01\\.10\\.2026');
-    expect(text).toContain('Ментор: Ментор');
-    expect(text).toContain('Для записи нужен ключ');
-    expect(text).toContain('отмени желание');
+    expect(text).toContain('📣 *Открылся набор\\!*');
+    expect(text).toContain('У тебя было желание пройти курс');
+    expect(text).toContain('Поток: «Основы JS — Поток осени»');
+    expect(text).toContain('Старт: 01\\.10\\.2026, 00:00');
+    expect(text).toContain('Ментор');
+    // Поток создан без enrollmentKey → запись свободная
+    expect(text).toContain('Запись свободная');
+    expect(text).toContain('📝 Записаться');
 
-    const wisherMessages = transport.api.sentMessages.filter(
+    // Кнопка отмены ведёт в W05 (подтверждение отмены course-желания)
+    const wisherMessage = transport.api.sentMessages.find(
       (m) => m.telegramId === WISHER_TG,
     );
-    expect(wisherMessages).toHaveLength(1);
+    const cancelButton = wisherMessage?.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes('Отменить желание'));
+    expect(cancelButton).toBeDefined();
+    expect(cancelButton!.code).toContain('course-catalog:cancel:');
+
+    // Нажатие кнопки из приглашения → W05 (подтверждение) → отмена
+    const w05 = await transport.handleCallback(
+      transport.makeBotContext(WISHER_TG, { callbackData: cancelButton!.code }),
+    );
+    expect(String(w05.screen?.text)).toContain('Отменить желание пройти курс?');
+    // Код «✅ Да» берём из доставленного экрана (штамп seq)
+    const yesCode = pressedCode(transport, WISHER_TG, '✅ Да');
+    const done = await transport.handleCallback(
+      transport.makeBotContext(WISHER_TG, { callbackData: yesCode }),
+    );
+    expect(String(done.screen?.text)).toContain('отменено');
+
+    // Желание в репозитории отменено
+    const wishes = await app.wishRepo.findAllByKind('course', ['cancelled']);
+    expect(
+      wishes.some(
+        (w) => w.userId === wisher.uuid && w.target.kind === 'course',
+      ),
+    ).toBe(true);
+
+    // Ровно одно проактивное приглашение (дальнейшие экраны —
+    // уже сценарий отмены, инициированный пользователем)
+    const invitesToWisher = transport.api.sentMessages.filter(
+      (m) => m.telegramId === WISHER_TG && m.text.includes('Открылся набор'),
+    );
+    expect(invitesToWisher).toHaveLength(1);
   });
 
   test('закрытие потока на последнем модуле → «🎉 Курс завершён!» (FR-6 #7c)', async () => {

@@ -45,9 +45,37 @@ export class WishAr extends Aggregate<WishArMeta> {
     return new WishAr(candidate);
   }
 
+  // ── Предикаты переходов ──
+  // Единственное место знания «из какого статуса возможен переход».
+  // Потребители (UC/ER) спрашивают предикат — не читают статус напрямую.
+
+  /** Подтверждаемо ли желание (только pending — анкетная ветка). */
+  canConfirm(): boolean {
+    return this._state.status === 'pending';
+  }
+
+  /** Бросаемо ли желание (только pending — анкета прервана). */
+  canAbandon(): boolean {
+    return this._state.status === 'pending';
+  }
+
+  /** Отменяемо ли желание (expressed | confirmed). */
+  canCancel(): boolean {
+    return this.canFulfill();
+  }
+
+  /** Реализуемо ли желание (expressed | confirmed — зачисление на поток). */
+  canFulfill(): boolean {
+    return (
+      this._state.status === 'expressed' || this._state.status === 'confirmed'
+    );
+  }
+
+  // ── Переходы ──
+
   /** Подтверждает желание: pending → confirmed (анкета завершена). */
   confirm(): void {
-    if (this._state.status !== 'pending') {
+    if (!this.canConfirm()) {
       this.throwBadRequest('Подтвердить можно только ожидающее анкету желание');
     }
     this.safeUpdate({ status: 'confirmed' });
@@ -55,7 +83,7 @@ export class WishAr extends Aggregate<WishArMeta> {
 
   /** Помечает желание брошенным: pending → abandoned (анкета брошена). */
   abandon(): void {
-    if (this._state.status !== 'pending') {
+    if (!this.canAbandon()) {
       this.throwBadRequest('Бросить можно только ожидающее анкету желание');
     }
     this.safeUpdate({ status: 'abandoned' });
@@ -66,10 +94,7 @@ export class WishAr extends Aggregate<WishArMeta> {
    * Для pending отмена недоступна — только abandon.
    */
   cancel(): void {
-    if (
-      this._state.status !== 'expressed' &&
-      this._state.status !== 'confirmed'
-    ) {
+    if (!this.canCancel()) {
       this.throwBadRequest(
         'Отменить можно только выраженное или подтверждённое желание',
       );
@@ -83,10 +108,7 @@ export class WishAr extends Aggregate<WishArMeta> {
    * Для pending реализация недоступна — сначала confirm (анкета).
    */
   fulfill(): void {
-    if (
-      this._state.status !== 'expressed' &&
-      this._state.status !== 'confirmed'
-    ) {
+    if (!this.canFulfill()) {
       this.throwBadRequest(
         'Реализовать можно только выраженное или подтверждённое желание',
       );

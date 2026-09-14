@@ -10,12 +10,14 @@ import type { UserFacade } from '@u7-scl/user/domain';
 import type { CancelWishCmdMeta } from './wish/commands/cancel-wish-cmd';
 import type { CreateCourseWishCmdMeta } from './wish/commands/create-course-wish-cmd';
 import type { CreateModuleWishCmdMeta } from './wish/commands/create-module-wish-cmd';
+import type { ListUserWishesCmdMeta } from './wish/commands/list-user-wishes-cmd';
 import type { WishRepo } from './wish/repo';
 
 export type WishUcMetas =
   | CreateCourseWishCmdMeta
   | CreateModuleWishCmdMeta
-  | CancelWishCmdMeta;
+  | CancelWishCmdMeta
+  | ListUserWishesCmdMeta;
 
 /** Метаданные API-модуля wish. */
 export interface WishApiModuleMeta extends ApiModuleMeta {

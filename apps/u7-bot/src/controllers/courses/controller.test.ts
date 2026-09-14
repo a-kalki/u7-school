@@ -28,10 +28,10 @@ describe('CoursesController (реестр)', () => {
     expect(controller.name).toBe('course');
   });
 
-  test('содержит 1 story', () => {
+  test('содержит 3 story (каталог + приглашение + уведомление менторам)', () => {
     const controller = makeController();
     const stories = (controller as unknown as { stories: unknown[] }).stories;
-    expect(stories.length).toBe(1);
+    expect(stories.length).toBe(3);
   });
 
   test('menuButtons агрегирует кнопки от stories с префиксом контроллера', () => {

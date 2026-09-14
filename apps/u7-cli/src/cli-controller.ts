@@ -56,7 +56,7 @@ function getTypeString(schemaProp: SchemaNode | undefined): string {
 }
 
 function printSchemaPrompt(schema: ObjectSchemaLike | undefined) {
-  if (!schema || !schema.entries) return;
+  if (!schema?.entries) return;
   console.log('\n```');
   for (const [key, prop] of Object.entries(schema.entries)) {
     const p = prop as SchemaNode;

@@ -242,7 +242,7 @@ export class MonitorStory extends U7BotUiStory {
     // FR-8: кнопка-переключатель фильтра выбывших
     keyboardRows.push([
       this.btn(
-        showAll ? '🙈 Скрыть выбывших' : '👁 Показать выбывших',
+        showAll ? '🙈 Скрыть выбывших' : '🚪 Показать выбывших',
         this.cbFor('monitor', showAll ? 'students' : 'students-all', streamId),
       ),
     ]);

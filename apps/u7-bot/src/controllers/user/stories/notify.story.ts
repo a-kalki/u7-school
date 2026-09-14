@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
-import { md } from '@u7-scl/core/shared';
+import { mdRaw, safeConvert } from '@u7-scl/core/shared';
 import type {
   BotSession,
   DialogResponse,
@@ -14,10 +14,12 @@ import { U7BotUiStory } from '../../../core/u7-bot-ui-story';
  *
  * Резолвит пользователя (get-user) → telegramId и доставляет проактивную
  * реплику через proactiveSender.notify: текст без кнопок (И3: проактив не
- * трогает сессию и клавиатуры), вид `notify` 🔔 — единая таблица ФР-5
- * (заголовок и оформление — забота транспорта).
- * Доменный текст события — данные: md-интерполяция экранирует MarkdownV2
- * автоматически, отправители (UC/ER/Job) передают чистый текст.
+ * трогает сессию и клавиатуры), вид — единая таблица ФР-5 (заголовок и
+ * оформление — забота транспорта); kind из события пробрасывается в
+ * payload (по умолчанию — notify). Текст события — упрощённый markdown
+ * без экранирования: в точке доставки конвертируется в MarkdownV2 через
+ * safeConvert (пунктуация экранируется, разметка конвертируется) —
+ * отправителю знать диалект канала не нужно.
  * Пользователь не найден / нет telegramId → лог-ошибка, пропуск,
  * приложение не падает. Ошибки доставки изолирует шина (InProcEventBus).
  */
@@ -35,7 +37,7 @@ export class NotifyStory extends U7BotUiStory {
   }
 
   async #handleNotified(event: UserNotifiedEvent): Promise<void> {
-    const { userId, text } = event.payload;
+    const { userId, text, kind } = event.payload;
 
     let user: User | undefined;
     try {
@@ -65,8 +67,8 @@ export class NotifyStory extends U7BotUiStory {
     }
 
     await this.proactiveSender.notify(user.telegramId, {
-      text: md`${text}`,
-      kind: 'notify',
+      text: mdRaw(safeConvert(text)),
+      kind: kind ?? 'notify',
     });
   }
 

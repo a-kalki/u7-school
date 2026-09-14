@@ -108,6 +108,6 @@ export class CompleteStudentUc extends StreamUseCase<CompleteStudentCmdMeta> {
     const text = place?.isLast
       ? '🎉 Курс завершён! Поздравляем — ты прошёл всю программу.'
       : '🏁 Модуль завершён!';
-    await this.resolve.userFacade.notify(student.userId, text, actorId);
+    await this.resolve.userFacade.notify(student.userId, text, 'info', actorId);
   }
 }

@@ -283,7 +283,7 @@ describe('E2E: проактивы бездействия', () => {
         callbackData: pressedCode(transport, STUDENT_TG, 'Остаться'),
       }),
     );
-    expect(String(menuResp.screen?.text)).toContain('Выберите действие');
+    expect(String(menuResp.screen?.text)).toContain('Главное меню');
   });
 });
 

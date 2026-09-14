@@ -23,6 +23,7 @@ function makeEvent(): CompleteEvent {
 
 function setupEr(wish?: Wish) {
   const save = mock(async (_wish: Wish): Promise<void> => {});
+  const publish = mock(async (_event: unknown): Promise<void> => {});
   const getByUserAndTarget = mock(
     async (
       _userId: string,
@@ -33,9 +34,12 @@ function setupEr(wish?: Wish) {
   const er = new ConfirmWishEr();
   er.init({
     wishRepo: { save, getByUserAndTarget },
+    userFacade: { getUserByUuid: mock() },
+    eventBus: { publish },
+    appResolver: { logger: { info: mock(), warn: mock(), error: mock() } },
   } as unknown as WishApiModuleResolver);
 
-  return { save, getByUserAndTarget, er };
+  return { save, getByUserAndTarget, publish, er };
 }
 
 function makePendingWish(event: CompleteEvent): Wish {
@@ -76,10 +80,48 @@ describe('ConfirmWishEr', () => {
   });
 
   test('желание не найдено — игнор без ошибок', async () => {
-    const { save, er } = setupEr();
+    const { save, publish, er } = setupEr();
 
     await er.handle(makeEvent());
 
     expect(save).toHaveBeenCalledTimes(0);
+    expect(publish).toHaveBeenCalledTimes(0);
+  });
+
+  test('при подтверждении публикует wish.confirmed с адресацией', async () => {
+    const event = makeEvent();
+    const wish = makePendingWish(event);
+    const { publish, er } = setupEr(wish);
+
+    await er.handle(event);
+
+    expect(publish).toHaveBeenCalledTimes(1);
+    const published = (publish as ReturnType<typeof mock>).mock
+      .calls[0]![0] as {
+      eventName: string;
+      aggregateName: string;
+      aggregateId: string;
+      payload: { userId: string; courseId: string };
+    };
+    expect(published.eventName).toBe('wish.confirmed');
+    expect(published.aggregateName).toBe('Wish');
+    expect(published.aggregateId).toBe(wish.uuid);
+    expect(published.payload).toEqual({
+      userId: wish.userId,
+      courseId: event.ownerInfo.courseId,
+    });
+  });
+
+  test('игнор (не-pending) — событие не публикуется', async () => {
+    const event = makeEvent();
+    const { publish, getByUserAndTarget, er } = setupEr();
+    getByUserAndTarget.mockResolvedValueOnce({
+      ...makePendingWish(event),
+      status: 'confirmed' as const,
+    });
+
+    await er.handle(event);
+
+    expect(publish).toHaveBeenCalledTimes(0);
   });
 });

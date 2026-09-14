@@ -4,6 +4,9 @@ export { Aggregate } from './ar/aggregate';
 export type { FileMetadata } from './common/file-metadata';
 // Общие value-objects
 export { FileMetadataSchema } from './common/file-metadata';
+// Словарь видов уведомлений (общий для доменов и UI)
+export type { NotifyKind } from './common/notify-kind';
+export { NOTIFY_KINDS, NotifyKindSchema } from './common/notify-kind';
 export {
   errAccessDenied,
   errBadRequest,

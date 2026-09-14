@@ -19,21 +19,21 @@ describe('UserInProcFacade.notify', () => {
 
     expect(mod.execute).toHaveBeenCalledWith(
       'notify-user',
-      { userId, text: 'Привет!' },
+      { userId, text: 'Привет!', kind: undefined },
       undefined,
     );
   });
 
-  test('передаёт actorId, если он указан', async () => {
+  test('передаёт kind и actorId, если они указаны', async () => {
     const mod = makeMockModule();
     const facade = new UserInProcFacade(mod as never);
     const actorId = '11111111-1111-4111-8111-111111111111';
 
-    await facade.notify(userId, 'Текст', actorId);
+    await facade.notify(userId, 'Текст', 'warn', actorId);
 
     expect(mod.execute).toHaveBeenCalledWith(
       'notify-user',
-      { userId, text: 'Текст' },
+      { userId, text: 'Текст', kind: 'warn' },
       actorId,
     );
   });

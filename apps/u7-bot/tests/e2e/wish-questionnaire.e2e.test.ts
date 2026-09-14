@@ -427,9 +427,9 @@ describe('Wish: анкетная ветка (e2e)', () => {
     );
   });
 
-  // ── B.6: apply при confirmed → W04 → отмена → cancelled ──
+  // ── B.6: confirmed → на карточке «Отменить желание» → cancelled ──
 
-  test('apply при confirmed → «обучаешься»; отмена желания → cancelled', async () => {
+  test('confirmed → на карточке кнопка «Отменить желание»; отмена → cancelled', async () => {
     // Прогоняем анкету до конца (confirmed); после последнего ответа
     // ввод освобождён, но сессию сбрасываем — как после рестарта бота
     await startQuestionnaire(author.telegramId);
@@ -445,18 +445,13 @@ describe('Wish: анкетная ветка (e2e)', () => {
       await waitForWishStatus(author, QUESTIONNAIRE_COURSE_ID, 'confirmed'),
     ).toBe('confirmed');
 
-    // apply при confirmed → W04 «обучаешься» с кнопкой отмены
+    // На карточке confirmed-курса — кнопка отмены (вместо apply)
     dropSession(author.telegramId);
     await openCatalog(author.telegramId);
-    const w04 = await applyQuestionnaire(author.telegramId);
-    expect(w04.screen?.text).toContain('обучаешься');
-    expect(w04.screen?.text).not.toContain('⚠️');
+    const card = await click(author.telegramId, '🗑️ Отменить желание');
+    expect(card.screen?.text).toContain('Отменить желание пройти курс?');
 
     // Отмена из confirmed: подтверждение → W05 «отменено»
-    const confirmScreen = await click(author.telegramId, '🗑️ Отменить желание');
-    expect(confirmScreen.screen?.text).toContain(
-      'Отменить желание пройти курс?',
-    );
     const w05 = await click(author.telegramId, '✅ Да');
     expect(w05.screen?.text).toContain('отменено');
 

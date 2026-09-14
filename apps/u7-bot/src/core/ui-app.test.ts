@@ -246,7 +246,9 @@ describe('U7BotUiApp — дефолты команд', () => {
       session,
     );
 
-    expect(String(response?.screen?.text)).toBe('Выберите действие:');
+    expect(String(response?.screen?.text)).toBe(
+      '🏫 *Главное меню*\n\nВыберите раздел:',
+    );
     expect(String(response?.screen?.text)).not.toContain('Привет');
     expect(response?.screen?.keyboard).toBeDefined();
     expect(session.dialog?.path).toBe('app/menu');
@@ -294,7 +296,9 @@ describe('U7BotUiApp — pipe перед дефолтами', () => {
     // notify стори сохранён...
     expect(String(response?.notify?.text)).toBe('Отменено. Наберите /start');
     // ...и дополнен экраном меню: прежняя клавиатура умерла вместе с seq++
-    expect(String(response?.screen?.text)).toBe('Выберите действие:');
+    expect(String(response?.screen?.text)).toBe(
+      '🏫 *Главное меню*\n\nВыберите раздел:',
+    );
     const codes = response?.screen?.keyboard?.rows.flatMap((r) =>
       r.map((b) => b.code),
     );
@@ -403,7 +407,9 @@ describe('U7BotUiApp — системные кнопки', () => {
 
     const response = await uiApp.handleCallback('app:main-menu', 123, session);
 
-    expect(String(response?.screen?.text)).toBe('Выберите действие:');
+    expect(String(response?.screen?.text)).toBe(
+      '🏫 *Главное меню*\n\nВыберите раздел:',
+    );
     expect(response?.screen?.keyboard).toBeDefined();
     expect(session.dialog?.path).toBe('app/menu');
     expect(session.dialog?.seq).toBe(4);
@@ -467,7 +473,9 @@ describe('U7BotUiApp — delegate на системные коды', () => {
 
     // notify инициатора склеен с экраном делегата (меню)
     expect(String(response?.notify?.text)).toContain('Успех');
-    expect(String(response?.screen?.text)).toBe('Выберите действие:');
+    expect(String(response?.screen?.text)).toBe(
+      '🏫 *Главное меню*\n\nВыберите раздел:',
+    );
     expect(response?.screen?.keyboard).toBeDefined();
     expect(session.dialog?.path).toBe('app/menu');
     expect(session.dialog?.seq).toBe(3);
@@ -481,7 +489,9 @@ describe('U7BotUiApp — delegate на системные коды', () => {
 
     const response = await uiApp.handleCallback('nav:go:x', 123, session);
 
-    expect(String(response?.screen?.text)).toBe('Выберите действие:');
+    expect(String(response?.screen?.text)).toBe(
+      '🏫 *Главное меню*\n\nВыберите раздел:',
+    );
     expect(session.dialog?.path).toBe('app/menu');
     // nav открывает диалог (seq=1), delegate на меню — второй вход (seq=2)
     expect(session.dialog?.seq).toBe(2);

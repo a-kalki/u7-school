@@ -45,9 +45,6 @@ module.exports = {
       kill_timeout: 10_000,
       listen_timeout: 15_000,
       watch: false,
-
-      // ══ Graceful shutdown ══
-      shutdown_with_message: true,
     },
   ],
 };

@@ -30,7 +30,7 @@ function completedEvent(
   ar: LikertQuestionnaireAr,
 ): LikertQuestionnaireCompleteEvent {
   const event = ar.flushEvents()[0];
-  if (!event || event.eventName !== 'questionnaire:likert-complete') {
+  if (event?.eventName !== 'questionnaire:likert-complete') {
     throw new Error('Ожидалось событие questionnaire:likert-complete');
   }
   return event;

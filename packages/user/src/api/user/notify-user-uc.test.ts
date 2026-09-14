@@ -30,9 +30,23 @@ describe('NotifyUserUc', () => {
     expect(event.eventName).toBe('user.notified');
     expect(event.aggregateName).toBe('User');
     expect(event.aggregateId).toBe(userId);
-    expect(event.payload).toEqual({ userId, text: 'Привет!' });
+    expect(event.payload).toEqual({
+      userId,
+      text: 'Привет!',
+      kind: undefined,
+    });
     expect(event.eventId).toBeDefined();
     expect(event.occurredAt).toBeDefined();
+  });
+
+  test('пробрасывает kind в payload события', async () => {
+    const { publish, uc } = setup();
+
+    await uc.execute({ userId, text: 'Текст', kind: 'warn' });
+
+    const event = (publish as ReturnType<typeof mock>).mock
+      .calls[0]![0] as UserNotifiedEvent;
+    expect(event.payload.kind).toBe('warn');
   });
 
   test('ничего не мутирует: репозиторий не вызывается, output — undefined', async () => {
@@ -59,6 +73,15 @@ describe('NotifyUserUc', () => {
     await expect(uc.handle({ userId, text: '   ' })).rejects.toThrow(
       'Переданы некорректные данные',
     );
+    expect(publish).not.toHaveBeenCalled();
+  });
+
+  test('handle: некорректный kind → INPUT_VALIDATION_ERROR', async () => {
+    const { publish, uc } = setup();
+
+    await expect(
+      uc.handle({ userId, text: 'Текст', kind: 'срочно' as never }),
+    ).rejects.toThrow('Переданы некорректные данные');
     expect(publish).not.toHaveBeenCalled();
   });
 

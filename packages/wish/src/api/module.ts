@@ -8,6 +8,7 @@ import { InviteWishersEr } from './er/invite-wishers-er';
 import { CancelWishUc } from './wish/cancel-wish-uc';
 import { CreateCourseWishUc } from './wish/create-course-wish-uc';
 import { CreateModuleWishUc } from './wish/create-module-wish-uc';
+import { ListUserWishesUc } from './wish/list-user-wishes-uc';
 
 export class WishApiModule extends ApiModule<
   WishApiModuleMeta,
@@ -18,6 +19,7 @@ export class WishApiModule extends ApiModule<
     new CreateCourseWishUc(),
     new CreateModuleWishUc(),
     new CancelWishUc(),
+    new ListUserWishesUc(),
   ];
   readonly reactions: EventReaction<ErMeta>[] = [
     new ConfirmWishEr(),

@@ -85,6 +85,7 @@ export class DropStudentUc extends StreamUseCase<DropStudentCmdMeta> {
     await this.resolve.userFacade.notify(
       stream.mentorId,
       `🚪 Студент ${studentName} покинул учёбу с потока «${stream.title}» по собственному желанию.`,
+      'info',
       actorId,
     );
   }

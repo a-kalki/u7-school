@@ -1,9 +1,11 @@
 import type { ErMeta } from '@u7-scl/core/api';
 import { EventReaction } from '@u7-scl/core/api';
+import { isoNow } from '@u7-scl/core/shared';
 import type { QuestionnaireCompleteEvent } from '@u7-scl/questionnaire/domain';
 import type { WishApiModuleResolver } from '#domain/module';
 import { WishAr } from '#domain/wish/a-root';
 import type { WishTarget } from '#domain/wish/entity';
+import type { WishConfirmedEvent } from '#domain/wish/events';
 
 /** Метаданные реакции подтверждения желания. */
 export interface ConfirmWishErMeta
@@ -15,6 +17,10 @@ export interface ConfirmWishErMeta
  * Реакция на завершение анкетной ветки желания.
  * Желание в `pending` подтверждается (pending → confirmed);
  * любое другое состояние игнорируется (идемпотентность).
+ *
+ * После подтверждения публикует wish.confirmed — уведомление
+ * менторам курса рендерит UI-сторя wish-confirmed (контроллер
+ * courses); ER только фиксирует факт и адресует по сущности.
  */
 export class ConfirmWishEr extends EventReaction<
   ConfirmWishErMeta,
@@ -37,13 +43,24 @@ export class ConfirmWishEr extends EventReaction<
       target,
     );
 
-    // Идемпотентность: подтверждаем только ожидающее анкету желание.
-    if (!state || state.status !== 'pending') {
+    // Идемпотентность: подтверждаем только ожидающее анкету желание
+    // (вопрос «можно ли» решает агрегат — предикат, не статус-поле).
+    const wish = state ? new WishAr(state) : undefined;
+    if (!wish?.canConfirm()) {
       return;
     }
 
-    const wish = new WishAr(state);
     wish.confirm();
     await this.resolve.wishRepo.save(wish.state);
+
+    const confirmed: WishConfirmedEvent = {
+      eventId: crypto.randomUUID(),
+      eventName: 'wish.confirmed',
+      occurredAt: isoNow(),
+      aggregateName: 'Wish',
+      aggregateId: wish.state.uuid,
+      payload: { userId, courseId: target.courseId },
+    };
+    this.resolve.eventBus.publish(confirmed);
   }
 }

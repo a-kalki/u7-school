@@ -7,6 +7,7 @@
  *
  * Что делает:
  *   1. Копирует apps/u7-bot/tests/fixtures/templates/ → data/fixtures/
+ *      (включая пустые wish/ и questionnaires/ — каждый запуск даёт чистое состояние)
  *   2. Находит ментора (UUID 4444...) и привязывает к DEV_TELEGRAM_ID
  *   3. Даёт ему все роли: GUEST, STUDENT, MENTOR, AUTHOR, ADMIN
  *   4. Привязывает студента в потоке к этому же пользователю
@@ -68,6 +69,9 @@ async function copyFixtures() {
   await mkdir(path.join(DATA_DIR, 'streams'), { recursive: true });
   await mkdir(path.join(DATA_DIR, 'courses'), { recursive: true });
 
+  await mkdir(path.join(DATA_DIR, 'wish'), { recursive: true });
+  await mkdir(path.join(DATA_DIR, 'questionnaires'), { recursive: true });
+
   const copies: Array<[string, string]> = [
     ['users.json', 'users/users.json'],
     ['streams.json', 'streams/streams.json'],
@@ -76,6 +80,11 @@ async function copyFixtures() {
     ['courses/lessons.json', 'courses/lessons.json'],
     ['courses/steps.json', 'courses/steps.json'],
     ['courses/courses.json', 'courses/courses.json'],
+    ['wish/wishes.json', 'wish/wishes.json'],
+    [
+      'questionnaires/questionnaires.json',
+      'questionnaires/questionnaires.json',
+    ],
   ];
 
   for (const [src, dest] of copies) {

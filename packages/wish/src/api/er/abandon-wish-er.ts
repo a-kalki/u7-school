@@ -36,12 +36,13 @@ export class AbandonWishEr extends EventReaction<
       target,
     );
 
-    // Идемпотентность: бросаем только ожидающее анкету желание.
-    if (!state || state.status !== 'pending') {
+    // Идемпотентность: бросаем только ожидающее анкету желание
+    // (вопрос «можно ли» решает агрегат — предикат, не статус-поле).
+    const wish = state ? new WishAr(state) : undefined;
+    if (!wish?.canAbandon()) {
       return;
     }
 
-    const wish = new WishAr(state);
     wish.abandon();
     await this.resolve.wishRepo.save(wish.state);
   }

@@ -115,27 +115,26 @@ describe('CreateCourseWishUc', () => {
   });
 
   describe('конфликт', () => {
-    test.each([
-      'expressed',
-      'pending',
-      'confirmed',
-    ] as const)('WISH_ALREADY_EXISTS при активном желании в статусе %s', async (status) => {
-      const { wishRepo, uc } = setupUc();
-      wishRepo.findAllByUserAndTarget.mockResolvedValueOnce([
-        makeActiveWish(actorId, plainCourseId, status),
-      ]);
+    test.each(['expressed', 'pending', 'confirmed'] as const)(
+      'WISH_ALREADY_EXISTS при активном желании в статусе %s',
+      async (status) => {
+        const { wishRepo, uc } = setupUc();
+        wishRepo.findAllByUserAndTarget.mockResolvedValueOnce([
+          makeActiveWish(actorId, plainCourseId, status),
+        ]);
 
-      const err = (await uc
-        .handle({ courseId: plainCourseId }, actorId)
-        .catch((e: unknown) => e)) as AppException;
-      expect(err).toBeInstanceOf(AppException);
-      expect(err.error.kind).toBe('conflict');
-      expect(err.error.payload).toMatchObject({
-        userId: actorId,
-        courseId: plainCourseId,
-        status,
-      });
-    });
+        const err = (await uc
+          .handle({ courseId: plainCourseId }, actorId)
+          .catch((e: unknown) => e)) as AppException;
+        expect(err).toBeInstanceOf(AppException);
+        expect(err.error.kind).toBe('conflict');
+        expect(err.error.payload).toMatchObject({
+          userId: actorId,
+          courseId: plainCourseId,
+          status,
+        });
+      },
+    );
 
     test('повторное желание после cancelled разрешено', async () => {
       const { wishRepo, uc } = setupUc();

@@ -174,13 +174,26 @@ if (config.botMode === 'webhook') {
 }
 
 // ══ Graceful shutdown: SIGINT / SIGTERM ══
+// Обёртки запуска (bun run и т.п.) дублируют сигнал: одиночный Ctrl+C
+// доходит дважды — напрямую от терминала + пересылка от обёртки.
+// Дубликат в первые FORCE_EXIT_MS игнорируем; сигнал спустя паузу
+// (реальное второе нажатие при зависшем shutdown) — форс-выход.
+const FORCE_EXIT_MS = 2000;
 let shuttingDown = false;
+let firstSignalAt = 0;
 async function shutdown(signal: string): Promise<void> {
+  const now = Date.now();
   if (shuttingDown) {
-    // Повторный сигнал — немедленный выход (не ждём зависших операций)
+    if (now - firstSignalAt < FORCE_EXIT_MS) {
+      logger.debug('main', `Дубликат ${signal} — игнорирую, graceful уже идёт`);
+      return;
+    }
+    // Повторный сигнал спустя паузу — немедленный выход (не ждём зависших операций)
+    logger.warn('main', `Повторный ${signal} — немедленный выход`);
     process.exit(1);
   }
   shuttingDown = true;
+  firstSignalAt = now;
   logger.info('main', `Получен ${signal} — graceful shutdown`);
 
   try {

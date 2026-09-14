@@ -131,4 +131,99 @@ describe('JsonFileRepo', () => {
       await expect(repo.readAll()).rejects.toThrow(JsonFileRepoError);
     });
   });
+
+  describe('бэкап при ошибках валидации при чтении', () => {
+    test('readAll с невалидными записями создаёт бэкап с пометкой invalid', async () => {
+      const filePath = testFile('data.json');
+      // Файл с валидной и невалидной записью (пустое имя не проходит схему)
+      await Bun.write(
+        filePath,
+        JSON.stringify(
+          [
+            { id: '1', name: 'Валидная' },
+            { id: '2', name: '' },
+          ],
+          null,
+          2,
+        ),
+      );
+      const repo = new JsonFileRepo(ItemSchema, filePath);
+
+      const result = await repo.readAll();
+
+      // Чтение вернуло только валидные записи
+      expect(result).toEqual([{ id: '1', name: 'Валидная' }]);
+
+      // Бэкап появился в подпапке backups рядом с файлом, с пометкой invalid
+      const dir = await Array.fromAsync(
+        new Bun.Glob('*.invalid.*.json').scan({ cwd: `${TEST_DIR}/backups` }),
+      );
+      expect(dir).toHaveLength(1);
+
+      // Бэкап содержит исходное содержимое (включая невалидную запись)
+      const backup = JSON.parse(
+        await Bun.file(`${TEST_DIR}/backups/${dir[0]}`).text(),
+      );
+      expect(backup).toHaveLength(2);
+      expect(backup[1]).toEqual({ id: '2', name: '' });
+    });
+
+    test('повторное чтение не создаёт дубль бэкапа', async () => {
+      const filePath = testFile('data.json');
+      await Bun.write(
+        filePath,
+        JSON.stringify([{ id: '2', name: '' }], null, 2),
+      );
+      const repo = new JsonFileRepo(ItemSchema, filePath);
+
+      await repo.readAll();
+      await repo.readAll();
+      await repo.readAll();
+
+      const dir = await Array.fromAsync(
+        new Bun.Glob('*.json').scan({ cwd: `${TEST_DIR}/backups` }),
+      );
+      expect(dir).toHaveLength(1);
+    });
+
+    test('после записи флаг сброшен: новая порция невалидных — новый бэкап', async () => {
+      const filePath = testFile('data.json');
+      const repo = new JsonFileRepo(ItemSchema, filePath);
+
+      await repo.writeAll([{ id: '1', name: 'Валидная' }]);
+      // Внешняя порча: в файле появилась невалидная запись
+      await Bun.write(
+        filePath,
+        JSON.stringify([{ id: '2', name: '' }], null, 2),
+      );
+      await repo.readAll();
+
+      const dir = await Array.fromAsync(
+        new Bun.Glob('*.invalid.*.json').scan({ cwd: `${TEST_DIR}/backups` }),
+      );
+      expect(dir).toHaveLength(1);
+    });
+
+    test('валидный файл — бэкапа нет', async () => {
+      const filePath = testFile('data.json');
+      await Bun.write(
+        filePath,
+        JSON.stringify([{ id: '1', name: 'Валидная' }], null, 2),
+      );
+      const repo = new JsonFileRepo(ItemSchema, filePath);
+
+      await repo.readAll();
+
+      const backupsExist = await Bun.file(`${TEST_DIR}/backups`).exists();
+      expect(backupsExist).toBe(false);
+    });
+
+    test('отсутствующий файл — чтение без бэкапа и без ошибок', async () => {
+      const repo = new JsonFileRepo(ItemSchema, testFile('fresh.json'));
+
+      expect(await repo.readAll()).toEqual([]);
+      const backupsExist = await Bun.file(`${TEST_DIR}/backups`).exists();
+      expect(backupsExist).toBe(false);
+    });
+  });
 });

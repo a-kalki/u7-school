@@ -390,6 +390,7 @@ describe('MarkAbandonedUc', () => {
     expect(notify).toHaveBeenCalledWith(
       STUDENT_USER_ID,
       'Ты снят с учёбы с потока «Поток JS» за бездействие и исключён из его группы. Прогресс сохранён — если захочешь вернуться, напиши ментору потока.',
+      'warn',
       ACTOR_ID,
     );
   });

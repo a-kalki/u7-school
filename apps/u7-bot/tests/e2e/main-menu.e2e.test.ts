@@ -191,7 +191,9 @@ describe('Главное меню (интеграционные)', () => {
       }),
     );
 
-    expect(String(response.screen?.text)).toBe('Выберите действие:');
+    expect(String(response.screen?.text)).toBe(
+      '🏫 *Главное меню*\n\nВыберите раздел:',
+    );
     expect(response.screen?.text).not.toContain('Привет');
     expect(response.screen?.keyboard).toBeDefined();
   });

@@ -88,6 +88,7 @@ export class MarkAbandonedUc extends StreamUseCase<MarkAbandonedCmdMeta> {
     await this.resolve.userFacade.notify(
       student.userId,
       `Ты снят с учёбы с потока «${stream.title}» за бездействие и исключён из его группы. Прогресс сохранён — если захочешь вернуться, напиши ментору потока.`,
+      'warn',
       actorId,
     );
   }

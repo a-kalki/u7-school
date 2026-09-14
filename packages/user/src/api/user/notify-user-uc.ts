@@ -32,6 +32,7 @@ export class NotifyUserUc extends UserUseCase<NotifyUserCmdMeta> {
       payload: {
         userId: command.userId,
         text: command.text,
+        kind: command.kind,
       },
     };
     this.resolve.eventBus.publish(event);

@@ -174,4 +174,42 @@ describe('WishAr', () => {
       );
     });
   });
+
+  describe('предикаты переходов (для потребителей без лезния в статус)', () => {
+    it('canConfirm — только для pending', () => {
+      expect(makeWish('pending').canConfirm()).toBe(true);
+      expect(makeWish('expressed').canConfirm()).toBe(false);
+      expect(makeWish('confirmed').canConfirm()).toBe(false);
+      expect(makeWish('cancelled').canConfirm()).toBe(false);
+      expect(makeWish('abandoned').canConfirm()).toBe(false);
+      expect(makeWish('fulfilled').canConfirm()).toBe(false);
+    });
+
+    it('canAbandon — только для pending', () => {
+      expect(makeWish('pending').canAbandon()).toBe(true);
+      expect(makeWish('expressed').canAbandon()).toBe(false);
+      expect(makeWish('confirmed').canAbandon()).toBe(false);
+      expect(makeWish('cancelled').canAbandon()).toBe(false);
+      expect(makeWish('abandoned').canAbandon()).toBe(false);
+      expect(makeWish('fulfilled').canAbandon()).toBe(false);
+    });
+
+    it('canCancel — только expressed | confirmed', () => {
+      expect(makeWish('expressed').canCancel()).toBe(true);
+      expect(makeWish('confirmed').canCancel()).toBe(true);
+      expect(makeWish('pending').canCancel()).toBe(false);
+      expect(makeWish('cancelled').canCancel()).toBe(false);
+      expect(makeWish('abandoned').canCancel()).toBe(false);
+      expect(makeWish('fulfilled').canCancel()).toBe(false);
+    });
+
+    it('canFulfill — только expressed | confirmed', () => {
+      expect(makeWish('expressed').canFulfill()).toBe(true);
+      expect(makeWish('confirmed').canFulfill()).toBe(true);
+      expect(makeWish('pending').canFulfill()).toBe(false);
+      expect(makeWish('cancelled').canFulfill()).toBe(false);
+      expect(makeWish('abandoned').canFulfill()).toBe(false);
+      expect(makeWish('fulfilled').canFulfill()).toBe(false);
+    });
+  });
 });

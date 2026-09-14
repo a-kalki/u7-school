@@ -1,3 +1,4 @@
+import type { NotifyKind } from '@u7-scl/core/domain';
 import { AppException } from '@u7-scl/core/domain';
 import type { UserApiModule } from '#api/module';
 import type { UserFacade } from '#domain/facade';
@@ -95,7 +96,12 @@ export class UserInProcFacade implements UserFacade {
     return result as User;
   }
 
-  async notify(userId: string, text: string, actorId?: string): Promise<void> {
-    await this.#userApi.execute('notify-user', { userId, text }, actorId);
+  async notify(
+    userId: string,
+    text: string,
+    kind?: NotifyKind,
+    actorId?: string,
+  ): Promise<void> {
+    await this.#userApi.execute('notify-user', { userId, text, kind }, actorId);
   }
 }

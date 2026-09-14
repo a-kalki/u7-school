@@ -131,7 +131,7 @@ describe('ViewStreamStory (S02-S04)', () => {
     expect(String(response.screen?.text)).toContain('📚 Курс: Fullstack JS');
   });
 
-  test('S02: публичные кнопки — Программа, Студенты, Детали, Назад к списку', async () => {
+  test('S02: публичные кнопки — Детали/Программа (рядом), Студенты, Назад к списку', async () => {
     const { story } = makeStory();
     const response = await story.handleCallback(
       `view:${STREAM_ID}`,
@@ -201,6 +201,9 @@ describe('ViewStreamStory (S02-S04)', () => {
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text);
     expect(text).toContain('Программа курса');
+    // префиксы — как в каталоге «Программы курсов»
+    expect(text).toContain('Проект: Проект «CLI\\-калькулятор»');
+    expect(text).toContain('Урок: Урок «Введение»');
     // дефис в доменном названии экранирован md-интерполяцией
     expect(text).toContain('CLI\\-калькулятор');
     expect(text).toContain('Введение');

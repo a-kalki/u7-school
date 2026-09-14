@@ -44,12 +44,11 @@ export class U7BotUiApp extends BotUiApp<
   User,
   U7BotUiAppResolve
 > {
-  protected declare readonly controllers: Map<string, U7BotController>;
+  declare protected readonly controllers: Map<string, U7BotController>;
 
   /** Диалог меню после /start (сущностной стори нет — якорь для seq/штампов). */
   protected readonly menuPath = APP_DIALOG_PATHS.menu;
 
-  // biome-ignore lint/complexity/noUselessConstructor: сужает тип контроллеров с BotController до U7BotController
   constructor(controllers: U7BotController[]) {
     super(controllers);
   }
@@ -261,7 +260,7 @@ export class U7BotUiApp extends BotUiApp<
   async #shortMenuScreen(actor: User): Promise<Screen> {
     const keyboard = this.#toKeyboard(await this.collectMenuButtons(actor));
     return {
-      text: md`Выберите действие:`,
+      text: md`🏫 *Главное меню*\n\nВыберите раздел:`,
       ...(keyboard ? { keyboard } : {}),
     };
   }

@@ -32,14 +32,13 @@ export abstract class BotUiApp<
   extends UiApp<TResolve>
   implements ProactiveSender
 {
-  protected declare readonly controllers: Map<
+  declare protected readonly controllers: Map<
     string,
     BotController<TAppMeta, TActor, TResolve>
   >;
 
   protected transport!: ProactiveSender;
 
-  // biome-ignore lint/complexity/noUselessConstructor: сужает тип контроллеров с UiController до BotController
   constructor(controllers: BotController<TAppMeta, TActor, TResolve>[]) {
     super(controllers);
   }

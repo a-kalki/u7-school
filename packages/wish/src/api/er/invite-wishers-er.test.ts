@@ -2,6 +2,7 @@ import { describe, expect, mock, test } from 'bun:test';
 import type { StreamCreatedEvent } from '@u7-scl/stream/domain';
 import type { WishApiModuleResolver } from '#domain/module';
 import type { Wish } from '#domain/wish/entity';
+import type { WishInvitedEvent } from '#domain/wish/events';
 import { InviteWishersEr } from './invite-wishers-er';
 
 const streamId = '11111111-1111-4111-8111-111111111111';
@@ -65,8 +66,8 @@ interface ErDeps {
   sameModuleIds?: string[];
   /** Поток, который возвращает streamFacade (undefined — не найден). */
   stream?: typeof stream | undefined;
-  /** Имя ментора (undefined — профиль недоступен). */
-  mentorName?: string;
+  /** Адресат (undefined — профиль недоступен). */
+  addressee?: { uuid: string; name: string; telegramId: number } | undefined;
 }
 
 function setupEr(deps: ErDeps) {
@@ -81,12 +82,9 @@ function setupEr(deps: ErDeps) {
     async (_m: string, _ids: string[]) => deps.sameModuleIds ?? [],
   );
   const getStream = mock(async () => deps.stream);
-  const getUserByUuid = mock(async (uuid: string) =>
-    uuid === mentorId && deps.mentorName !== undefined
-      ? { uuid, name: deps.mentorName, telegramId: 1 }
-      : undefined,
-  );
-  const notify = mock(async (_userId: string, _text: string) => {});
+  const getUserByUuid = mock(async () => deps.addressee);
+  const publish = mock(async (_event: unknown) => {});
+  const logger = { warn: mock(() => {}), info: mock(() => {}) };
 
   const er = new InviteWishersEr();
   er.init({
@@ -97,8 +95,9 @@ function setupEr(deps: ErDeps) {
       whichModulesAreSame,
     },
     streamFacade: { getStream },
-    userFacade: { getUserByUuid, notify },
-    eventBus: { publish: mock(() => {}) },
+    userFacade: { getUserByUuid },
+    eventBus: { publish },
+    appResolver: { logger },
   } as unknown as WishApiModuleResolver);
 
   return {
@@ -108,118 +107,135 @@ function setupEr(deps: ErDeps) {
     whichCoursesIncludeModule,
     whichModulesAreSame,
     getStream,
-    notify,
+    getUserByUuid,
+    publish,
+    logger,
   };
 }
 
-/** Полный ожидаемый текст FR-6 #8 (с сегментом ментора). */
-function expectedText(title: string, date: string, mentor: string): string {
-  return `📣 Открылся набор на «${title}», который ты хотел пройти! Старт: ${date}. Ментор: ${mentor}. Подробности: /start → 📚 Потоки курсов. Для записи нужен ключ — его выдаёт ментор. Не актуально — отмени желание: 📖 Программы курсов → карточка курса → 🗑️.`;
+/** Ожидаемое событие приглашения course-желания. */
+function expectedCourseEvent(wishUuid: string): WishInvitedEvent {
+  return {
+    eventId: expect.any(String),
+    eventName: 'wish.invited',
+    occurredAt: expect.any(String),
+    aggregateName: 'Wish',
+    aggregateId: wishUuid,
+    payload: {
+      userId,
+      telegramId: 777,
+      streamId,
+      targetKind: 'course',
+      courseId,
+    },
+  };
 }
 
 describe('InviteWishersEr', () => {
   // ── Course-ветка ──
 
-  test('поток на первый модуль курса: желающему уходит notify с текстом FR-6 #8', async () => {
+  test('поток на первый модуль курса: желающему публикуется wish.invited', async () => {
     const wish = makeWish();
-    const { notify, er } = setupEr({
+    const { publish, er } = setupEr({
       courseWishes: [wish],
       moduleWishes: [],
       place: { courseId, isFirst: true, isLast: false },
       matchedCourseIds: [courseId],
       stream,
-      mentorName: 'Мария',
+      addressee: { uuid: userId, name: 'Гость', telegramId: 777 },
     });
 
     await er.handle(makeEvent());
 
-    expect(notify).toHaveBeenCalledTimes(1);
-    expect(notify).toHaveBeenCalledWith(
-      userId,
-      expectedText('Поток JS', '01.06.2026', 'Мария'),
-    );
+    expect(publish).toHaveBeenCalledTimes(1);
+    expect(publish).toHaveBeenCalledWith(expectedCourseEvent(wish.uuid));
   });
 
   test('поток не на первом модуле: course-желающие не зовутся', async () => {
-    const { notify, whichCoursesIncludeModule, er } = setupEr({
+    const { publish, whichCoursesIncludeModule, er } = setupEr({
       courseWishes: [makeWish()],
       moduleWishes: [],
       place: { courseId, isFirst: false, isLast: false },
-      matchedCourseIds: [courseId],
       stream,
-      mentorName: 'Мария',
+      addressee: { uuid: userId, name: 'Гость', telegramId: 777 },
     });
 
     await er.handle(makeEvent());
 
-    expect(notify).not.toHaveBeenCalled();
+    expect(publish).not.toHaveBeenCalled();
     expect(whichCoursesIncludeModule).not.toHaveBeenCalled();
   });
 
   test('модуль вне опубликованных курсов: course-ветка молчит, module-ветка работает', async () => {
     const moduleWish = makeModuleWish();
-    const { notify, er } = setupEr({
+    const { publish, er } = setupEr({
       courseWishes: [makeWish()],
       moduleWishes: [moduleWish],
       place: undefined,
       sameModuleIds: [moduleId],
       stream,
-      mentorName: 'Мария',
+      addressee: { uuid: userId, name: 'Гость', telegramId: 777 },
     });
 
     await er.handle(makeEvent());
 
-    expect(notify).toHaveBeenCalledTimes(1);
+    expect(publish).toHaveBeenCalledTimes(1);
+    const event = publish.mock.calls[0]?.[0] as WishInvitedEvent;
+    expect(event.payload.targetKind).toBe('module');
+    expect(event.payload.moduleId).toBe(moduleId);
+    expect(event.payload.courseId).toBeUndefined();
   });
 
   test('исторический матчинг: желание на форк курса получает приглашение', async () => {
     const forkCourseId = '55555555-5555-4555-8555-555555555555';
-    const wish = makeWish({}, forkCourseId);
-    const { notify, er } = setupEr({
-      courseWishes: [wish],
+    const forkWish = makeWish({}, forkCourseId);
+    const { publish, er } = setupEr({
+      courseWishes: [forkWish],
       moduleWishes: [],
       place: { courseId, isFirst: true, isLast: false },
       matchedCourseIds: [forkCourseId],
       stream,
-      mentorName: 'Мария',
+      addressee: { uuid: userId, name: 'Гость', telegramId: 777 },
     });
 
     await er.handle(makeEvent());
 
-    expect(notify).toHaveBeenCalledTimes(1);
+    expect(publish).toHaveBeenCalledTimes(1);
+    const event = publish.mock.calls[0]?.[0] as WishInvitedEvent;
+    expect(event.payload.courseId).toBe(forkCourseId);
   });
 
   test('не совпавшее с программой курса желание не зовётся', async () => {
-    const { notify, er } = setupEr({
+    const { publish, er } = setupEr({
       courseWishes: [makeWish()],
       moduleWishes: [],
       place: { courseId, isFirst: true, isLast: false },
       matchedCourseIds: [],
       stream,
-      mentorName: 'Мария',
+      addressee: { uuid: userId, name: 'Гость', telegramId: 777 },
     });
 
     await er.handle(makeEvent());
 
-    expect(notify).not.toHaveBeenCalled();
+    expect(publish).not.toHaveBeenCalled();
   });
 
-  // ── Module-ветка ──
-
   test('module-желающие зовутся на поток любого модуля (историческая идентичность через фасад)', async () => {
-    const wish = makeModuleWish({}, otherModuleId);
-    const { notify, er } = setupEr({
+    const forkModuleId = '88888888-8888-4888-8888-888888888888';
+    const forkWish = makeModuleWish({}, forkModuleId);
+    const { publish, er } = setupEr({
       courseWishes: [],
-      moduleWishes: [wish],
-      place: { courseId, isFirst: false, isLast: false },
-      sameModuleIds: [otherModuleId],
+      moduleWishes: [forkWish],
+      sameModuleIds: [forkModuleId],
       stream,
-      mentorName: 'Мария',
+      addressee: { uuid: userId, name: 'Гость', telegramId: 777 },
     });
 
     await er.handle(makeEvent());
 
-    expect(notify).toHaveBeenCalledTimes(1);
+    expect(publish).toHaveBeenCalledTimes(1);
+    const event = publish.mock.calls[0]?.[0] as WishInvitedEvent;
+    expect(event.payload.moduleId).toBe(forkModuleId);
   });
 
   test('только активные статусы: findAllByKind вызывается с expressed|confirmed', async () => {
@@ -227,8 +243,6 @@ describe('InviteWishersEr', () => {
       courseWishes: [],
       moduleWishes: [],
       place: { courseId, isFirst: true, isLast: false },
-      stream,
-      mentorName: 'Мария',
     });
 
     await er.handle(makeEvent());
@@ -243,73 +257,85 @@ describe('InviteWishersEr', () => {
     ]);
   });
 
-  test('желаний нет — пустая рассылка, ошибок нет', async () => {
-    const { notify, er } = setupEr({
-      courseWishes: [],
+  test('желаний нет — событий нет, ошибок нет', async () => {
+    const { publish, er } = setupEr({ courseWishes: [], moduleWishes: [] });
+
+    await er.handle(makeEvent());
+
+    expect(publish).not.toHaveBeenCalled();
+  });
+
+  test('несколько совпавших желаний — событие каждому желающему', async () => {
+    const otherUserId = '77777777-7777-4777-8777-777777777777';
+    const wishA = makeWish();
+    const wishB = makeWish({ userId: otherUserId });
+    const { publish, er } = setupEr({
+      courseWishes: [wishA, wishB],
       moduleWishes: [],
       place: { courseId, isFirst: true, isLast: false },
-      stream,
-      mentorName: 'Мария',
-    });
-
-    await er.handle(makeEvent());
-
-    expect(notify).not.toHaveBeenCalled();
-  });
-
-  test('несколько совпавших желаний — notify каждому желающему', async () => {
-    const wish1 = makeWish();
-    const wish2 = makeWish({ status: 'confirmed' });
-    const moduleWish = makeModuleWish();
-    const { notify, er } = setupEr({
-      courseWishes: [wish1, wish2],
-      moduleWishes: [moduleWish],
-      place: { courseId, isFirst: true, isLast: false },
       matchedCourseIds: [courseId],
-      sameModuleIds: [moduleId],
       stream,
-      mentorName: 'Мария',
+      addressee: { uuid: userId, name: 'Гость', telegramId: 777 },
     });
 
     await er.handle(makeEvent());
 
-    expect(notify).toHaveBeenCalledTimes(3);
+    expect(publish).toHaveBeenCalledTimes(2);
   });
 
-  // ── Деградация данных ──
-
-  test('поток не найден → notify не шлётся, ошибки нет', async () => {
-    const { notify, er } = setupEr({
+  test('поток не найден → событие не публикуется, ошибки нет', async () => {
+    const { publish, er } = setupEr({
       courseWishes: [makeWish()],
       moduleWishes: [],
       place: { courseId, isFirst: true, isLast: false },
       matchedCourseIds: [courseId],
       stream: undefined,
-      mentorName: 'Мария',
+      addressee: { uuid: userId, name: 'Гость', telegramId: 777 },
     });
 
-    await expect(er.handle(makeEvent())).resolves.toBeUndefined();
-    expect(notify).not.toHaveBeenCalled();
+    await er.handle(makeEvent());
+
+    expect(publish).not.toHaveBeenCalled();
   });
 
-  test('профиль ментора недоступен → notify уходит без сегмента «Ментор:»', async () => {
-    const { notify, er } = setupEr({
+  test('у адресата нет telegramId → пропуск с лог-предупреждением', async () => {
+    const { publish, getUserByUuid, logger, er } = setupEr({
       courseWishes: [makeWish()],
       moduleWishes: [],
       place: { courseId, isFirst: true, isLast: false },
       matchedCourseIds: [courseId],
       stream,
-      mentorName: undefined,
+      addressee: { uuid: userId, name: 'Гость', telegramId: 777 },
+    });
+    // Профиль есть, но без telegramId
+    (getUserByUuid as ReturnType<typeof mock>).mockImplementation(
+      async () =>
+        ({ uuid: userId, name: 'Гость' }) as unknown as {
+          uuid: string;
+          name: string;
+          telegramId: number;
+        },
+    );
+
+    await er.handle(makeEvent());
+
+    expect(publish).not.toHaveBeenCalled();
+    expect(logger.warn).toHaveBeenCalled();
+  });
+
+  test('профиль адресата недоступен → пропуск с лог-предупреждением', async () => {
+    const { publish, logger, er } = setupEr({
+      courseWishes: [makeWish()],
+      moduleWishes: [],
+      place: { courseId, isFirst: true, isLast: false },
+      matchedCourseIds: [courseId],
+      stream,
+      addressee: undefined,
     });
 
     await er.handle(makeEvent());
 
-    expect(notify).toHaveBeenCalledTimes(1);
-    const [, text] = (notify as ReturnType<typeof mock>).mock.calls[0] as [
-      string,
-      string,
-    ];
-    expect(text).toContain('Открылся набор на «Поток JS»');
-    expect(text).not.toContain('Ментор:');
+    expect(publish).not.toHaveBeenCalled();
+    expect(logger.warn).toHaveBeenCalled();
   });
 });

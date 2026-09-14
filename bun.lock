@@ -5,17 +5,17 @@
     "": {
       "name": "w3c-course",
       "dependencies": {
-        "@google/genai": "^1.51.0",
+        "@google/genai": "^1.52.0",
         "@valibot/to-json-schema": "^1.7.1",
         "markdown-to-telegram": "^0.0.7",
-        "openai": "^6.35.0",
-        "typescript": "^7",
-        "valibot": "^1.0.0",
+        "openai": "^6.49.0",
+        "typescript": "^7.0.2",
+        "valibot": "^1.5.0",
       },
       "devDependencies": {
-        "@biomejs/biome": "^2.4.6",
+        "@biomejs/biome": "^2.5.13",
         "@types/bun": "latest",
-        "@types/markdown-it": "^14.1.2",
+        "@types/markdown-it": "^14.2.0",
       },
     },
     "apps/u7-bot": {
@@ -96,6 +96,7 @@
       "name": "@u7-scl/user",
       "version": "0.1.0",
       "dependencies": {
+        "@u7-scl/app": "workspace:*",
         "@u7-scl/core": "workspace:*",
       },
     },
@@ -316,8 +317,6 @@
     "ecdsa-sig-formatter": ["ecdsa-sig-formatter@1.0.11", "", { "dependencies": { "safe-buffer": "^5.0.1" } }, "sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ=="],
 
     "elysia": ["elysia@1.4.27", "", { "dependencies": { "cookie": "^1.1.1", "exact-mirror": "^0.2.7", "fast-decode-uri-component": "^1.0.1", "memoirist": "^0.4.0" }, "peerDependencies": { "@sinclair/typebox": ">= 0.34.0 < 1", "@types/bun": ">= 1.2.0", "file-type": ">= 20.0.0", "openapi-types": ">= 12.0.0", "typescript": ">= 5.0.0" }, "optionalPeers": ["@types/bun", "typescript"] }, "sha512-2UlmNEjPJVA/WZVPYKy+KdsrfFwwNlqSBW1lHz6i2AHc75k7gV4Rhm01kFeotH7PDiHIX2G8X3KnRPc33SGVIg=="],
-
-    "encoding": ["encoding@0.1.13", "", { "dependencies": { "iconv-lite": "^0.6.2" } }, "sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A=="],
 
     "encoding-sniffer": ["encoding-sniffer@0.2.1", "", { "dependencies": { "iconv-lite": "^0.6.3", "whatwg-encoding": "^3.1.1" } }, "sha512-5gvq20T6vfpekVtqrYQsSCFZ1wEg5+wW0/QaZMWkFr6BqD3NfKs0rLCx4rrVlSWJeZb5NBJgVLswK/w2MWU+Gw=="],
 
