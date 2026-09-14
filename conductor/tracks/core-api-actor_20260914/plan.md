@@ -47,7 +47,7 @@
   - [x] `CI=true bun run check:p user` — зелёный (135 тестов)
 - [ ] Task: Conductor - Ручная верификация 'Фаза 3' (Protocol in workflow.md)
 
-## Фаза 4. Домены wish, course, stream, questionnaire — актор-объект
+## Фаза 4. Домены wish, course, stream, questionnaire — актор-объект [checkpoint: 389b18bf]
 
 - [x] Task: wish — UC `extends U7UseCase`, сигнатуры execute(actor), модуль `extends U7ApiModule`, тесты `ba7dce8`
 - [x] Task: course — UC `extends U7UseCase`, упростить `CourseUseCase` (удалить getActor/getUser), модуль `extends U7ApiModule`, тесты `ba7dce8` (удалены кейсы «несуществующий пользователь» — резолв перенесён на вход приложения)
