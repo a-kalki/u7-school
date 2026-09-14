@@ -44,6 +44,13 @@ class TestAr extends Aggregate<TestArMeta> {
   static readonly arLabel = 'Тестовый агрегат';
 }
 
+// ══ Тестовый актор ══
+
+interface TestActor {
+  uuid: string;
+  name: string;
+}
+
 interface TestUcMeta {
   ucName: 'test-cmd';
   arMeta: TestArMeta;
@@ -51,6 +58,7 @@ interface TestUcMeta {
   output: { bar: string };
   errors: TestUcError;
   requiresAuth: false;
+  actor: TestActor;
   type: 'command';
 }
 
@@ -72,11 +80,7 @@ class TestUseCase extends UseCase<TestUcMeta, TestResolve> {
   protected readonly inputSchema = v.object({ foo: v.string() });
   protected readonly outputSchema = v.object({ bar: v.string() });
 
-  protected async getUser(_userId: string): Promise<Record<string, unknown>> {
-    return {};
-  }
-
-  execute(command: { foo: string }) {
+  execute(command: { foo: string }, actor?: TestActor) {
     if (command.foo === 'bad') {
       this.throwError(
         errBadRequest<TestUcError>('TestUcError', 'Bad input', undefined),
@@ -91,6 +95,9 @@ class TestUseCase extends UseCase<TestUcMeta, TestResolve> {
           undefined,
         ),
       );
+    }
+    if (command.foo === 'who') {
+      return { bar: `actor-${actor?.uuid ?? 'anon'}` };
     }
     return { bar: `ok-${this.resolve.test}` };
   }
@@ -128,6 +135,21 @@ describe('UseCase', () => {
 
     const result = await uc.handle({ foo: 'good' });
     expect(result.bar).toBe('ok-true');
+  });
+
+  test('handle пробрасывает actor-объект в execute', async () => {
+    const uc = new TestUseCase();
+    uc.init({
+      test: true,
+      eventBus: mockEventBus,
+      appResolver: mockAppResolver,
+    });
+
+    const result = await uc.handle({ foo: 'who' }, { uuid: 'u-42', name: 'Т' });
+    expect(result.bar).toBe('actor-u-42');
+
+    const anonymous = await uc.handle({ foo: 'who' });
+    expect(anonymous.bar).toBe('actor-anon');
   });
 
   test('use-case выбрасывает ошибку через throwError из бизнес-логики', async () => {

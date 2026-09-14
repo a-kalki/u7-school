@@ -48,6 +48,7 @@ interface OutputTestUcMeta {
   output: { bar: string; count: number };
   errors: OutputTestError;
   requiresAuth: false;
+  actor: { uuid: string };
   type: 'command';
 }
 

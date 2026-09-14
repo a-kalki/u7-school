@@ -21,12 +21,20 @@ interface TestArMeta extends ArMeta {
   >;
 }
 
+// ══ Тестовый актор ══
+
+interface TestActor {
+  uuid: string;
+  name: string;
+}
+
 interface TestUcMeta extends UcMeta {
   ucName: 'test-cmd';
   arMeta: TestArMeta;
   input: { foo: string };
   output: { bar: string };
   errors: never;
+  actor: TestActor;
 }
 
 // ══ Тестовый UseCase с доступом к resolve ══
@@ -43,12 +51,9 @@ class TestUseCase extends UseCase<TestUcMeta, TestResolve> {
   protected readonly inputSchema = v.object({ foo: v.string() });
   protected readonly outputSchema = v.object({ bar: v.string() });
 
-  protected async getUser(_userId: string): Promise<Record<string, unknown>> {
-    return {};
-  }
-
-  execute(command: { foo: string }) {
-    return { bar: `${command.foo}-${this.resolve.value}` };
+  execute(command: { foo: string }, actor?: TestActor) {
+    const who = actor?.uuid ?? 'anon';
+    return { bar: `${command.foo}-${who}-${this.resolve.value}` };
   }
 }
 
@@ -115,7 +120,7 @@ describe('ApiModule (рефакторинг)', () => {
 
       const result = await module.execute('test-cmd', { foo: 'hello' });
 
-      expect(result).toEqual({ bar: 'hello-resolved' });
+      expect(result).toEqual({ bar: 'hello-anon-resolved' });
     });
 
     test('выбрасывает NO_COMMAND_FOUND для неизвестной команды', async () => {
@@ -156,15 +161,15 @@ describe('ApiModule (рефакторинг)', () => {
     test('выполняет команду с правильным вводом/выводом', async () => {
       const module = new TestModule(makeResolve('abc'));
       const result = await module.execute('test-cmd', { foo: 'x' });
-      expect(result).toEqual({ bar: 'x-abc' });
+      expect(result).toEqual({ bar: 'x-anon-abc' });
     });
 
-    test('пробрасывает actorId в handle', async () => {
+    test('пробрасывает actor-объект в handle', async () => {
       const module = new TestModule(makeResolve('test'));
-      // Проверяем, что execute(...) вызывает handle с actorId
-      // (actorId не влияет на TestUseCase, но должен передаваться)
-      const result = await module.execute('test-cmd', { foo: 'q' }, 'user-1');
-      expect(result).toEqual({ bar: 'q-test' });
+      const actor: TestActor = { uuid: 'user-1', name: 'Иван' };
+      // actor-объект доходит до execute use-case'а целиком
+      const result = await module.execute('test-cmd', { foo: 'q' }, actor);
+      expect(result).toEqual({ bar: 'q-user-1-test' });
     });
   });
 

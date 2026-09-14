@@ -17,7 +17,7 @@ import type { ModuleResolver } from '#domain/types';
 
 type UseCaseType = 'command' | 'query';
 
-export interface UcMeta {
+export interface UcMeta<TActor = unknown> {
   /** Уникальное имя use-case (например "create-course") */
   ucName: string;
   /** Метаданные агрегата, к которому привязан use-case */
@@ -29,6 +29,12 @@ export interface UcMeta {
   requiresAuth: boolean;
   /** Тип use-case: команда или запрос */
   type: 'command' | 'query';
+  /**
+   * Тип актора, выполняющего use-case.
+   * Резолвится один раз на входе приложения (UI-слоем) и передаётся
+   * готовым объектом через ApiApp → ApiModule → UseCase.execute.
+   */
+  actor: TActor;
 }
 
 export interface UcDocType {
@@ -111,26 +117,32 @@ export abstract class UseCase<
   /**
    * Основной метод выполнения use-case.
    * @param command Входящие данные (невалидированные)
-   * @param actorId ID пользователя, выполняющего действие (опционально)
+   * @param actor Объект актора, выполняющего действие (резолвится на входе
+   * приложения; опционален для use-case без авторизации)
    */
-  async handle(command: unknown, actorId?: string): Promise<TMeta['output']> {
-    this.checkAuth(actorId);
+  async handle(
+    command: unknown,
+    actor?: TMeta['actor'],
+  ): Promise<TMeta['output']> {
+    this.checkAuth(actor);
     const validatedCommand = this.validateInput(command);
     const result = await this.execute(
       validatedCommand,
-      actorId as TMeta['requiresAuth'] extends true
-        ? string
-        : string | undefined,
+      actor as TMeta['requiresAuth'] extends true
+        ? TMeta['actor']
+        : TMeta['actor'] | undefined,
     );
     return this.validateOutput(result);
   }
 
   /**
-   * Бизнес-логика use-case
+   * Бизнес-логика use-case. Для requiresAuth=true actor обязателен.
    */
   protected abstract execute(
     command: TMeta['input'],
-    actorId: TMeta['requiresAuth'] extends true ? string : string | undefined,
+    actor: TMeta['requiresAuth'] extends true
+      ? TMeta['actor']
+      : TMeta['actor'] | undefined,
   ): Promise<TMeta['output']> | TMeta['output'];
 
   /**
@@ -163,10 +175,11 @@ export abstract class UseCase<
   }
 
   /**
-   * Проверяет авторизацию. Можно переопределить для кастомной логики.
+   * Проверяет авторизацию (наличие объекта актора).
+   * Можно переопределить для кастомной логики.
    */
-  protected checkAuth(actorId?: string): void {
-    if (this.requiresAuth && actorId === undefined) {
+  protected checkAuth(actor?: TMeta['actor']): void {
+    if (this.requiresAuth && actor === undefined) {
       this.throwBaseErrors(
         errUnauthorized<AuthError>(
           'UNAUTHORIZED_ERROR',

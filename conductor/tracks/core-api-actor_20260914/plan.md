@@ -20,11 +20,11 @@
 
 ## Фаза 2. core/api — дженерик актора
 
-- [ ] Task: UcMeta.actor + UseCase (Red: тесты handle/execute/checkAuth на actor-объекте)
+- [~] Task: UcMeta.actor + UseCase (Red: тесты handle/execute/checkAuth на actor-объекте)
   - [ ] `UcMeta<TActor = unknown>`: поле `actor: TActor`
   - [ ] `UseCase.handle(command, actor?)`, `execute(command, actor)` с условным типом по `requiresAuth`, `checkAuth(actor?)`
   - [ ] Обновить `use-case.test.ts`, `use-case-auth.test.ts`, `use-case-output.test.ts`, `use-case-publish-events.test.ts` на actor-объекты
-- [ ] Task: ApiExecutor/ApiModule/ApiApp — прокидка actor-объекта
+- [~] Task: ApiExecutor/ApiModule/ApiApp — прокидка actor-объекта
   - [ ] `GetUcActorFromMeta<TMeta>` тип-хелпер в `core/domain/types.ts`
   - [ ] `ApiExecutor<TMeta>.execute(ucName, attrs, actor?)`
   - [ ] `ApiModule.execute(..., actor?)`, `ApiApp.execute(..., actor?)` + тесты (`api-module.test.ts`, `api-app.test.ts`)

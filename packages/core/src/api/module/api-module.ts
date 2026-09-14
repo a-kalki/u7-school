@@ -9,6 +9,7 @@ import type {
   ApiModuleMeta,
   AppEnvMode,
   ExtractUcMetaFromMeta,
+  GetUcActorFromMeta,
   GetUcNamesFromMeta,
   ModuleResolver,
 } from '#domain/types';
@@ -83,11 +84,12 @@ export abstract class ApiModule<
 
   /**
    * Выполняет команду с полной типизацией ввода/вывода.
+   * @param actor — готовый объект актора (опционален для UC без авторизации)
    */
   async execute<N extends GetUcNamesFromMeta<TMeta>>(
     ucName: N,
     attrs: ExtractUcMetaFromMeta<TMeta, N>['input'],
-    actorId?: string,
+    actor?: GetUcActorFromMeta<TMeta>,
   ): Promise<ExtractUcMetaFromMeta<TMeta, N>['output']> {
     const start = performance.now();
 
@@ -97,7 +99,7 @@ export abstract class ApiModule<
       this.throwNoCommandFound(ucName);
     }
 
-    const result = await uc.handle(attrs, actorId);
+    const result = await uc.handle(attrs, actor);
 
     const elapsed = (performance.now() - start).toFixed(1);
     this.logger.info(

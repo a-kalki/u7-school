@@ -23,6 +23,15 @@ const mockAppResolver = {
   eventBus: mockEventBus,
 } as unknown as AppResolver;
 
+// ══ Тестовый актор ══
+
+interface TestActor {
+  uuid: string;
+  name: string;
+}
+
+const testActor: TestActor = { uuid: 'user-1', name: 'Иван' };
+
 // ══ Тестовый агрегат ══
 
 type AuthTestError = AccessDeniedError<'AuthTestError'>;
@@ -41,13 +50,15 @@ class TestAr extends Aggregate<TestArMeta> {
   static readonly arLabel = 'Тестовый агрегат';
 }
 
-interface AuthUcMeta {
+/** Мета UC с параметризованной авторизацией */
+interface AuthUcMeta<TAuth extends boolean = boolean> {
   ucName: 'test-auth';
   arMeta: TestArMeta;
   input: { data: string };
   output: { result: string };
   errors: AuthTestError;
-  requiresAuth: boolean;
+  requiresAuth: TAuth;
+  actor: TestActor;
   type: 'command' | 'query';
 }
 
@@ -58,7 +69,7 @@ type AuthResolve = {
 } & ModuleResolver;
 
 /** UseCase, требующий авторизацию */
-class AuthRequiredUseCase extends UseCase<AuthUcMeta, AuthResolve> {
+class AuthRequiredUseCase extends UseCase<AuthUcMeta<true>, AuthResolve> {
   protected readonly ucName = 'test-auth' as const;
   protected readonly ucLabel = 'Тестовый UC с авторизацией';
   protected readonly arMeta = {
@@ -70,17 +81,13 @@ class AuthRequiredUseCase extends UseCase<AuthUcMeta, AuthResolve> {
   protected readonly inputSchema = v.object({ data: v.string() });
   protected readonly outputSchema = v.object({ result: v.string() });
 
-  protected async getUser(_userId: string): Promise<Record<string, unknown>> {
-    return { id: _userId };
-  }
-
-  execute(command: { data: string }, actorId: string) {
-    return { result: `${this.resolve.prefix}:${actorId}:${command.data}` };
+  execute(command: { data: string }, actor: TestActor) {
+    return { result: `${this.resolve.prefix}:${actor.uuid}:${command.data}` };
   }
 }
 
 /** UseCase без авторизации */
-class AuthOptionalUseCase extends UseCase<AuthUcMeta, AuthResolve> {
+class AuthOptionalUseCase extends UseCase<AuthUcMeta<false>, AuthResolve> {
   protected readonly ucName = 'test-auth' as const;
   protected readonly ucLabel = 'Тестовый UC без авторизации';
   protected readonly arMeta = {
@@ -92,13 +99,9 @@ class AuthOptionalUseCase extends UseCase<AuthUcMeta, AuthResolve> {
   protected readonly inputSchema = v.object({ data: v.string() });
   protected readonly outputSchema = v.object({ result: v.string() });
 
-  protected async getUser(_userId: string): Promise<Record<string, unknown>> {
-    return { id: _userId };
-  }
-
-  execute(command: { data: string }, actorId?: string) {
+  execute(command: { data: string }, actor?: TestActor) {
     return {
-      result: `${this.resolve.prefix}:${actorId ?? 'anon'}:${command.data}`,
+      result: `${this.resolve.prefix}:${actor?.uuid ?? 'anon'}:${command.data}`,
     };
   }
 }
@@ -110,13 +113,13 @@ const authResolve: AuthResolve = {
 };
 
 describe('UseCase: авторизация', () => {
-  test('requiresAuth=true требует actorId, иначе выбрасывает ошибку', async () => {
+  test('requiresAuth=true требует actor, иначе выбрасывает ошибку', async () => {
     const uc = new AuthRequiredUseCase();
     uc.init(authResolve);
 
     let caught: unknown;
     try {
-      await uc.handle({ data: 'test' }); // без actorId
+      await uc.handle({ data: 'test' }); // без actor
     } catch (e) {
       caught = e;
     }
@@ -127,20 +130,28 @@ describe('UseCase: авторизация', () => {
     expect(appEx.error.name).toBe('UNAUTHORIZED_ERROR');
   });
 
-  test('requiresAuth=true с actorId выполняется успешно', async () => {
+  test('requiresAuth=true с actor-объектом выполняется успешно', async () => {
     const uc = new AuthRequiredUseCase();
     uc.init(authResolve);
 
-    const result = await uc.handle({ data: 'test' }, 'user-1');
+    const result = await uc.handle({ data: 'test' }, testActor);
     expect(result.result).toBe('ok:user-1:test');
   });
 
-  test('requiresAuth=false работает без actorId', async () => {
+  test('requiresAuth=false работает без actor', async () => {
     const uc = new AuthOptionalUseCase();
     uc.init(authResolve);
 
     const result = await uc.handle({ data: 'test' });
     expect(result.result).toBe('ok:anon:test');
+  });
+
+  test('requiresAuth=false с actor-объектом передаёт его в execute', async () => {
+    const uc = new AuthOptionalUseCase();
+    uc.init(authResolve);
+
+    const result = await uc.handle({ data: 'test' }, testActor);
+    expect(result.result).toBe('ok:user-1:test');
   });
 });
 

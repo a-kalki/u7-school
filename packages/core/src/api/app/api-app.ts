@@ -4,6 +4,7 @@ import type {
   ApiExecutor,
   AppMeta,
   ExtractUcMetaFromMeta,
+  GetUcActorFromMeta,
   GetUcNamesFromMeta,
 } from '#domain/types';
 import type { JobScheduler } from '../job/job-scheduler';
@@ -56,7 +57,7 @@ export class ApiApp<TMeta extends AppMeta>
   async execute<N extends GetUcNamesFromMeta<TMeta>>(
     ucName: N,
     attrs: ExtractUcMetaFromMeta<TMeta, N>['input'],
-    actorId?: string,
+    actor?: GetUcActorFromMeta<TMeta>,
   ): Promise<ExtractUcMetaFromMeta<TMeta, N>['output']> {
     const module = this.getModules().find((m) => m.hasCommand(ucName));
     if (!module) {
@@ -70,6 +71,6 @@ export class ApiApp<TMeta extends AppMeta>
     }
 
     // Логирование — внутри module.execute
-    return module.execute(ucName, attrs, actorId);
+    return module.execute(ucName, attrs, actor);
   }
 }

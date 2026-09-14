@@ -126,3 +126,45 @@ describe('ApiApp — наследование App', () => {
     expect(app.getModules().map((m) => m.name)).toEqual(['a']);
   });
 });
+
+describe('ApiApp.execute() — проброс actor-объекта', () => {
+  interface ExecutorAppMeta extends AppMeta {
+    moduleMetas: {
+      name: 'm';
+      url: '/m';
+      ucMetas: {
+        ucName: 'any-cmd';
+        arMeta: { name: 'Ar'; label: 'Агрегат' };
+        input: { x: number };
+        output: { ok: boolean };
+        errors: never;
+        requiresAuth: false;
+        actor: { uuid: string; name: string };
+        type: 'command';
+      };
+    };
+  }
+
+  test('execute передаёт actor-объект модулю-исполнителю', async () => {
+    const { scheduler } = makeScheduler();
+    const actor = { uuid: 'u-9', name: 'Тест' };
+    const executeMock = mock(async () => ({ ok: true }));
+    const mod = {
+      name: 'm',
+      useCases: [],
+      reactions: [],
+      jobs: [],
+      init: mock(() => {}),
+      hasCommand: () => true,
+      execute: executeMock,
+      getDocTypes: () => [],
+    };
+    const app = new ApiApp<ExecutorAppMeta>([mod] as never);
+    app.init(scheduler);
+
+    const result = await app.execute('any-cmd', { x: 1 }, actor);
+
+    expect(result).toEqual({ ok: true });
+    expect(executeMock).toHaveBeenCalledWith('any-cmd', { x: 1 }, actor);
+  });
+});
