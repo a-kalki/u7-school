@@ -1,0 +1,8 @@
+{
+  "track_id": "core-api-actor_20260914",
+  "type": "refactor",
+  "status": "in-progress",
+  "created_at": "2026-09-14T00:00:00Z",
+  "updated_at": "2026-09-14T00:00:00Z",
+  "description": "Дженеризация core/api по актору: в execute приходит готовый объект User вместо actorId-строки. Канонизация типа User в модуле app. Миграция UC всех доменов, фасадов и приложений (u7-bot, u7-cli) на actor-объект."
+}
