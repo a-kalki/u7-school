@@ -14,7 +14,7 @@ import { CourseUseCase } from '../course-uc';
 
 /**
  * Use-case получения шага по UUID.
- * Без actorId — только PUBLISHED. С actorId — через StepPolicy.
+ * Без actor — только PUBLISHED. С actor — через StepPolicy.
  */
 export class GetStepUc extends CourseUseCase<GetStepCmdMeta> {
   protected readonly ucName = 'get-step' as const;

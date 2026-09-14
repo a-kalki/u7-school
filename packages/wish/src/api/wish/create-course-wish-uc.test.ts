@@ -43,7 +43,7 @@ function setupUc(facadeOverrides: Record<string, unknown> = {}) {
       '11111111-1111-4111-8111-111111111111',
   );
   const startStandard = mock(
-    async (_actorId: string, _pool: unknown, _ownerInfo: unknown) => {},
+    async (_actor: User, _pool: unknown, _ownerInfo: unknown) => {},
   );
 
   const uc = new CreateCourseWishUc();

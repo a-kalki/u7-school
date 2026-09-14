@@ -39,7 +39,7 @@ function setupUc(
       opts.place === undefined ? undefined : opts.place,
   );
   const startStandard = mock(
-    async (_actorId: string, _pool: unknown, _ownerInfo: unknown) => {},
+    async (_actor: User, _pool: unknown, _ownerInfo: unknown) => {},
   );
 
   const uc = new CreateModuleWishUc();

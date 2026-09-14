@@ -41,7 +41,7 @@ describe('CourseProgram (интеграционный)', () => {
       author,
     );
 
-    // Публикуем модуль, чтобы getModuleSnapshot видел его без actorId
+    // Публикуем модуль, чтобы getModuleSnapshot видел его без actor
     await app.apiApp.execute(
       'publish-module',
       { moduleId: newModule.uuid },

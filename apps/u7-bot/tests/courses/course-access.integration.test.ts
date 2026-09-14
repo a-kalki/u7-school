@@ -75,7 +75,7 @@ describe('CourseAccess (интеграционный)', () => {
       author,
     );
 
-    // Получаем курс (без actorId — публичный доступ)
+    // Получаем курс (без actor — публичный доступ)
     const course = await app.apiApp.execute('get-course', {
       uuid: created.uuid,
     });

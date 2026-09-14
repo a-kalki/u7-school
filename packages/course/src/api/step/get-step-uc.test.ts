@@ -59,7 +59,7 @@ function setupUc() {
     async (_uuid: string): Promise<Module | undefined> => undefined,
   );
   const getUserByUuid = mock(
-    async (_userId: string, _actorId?: string): Promise<User | undefined> =>
+    async (_userId: string, _actor?: User): Promise<User | undefined> =>
       undefined,
   );
   const uc = new GetStepUc();
@@ -87,7 +87,7 @@ describe('GetStepUc', () => {
       expect((result as Step).description).toBe('Шаг');
     });
 
-    test('автор видит DRAFT шаг с actorId', async () => {
+    test('автор видит DRAFT шаг с actor', async () => {
       const { getByUuid, courseGetByUuid, getUserByUuid, uc } = setupUc();
       const author = makeUser({ roles: [Role.MENTOR] });
       const moduleId = crypto.randomUUID();

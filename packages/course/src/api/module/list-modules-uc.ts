@@ -13,7 +13,7 @@ const ModulesListOutputSchema = v.array(ModuleSchema);
 
 /**
  * Use-case получения списка модулей.
- * Без actorId — только PUBLISHED. С actorId — через getOutModule.
+ * Без actor — только PUBLISHED. С actor — через getOutModule.
  */
 export class ListModulesUc extends CourseUseCase<ListModulesCmdMeta> {
   protected readonly ucName = 'list-modules' as const;

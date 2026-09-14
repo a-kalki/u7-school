@@ -34,7 +34,7 @@ src/api/
 
 ## Вход в модуль: Команды и Entry Point
 
-Каждый модуль предоставляет единый **entry point** — класс `Module`, с методом `execute(uc-name: sting, ...other)` выполняющий указанный usecase (uc):
+Каждый модуль предоставляет единый **entry point** — класс `Module`, с методом `execute(uc-name, attrs, actor?)` выполняющий указанный usecase (uc). Актор — готовый объект `User`, резолвится один раз на входе приложения и протаскивается через `ApiApp.execute → ApiModule.execute → UseCase.handle → execute` (дженерик `TActor` классов core/api, закрыт на `User` в `@u7-scl/app/domain` через `U7UseCase`/`U7ApiModule`/`U7ApiApp`):
 
 ### Поток выполнения команды
 

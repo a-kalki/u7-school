@@ -14,7 +14,7 @@ const CoursesListOutputSchema = v.array(CourseSchema);
 
 /**
  * Use-case получения списка курсов.
- * Без actorId — только PUBLISHED.
+ * Без actor — только PUBLISHED.
  */
 export class ListCoursesUc extends CourseUseCase<ListCoursesCmdMeta> {
   protected readonly ucName = 'list-courses' as const;

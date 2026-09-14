@@ -43,9 +43,16 @@ export interface CreateStreamCmdMeta {
 }
 ```
 
-### Хелперы базового UC модуля
+### Актор и хелперы базового UC модуля
 
-Каждый модуль обычно предоставляет свой базовый UC (`StreamUseCase`) с хелперами: `getActor(actorId)` (бросает если не найден), `getStream(id)` (возвращает `undefined`), `throwAccessDenied(msg)`. См. `packages/stream/src/api/stream-uc.ts`.
+Актор — готовый объект `User` (канонический тип в `@u7-scl/app/domain`), резолвится
+один раз на входе приложения и приходит параметром в `execute(command, actor)`.
+Резолв актора внутри UC (`getActor(actorId)`) — удалён: базовый класс доменного UC
+наследует `U7UseCase` из `@u7-scl/app/domain`, закрывающий дженерик актора на `User`.
+
+Каждый модуль обычно предоставляет свой базовый UC (`StreamUseCase`) с хелперами:
+`getStream(id)` (возвращает `undefined`), `throwAccessDenied(msg)`.
+См. `packages/stream/src/api/stream-uc.ts`.
 
 ---
 

@@ -128,7 +128,7 @@ type UcEnv = {
 
 function setupUc(): UcEnv {
   const getUserByUuid = mock(
-    async (_userId: string, _actorId?: string): Promise<User | undefined> =>
+    async (_userId: string, _actor?: User): Promise<User | undefined> =>
       undefined,
   );
   const courseRepoGetByUuid = mock(async () => undefined);
@@ -212,7 +212,7 @@ describe('ContentPathSchema', () => {
 
 describe('ResolveContentPathUc', () => {
   describe('SUCCESS — роли', () => {
-    test('curious (без actorId) — видит только заголовки, без content/code', async () => {
+    test('curious (без actor) — видит только заголовки, без content/code', async () => {
       const env = setupUc();
       setupProgramMocks(env);
 

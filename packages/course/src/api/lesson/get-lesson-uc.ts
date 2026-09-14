@@ -14,7 +14,7 @@ import { CourseUseCase } from '../course-uc';
 
 /**
  * Use-case получения урока по UUID.
- * Без actorId — только PUBLISHED. С actorId — через LessonPolicy.
+ * Без actor — только PUBLISHED. С actor — через LessonPolicy.
  */
 export class GetLessonUc extends CourseUseCase<GetLessonCmdMeta> {
   protected readonly ucName = 'get-lesson' as const;

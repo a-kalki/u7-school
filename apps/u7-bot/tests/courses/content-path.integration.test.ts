@@ -15,7 +15,7 @@ import { createTestApp } from '@u7-scl/test-helpers/test-app';
  * - Алиасы (m1:p1:l1:s1)
  * - Ошибочные пути (not found)
  * - **Ролевой фильтр:**
- *   - curious (без actorId) — заголовки видны, content/code скрыты
+ *   - curious (без actor) — заголовки видны, content/code скрыты
  *   - mentor (ADMIN/AUTHOR) — полный контент
  */
 describe('ResolveContentPath (интеграционный)', () => {
@@ -73,7 +73,7 @@ describe('ResolveContentPath (интеграционный)', () => {
   // Уровень модуля (A)
   // ═══════════════════════════════════════════
 
-  test('путь "1" — уровень модуля, без actorId', async () => {
+  test('путь "1" — уровень модуля, без actor', async () => {
     const result: any = await app.apiApp.execute('resolve-content-path', {
       path: '1',
       courseId: courseUuid,
@@ -128,7 +128,7 @@ describe('ResolveContentPath (интеграционный)', () => {
   // Уровень урока (A:B:C)
   // ═══════════════════════════════════════════
 
-  test('путь "1:1:1" — уровень урока, без actorId (curious)', async () => {
+  test('путь "1:1:1" — уровень урока, без actor (curious)', async () => {
     const result: any = await app.apiApp.execute('resolve-content-path', {
       path: '1:1:1',
       courseId: courseUuid,

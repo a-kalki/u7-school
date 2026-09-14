@@ -61,7 +61,7 @@ function setupUc() {
     async (_uuid: string): Promise<Module | undefined> => undefined,
   );
   const getUserByUuid = mock(
-    async (_userId: string, _actorId?: string): Promise<User | undefined> =>
+    async (_userId: string, _actor?: User): Promise<User | undefined> =>
       undefined,
   );
   const uc = new GetLessonUc();
@@ -89,7 +89,7 @@ describe('GetLessonUc', () => {
       expect((result as Lesson).title).toBe('Урок');
     });
 
-    test('автор видит DRAFT урок с actorId', async () => {
+    test('автор видит DRAFT урок с actor', async () => {
       const { getByUuid, courseGetByUuid, getUserByUuid, uc } = setupUc();
       const author = makeUser({ roles: [Role.MENTOR] });
       const moduleId = crypto.randomUUID();
