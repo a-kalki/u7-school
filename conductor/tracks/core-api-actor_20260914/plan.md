@@ -40,11 +40,11 @@
   - [x] `CI=true bun run check:p app` — зелёный; корневой tsc — зелёный (строки совместимы с unknown до миграции доменов)
 - [ ] Task: Conductor - Ручная верификация 'Фаза 2' (Protocol in workflow.md)
 
-## Фаза 3. Домен user — актор-объект
+## Фаза 3. Домен user — актор-объект [checkpoint: см. 5c4de46]
 
-- [ ] Task: UC домена user: база `UserUseCase extends U7UseCase`, сигнатуры `execute(command, actor: User)`, удалить `getActor()`; модуль `UserApiModule extends U7ApiModule`
-- [ ] Task: UserFacade + UserInProcFacade — `actor?: User`; `#userApi: U7ApiExecutor`; тесты домена
-  - [ ] `CI=true bun run check:p user` — зелёный
+- [x] Task: UC домена user: база `UserUseCase extends U7UseCase`, сигнатуры `execute(command, actor: User)`, удалить `getActor()`; модуль `UserApiModule extends U7ApiModule` `5c4de46`
+- [x] Task: UserFacade + UserInProcFacade — `actor?: User`; тесты домена (registerGuest: nick?/actor? поменялись местами — actor последним) `5c4de46`
+  - [x] `CI=true bun run check:p user` — зелёный (135 тестов)
 - [ ] Task: Conductor - Ручная верификация 'Фаза 3' (Protocol in workflow.md)
 
 ## Фаза 4. Домены wish, course, stream, questionnaire — актор-объект
