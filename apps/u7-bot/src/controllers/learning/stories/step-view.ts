@@ -80,6 +80,18 @@ export class StepViewStory extends U7BotUiStory {
       streamId: student.streamId,
     });
 
+    // Все шаги программы завершены, а итоговый статус ставит ментор —
+    // показываем экран завершения потока вместо повторного рендера шага
+    // (иначе повтор «Выполнено» даёт same-content edit и ошибку Telegram
+    // «message is not modified»)
+    const progress = StreamDs.computeProgress(
+      (stream as { contentSnapshot: ContentSnapshot }).contentSnapshot,
+      student,
+    );
+    if (progress.total > 0 && progress.completed >= progress.total) {
+      return this.#streamCompletedScreen();
+    }
+
     return this.#buildStepView(
       stream as { title: string; contentSnapshot: ContentSnapshot },
       stepId,
@@ -122,10 +134,7 @@ export class StepViewStory extends U7BotUiStory {
     }
 
     if (result.level === 'stream') {
-      return this.screen(
-        md`🏆 *Поток полностью завершён\\!* Поздравляю с успешным окончанием обучения\\!`,
-        this.kb([[buttons.mainMenu()]]),
-      );
+      return this.#streamCompletedScreen();
     }
 
     if (result.level === 'lesson' || result.level === 'project') {
@@ -278,6 +287,14 @@ export class StepViewStory extends U7BotUiStory {
     return this.kb([
       [this.btn('✅ Выполнено', this.cb('complete', streamId, stepId))],
     ]);
+  }
+
+  /** Экран S05c «Завершение потока». */
+  #streamCompletedScreen(): DialogResponse {
+    return this.screen(
+      md`🏆 *Поток полностью завершён\\!* Поздравляю с успешным окончанием обучения\\!`,
+      this.kb([[buttons.mainMenu()]]),
+    );
   }
 
   // ── Приватные методы: переходы ──

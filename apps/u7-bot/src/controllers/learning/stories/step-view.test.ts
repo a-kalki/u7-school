@@ -223,7 +223,8 @@ describe('StepViewStory', () => {
     );
     assertDialogResponseMarkdownSafe(response);
 
-    // Повторное нажатие «Выполнено» не должно показывать «поток завершён»
+    // Повторное нажатие «Выполнено» не должно показывать «поток завершён»,
+    // пока в программе остались непройденные шаги
     expect(String(response.screen?.text)).not.toContain(
       'Поток полностью завершён',
     );
@@ -232,6 +233,63 @@ describe('StepViewStory', () => {
     const btnTexts =
       response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
+  });
+
+  /** Студент, прошедший все шаги программы (итоговый статус ещё ставит ментор). */
+  const finishedStudent = {
+    ...mockStudent,
+    currentStepId: STEP3_ID,
+    steps: [
+      { stepId: STEP1_ID, status: 'completed' },
+      { stepId: STEP2_ID, status: 'completed' },
+      { stepId: STEP3_ID, status: 'completed' },
+      { stepId: 'step-4', status: 'completed' },
+    ],
+  };
+
+  test('my-study:continue — все шаги пройдены (статус ещё active) — экран завершения потока', async () => {
+    // Прод-кейс: после прохождения всей программы «Продолжить учёбу» вело
+    // на уже завершённый шаг с кнопкой «Выполнено» — повторный клик давал
+    // same-content edit и ошибку Telegram «message is not modified»
+    const { story } = makeStory({
+      'get-student-by-user': finishedStudent,
+    });
+
+    const response = await story.handleCallback(
+      'my-study:continue',
+      studentActor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    expect(String(response.screen?.text)).toContain('Поток полностью завершён');
+
+    // Кнопки «Выполнено» нет — экран финальный
+    const btnTexts =
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Главное меню'))).toBe(true);
+  });
+
+  test('complete — already_completed на последнем шаге — экран завершения потока', async () => {
+    // Повторный клик «Выполнено» на последнем шаге: вместо дубля шага —
+    // финальный экран (контент меняется, edit проходит)
+    const { story } = makeStory({
+      'get-student-by-user': finishedStudent,
+      'complete-step': {
+        level: 'already_completed',
+        currentStepId: STEP3_ID,
+      },
+    });
+
+    const response = await story.handleCallback(
+      `complete:${STREAM_ID}:${STEP3_ID}`,
+      studentActor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    expect(String(response.screen?.text)).toContain('Поток полностью завершён');
   });
 
   test('complete — сверяет student.streamId с streamId из callback', async () => {
