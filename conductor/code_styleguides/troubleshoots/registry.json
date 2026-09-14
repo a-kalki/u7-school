@@ -6,7 +6,11 @@
   },
   "entries": {
     "bot-controller-response-prefix": {
-      "tags": ["core", "bot-ui", "prefix"],
+      "tags": [
+        "core",
+        "bot-ui",
+        "prefix"
+      ],
       "description": "Экраны из handleMessage/команд без префикса контроллера — кнопки дают «Неизвестная команда»",
       "symptoms": [
         "Неизвестная команда",
@@ -18,14 +22,18 @@
       ],
       "file": "bot-controller-response-prefix.md",
       "created_at": "2026-09-11",
-      "shown": 0,
+      "shown": 1,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": null,
+      "last_shown_at": "2026-09-14",
       "last_used_at": null
     },
     "deploy-migration-updatedAt-format": {
-      "tags": ["deploy", "valibot", "isoDateTime"],
+      "tags": [
+        "deploy",
+        "valibot",
+        "isoDateTime"
+      ],
       "description": "Миграция пишет updatedAt с пробелом вместо T — невалидный isoDateTime",
       "symptoms": [
         "Некорректный формат даты обновления",
@@ -36,14 +44,17 @@
       ],
       "file": "deploy-migration-updatedAt-format.md",
       "created_at": "2026-07-09",
-      "shown": 0,
+      "shown": 1,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": null,
+      "last_shown_at": "2026-09-14",
       "last_used_at": null
     },
     "git-archive-gitignore": {
-      "tags": ["git", "gitignore"],
+      "tags": [
+        "git",
+        "gitignore"
+      ],
       "description": "conductor/archive/ в .gitignore — git add отказывается добавлять",
       "symptoms": [
         "Следующие пути игнорируются",
@@ -60,7 +71,11 @@
       "last_used_at": null
     },
     "markdownv2-unescaped-parens-around-link": {
-      "tags": ["telegram", "markdownv2", "proactive"],
+      "tags": [
+        "telegram",
+        "markdownv2",
+        "proactive"
+      ],
       "description": "Неэкранированные скобки вокруг t.me-ссылки ломают разбор MarkdownV2 — проактивное сообщение не доставляется",
       "symptoms": [
         "MarkdownV2 validation failed",
@@ -78,7 +93,11 @@
       "last_used_at": null
     },
     "pi-edit-bash-race-empty-commit": {
-      "tags": ["pi", "git", "race"],
+      "tags": [
+        "pi",
+        "git",
+        "race"
+      ],
       "description": "edit + зависимый git-коммит в одном parallel-блоке — в коммит попадает пустой файл",
       "symptoms": [
         "blob e69de29b",
@@ -96,7 +115,10 @@
       "last_used_at": null
     },
     "pi-tsubstitution-edit": {
-      "tags": ["pi", "edit"],
+      "tags": [
+        "pi",
+        "edit"
+      ],
       "description": "$T-подстановка ломает edit на skill-файлах — oldText не совпадает",
       "symptoms": [
         "Could not find edits[0]",
@@ -107,14 +129,18 @@
       ],
       "file": "pi-tsubstitution-edit.md",
       "created_at": "2026-07-08",
-      "shown": 0,
+      "shown": 1,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": null,
+      "last_shown_at": "2026-09-14",
       "last_used_at": null
     },
     "testbot-api-log-chronology": {
-      "tags": ["bun-test", "test-stand", "edit"],
+      "tags": [
+        "bun-test",
+        "test-stand",
+        "edit"
+      ],
       "description": "Склейка Api-записей [...edited, ...sent] даёт неверную хронологию экранов при edit/send-чередовании",
       "symptoms": [
         "editedMessages",
@@ -126,14 +152,18 @@
       ],
       "file": "testbot-api-log-chronology.md",
       "created_at": "2026-09-09",
-      "shown": 0,
+      "shown": 1,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": null,
+      "last_shown_at": "2026-09-14",
       "last_used_at": null
     },
     "valibot-isoDateTime-format": {
-      "tags": ["valibot", "test", "date"],
+      "tags": [
+        "valibot",
+        "test",
+        "date"
+      ],
       "description": "isoDateTime принимает только YYYY-MM-DDTHH:mm, отклоняет миллисекунды и Z",
       "symptoms": [
         "expect(true).toBe(false)",
@@ -145,14 +175,18 @@
       ],
       "file": "valibot-isoDateTime-format.md",
       "created_at": "2026-05-08",
-      "shown": 0,
+      "shown": 1,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": null,
+      "last_shown_at": "2026-09-14",
       "last_used_at": null
     },
     "wish-getbyuserandtarget-createdAt-tie": {
-      "tags": ["wish", "repo", "createdAt"],
+      "tags": [
+        "wish",
+        "repo",
+        "createdAt"
+      ],
       "description": "getByUserAndTarget при равных createdAt возвращает недетерминированную запись — конфликты не срабатывают",
       "symptoms": [
         "WISH_ALREADY_EXISTS",
@@ -163,10 +197,10 @@
       ],
       "file": "wish-getbyuserandtarget-createdAt-tie.md",
       "created_at": "2026-08-28",
-      "shown": 0,
+      "shown": 1,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": null,
+      "last_shown_at": "2026-09-14",
       "last_used_at": null
     }
   }
