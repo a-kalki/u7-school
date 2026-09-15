@@ -1,0 +1,27 @@
+Задача: Тесты интеграции + реализация персистентности в bot-transport, main.ts (Фаза 3, трек bot-ui-session-persist_20260905)
+
+Сводка:
+- BotTransport.restore(): восстановление сессий и shortId-мапы из repo
+  (structuredClone — защита от мутаций чужих ссылок); без repo — no-op;
+  ошибки чтения не глушатся (fail-fast старта).
+- #persistUpdate(tgId, session): синхронная запись после каждого
+  обработанного апдейта (command/callback/message/invite) внутри per-chat
+  очереди (await до завершения handle-пути). notify — не пишет (И3).
+  Пустая сессия → remove (JsonBotSessionRepo.remove no-op при отсутствии).
+- Ранние возвраты handleCallback (валидация: нет диалога / штамп / stale)
+  тоже завершаются persist — 'после каждого апдейта' без исключений.
+- shortId: shrink() помечает ключ в #dirtyShortIds; persist-шаг пишет
+  saveShortId и чистит набор. Без shrink записей нет.
+- Ошибка записи: try/catch → warn-лог 'Не сохранена сессия в хранилище',
+  работа в памяти продолжается (повтор на следующем апдейте).
+- main.ts: JsonBotSessionRepo(dbDir/bot/sessions.json, dbDir/bot/short-ids.json),
+  restore() до запуска polling/webhook.
+
+Файлы:
+- apps/u7-bot/src/infra/bot-transport.ts (интеграция)
+- apps/u7-bot/src/infra/bot-transport-persist.test.ts (+14 тестов)
+- apps/u7-bot/src/infra/json-bot-session-repo.test.ts (формат суффикса '-1')
+- apps/u7-bot/src/main.ts (repo + restore)
+
+Проверки: bun run check весь репозиторий зелёный (2131 тестов);
+покрытие: bot-transport.ts 93.4% funcs, json-bot-session-repo.ts 100%.
