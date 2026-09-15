@@ -7,6 +7,7 @@ import {
 import {
   assertDialogResponseMarkdownSafe,
   type BotSession,
+  type BotSessionRepo,
   type BotUpdate,
   type CommandUpdate,
   type DialogResponse,
@@ -186,7 +187,15 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   /** Хвосты per-chat очередей: tgId → нормализованный хвост. */
   private readonly queues = new Map<number, Promise<void>>();
 
-  constructor(uiApp: DialogUiAppPort, botApi: Api) {
+  /**
+   * @param sessionRepo — хранилище сессий (персистентность); не задано —
+   *  in-memory-режим (нынешнее поведение: сессии живут до рестарта, тесты).
+   */
+  constructor(
+    uiApp: DialogUiAppPort,
+    botApi: Api,
+    _sessionRepo?: BotSessionRepo,
+  ) {
     this.uiApp = uiApp;
     this.botApi = botApi;
   }
