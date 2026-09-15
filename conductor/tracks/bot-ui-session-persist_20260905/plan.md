@@ -10,8 +10,8 @@
 
 ## Фаза 2: JsonBotSessionRepo
 
-- [ ] Task: Написать падающие тесты `JsonBotSessionRepo` (`apps/u7-bot/src/infra`): round-trip `BotSession` (dialog + screen), round-trip shortId-маппинга, Valibot-валидация при чтении, fail-fast на битом файле (`JsonFileRepoError`, без молчаливых пересозданий)
-- [ ] Task: Реализовать на `JsonFileRepo`/`BaseJsonDb`: коллекция сессий (ключ — chatId), коллекция shortId-записей (`hexKey → UUID` + суффиксы)
+- [x] Task: Написать падающие тесты `JsonBotSessionRepo` (`apps/u7-bot/src/infra`): round-trip `BotSession` (dialog + screen), round-trip shortId-маппинга, Valibot-валидация при чтении, fail-fast на битом файле (`JsonFileRepoError`, без молчаливых пересозданий)
+- [x] Task: Реализовать на `JsonFileRepo`/`BaseJsonDb`: коллекция сессий (ключ — chatId), коллекция shortId-записей (`hexKey → UUID` + суффиксы) `0c2bfe9`
 - [ ] Conductor - User Manual Verification 'JsonBotSessionRepo' (Protocol in workflow.md)
 
 ## Фаза 3: Интеграция транспорта
