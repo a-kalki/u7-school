@@ -71,6 +71,9 @@ async function copyFixtures() {
 
   await mkdir(path.join(DATA_DIR, 'wish'), { recursive: true });
   await mkdir(path.join(DATA_DIR, 'questionnaires'), { recursive: true });
+  // Персистентность бота (трек bot-ui-session-persist): каждый пересев
+  // даёт чистые сессии — пустые коллекции перезаписывают накопленное.
+  await mkdir(path.join(DATA_DIR, 'bot'), { recursive: true });
 
   const copies: Array<[string, string]> = [
     ['users.json', 'users/users.json'],
@@ -85,6 +88,8 @@ async function copyFixtures() {
       'questionnaires/questionnaires.json',
       'questionnaires/questionnaires.json',
     ],
+    ['bot/sessions.json', 'bot/sessions.json'],
+    ['bot/short-ids.json', 'bot/short-ids.json'],
   ];
 
   for (const [src, dest] of copies) {
