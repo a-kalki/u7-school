@@ -1,0 +1,22 @@
+Задача: Тесты JsonBotSessionRepo + реализация на JsonFileRepo (Фаза 2, трек bot-ui-session-persist_20260905)
+
+Сводка:
+- JsonBotSessionRepo (apps/u7-bot/src/infra/json-bot-session-repo.ts):
+  implements BotSessionRepo. Две коллекции JsonFileRepo:
+  * сессии: SessionRecordSchema [{tgId, session}], save перезаписывает
+    по tgId, remove — no-op при отсутствии;
+  * shortId: ShortIdRecordSchema [{key, uuid}] — ключ с суффиксом
+    коллизии, перезапись того же ключа легальна.
+- Valibot-схемы зеркалят контракт «Диалог и Экран»: BotSessionSchema
+  (dialog: path/seq/input{context: unknown}, screen: messageId/
+  ownerSeq/text/keyboard{rows[{text,code,url?}], isMultiple}).
+- Повреждение файла: битый JSON → JsonFileRepoError (fail-fast,
+  файл не перезаписывается); невалидные записи → пропуск с warn
+  и бэкапом (поведение JsonFileRepo).
+
+Файлы:
+- apps/u7-bot/src/infra/json-bot-session-repo.ts (новый)
+- apps/u7-bot/src/infra/json-bot-session-repo.test.ts (новый, 17 тестов)
+
+TDD: Red зафиксирован (модуль отсутствовал), Green — 17/17.
+Проверки: bun run check весь репозиторий зелёный (2117 тестов).
