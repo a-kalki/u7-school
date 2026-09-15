@@ -13,6 +13,7 @@ import { createApiApp } from './create-api-app';
 import { createUiApp } from './create-ui-app';
 import { registerGroupHandlers } from './handlers/group-handler';
 import { BotTransport } from './infra/bot-transport';
+import { JsonBotSessionRepo } from './infra/json-bot-session-repo';
 import { TelegramLogger } from './infra/logger';
 
 const config = loadConfig();
@@ -33,8 +34,19 @@ const apiBundle = createApiApp(config, logger);
 const uiBundle = await createUiApp(apiBundle.apiApp, apiBundle, config);
 
 // ══ BotTransport — единый слой Grammy ↔ UiApp (контракт «Диалог и Экран») ══
-// Сессиями BotSession владеет транспорт (внутренняя мапа).
-const transport = new BotTransport(uiBundle.uiApp, bot.api);
+// Сессии и shortId-мапа переживают рестарт (JsonBotSessionRepo, трек
+// bot-ui-session-persist): старые кнопки остаются нажимаемыми, диалоги
+// продолжаются. Запись — синхронно после каждого обработанного апдейта.
+const botSessionRepo = new JsonBotSessionRepo(
+  `${config.dbDir}/bot/sessions.json`,
+  `${config.dbDir}/bot/short-ids.json`,
+);
+const transport = new BotTransport(uiBundle.uiApp, bot.api, botSessionRepo);
+
+// Персистентность: восстановление ДО запуска polling/webhook.
+// Битый файл — fail-fast (JsonFileRepoError): падение старта с явной
+// ошибкой, никаких молчаливых пересозданий.
+await transport.restore();
 
 // ══ Жизненный цикл: init → start ══
 // transport передаётся отдельным аргументом (ProactiveSender).

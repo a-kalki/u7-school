@@ -145,11 +145,11 @@ describe('JsonBotSessionRepo — shortId-маппинг', () => {
     const uuidA = 'a1b2c3d4-0001-0000-0000-000000000001';
     const uuidB = 'a1b2c3d4-0002-0000-0000-000000000002';
     await repo.saveShortId('~a1b2c3d4', uuidA);
-    await repo.saveShortId('~a1b2c3d4#1', uuidB);
+    await repo.saveShortId('~a1b2c3d4-1', uuidB);
 
     const map = await repo.loadShortIds();
     expect(map.get('~a1b2c3d4')).toBe(uuidA);
-    expect(map.get('~a1b2c3d4#1')).toBe(uuidB);
+    expect(map.get('~a1b2c3d4-1')).toBe(uuidB);
   });
 
   test('перезапись того же ключа легальна', async () => {

@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { mdRaw } from '@u7-scl/core/shared';
+import { JsonFileRepoError } from '@u7-scl/core/infra';
+import { type Logger, mdRaw, setGlobalLogger } from '@u7-scl/core/shared';
 import type {
   BotSession,
   BotSessionRepo,
@@ -65,14 +66,29 @@ function makeCommandCtx(text: string, tgId = 123): BotContext {
   });
 }
 
-function makeSessionRepo(): BotSessionRepo {
+function makeSessionRepo(
+  sessions: Map<number, BotSession> = new Map(),
+  shortIds: Map<string, string> = new Map(),
+): BotSessionRepo {
   return {
-    loadAll: mock(async () => new Map<number, BotSession>()),
+    loadAll: mock(async () => sessions),
     save: mock(async () => {}),
     remove: mock(async () => {}),
-    loadShortIds: mock(async () => new Map<string, string>()),
+    loadShortIds: mock(async () => shortIds),
     saveShortId: mock(async () => {}),
   };
+}
+
+function makeLogger(): Logger {
+  return {
+    debug: mock(() => {}),
+    info: mock(() => {}),
+    warn: mock(() => {}),
+    error: mock(() => {}),
+    setLogLevel: mock(() => {}),
+    getLogLevel: mock(() => 0),
+    setSourceLevel: mock(() => {}),
+  } as unknown as Logger;
 }
 
 function kb(code: string, text = 'Кнопка') {
@@ -194,5 +210,245 @@ describe('BotTransport — repo через конструктор (опцион�
     );
 
     expect(callsOf(bundle.uiApp.handleCallback).length).toBe(1);
+  });
+});
+
+// ── Персистентность апдейтов (Фаза 3) ──
+
+describe('BotTransport — персистентность апдейтов', () => {
+  test('handleCommand: сессия сохраняется синхронно (await до завершения пути)', async () => {
+    let saved = false;
+    const repo = makeSessionRepo();
+    repo.save = mock(async () => {
+      await new Promise((r) => setTimeout(r, 20));
+      saved = true;
+    });
+    const bundle = makeTransport(
+      {
+        handleCommand: mock(
+          async (_u: CommandUpdate, _t: number, s: BotSession) => {
+            s.dialog = { path: 'app/menu', seq: 1 };
+            return { screen: { text: mdRaw('Меню') } };
+          },
+        ),
+      },
+      repo,
+    );
+
+    await bundle.transport.handleCommand(makeCommandCtx('/start'));
+
+    // К моменту завершения handle-пути запись уже завершена.
+    expect(saved).toBe(true);
+    const [tgId, session] = callsOf(repo.save)[0] as [number, BotSession];
+    expect(tgId).toBe(123);
+    expect(session.dialog?.path).toBe('app/menu');
+    expect(session.screen?.messageId).toBe(1);
+  });
+
+  test('handleCallback: сессия сохраняется после апдейта', async () => {
+    const repo = makeSessionRepo();
+    const bundle = makeTransport({}, repo);
+    const pressed = await startDialog(bundle);
+    callsOf(repo.save).length = 0;
+
+    await bundle.transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
+    );
+
+    expect(callsOf(repo.save).length).toBe(1);
+  });
+
+  test('handleMessage: ввод сохраняется после апдейта (input.context)', async () => {
+    const repo = makeSessionRepo();
+    const bundle = makeTransport(
+      {
+        handleCommand: mock(
+          async (_u: CommandUpdate, _t: number, s: BotSession) => {
+            s.dialog = { path: 'courses/fill', seq: 3 };
+            return { awaitInput: { context: { q: 1 } } };
+          },
+        ),
+        handleMessage: mock(async () => ({
+          screen: { text: mdRaw('Принято') },
+        })),
+      },
+      repo,
+    );
+    await bundle.transport.handleCommand(makeCommandCtx('/start'));
+    callsOf(repo.save).length = 0;
+
+    await bundle.transport.handleMessage(
+      makeCtx({ message: { text: 'ответ' } as BotContext['message'] }),
+    );
+
+    expect(callsOf(repo.save).length).toBe(1);
+    const [, session] = callsOf(repo.save)[0] as [number, BotSession];
+    expect(session.dialog?.input?.context).toEqual({ q: 1 });
+  });
+
+  test('notify: сессию не пишет (И3)', async () => {
+    const repo = makeSessionRepo();
+    const bundle = makeTransport({}, repo);
+
+    await bundle.transport.notify(123, { text: mdRaw('🔔 Привет') });
+
+    expect(callsOf(repo.save).length).toBe(0);
+    expect(callsOf(repo.remove).length).toBe(0);
+    expect(callsOf(repo.saveShortId).length).toBe(0);
+  });
+
+  test('пустая сессия не сохраняется: callback до /start → remove, не save', async () => {
+    const repo = makeSessionRepo();
+    const bundle = makeTransport({}, repo);
+
+    await bundle.transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: 'menu:open:~1' } as BotContext['callbackQuery'],
+      }),
+    );
+
+    expect(callsOf(repo.save).length).toBe(0);
+    expect(callsOf(repo.remove).length).toBe(1);
+  });
+
+  test('ошибка записи: warn-лог, апдейт не падает, следующий повторяет', async () => {
+    const logger = makeLogger();
+    setGlobalLogger(logger);
+    const repo = makeSessionRepo();
+    let calls = 0;
+    repo.save = mock(async () => {
+      calls++;
+      if (calls === 1) throw new Error('disk full');
+    });
+    const bundle = makeTransport(
+      {
+        handleCommand: mock(
+          async (_u: CommandUpdate, _t: number, s: BotSession) => {
+            s.dialog = { path: 'app/menu', seq: 1 };
+            return { screen: { text: mdRaw('Меню') } };
+          },
+        ),
+      },
+      repo,
+    );
+
+    // Первый апдейт: запись падает — но апдейт резолвится.
+    await bundle.transport.handleCommand(makeCommandCtx('/start'));
+    expect(calls).toBe(1);
+    expect(callsOf(logger.warn).length).toBe(1);
+
+    // Второй апдейт: запись повторяется и проходит.
+    await bundle.transport.handleCommand(makeCommandCtx('/start'));
+    expect(calls).toBe(2);
+  });
+
+  test('invite: диалог-якорь сохраняется', async () => {
+    const repo = makeSessionRepo();
+    const bundle = makeTransport({}, repo);
+
+    await bundle.transport.invite(123, {
+      text: mdRaw('Приглашение'),
+      keyboard: kb('stream:enroll:x', 'Записаться'),
+    });
+
+    expect(callsOf(repo.save).length).toBe(1);
+    const [, session] = callsOf(repo.save)[0] as [number, BotSession];
+    expect(session.dialog?.seq).toBe(1);
+  });
+
+  test('без repo — апдейты работают без записей (in-memory)', async () => {
+    const bundle = makeTransport();
+    await bundle.transport.handleCommand(makeCommandCtx('/start'));
+    await bundle.transport.notify(123, { text: mdRaw('🔔') });
+
+    // Просто не падает — хранилища нет.
+    expect(true).toBe(true);
+  });
+});
+
+// ── Восстановление после рестарта (restore до polling/webhook) ──
+
+describe('BotTransport — restore (загрузка до старта)', () => {
+  test('restore: сессия и shortIds восстанавливаются — старая кнопка работает', async () => {
+    const uuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+    const restored: BotSession = {
+      dialog: { path: 'streams/view', seq: 2 },
+    };
+    const repo = makeSessionRepo(
+      new Map([[123, restored]]),
+      new Map([['~a1b2c3d4', uuid]]),
+    );
+    const bundle = makeTransport({}, repo);
+    await bundle.transport.restore();
+
+    // Кнопка из прошлой жизни сервиса: штамп ~2 валиден, shortId разжался.
+    await bundle.transport.handleCallback(
+      makeCtx({
+        callbackQuery: {
+          data: `stream:view:~a1b2c3d4:~2`,
+        } as BotContext['callbackQuery'],
+      }),
+    );
+
+    expect(callsOf(bundle.uiApp.handleCallback)[0]?.[0]).toBe(
+      `stream:view:${uuid}`,
+    );
+  });
+
+  test('restore: без repo — no-op', async () => {
+    const bundle = makeTransport();
+    await expect(bundle.transport.restore()).resolves.toBeUndefined();
+  });
+
+  test('restore: ошибка чтения пробрасывается (fail-fast старта)', async () => {
+    const repo = makeSessionRepo();
+    repo.loadAll = mock(async () => {
+      throw new JsonFileRepoError('битый файл', '/tmp/sessions.json');
+    });
+    const bundle = makeTransport({}, repo);
+
+    await expect(bundle.transport.restore()).rejects.toThrow(JsonFileRepoError);
+  });
+});
+
+// ── shortId ↔ repo ──
+
+describe('BotTransport — shortId ↔ repo', () => {
+  test('shrink при рендере пишет shortId в repo после апдейта', async () => {
+    const repo = makeSessionRepo();
+    const bundle = makeTransport({}, repo);
+
+    await startDialog(bundle, {
+      code: 'stream:view:a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    });
+
+    expect(callsOf(repo.saveShortId).length).toBe(1);
+    const [key, value] = callsOf(repo.saveShortId)[0] as [string, string];
+    expect(key).toBe('~a1b2c3d4');
+    expect(value).toBe('a1b2c3d4-e5f6-7890-abcd-ef1234567890');
+  });
+
+  test('коллизия с суффиксом: оба ключа в repo', async () => {
+    const repo = makeSessionRepo();
+    const bundle = makeTransport({}, repo);
+    const uuid1 = 'a1b2c3d4-1111-0000-0000-000000000001';
+    const uuid2 = 'a1b2c3d4-2222-0000-0000-000000000002';
+
+    await startDialog(bundle, { code: `stream:view:${uuid1}` });
+    // Второй чат: тот же 8-символьный префикс → суффикс коллизии.
+    await startDialog(bundle, { code: `stream:view:${uuid2}` });
+
+    const keys = callsOf(repo.saveShortId).map((c) => c[0]);
+    expect(keys).toEqual(['~a1b2c3d4', '~a1b2c3d4-1']);
+  });
+
+  test('апдейт без shrink не пишет shortIds', async () => {
+    const repo = makeSessionRepo();
+    const bundle = makeTransport({}, repo);
+    await startDialog(bundle); // код 'menu:open' — UUID нет, сжимать нечего
+
+    expect(callsOf(repo.saveShortId).length).toBe(0);
   });
 });

@@ -184,6 +184,9 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   /** Единая мапа сжатых id на всё приложение. */
   private readonly shortIds = new Map<string, string>();
 
+  /** Новые shortId-ключи текущего апдейта — пишутся в repo на persist-шаге. */
+  readonly #dirtyShortIds = new Set<string>();
+
   /** Хвосты per-chat очередей: tgId → нормализованный хвост. */
   private readonly queues = new Map<number, Promise<void>>();
 
@@ -194,7 +197,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   constructor(
     uiApp: DialogUiAppPort,
     botApi: Api,
-    _sessionRepo?: BotSessionRepo,
+    private readonly sessionRepo?: BotSessionRepo,
   ) {
     this.uiApp = uiApp;
     this.botApi = botApi;
@@ -225,6 +228,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
         // pressedCode нет → retire прежнего экрана без маркера выбора.
         await this.#render(tgId, session, response);
       }
+      await this.#persistUpdate(tgId, session);
     });
   }
 
@@ -252,6 +256,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       //    до uiApp не доезжает (ФР-1/ФР-3: валидация без исключений).
       if (!session.dialog) {
         await this.#answerCallbackQuery(ctx, NO_DIALOG_MESSAGE);
+        await this.#persistUpdate(tgId, session);
         return;
       }
 
@@ -261,6 +266,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       const { data, stamp } = this.#splitStamp(rawData);
       if (stamp === null || stamp < 1 || stamp !== session.dialog.seq) {
         await this.#answerCallbackQuery(ctx, STALE_STAMP_MESSAGE);
+        await this.#persistUpdate(tgId, session);
         return;
       }
 
@@ -268,6 +274,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       const expanded = this.expandAction(data);
       if (expanded.stale) {
         await this.#answerCallbackQuery(ctx, STALE_BUTTON_MESSAGE);
+        await this.#persistUpdate(tgId, session);
         return;
       }
 
@@ -282,6 +289,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
           pressedCode: expanded.data,
         });
       }
+      await this.#persistUpdate(tgId, session);
       await this.#answerCallbackQuery(ctx);
     });
   }
@@ -340,6 +348,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
         return;
       }
       await this.#render(tgId, session, response);
+      await this.#persistUpdate(tgId, session);
     });
   }
 
@@ -406,6 +415,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
         text: payload.text,
         keyboard: payload.keyboard,
       });
+      await this.#persistUpdate(telegramId, session);
     });
   }
 
@@ -672,6 +682,62 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   // ═══════════════════════════════════════════
 
   /**
+   * Восстановление состояния из хранилища (до старта polling/webhook):
+   * сессии и shortId-мапа переживают рестарт — старые кнопки живы,
+   * диалоги продолжаются. Без repo — no-op.
+   *
+   * Ошибки чтения НЕ глушатся (fail-fast): битый файл — падение старта
+   * с явной ошибкой, никаких молчаливых пересозданий.
+   */
+  async restore(): Promise<void> {
+    if (!this.sessionRepo) return;
+
+    this.sessions.clear();
+    for (const [tgId, session] of await this.sessionRepo.loadAll()) {
+      this.sessions.set(tgId, structuredClone(session));
+    }
+    this.shortIds.clear();
+    for (const [key, value] of await this.sessionRepo.loadShortIds()) {
+      this.shortIds.set(key, value);
+    }
+  }
+
+  /**
+   * Персистентность после обработанного апдейта: сессия чата + новые
+   * shortId-записи. Await до завершения handle-пути; вызывается внутри
+   * per-chat очереди — записи сериализованы. notify/info не вызывают
+   * (И3: сессию не трогают). Пустая сессия не создаёт запись в файле
+   * (remove, который сам no-op при отсутствии).
+   *
+   * Ошибка записи — warn-лог, работа продолжается в памяти
+   * (повтор на следующем апдейте).
+   */
+  async #persistUpdate(tgId: number, session: BotSession): Promise<void> {
+    if (!this.sessionRepo) return;
+
+    try {
+      if (session.dialog || session.screen) {
+        await this.sessionRepo.save(tgId, session);
+      } else {
+        await this.sessionRepo.remove(tgId);
+      }
+      for (const key of this.#dirtyShortIds) {
+        const value = this.shortIds.get(key);
+        if (value !== undefined) {
+          await this.sessionRepo.saveShortId(key, value);
+        }
+      }
+      this.#dirtyShortIds.clear();
+    } catch (err) {
+      getGlobalLogger()?.warn(
+        'bot-transport',
+        'Не сохранена сессия в хранилище (работа продолжается в памяти)',
+        { tgId, error: String(err) },
+      );
+    }
+  }
+
+  /**
    * Сессия чата; создаётся лениво ПУСТОЙ (ФР-1): до первого /start диалог
    * не открыт (`dialog === undefined`), штампы у кнопок не валидны.
    */
@@ -764,6 +830,10 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     }
 
     this.shortIds.set(key, value);
+    if (this.sessionRepo) {
+      // Запись в repo — на persist-шаге апдейта (там же await/ошибки).
+      this.#dirtyShortIds.add(key);
+    }
     return key;
   }
 
