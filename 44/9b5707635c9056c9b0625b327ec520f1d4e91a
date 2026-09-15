@@ -1,0 +1,18 @@
+Задача: Интеграционный тест сценария рестарта (Фаза 4, трек bot-ui-session-persist_20260905)
+
+Сквозной тест 'кнопка старого экрана после рестарта продолжает анкету
+с того же вопроса' (bot-transport-persist.test.ts):
+- Жизнь 1: /start → диалог courses/fill seq=5, экран с кнопкой
+  fill:answer:<uuid> (штамп :~5, shortId ~a1b2c3d4), awaitInput {q: 1};
+  сессия в tmp-файлах через настоящий JsonBotSessionRepo.
+- Рестарт: новый BotTransport над новыми экземплярами JsonBotSessionRepo
+  на тех же файлах → restore().
+- Нажатие старой кнопки: штамп совпал, UUID развёрнут, стори получила
+  снапшот сессии (path/seq=5/input.context/{q:1}/screen.messageId).
+- После ответа стори (seq→6) файл содержит обновлённую сессию.
+
+Нюанс: мок стори мутирует сессию по ссылке — снапшот через
+structuredClone на входе handleCallback.
+
+Проверки: infra 119 тестов зелёные; bun run check весь репо —
+2132 теста зелёные.
