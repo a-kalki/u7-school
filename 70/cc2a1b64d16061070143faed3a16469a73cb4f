@@ -1,0 +1,12 @@
+Отчёт о верификации — Фаза 1 (Порт BotSessionRepo), трек bot-ui-session-persist_20260905
+
+Автоматические тесты: CI=true bun test (весь репозиторий) — зелёный;
+bun run lint (biome), bun run tslint (tsc --noEmit) — зелёные.
+
+Изменения фазы:
+- Порт BotSessionRepo (сессии + shortId-маппинг) в packages/core/src/ui/bot.
+- BotTransport: опциональный repo в конструкторе, in-memory-дефолт.
+- 6 новых тестов in-memory-режима и приёма repo.
+
+Ручная верификация: отложена до финала трека по решению владельца
+(промежуточные фазы не меняют пользовательского поведения).
