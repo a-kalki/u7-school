@@ -1,4 +1,5 @@
-import { describe, expect, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { JsonFileRepoError } from '@u7-scl/core/infra';
 import { type Logger, mdRaw, setGlobalLogger } from '@u7-scl/core/shared';
 import type {
@@ -11,6 +12,7 @@ import type { Api } from 'grammy';
 import type { BotContext } from '../context';
 import type { DialogUiAppPort } from './bot-transport';
 import { BotTransport } from './bot-transport';
+import { JsonBotSessionRepo } from './json-bot-session-repo';
 
 /**
  * Тесты персистентности транспорта (трек bot-ui-session-persist):
@@ -450,5 +452,88 @@ describe('BotTransport — shortId ↔ repo', () => {
     await startDialog(bundle); // код 'menu:open' — UUID нет, сжимать нечего
 
     expect(callsOf(repo.saveShortId).length).toBe(0);
+  });
+});
+
+// ── Сценарий рестарта (сквозной: настоящий JsonBotSessionRepo) ──
+
+describe('BotTransport — сценарий рестарта (сквозной, JsonBotSessionRepo)', () => {
+  let tmpDir: string;
+
+  beforeEach(() => {
+    tmpDir = mkdtempSync('/tmp/bot-restart-scenario-test-');
+  });
+
+  afterEach(() => {
+    rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  test('кнопка старого экрана после рестарта продолжает анкету с того же вопроса', async () => {
+    const uuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+
+    // ── Жизнь 1: пользователь посреди fill-анкеты ──
+    const repoA = new JsonBotSessionRepo(
+      `${tmpDir}/sessions.json`,
+      `${tmpDir}/short-ids.json`,
+    );
+    const apiA = makeMockBotApi();
+    const uiAppA = makeUiApp({
+      handleCommand: mock(
+        async (_u: CommandUpdate, _t: number, s: BotSession) => {
+          s.dialog = { path: 'courses/fill', seq: 5 };
+          return {
+            screen: {
+              text: mdRaw('Вопрос 1'),
+              keyboard: kb(`fill:answer:${uuid}`, 'Вариант А'),
+            },
+            awaitInput: { context: { q: 1 } },
+          } satisfies DialogResponse;
+        },
+      ),
+    });
+    const transportA = new BotTransport(uiAppA, apiA, repoA);
+    await transportA.handleCommand(makeCommandCtx('/start'));
+    const oldButton = lastSentCallbackData(apiA);
+    expect(oldButton).toBe('fill:answer:~a1b2c3d4:~5');
+
+    // ── Рестарт сервиса: новый транспорт над теми же файлами ──
+    const repoB = new JsonBotSessionRepo(
+      `${tmpDir}/sessions.json`,
+      `${tmpDir}/short-ids.json`,
+    );
+    const apiB = makeMockBotApi();
+    let capturedAtEntry: BotSession | undefined;
+    const uiAppB = makeUiApp({
+      handleCallback: mock(async (_data: string, _t: number, s: BotSession) => {
+        // Снапшот на входе — дальше стори мутирует диалог.
+        capturedAtEntry = structuredClone(s);
+        if (s.dialog) s.dialog.seq = 6;
+        return { screen: { text: mdRaw('Вопрос 1 — продолжение') } };
+      }),
+    });
+    const transportB = new BotTransport(uiAppB, apiB, repoB);
+    await transportB.restore();
+
+    // Пользователь жмёт кнопку СТАРОГО сообщения (из жизни 1).
+    await transportB.handleCallback(
+      makeCtx({
+        callbackQuery: { data: oldButton } as BotContext['callbackQuery'],
+      }),
+    );
+
+    // Штамп валиден, shortId развёрнут в полный UUID.
+    expect(callsOf(uiAppB.handleCallback).length).toBe(1);
+    expect(callsOf(uiAppB.handleCallback)[0]?.[0]).toBe(`fill:answer:${uuid}`);
+
+    // Анкета продолжается: path, seq, input.context, screen (messageId).
+    const sessionArg = capturedAtEntry as BotSession;
+    expect(sessionArg.dialog?.path).toBe('courses/fill');
+    expect(sessionArg.dialog?.seq).toBe(5);
+    expect(sessionArg.dialog?.input?.context).toEqual({ q: 1 });
+    expect(sessionArg.screen?.messageId).toBe(1); // messageId жизни 1
+
+    // После апдейта в новой жизни запись обновлена (seq → 6).
+    const persisted = await repoB.loadAll();
+    expect(persisted.get(123)?.dialog?.seq).toBe(6);
   });
 });
