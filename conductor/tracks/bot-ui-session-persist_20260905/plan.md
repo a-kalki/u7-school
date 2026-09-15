@@ -2,7 +2,7 @@
 
 > Материнский документ: [bot-ui-session-architecture.md](../../roadmap/bot-ui-session-architecture.md)
 
-## Фаза 1: Порт BotSessionRepo
+## Фаза 1: Порт BotSessionRepo [checkpoint: 70cc2a1]
 
 - [x] Task: Написать падающие тесты: транспорт работает in-memory без repo (нынешнее поведение как дефолт)
 - [x] Task: Объявить порт `BotSessionRepo` в `packages/core/src/ui/bot` (loadAll / save / remove; без деталей хранилища), транспорт принимает repo через конструктор (опционально) `7628253`
