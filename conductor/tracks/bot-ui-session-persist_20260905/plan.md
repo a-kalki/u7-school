@@ -25,4 +25,4 @@
 - [x] Task: Интеграционный тест сценария: пользователь посреди fill → рестарт → кнопка старого экрана → штамп валиден, shortId разворачивается, анкета продолжается (`path`, `seq`, `input.context`, `messageId` восстановлены) `449b570`
 - [x] Task: Обновить `bot-ui-session-architecture.md`: трек 6 в таблице §9 (без «опциональный»), §10.4 и §12.3 закрыты решением (`BotSessionRepo` на JsonFileRepo, shortIds в треке) `bb44171`
 - [x] Task: `bun run check` весь репозиторий зелёный; создать `summary.md`
-- [ ] Conductor - User Manual Verification 'Финал' (Protocol in workflow.md)
+- [x] Conductor - User Manual Verification 'Финал' (Protocol in workflow.md) — принято владельцем 2026-09-15 (ручная проверка: сценарий рестарта, файлы хранилища, dev-фикстуры)
