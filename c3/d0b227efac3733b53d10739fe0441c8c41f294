@@ -1,0 +1,12 @@
+Отчёт о верификации — Фаза 2 (JsonBotSessionRepo), трек bot-ui-session-persist_20260905
+
+Автоматические тесты: bun run check (весь репозиторий) — зелёный
+(biome + tsc --noEmit + 2117 тестов), из них 17 новых —
+json-bot-session-repo.test.ts.
+
+Изменения фазы:
+- JsonBotSessionRepo: реализация BotSessionRepo на JsonFileRepo,
+  две коллекции (сессии + shortId-маппинг).
+- Round-trip, Valibot-валидация, fail-fast на битом файле.
+
+Ручная верификация: отложена до финала трека по решению владельца.
