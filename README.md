@@ -53,6 +53,7 @@ u7-school — это современная LMS (Learning Management System), п
 
 ### Требования
 - [Bun](https://bun.sh/) (последняя стабильная версия)
+- [pm2](https://pm2.keymetrics.io/) — только для прод-сервера (глобальная установка: `npm install -g pm2`)
 
 ### Установка
 1. Клонируйте репозиторий:
@@ -114,10 +115,10 @@ u7-school — это современная LMS (Learning Management System), п
 
 ### Telegram-бот (`u7-bot`)
 
-#### Запуск бота
+#### Запуск бота (dev)
+Из корня репозитория:
 ```bash
-cd apps/u7-bot
-bun start
+bun run apps/u7-bot/src/main.ts
 ```
 Бот запустится в режиме polling (по умолчанию) или webhook (если `BOT_MODE=webhook`).
 
@@ -125,6 +126,52 @@ bun start
 - **Гостей** — витрина потоков, карточки, запись на обучение.
 - **Студентов** — прохождение шагов, просмотр прогресса.
 - **Менторов** — создание и запуск потоков, мониторинг группы.
+
+#### Прод-запуск (pm2)
+
+Прод работает под pm2 (конфиг — `pm2.config.cjs`, приложение `u7-school-bot`).
+Секреты берутся из `.env.production` **в корне репозитория** (те же переменные,
+что и в `.env`; `NODE_ENV=production` pm2 выставляет сам).
+
+```bash
+bun run start:prod           # первый запуск (на прод-сервере)
+bun run start:prod:restart   # перезапуск после ручных правок
+bun run start:prod:stop      # остановка
+pm2 logs u7-school-bot       # логи
+```
+
+Обычно вручную эти команды не нужны — обновление идёт через `scripts/deploy.sh`
+(см. «Релизы и деплой» ниже).
+
+#### Релизы и деплой
+
+Версионирование — SemVer, история изменений — [CHANGELOG.md](./CHANGELOG.md).
+
+**Релиз (локально):**
+1. Добавь в `CHANGELOG.md` секцию `## [X.Y.Z] — дата`
+   (группировка: Added / Changed / Fixed / Migration).
+2. Закоммить её и запусти `bash scripts/release.sh X.Y.Z "краткое описание релиза"` —
+   скрипт прогонит `bun run check`, поднимет версию в `package.json`,
+   поставит аннотированный тег `vX.Y.Z` и запушит его в origin.
+
+**Деплой (на прод-сервере, из корня рабочей копии):**
+```bash
+bash scripts/deploy.sh X.Y.Z
+```
+Скрипт: проверит чистоту рабочей копии → сделает бэкап данных
+(`data/backup/<timestamp>-before-deploy/`, в `meta.txt` — версия и тег кода) →
+`git checkout vX.Y.Z` → `bun install --frozen-lockfile` → `pm2 restart` →
+покажет статус и хвост логов. После деплоя отправь боту тестовое сообщение
+и нажми кнопку старого экрана — диалог должен продолжиться.
+
+**Откат:** `bash scripts/deploy.sh <предыдущая версия>`. Если менялась схема
+данных — сначала восстанови бэкап с совпадающей версией в `meta.txt`:
+`rsync -a --exclude meta.txt data/backup/<каталог>/ data/`.
+
+**Бэкап вручную:** `bash scripts/backup.sh planned` — копирует все
+JSON-хранилища (включая `data/bot/*` — сессии бота) в
+`data/backup/<timestamp>-<reason>/`. Рантайм-данные (`data/users`, `data/bot`,
+`data/backup`) в git не коммитятся.
 
 ### CLI (`u7-cli`)
 
@@ -156,15 +203,15 @@ bun dev:fixtures
 
 Для изолированной проверки сценариев по ролям используй тесты бота:
 ```bash
-bun test:bot                     # Все тесты бота (unit + интеграционные + E2E)
-bun test tests/bot/integration/stream/  # Интеграционные тесты модуля stream
-bun test tests/bot/e2e/stream/         # Сквозные E2E сценарии
+bun test:bot                        # Все тесты бота (unit + интеграционные + E2E)
+bun test apps/u7-bot/tests/streams/ # Тесты домена stream
+bun test apps/u7-bot/tests/e2e/     # Сквозные E2E сценарии
 ```
 
 #### Тестирование и проверка кода
 ```bash
 bun test           # Запуск всех тестов
-bun test:bot-e2e   # E2e-тесты бота
+bun test:bot       # Тесты бота
 bun run lint       # Проверка линтером (Biome)
 bun run tslint     # Проверка типов (TSC)
 bun run check      # Полная проверка (lint + tslint + test)
