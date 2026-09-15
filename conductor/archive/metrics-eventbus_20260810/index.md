@@ -6,7 +6,7 @@
 
 ## Контекст
 
-- [Система сбора метрик](../../metrics-system.md) — родительский документ
-- [2. Questionnaire + EventBus](../../metrics-questionnaire-and-events.md) — техническая спецификация
-- [Дорожная карта](../../development-roadmap.md) — Релиз 3
+- [Система сбора метрик](../../roadmap/metrics-system.md) — родительский документ
+- [2. Questionnaire + EventBus](../../roadmap/metrics-questionnaire-and-events.md) — техническая спецификация
+- [Дорожная карта](../../roadmap/development-roadmap.md) — Релиз 3
 - [Архитектурная эволюция](../../architecture-evolution.md) — правила размещения кода в core

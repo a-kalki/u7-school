@@ -1,6 +1,6 @@
 # План реализации — Домен и UC слой questionnaire
 
-> **Связанные документы:** [development-roadmap.md](../../development-roadmap.md) (Релиз 3), [metrics-system.md](../../metrics-system.md), [bot-ui-refactoring.md](../../bot-ui-refactoring.md) (Трек 7 — заглушка onboarding)
+> **Связанные документы:** [development-roadmap.md](../../roadmap/development-roadmap.md) (Релиз 3), [metrics-system.md](../../roadmap/metrics-system.md), [bot-ui-refactoring.md](../../roadmap/bot-ui-refactoring.md) (Трек 7 — заглушка onboarding)
 
 ## Фаза 1: Интерфейс QuestionnaireBotFacade
 

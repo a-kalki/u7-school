@@ -1,6 +1,6 @@
 # Трек 6: Контроллер `mentor` — «Инструменты ментора»
 
-**Контекст:** [bot-ui-refactoring.md](../../bot-ui-refactoring.md#трек-6-контроллер-mentor--инструменты-ментора)
+**Контекст:** [bot-ui-refactoring.md](../../roadmap/bot-ui-refactoring.md#трек-6-контроллер-mentor--инструменты-ментора)
 
 ---
 

@@ -36,7 +36,7 @@
 
 Исследование механики гонки сессии, сценарии интерливинга и полный дизайн guard'а
 вынесены в самодостаточный документ концепции (родился из этой фазы):
-**[`conductor/bot-ui-session-architecture.md`](../../bot-ui-session-architecture.md)** —
+**[`conductor/bot-ui-session-architecture.md`](../../roadmap/bot-ui-session-architecture.md)** —
 глоссарий, as-is архитектура, проблемы П1–П5, сценарии гонок S1–S3, дизайн guard (§5),
 карта кода (§6), открытые вопросы концепции (§7).
 

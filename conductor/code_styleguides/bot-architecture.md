@@ -1,7 +1,7 @@
 # Архитектура Telegram-бота (bot-level)
 
 **Назначение:** единый архитектурный разрез UI-слоя Telegram-бота на контракте
-«Диалог и Экран» (инварианты и контракты — `conductor/bot-ui-session-architecture.md`, §3–§5):
+«Диалог и Экран» (инварианты и контракты — `conductor/roadmap/bot-ui-session-architecture.md`, §3–§5):
 из чего собран UI, кто чем владеет, как течёт апдейт от Telegram до домена и обратно.
 
 Живой код:
@@ -201,4 +201,4 @@ Grammy callback_query.data
 - [BotUiStory Styleguide](./skills/bot-ui-story.md)
 - [Тестирование бота](./bot-test.md)
 - [Границы архитектуры](./architecture.md), [Domain boundaries](./domain-boundaries.md)
-- Материнский документ контракта: `conductor/bot-ui-session-architecture.md`
+- Материнский документ контракта: `conductor/roadmap/bot-ui-session-architecture.md`

@@ -1,6 +1,6 @@
 # Спецификация — Домен и UC слой questionnaire
 
-> **Связанные документы:** [development-roadmap.md](../../development-roadmap.md) (Релиз 3), [metrics-system.md](../../metrics-system.md), [metrics-questionnaire-and-events.md](../../metrics-questionnaire-and-events.md) (Трек 2.4)
+> **Связанные документы:** [development-roadmap.md](../../roadmap/development-roadmap.md) (Релиз 3), [metrics-system.md](../../roadmap/metrics-system.md), [metrics-questionnaire-and-events.md](../../roadmap/metrics-questionnaire-and-events.md) (Трек 2.4)
 > **Смежный трек:** [questionnaire-bot-controller](../questionnaire-bot-controller_20260810/spec.md) — UI-слой
 
 ## Обзор

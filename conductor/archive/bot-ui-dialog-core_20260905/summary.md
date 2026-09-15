@@ -1,6 +1,6 @@
 # Итоговый отчёт — Трек bot-ui-dialog-core_20260905 «Ядро контракта «Диалог и Экран»»
 
-**Цель:** фундамент для [bot-ui-session-architecture.md](../../bot-ui-session-architecture.md): типы `DialogResponse`/`Screen`/`BotSession`, `MdText`, транспорт со штампами и очередью, ядро `BotUiApp`/`BotController`/`BotUiStory`, вырезка мёртвой механики старой архитектуры.
+**Цель:** фундамент для [bot-ui-session-architecture.md](../../roadmap/bot-ui-session-architecture.md): типы `DialogResponse`/`Screen`/`BotSession`, `MdText`, транспорт со штампами и очередью, ядро `BotUiApp`/`BotController`/`BotUiStory`, вырезка мёртвой механики старой архитектуры.
 
 ## Выполнено
 

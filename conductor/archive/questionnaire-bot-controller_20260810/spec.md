@@ -1,6 +1,6 @@
 # Спецификация — BotUiApp + контроллер questionnaire
 
-> **Связанные документы:** [development-roadmap.md](../../development-roadmap.md) (Релиз 3), [bot-ui-refactoring.md](../../bot-ui-refactoring.md) (Трек 7 — заглушка onboarding), [metrics-system.md](../../metrics-system.md)
+> **Связанные документы:** [development-roadmap.md](../../roadmap/development-roadmap.md) (Релиз 3), [bot-ui-refactoring.md](../../roadmap/bot-ui-refactoring.md) (Трек 7 — заглушка onboarding), [metrics-system.md](../../roadmap/metrics-system.md)
 > **Смежный трек:** [questionnaire-domain-uc](../questionnaire-domain-uc_20260810/spec.md) — домен/UC слой (выполняется первым)
 
 ## Обзор

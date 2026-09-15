@@ -1,6 +1,6 @@
 # Трек 7: `OnboardingController` — заглушка
 
-**Контекст:** [bot-ui-refactoring.md](../../bot-ui-refactoring.md#трек-7-onboarding--заглушка)
+**Контекст:** [bot-ui-refactoring.md](../../roadmap/bot-ui-refactoring.md#трек-7-onboarding--заглушка)
 
 ---
 

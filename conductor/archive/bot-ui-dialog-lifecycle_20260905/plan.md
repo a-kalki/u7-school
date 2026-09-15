@@ -1,6 +1,6 @@
 # План реализации — Трек: Жизненный цикл диалога (bot-ui-dialog-lifecycle_20260905)
 
-> Материнский документ: [bot-ui-session-architecture.md](../../bot-ui-session-architecture.md). Источник проблем: [bot-ui-dialog-lifecycle.md](../../bot-ui-dialog-lifecycle.md). Скоуп: ядро `packages/core/src/ui/bot/*` + `apps/u7-bot/src/infra/bot-transport.ts` (+`main.ts` wiring). Прикладные стори не трогаем.
+> Материнский документ: [bot-ui-session-architecture.md](../../roadmap/bot-ui-session-architecture.md). Источник проблем: [bot-ui-dialog-lifecycle.md](../../roadmap/bot-ui-dialog-lifecycle.md). Скоуп: ядро `packages/core/src/ui/bot/*` + `apps/u7-bot/src/infra/bot-transport.ts` (+`main.ts` wiring). Прикладные стори не трогаем.
 
 ## Фаза 1: Модель диалога — состояние и операция входа
 

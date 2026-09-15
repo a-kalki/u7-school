@@ -1,6 +1,6 @@
 # План реализации — Трек: Ядро контракта «Диалог и Экран» (bot-ui-dialog-core_20260905)
 
-> Материнский документ: [bot-ui-session-architecture.md](../../bot-ui-session-architecture.md)
+> Материнский документ: [bot-ui-session-architecture.md](../../roadmap/bot-ui-session-architecture.md)
 
 ## Фаза 1: Типы и MdText
 

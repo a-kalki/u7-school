@@ -6,7 +6,7 @@
 
 ## Контекст
 
-- [Система сбора метрик](../../metrics-system.md) — родительский документ
-- [Концепция метрик](../../metrics-conception.md) — категории и шкалы
+- [Система сбора метрик](../../roadmap/metrics-system.md) — родительский документ
+- [Концепция метрик](../../roadmap/metrics-conception.md) — категории и шкалы
 - [Трек 1.1 — структура](../metrics-structure_20260810/spec.md) — откуда взяты подкатегории
-- [Дорожная карта](../../development-roadmap.md) — Релиз 3
+- [Дорожная карта](../../roadmap/development-roadmap.md) — Релиз 3

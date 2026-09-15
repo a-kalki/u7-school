@@ -1,6 +1,6 @@
 # План реализации — Трек: Mentor-стори и демонтаж старого мира (bot-ui-dialog-mentor_20260905)
 
-> Материнский документ: [bot-ui-session-architecture.md](../../bot-ui-session-architecture.md)
+> Материнский документ: [bot-ui-session-architecture.md](../../roadmap/bot-ui-session-architecture.md)
 
 ## Фаза 1: Mentor-стори [checkpoint: b7ac1d2]
 

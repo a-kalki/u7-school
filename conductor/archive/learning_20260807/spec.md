@@ -1,6 +1,6 @@
 # Трек 5: Контроллер `learning` — «Моя учёба»
 
-**Контекст:** [bot-ui-refactoring.md](../../bot-ui-refactoring.md#трек-5-контроллер-learning--моя-учёба)
+**Контекст:** [bot-ui-refactoring.md](../../roadmap/bot-ui-refactoring.md#трек-5-контроллер-learning--моя-учёба)
 
 ---
 

@@ -43,7 +43,7 @@
 
 ### Фаза 4 — Гонка сессии при двойном /start (только исследование)
 - Механика интерливинга задокументирована в самодостаточном документе
-  [`conductor/bot-ui-session-architecture.md`](../../bot-ui-session-architecture.md):
+  [`conductor/bot-ui-session-architecture.md`](../../roadmap/bot-ui-session-architecture.md):
   проблемы П1–П5, сценарии гонок S1–S3, дизайн guard (§5), карта кода (§6).
 - Реализация guard по решению пользователя перенесена в будущий трек,
   рождающийся из проработки концепции bot-ui.
@@ -94,5 +94,5 @@
 
 ## Что дальше
 - Новый трек по guard'у сессии — из проработки
-  [`bot-ui-session-architecture.md`](../../bot-ui-session-architecture.md).
+  [`bot-ui-session-architecture.md`](../../roadmap/bot-ui-session-architecture.md).
 - Техдолг optional-вопросов — запись в `TODO.md`.

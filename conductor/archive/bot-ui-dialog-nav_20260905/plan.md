@@ -1,6 +1,6 @@
 # План реализации — Трек: Стори навигации app/user/courses/streams (bot-ui-dialog-nav_20260905)
 
-> Материнский документ: [bot-ui-session-architecture.md](../../bot-ui-session-architecture.md)
+> Материнский документ: [bot-ui-session-architecture.md](../../roadmap/bot-ui-session-architecture.md)
 
 > **Выполнено в треке 1 (bot-ui-dialog-core, Фаза 3) и треке 1.1 (фазы 2.1–2.2):** домен `app` уже на новом контракте — после ревизии ФР-4 welcome/help/меню собирает `U7BotUiApp` из декларативных `menuButtons(actor)` (welcome-экран, общий help, короткое меню, системные кнопки `app:main-menu`/`app:help`); `AppController` — `menuButtons` (помощь) + override `/log_level`; `CommunityStory` — кнопка сообщества; всё на `DialogResponse`/`Screen`/`md` с юнит-тестами. Остаток скоупа «app» здесь: только ревизия на предмет ставших ненужными хелперов и e2e-сценарии домена app.
 

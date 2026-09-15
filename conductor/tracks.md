@@ -1,17 +1,11 @@
 # Реестр треков
 
-Порядок миграции bot-ui: 1 → 1.1 → 2 → (3 ∥ 4) → 5 → 6. Декомпозиция — в [bot-ui-session-architecture.md](./bot-ui-session-architecture.md), §9.
+Порядок миграции bot-ui: 1 → 1.1 → 2 → (3 ∥ 4) → 5 → 6. Декомпозиция — в [bot-ui-session-architecture.md](./roadmap/bot-ui-session-architecture.md), §9.
 
 ---
 
 - [ ] **Track: Персистентность сессий и shortIds — диалоги переживают перезапуск сервиса**
 *Link: [./tracks/bot-ui-session-persist_20260905/](./tracks/bot-ui-session-persist_20260905/)*
-
----
-
-- [x] **Track: core/api — актор-объект вместо actorId (дженерик актора + канонизация User в app + миграция доменов/приложений)** — кодовая часть выполнена; ручные верификации фаз за владельцем
-*Link: [./archive/core-api-actor_20260914/](./archive/core-api-actor_20260914/)*
-
 ---
 
 - [ ] **Кандидат: Групповая регистрация — перенос `group-handler` (регистрация при добавлении в группу школы) в зону app-контроллера**

@@ -2,7 +2,7 @@
 
 Telegram-бот платформы u7-school на grammy. Работает на контракте
 **«Диалог и Экран»** (см. [bot-architecture.md](../../conductor/code_styleguides/bot-architecture.md)
-и материнский [bot-ui-session-architecture.md](../../conductor/bot-ui-session-architecture.md)):
+и материнский [bot-ui-session-architecture.md](../../conductor/roadmap/bot-ui-session-architecture.md)):
 Grammy-слой — тонкий адаптер апдейтов, состоянием диалогов владеет `BotTransport`,
 сценарии отвечают `DialogResponse`, транспорт исполняет его по рендер-политике §5.
 
