@@ -20,7 +20,7 @@
 - [x] Task: Реализовать интеграцию в `bot-transport.ts`; ошибка записи → warn-лог, работа в памяти продолжается `b67139e`
 - [ ] Conductor - User Manual Verification 'Интеграция' (Protocol in workflow.md)
 
-## Фаза 4: Сценарий рестарта и финал трека 6
+## Фаза 4: Сценарий рестарта и финал трека 6 [checkpoint: 8629a99]
 
 - [x] Task: Интеграционный тест сценария: пользователь посреди fill → рестарт → кнопка старого экрана → штамп валиден, shortId разворачивается, анкета продолжается (`path`, `seq`, `input.context`, `messageId` восстановлены) `449b570`
 - [x] Task: Обновить `bot-ui-session-architecture.md`: трек 6 в таблице §9 (без «опциональный»), §10.4 и §12.3 закрыты решением (`BotSessionRepo` на JsonFileRepo, shortIds в треке) `bb44171`
