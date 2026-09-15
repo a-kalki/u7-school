@@ -1,0 +1,24 @@
+Задача: Написать падающие тесты in-memory-режима + Объявить порт BotSessionRepo, транспорт принимает repo через конструктор (Фаза 1, трек bot-ui-session-persist_20260905)
+
+Сводка:
+- Порт BotSessionRepo (packages/core/src/ui/bot/bot-session-repo.ts):
+  loadAll/save/remove для сессий (ключ — telegramId), loadShortIds/saveShortId
+  для мапы сжатых id. Экспортирован через @u7-scl/core/ui.
+- BotTransport (apps/u7-bot/src/infra/bot-transport.ts): опциональный третий
+  аргумент конструктора; без repo — in-memory-режим (прежнее поведение).
+  Хранение/использование repo — Фаза 3 (аргумент пока не сохраняется:
+  линтер запрещает мёртвые приватные поля).
+- Тесты (bot-transport-persist.test.ts): 6 тестов — in-memory-дефолт
+  (штампы, изоляция сессий между транспортами), приём repo, отсутствие
+  чтения repo в конструкторе.
+
+Файлы:
+- packages/core/src/ui/bot/bot-session-repo.ts (новый)
+- packages/core/src/ui/index.ts (экспорт)
+- apps/u7-bot/src/infra/bot-transport.ts (конструктор)
+- apps/u7-bot/src/infra/bot-transport-persist.test.ts (новый)
+
+Причина: Фаза 1 трека персистентности — порт без деталей хранилища,
+TDD (Red через tsc: несуществующий тип/аргумент → Green).
+
+Проверки: lint/tslint зелёные; тесты: core 345 pass, u7-bot 663 pass.
