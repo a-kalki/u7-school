@@ -4,8 +4,8 @@
 
 ## Фаза 1: Порт BotSessionRepo
 
-- [ ] Task: Написать падающие тесты: транспорт работает in-memory без repo (нынешнее поведение как дефолт)
-- [ ] Task: Объявить порт `BotSessionRepo` в `packages/core/src/ui/bot` (loadAll / save / remove; без деталей хранилища), транспорт принимает repo через конструктор (опционально)
+- [x] Task: Написать падающие тесты: транспорт работает in-memory без repo (нынешнее поведение как дефолт)
+- [x] Task: Объявить порт `BotSessionRepo` в `packages/core/src/ui/bot` (loadAll / save / remove; без деталей хранилища), транспорт принимает repo через конструктор (опционально) `7628253`
 - [ ] Conductor - User Manual Verification 'Порт' (Protocol in workflow.md)
 
 ## Фаза 2: JsonBotSessionRepo
