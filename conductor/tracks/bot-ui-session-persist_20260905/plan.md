@@ -8,7 +8,7 @@
 - [x] Task: Объявить порт `BotSessionRepo` в `packages/core/src/ui/bot` (loadAll / save / remove; без деталей хранилища), транспорт принимает repo через конструктор (опционально) `7628253`
 - [ ] Conductor - User Manual Verification 'Порт' (Protocol in workflow.md)
 
-## Фаза 2: JsonBotSessionRepo
+## Фаза 2: JsonBotSessionRepo [checkpoint: c3d0b22]
 
 - [x] Task: Написать падающие тесты `JsonBotSessionRepo` (`apps/u7-bot/src/infra`): round-trip `BotSession` (dialog + screen), round-trip shortId-маппинга, Valibot-валидация при чтении, fail-fast на битом файле (`JsonFileRepoError`, без молчаливых пересозданий)
 - [x] Task: Реализовать на `JsonFileRepo`/`BaseJsonDb`: коллекция сессий (ключ — chatId), коллекция shortId-записей (`hexKey → UUID` + суффиксы) `0c2bfe9`
