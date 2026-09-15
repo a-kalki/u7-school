@@ -14,7 +14,7 @@
 - [x] Task: Реализовать на `JsonFileRepo`/`BaseJsonDb`: коллекция сессий (ключ — chatId), коллекция shortId-записей (`hexKey → UUID` + суффиксы) `0c2bfe9`
 - [ ] Conductor - User Manual Verification 'JsonBotSessionRepo' (Protocol in workflow.md)
 
-## Фаза 3: Интеграция транспорта
+## Фаза 3: Интеграция транспорта [checkpoint: f5d5410]
 
 - [x] Task: Написать падающие тесты: сохранение сессии синхронно после каждого обработанного апдейта (await, per-chat очередь сериализует), `notify`/`info` не пишут; загрузка при старте до polling/webhook; shortId `Map` ↔ repo
 - [x] Task: Реализовать интеграцию в `bot-transport.ts`; ошибка записи → warn-лог, работа в памяти продолжается `b67139e`
