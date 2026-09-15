@@ -1,0 +1,15 @@
+Отчёт о верификации — Фаза 3 (Интеграция транспорта), трек bot-ui-session-persist_20260905
+
+Автоматические тесты: bun run check (весь репозиторий) — зелёный
+(biome + tsc + 2131 тестов, +14 новых).
+Покрытие: bot-transport.ts 93.4% funcs / 97.8% lines;
+json-bot-session-repo.ts 100%.
+
+Изменения фазы:
+- restore() до polling/webhook (fail-fast на битом файле);
+- синхронная запись после каждого апдейта (notify — нет);
+- shortId dirty-set → repo на persist-шаге;
+- ошибка записи — warn, продолжаем в памяти;
+- main.ts: JsonBotSessionRepo + restore().
+
+Ручная верификация: отложена до финала трека по решению владельца.
