@@ -1,6 +1,6 @@
 # Жизненный цикл диалога bot-ui: открытые проблемы (кандидат в трек 1.1)
 
-**Статус: РЕШЕНО треком 1.1** (`bot-ui-dialog-lifecycle_20260905`, см. его [spec.md](./archive/bot-ui-dialog-lifecycle_20260905/spec.md)). Решения владельца зафиксированы в [bot-ui-session-architecture.md](./bot-ui-session-architecture.md), §10 (дополнения трека 1.1). Ниже — исходный разбор, сохранён как история.
+**Статус: РЕШЕНО треком 1.1** (`bot-ui-dialog-lifecycle_20260905`, см. его [spec.md](../archive/bot-ui-dialog-lifecycle_20260905/spec.md)). Решения владельца зафиксированы в [bot-ui-session-architecture.md](./bot-ui-session-architecture.md), §10 (дополнения трека 1.1). Ниже — исходный разбор, сохранён как история.
 
 **Итог по решениям:**
 - **Проблема 1** — решена: явное состояние «диалог не открыт» (`BotSession.dialog?`, ФР-1), единая операция входа `enterDialog` с режимами `switch`/`reopen` (ФР-2), валидация кнопок **без исключений** — alert «Наберите /start» / «Экран устарел — нажмите /start» (ФР-3).

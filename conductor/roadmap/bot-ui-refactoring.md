@@ -6,10 +6,10 @@
 > `BotRouter`, `connectRouter`, `connectUiApp`, `executeResponses`, `ui-utils.ts`,
 > `removePrevKeyboard` (теперь `keepPrevKeyboard`).
 > **Актуальное состояние см. в:**
-> - [bot-architecture.md](./code_styleguides/bot-architecture.md) — устройство bot-level;
-> - [skills/bot-controller.md](./code_styleguides/skills/bot-controller.md);
-> - [skills/bot-ui-story.md](./code_styleguides/skills/bot-ui-story.md);
-> - [bot-test.md](./code_styleguides/bot-test.md).
+> - [bot-architecture.md](../code_styleguides/bot-architecture.md) — устройство bot-level;
+> - [skills/bot-controller.md](../code_styleguides/skills/bot-controller.md);
+> - [skills/bot-ui-story.md](../code_styleguides/skills/bot-ui-story.md);
+> - [bot-test.md](../code_styleguides/bot-test.md).
 
 > v2 (2026-08-07). Объединяющий документ для серии треков.
 > **Этот документ содержит ПОЛНЫЙ контекст для генерации треков в другой сессии.**

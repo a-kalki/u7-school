@@ -174,5 +174,5 @@ notify автору при skip manual-задачи; сортировка — к
 - [tasks-system.md](./tasks-system.md) — бизнес-концепция.
 - [tasks-system-architecture.md](./tasks-system-architecture.md) — четыре слоя, декомпозиция на треки.
 - [tasks-system-layers.md](./tasks-system-layers.md) — технические решения по слоям: метатипы, рендереры, пути завершения.
-- [event-reaction.md](./code_styleguides/skills/event-reaction.md) — ER-паттерн (память об отказе).
-- [domain-boundaries.md](./code_styleguides/domain-boundaries.md) — правила границ.
+- [event-reaction.md](../code_styleguides/skills/event-reaction.md) — ER-паттерн (память об отказе).
+- [domain-boundaries.md](../code_styleguides/domain-boundaries.md) — правила границ.

@@ -117,6 +117,12 @@ this.addEvent({
 
 ### Трек 3.3 — Модуль `peer-review`
 
+> **Уточнение (2026-09-15):** по концепции [sessions-system](./sessions-system.md) учёт сессий
+> (`ReviewSession`, пары/ревью-сессии, событие завершения) выделяется в отдельный модуль `sessions`
+> (п. 3 [roadmap](../roadmap.md)). `peer-review` сохраняет ответственность оркестратора анкет:
+> подписка на `module.completed` и `session.completed` → задачи-приглашения. Структура пакета ниже —
+> историческая точка проектирования.
+
 **Цель:** новый пакет, отвечающий за кросс-оценки, парное программирование, код-ревью.
 
 **Ответственности:**
@@ -351,7 +357,7 @@ async execute(event: QuestionnaireCompleteEvent): Promise<void> {
 - [Система сбора метрик (родитель)](./metrics-system.md)
 - [1. Концепция метрик](./metrics-conception.md) — формулы агрегации, витрина
 - [2. Questionnaire + EventBus](./metrics-questionnaire-and-events.md) — движок анкет, EventBus, запуск анкет
-- [DDD API](../.pi/skills/ddd-api/SKILL.md) — UseCase, Module, BotUiStory
-- [DDD Naming](../.pi/skills/ddd-naming/SKILL.md) — именование пакетов, файлов
-- [Границы доменной логики](./code_styleguides/domain-boundaries.md) — межмодульные взаимодействия
-- [Архитектурная эволюция](./archive/mentor_tools_20260713/architecture-evolution.md) — контекст Релизов 1–3 (в архиве)
+- [DDD API](../../.pi/skills/ddd-api/SKILL.md) — UseCase, Module, BotUiStory
+- [DDD Naming](../../.pi/skills/ddd-naming/SKILL.md) — именование пакетов, файлов
+- [Границы доменной логики](../code_styleguides/domain-boundaries.md) — межмодульные взаимодействия
+- [Архитектурная эволюция](../archive/mentor_tools_20260713/architecture-evolution.md) — контекст Релизов 1–3 (в архиве)

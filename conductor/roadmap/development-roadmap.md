@@ -1,5 +1,12 @@
 # Дорожная карта разработки (Development Roadmap)
 
+> v5 (2026-09-15). Актуальный порядок работ и статусы — в [../roadmap.md](../roadmap.md):
+> последовательность — session-persist → tasks (этап B) → sessions → metrics → contribution → DMG → контент (релизы 5–6).
+> Добавлены инициативы VI (сессии) и VII (вклад) — концепции [sessions-system.md](./sessions-system.md) и [contribution-system.md](./contribution-system.md).
+>
+> v4 (2026-09-15). В последовательность добавлен модуль sessions перед metrics.
+> Этот документ сохраняет детальную карту релизов, миграций и критериев готовности к проду.
+>
 > v3.1 (2026-09-01). Добавлена инициатива V — система задач и уведомлений (концепция согласована).
 >
 > v3 (2026-08-29). Актуализация статусов по фактическому состоянию кода.
@@ -23,6 +30,8 @@
 | III | Управление учебным контентом | [content-management.md](./content-management.md) | спецификация (не начата) |
 | IV | Переезд onboarding → wish | (треки в архиве: wish-*) | ✅ завершена (не планировалась в v2) |
 | V | Система задач и уведомлений | [tasks-system.md](./tasks-system.md) | ◐ этап A реализован (трек `user-notify_20260902` в архиве), этап B — не начат |
+| VI | Система сессий (источник метрик навыков) | [sessions-system.md](./sessions-system.md) | концепция (не начата) |
+| VII | Система вклада (измерение «член сообщества») | [contribution-system.md](./contribution-system.md) | концепция (не начата, после инициативы II) |
 
 ---
 
@@ -198,20 +207,17 @@
 
 ## Диаграмма состояния
 
+**Актуальный порядок работ (v5)** — см. [../roadmap.md](../roadmap.md):
+session-persist → tasks (этап B) → sessions → metrics → contribution → DMG → Релиз 5 → Релиз 6.
+
 ```
 Релиз 1 ✅ ──> Релиз 2 ✅ ──> Релиз 3 ✅ ──> Релиз 4 ◐ ──> Релиз 5 ⬜ ──> Релиз 6 ⬜
 (bot-ui)      (bot-ui)      (metrics infra) (metrics pipeline) (content-mgmt)  (content-mgmt)
-
-Инициатива V (tasks) ⬜ — концепция согласована; место в очереди релизов
-определится при планировании трека (зависит от приоритета Релиза 4).
 ```
-
-**Ближайшая работа:** доделать Релиз 4 (модуль `metrics` + витрина профиля студента),
-затем Релиз 5 (content-management треки 1–2), затем Релиз 6 (треки 3–4).
 
 ---
 
-### Инициатива V: Система задач и уведомлений ⬜ (концепция)
+### Инициатива V: Система задач и уведомлений — этап A ✅, этап B ⬜ (пункт 2 в [../roadmap.md](../roadmap.md))
 
 Бизнес-проблема: проактивные сообщения с кнопками (кандидаты на снятие с учёбы,
 предложения анкет) хаотично гасят кнопки друг у друга, вторгаются в текущий флоу
@@ -251,7 +257,7 @@
 
 ## Связанные документы
 
-- [conductor/index.md](./index.md) — индекс всех документов
-- [conductor/workflow.md](./workflow.md) — процесс работы conductor
-- [conductor/code_styleguides/bot-architecture.md](./code_styleguides/bot-architecture.md) — актуальное устройство bot-level
-- [conductor/code_styleguides/domain-boundaries.md](./code_styleguides/domain-boundaries.md) — архитектурные правила
+- [conductor/index.md](../index.md) — индекс всех документов
+- [conductor/workflow.md](../workflow.md) — процесс работы conductor
+- [conductor/code_styleguides/bot-architecture.md](../code_styleguides/bot-architecture.md) — актуальное устройство bot-level
+- [conductor/code_styleguides/domain-boundaries.md](../code_styleguides/domain-boundaries.md) — архитектурные правила
