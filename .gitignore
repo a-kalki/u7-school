@@ -34,7 +34,9 @@ packages/w3school/www.w3schools.com/
 packages/w3school/w3schools.com/
 conductor/archive/
 
-# data — whitelist: по умолчанию всё игнорируется, явно разрешены только папки ниже
+# data — whitelist: по умолчанию всё игнорируется, явно разрешены только папки ниже.
+# Рантайм-состояние (data/users, data/bot, data/backup, data/migrations)
+# игнорируется автоматически — перечислять его здесь не нужно.
 data/*
 !data/courses/
 !data/fixtures/
