@@ -3,7 +3,6 @@ import type { Job } from '#api/job/job';
 import type { UcDocType, UseCase } from '#api/uc/use-case';
 import { errBadRequest, throwError } from '#domain/errors/error-helpers';
 import type { NoCommandFoundError } from '#domain/errors/errors';
-import type { DomainEvent } from '#domain/events/domain-event';
 import type {
   ApiExecutor,
   ApiModuleMeta,
@@ -73,7 +72,7 @@ export abstract class ApiModule<
       er.init(this.resolve);
       this.reactionsUnsubscribes.push(
         this.resolve.eventBus.subscribe(er.getEventName(), (event) =>
-          er.handle(event as DomainEvent),
+          er.handle(event),
         ),
       );
     }

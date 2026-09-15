@@ -44,7 +44,7 @@ export class InProcEventBus implements EventBus {
   }
 
   subscribe<E extends DomainEvent>(
-    eventName: string,
+    eventName: E['eventName'],
     handler: (event: E) => Promise<void>,
   ): () => void {
     const existing = this.handlers.get(eventName) ?? [];

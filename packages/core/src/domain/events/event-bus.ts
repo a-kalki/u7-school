@@ -11,11 +11,13 @@ export interface EventBus {
 
   /**
    * Подписаться на события с указанным именем.
-   * @param eventName — имя события (например "completed", "started")
+   * Имя связано с типом события: литерал E['eventName'] защищает от
+   * опечаток и рассинхрона «имя ↔ тип» на этапе компиляции.
+   * @param eventName — имя события (например "wish.confirmed", "user.notified")
    * @returns функция отписки (unsubscribe)
    */
   subscribe<E extends DomainEvent>(
-    eventName: string,
+    eventName: E['eventName'],
     handler: (event: E) => Promise<void>,
   ): () => void;
 }

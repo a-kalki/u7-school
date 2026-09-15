@@ -48,9 +48,9 @@ export class HubStory extends U7BotUiStory {
   async #handleCompletedEvent(event: StudentCompletedEvent): Promise<void> {
     const { userId, moduleId, outcome } = event.payload;
 
-    const user = (await this.appApi.execute('get-user', {
+    const user = await this.appApi.execute('get-user', {
       uuid: userId,
-    })) as User;
+    });
     if (!user?.telegramId) return;
 
     // Место модуля в программе — идёт через домен курсов (appApi-запрос)

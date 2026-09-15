@@ -110,7 +110,7 @@ export class CourseCatalogStory extends U7BotUiStory {
   // ═══ Уровень 0: Курсы + этапы inline ═══
 
   async #handleList(actor: User): Promise<DialogResponse> {
-    const courses = (await this.appApi.execute('list-courses', {})) as Course[];
+    const courses = await this.appApi.execute('list-courses', {});
 
     if (courses.length === 0) {
       return this.screen(
@@ -120,11 +120,8 @@ export class CourseCatalogStory extends U7BotUiStory {
     }
 
     // Батч-запрос желаний пользователя: одна выборка на весь каталог
-    const wishes = ((await this.appApi.execute(
-      'list-user-wishes',
-      {},
-      actor,
-    )) ?? []) as Wish[];
+    const wishes =
+      (await this.appApi.execute('list-user-wishes', {}, actor)) ?? [];
     const wishStatusByCourse = this.#activeCourseWishStatuses(wishes);
 
     const lines: MdText[] = [md`📖 *Курсы*`, md``];

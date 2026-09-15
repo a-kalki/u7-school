@@ -63,10 +63,7 @@ export class WishConfirmedStory extends U7BotUiStory {
   async #courseMentors(courseId: string): Promise<Mentor[]> {
     let streams: Array<{ mentorId: string; moduleId: string }>;
     try {
-      streams = (await this.appApi.execute('list-streams', {})) as Array<{
-        mentorId: string;
-        moduleId: string;
-      }>;
+      streams = await this.appApi.execute('list-streams', {});
     } catch {
       return [];
     }

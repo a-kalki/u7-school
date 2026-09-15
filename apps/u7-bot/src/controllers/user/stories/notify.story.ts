@@ -41,9 +41,9 @@ export class NotifyStory extends U7BotUiStory {
 
     let user: User | undefined;
     try {
-      user = (await this.appApi.execute('get-user', {
+      user = await this.appApi.execute('get-user', {
         uuid: userId,
-      })) as User | undefined;
+      });
     } catch (err) {
       this.logger?.error('notify-story', 'Профиль адресата недоступен', {
         userId,
