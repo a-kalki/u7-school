@@ -3,11 +3,11 @@
 **Назначение:** аналитический документ. Определяет ЧТО измеряем: категории, подкатегории, шкалы, формулы агрегации. Без кода.
 
 > **Родительский документ:** [Система сбора метрик](./metrics-system.md)
-> **Дорожная карта:** [`conductor/development-roadmap.md`](./development-roadmap.md) — порядок релизов, миграции, зависимости между инициативами
+> **Дорожная карта:** [`conductor/development-roadmap.md`](../development-roadmap.md) — порядок релизов, миграции, зависимости между инициативами
 > **Связан с:** [2. Questionnaire + EventBus](./metrics-questionnaire-and-events.md) — структура `likertMapping` в вопросах
 > **Связан с:** [3. Пайплайн + модули](./metrics-pipeline-and-modules.md) — как metrics модуль агрегирует баллы
-> **Связан с:** [Система сессий](./sessions-system.md) — сессии как источник контекстов `pair_programming` / `code_review`
-> **Связан с:** [Система вклада](./contribution-system.md) — второе измерение профиля, измеряется отдельно от навыков
+> **Связан с:** [Система сессий](../sessions-system.md) — сессии как источник контекстов `pair_programming` / `code_review`
+> **Связан с:** [Система вклада](../contribution-system.md) — второе измерение профиля, измеряется отдельно от навыков
 
 ---
 
@@ -71,8 +71,8 @@
 | Контекст (код) | Описание | Роли по умолчанию |
 |---|---|---|
 | `module_completed` | Студент завершил модуль | `student_student` + `mentor_student` + `student_mentor` |
-| `pair_programming` | Завершена сессия парного программирования ([sessions](./sessions-system.md)) | `student_student` |
-| `code_review` | Завершена сессия код-ревью ([sessions](./sessions-system.md)) | `student_student`, `mentor_student` |
+| `pair_programming` | Завершена сессия парного программирования ([sessions](../sessions-system.md)) | `student_student` |
+| `code_review` | Завершена сессия код-ревью ([sessions](../sessions-system.md)) | `student_student`, `mentor_student` |
 | `initiative` | Инициативный отзыв вне плановых контекстов — любой человек, в любой момент, по любой подкатегории | Любая |
 
 ---
@@ -288,7 +288,7 @@ total_rating = Σ (category_score × category_weight) / Σ category_weight
 4. **Что именно было сделано** *(обязательно)* — что стало поводом отзыва: конкретное действие, решение, наблюдение;
 5. Текстовый комментарий — опционально.
 
-Обязательные поля «место» и «что» дают анкете контекст достоверности: без привязки к наблюдаемому событию отзыв — мнение без обоснования. Механика единая с фиксацией вклада ([contribution-system](./contribution-system.md)), ось другая: навык vs действие для сообщества.
+Обязательные поля «место» и «что» дают анкете контекст достоверности: без привязки к наблюдаемому событию отзыв — мнение без обоснования. Механика единая с фиксацией вклада ([contribution-system](../contribution-system.md)), ось другая: навык vs действие для сообщества.
 
 ---
 

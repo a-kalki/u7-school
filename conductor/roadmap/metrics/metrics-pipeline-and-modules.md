@@ -6,7 +6,7 @@
 > **Связан с:** [1. Концепция метрик](./metrics-conception.md) — формулы агрегации
 > **Связан с:** [2. Questionnaire + EventBus](./metrics-questionnaire-and-events.md) — движок анкет, EventBus, запуск анкет
 >
-> **Актуализация (2026-09-09):** документ сведён с [tasks-system](./tasks-system.md)
+> **Актуализация (2026-09-09):** документ сведён с [tasks-system](../tasks-system.md)
 > (инициатива V проектировалась позже и поглотила механику приглашений): все
 > асинхронные предложения («оцени напарника», «заполни анкету») реализуются
 > **задачами** модуля `task`, а не собственными статусами анкет и не кнопочными
@@ -54,7 +54,7 @@ EventBus ──> peer-review (подписчик)
 
 **Цель:** предложить анкету пользователю, не вторгаясь в его текущий флоу, с окном актуальности и памятью об отказе.
 
-**Проблема:** исторически проектировался intention-паттерн — отдельный статус `intention` у агрегата анкеты («анкета предложена, ждёт согласия») плюс проактивные кнопки «Оценить напарника». После проработки [tasks-system](./tasks-system.md) эта механика избыточна: задача уже даёт окно жизни, память отказа (`task.skipped` → ER владельца), уведомление «есть дело — /tasks» и кнопку в едином списке. Двойная механика «ожидающего действия» (статус анкеты ⊕ статус задачи) не вводится.
+**Проблема:** исторически проектировался intention-паттерн — отдельный статус `intention` у агрегата анкеты («анкета предложена, ждёт согласия») плюс проактивные кнопки «Оценить напарника». После проработки [tasks-system](../tasks-system.md) эта механика избыточна: задача уже даёт окно жизни, память отказа (`task.skipped` → ER владельца), уведомление «есть дело — /tasks» и кнопку в едином списке. Двойная механика «ожидающего действия» (статус анкеты ⊕ статус задачи) не вводится.
 
 **Решение — приглашение = задача:**
 
@@ -64,7 +64,7 @@ EventBus ──> peer-review (подписчик)
   respondentId, triggerEvent } })`. Пул вопросов в задаче НЕ персистится —
   тексты вычисляются на лету (`TaskTypeMeta.resolveRenderInfo`).
 - Task-модуль уведомляет: `userFacade.notify` «📋 Есть дело — /tasks» (текст
-  без кнопок, инвариант И3 [bot-ui](./bot-ui-session-architecture.md)).
+  без кнопок, инвариант И3 [bot-ui](../bot-ui-session-architecture.md)).
 - В `/tasks` задача рендерится контрактом `TaskRenderInfo` (кнопка [Начать
   анкету]); kind-рендерер questionnaire превращает её в колбек своей стори —
   дальше штатная маршрутизация бота (мост со штампом).
@@ -117,9 +117,9 @@ this.addEvent({
 
 ### Трек 3.3 — Модуль `peer-review`
 
-> **Уточнение (2026-09-15):** по концепции [sessions-system](./sessions-system.md) учёт сессий
+> **Уточнение (2026-09-15):** по концепции [sessions-system](../sessions-system.md) учёт сессий
 > (`ReviewSession`, пары/ревью-сессии, событие завершения) выделяется в отдельный модуль `sessions`
-> (п. 3 [roadmap](../roadmap.md)). `peer-review` сохраняет ответственность оркестратора анкет:
+> (п. 3 [roadmap](../../roadmap.md)). `peer-review` сохраняет ответственность оркестратора анкет:
 > подписка на `module.completed` и `session.completed` → задачи-приглашения. Структура пакета ниже —
 > историческая точка проектирования.
 
@@ -195,7 +195,7 @@ async execute(event: ModuleCompletedEvent): Promise<void> {
 ```
 
 Уведомления, напоминания, дайджест-склейка и окна жизни — централизованы в
-`task`-модуле; peer-review только создаёт задачи ([tasks-system-architecture.md](./tasks-system-architecture.md)).
+`task`-модуле; peer-review только создаёт задачи ([tasks-system-architecture.md](../tasks-system-architecture.md)).
 
 **Парное программирование:**
 - `PeerReviewAr` управляет сессией: `start(reviewerId, programmerId, lessonId)` → `complete(outcome)`
@@ -357,7 +357,7 @@ async execute(event: QuestionnaireCompleteEvent): Promise<void> {
 - [Система сбора метрик (родитель)](./metrics-system.md)
 - [1. Концепция метрик](./metrics-conception.md) — формулы агрегации, витрина
 - [2. Questionnaire + EventBus](./metrics-questionnaire-and-events.md) — движок анкет, EventBus, запуск анкет
-- [DDD API](../../.pi/skills/ddd-api/SKILL.md) — UseCase, Module, BotUiStory
-- [DDD Naming](../../.pi/skills/ddd-naming/SKILL.md) — именование пакетов, файлов
-- [Границы доменной логики](../code_styleguides/domain-boundaries.md) — межмодульные взаимодействия
-- [Архитектурная эволюция](../archive/mentor_tools_20260713/architecture-evolution.md) — контекст Релизов 1–3 (в архиве)
+- [DDD API](../../../.pi/skills/ddd-api/SKILL.md) — UseCase, Module, BotUiStory
+- [DDD Naming](../../../.pi/skills/ddd-naming/SKILL.md) — именование пакетов, файлов
+- [Границы доменной логики](../../code_styleguides/domain-boundaries.md) — межмодульные взаимодействия
+- [Архитектурная эволюция](../../archive/mentor_tools_20260713/architecture-evolution.md) — контекст Релизов 1–3 (в архиве)

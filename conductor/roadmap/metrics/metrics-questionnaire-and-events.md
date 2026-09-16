@@ -2,7 +2,7 @@
 
 **Назначение:** технический документ. Ядро системы: движок анкет, EventBus в core, API агрегатов для событий.
 
-> **Актуализация (2026-09-09):** механика запуска сведена с [tasks-system](./tasks-system.md):
+> **Актуализация (2026-09-09):** механика запуска сведена с [tasks-system](../tasks-system.md):
 > асинхронные приглашения анкет — задачи модуля `task` (трек 3.1 [документа 3](./metrics-pipeline-and-modules.md)),
 > прямой старт — синхронный `start` + `delegate` в `fill`-стори. Упомянутые ниже `sendInvite`/
 > `BotUiApp.send()` — исторические (реализованы до tasks-system); их кнопочная часть —
@@ -275,6 +275,6 @@ abandon(): void
 - [Система сбора метрик (родитель)](./metrics-system.md)
 - [1. Концепция метрик](./metrics-conception.md) — структура likertMapping
 - [3. Пайплайн + модули](./metrics-pipeline-and-modules.md) — Invite-паттерн, peer-review, metrics
-- [DDD Domain](../../.pi/skills/ddd-domain/SKILL.md) — правила для Aggregate, Policy
-- [DDD Naming](../../.pi/skills/ddd-naming/SKILL.md) — именование пакетов, файлов
-- [Границы доменной логики](../code_styleguides/domain-boundaries.md)
+- [DDD Domain](../../../.pi/skills/ddd-domain/SKILL.md) — правила для Aggregate, Policy
+- [DDD Naming](../../../.pi/skills/ddd-naming/SKILL.md) — именование пакетов, файлов
+- [Границы доменной логики](../../code_styleguides/domain-boundaries.md)
