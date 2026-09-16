@@ -6,7 +6,7 @@
 
 ## Контекст
 
-- [Система сбора метрик](../../roadmap/metrics-system.md) — родительский документ
-- [2. Questionnaire + EventBus](../../roadmap/metrics-questionnaire-and-events.md) — техническая спецификация
+- [Система сбора метрик](../../roadmap/metrics/metrics-system.md) — родительский документ
+- [2. Questionnaire + EventBus](../../roadmap/metrics/metrics-questionnaire-and-events.md) — техническая спецификация
 - [Трек 2.1 — EventBus](../metrics-eventbus_20260810/spec.md) — интерфейс DomainEvent
 - [Дорожная карта](../../roadmap/development-roadmap.md) — Релиз 3

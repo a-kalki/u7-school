@@ -55,8 +55,8 @@ Unit-тесты в `packages/core/src/api/`:
 
 ## Контекст и связанные документы
 
-- [Система сбора метрик (родитель)](../../roadmap/metrics-system.md) — видение, архитектурные решения
-- [2. Questionnaire + EventBus](../../roadmap/metrics-questionnaire-and-events.md) — техническая спецификация
+- [Система сбора метрик (родитель)](../../roadmap/metrics/metrics-system.md) — видение, архитектурные решения
+- [2. Questionnaire + EventBus](../../roadmap/metrics/metrics-questionnaire-and-events.md) — техническая спецификация
 - [Дорожная карта](../../roadmap/development-roadmap.md) — Релиз 3
 - [Трек 2.1 — EventBus](../tracks/metrics-eventbus_20260810/spec.md)
 - [Трек 2.2 — Aggregate API](../tracks/metrics-aggregate-api_20260810/spec.md)

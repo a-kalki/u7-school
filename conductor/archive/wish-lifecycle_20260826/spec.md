@@ -142,6 +142,6 @@ export function findCoursePool(courseId: string): QuestionnairePool | undefined;
 - [Трек C1 (wish-module)](../../archive/wish-module_20260814/spec.md) — базовая модель агрегата, которую заменяет этот трек.
 - [Трек C2 (wish-fulfillment)](./wish-fulfillment_20260814/spec.md) — `fulfill()`, удаление `CANDIDATE` (зависит от новых статусов).
 - [Трек D (wish-ui)](../wish-ui_20260814/spec.md) — UI каталога курсов, контракт `create-course-wish`.
-- [metrics-system.md](../../roadmap/metrics-system.md), [metrics-conception.md](../../roadmap/metrics-conception.md) — технические правки (onboarding → wish).
+- [metrics-system.md](../../roadmap/metrics/metrics-system.md), [metrics-conception.md](../../roadmap/metrics/metrics-conception.md) — технические правки (onboarding → wish).
 - [course/ui-spec.md](../../../apps/u7-bot/src/controllers/courses/ui-spec.md) — экраны W01–W05.
 - [Рабочий процесс](../../workflow.md) — жизненный цикл задач.

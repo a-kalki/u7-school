@@ -184,7 +184,7 @@ packages/peer-review/src/
 - [ddd-domain](../../.pi/skills/ddd-domain/SKILL.md) — шаблоны Domain-слоя.
 - [ddd-api](../../.pi/skills/ddd-api/SKILL.md) — шаблоны API-слоя.
 - [Границы доменной логики](../../code_styleguides/domain-boundaries.md) — межмодульные взаимодействия.
-- [Пайплайн + модули](../../roadmap/metrics-pipeline-and-modules.md) — контекст модулей `peer-review` и метрик.
+- [Пайплайн + модули](../../roadmap/metrics/metrics-pipeline-and-modules.md) — контекст модулей `peer-review` и метрик.
 - [questionnaire/ui-spec.md](../../apps/u7-bot/src/controllers/questionnaire/ui-spec.md) — экраны анкеты.
 - [course/ui-spec.md](../../apps/u7-bot/src/controllers/courses/ui-spec.md) — потребитель ownerInfo («Желание пройти курс»).
 - [Рабочий процесс](../../workflow.md) — жизненный цикл задач.
