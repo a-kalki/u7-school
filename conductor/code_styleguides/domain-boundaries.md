@@ -94,7 +94,7 @@ canEnrollNextModule(course, targetModuleId, completedModuleIds: string[]): boole
 canEnrollNextModule(course, targetModuleId, students: Student[], streams: Stream[]): boolean {
   const streamMap = new Map(streams.map(s => [s.uuid, s.moduleId]));
   const completedModuleIds = students
-    .filter(s => s.status === 'advanced')
+    .filter(s => new StudentAr(s).isPassed())   // «прошёл» — признак StudentAr, не литерал статуса
     .map(s => streamMap.get(s.streamId))
     .filter((id): id is string => id !== undefined);
 
@@ -105,6 +105,7 @@ canEnrollNextModule(course, targetModuleId, students: Student[], streams: Stream
 **Почему это правильно:**
 
 - **StreamPolicy** оперирует **своими** доменными объектами (`Student[]`, `Stream[]`), сама извлекает `completedModuleIds`
+- **Словарь статусов студента знает только зона Student:** «прошёл» определяется признаком read-API `StudentAr.isPassed()`, сравнение `status === 'advanced'` вне зоны Student запрещено (ФР‑10 трека peer-review-domain)
 - **CoursePolicy** принимает **свои** данные (`Course`) и примитивы (`string[]`), принимает решение о допуске
 - **Делегирование:** StreamPolicy вызывает CoursePolicy, передавая только необходимый минимум (moduleIds)
 - UC в stream вызывает **свою** политику (`StreamPolicy`), не зная о `CoursePolicy`
