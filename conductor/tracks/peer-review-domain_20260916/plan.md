@@ -27,9 +27,9 @@
 - [x] Task: API stream на read-API — `GetStudentByUserUc` (выбор активной/завершённой записи), `ActivateStreamUc` (активация зачисленных) (014727f2)
     - [x] Red: тесты UC (существующие сценарии не теряются)
     - [x] Green: реализация
-- [ ] Task: UI-сторисы на read-API — `view-stream.story` и `monitor` (блоки отставания/активности: `status === 'active'` → признак агрегата)
-    - [ ] Red: тесты сторис (существующие сценарии не теряются)
-    - [ ] Green: реализация
+- [x] Task: UI-сторисы на read-API — `view-stream.story` и `monitor` (блоки отставания/активности: `status === 'active'` → признак агрегата) (b750b648)
+    - [x] Red: тесты сторис (существующие сценарии не теряются)
+    - [x] Green: реализация
 - [ ] Task: Grep-контроль ФР-10 — вне зоны Student нет сравнений `status` студента с литералами (кроме контрактов входа команд/событий); обновить пример в `domain-boundaries.md` §3 при изменении кода
     - [ ] Green: проверка + правка доки
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
