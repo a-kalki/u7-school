@@ -3,14 +3,16 @@ import {
   AbandonSign,
   CompletionSign,
   StudentOutcomeCategory,
+  type StudentOutcomeInput,
   studentNeverStarted,
   studentOutcomeCategory,
   studentOutcomeSigns,
-  type StudentOutcomeInput,
 } from './outcome';
 
 /** Фабрика входа: активный студент без шагов по умолчанию */
-const input = (overrides: Partial<StudentOutcomeInput> = {}): StudentOutcomeInput => ({
+const input = (
+  overrides: Partial<StudentOutcomeInput> = {},
+): StudentOutcomeInput => ({
   status: 'active',
   steps: [],
   ...overrides,
@@ -146,8 +148,17 @@ describe('studentOutcomeSigns (признаки завершения и уход
     ]);
   });
 
-  test('легаси: abandoned без abandonDetails → без признаков ухода, не падает', () => {
+  test('легаси: abandoned без abandonDetails, шагов нет → только «не начал» (выводимый, независим от деталей)', () => {
     const src = input({ status: 'abandoned', abandonDetails: undefined });
+    expect(studentOutcomeSigns(src)).toEqual([AbandonSign.NEVER_STARTED]);
+  });
+
+  test('легаси: abandoned без abandonDetails, шаги были → без признаков ухода, не падает', () => {
+    const src = input({
+      status: 'abandoned',
+      abandonDetails: undefined,
+      steps: [completedStep],
+    });
     expect(studentOutcomeSigns(src)).toEqual([]);
   });
 
