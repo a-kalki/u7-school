@@ -13,7 +13,7 @@ function mentorActor(): User {
     name: 'Ментор Тест',
     telegramId: 123,
     roles: [Role.MENTOR],
-    createdAt: '2026-01-01T00:00:00.000Z',
+    createdAt: '2026-01-01T00:00',
   };
 }
 
@@ -37,54 +37,63 @@ interface TestStudent {
 function makeStudent(overrides: Partial<TestStudent> = {}): TestStudent {
   const now = new Date();
   const h = (hoursAgo: number) =>
-    new Date(now.getTime() - hoursAgo * 36e5).toISOString();
+    new Date(now.getTime() - hoursAgo * 36e5).toISOString().slice(0, 16);
   return {
-    uuid: 'student-1',
-    streamId: 'stream-1',
-    userId: 'user-1',
-    enrolledAt: '2026-01-01T00:00:00.000Z',
+    uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
+    streamId: '11111111-1111-4111-8111-111111111111',
+    userId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    enrolledAt: '2026-01-01T00:00',
     status: 'active',
-    currentStepId: 'step-3',
+    currentStepId: 'cccc0000-0000-4000-8000-000000000003',
     steps: [
       {
-        stepId: 'step-1',
+        stepId: 'cccc0000-0000-4000-8000-000000000001',
         status: 'completed',
         issuedAt: h(2),
         completedAt: h(1.5),
       },
       {
-        stepId: 'step-2',
+        stepId: 'cccc0000-0000-4000-8000-000000000002',
         status: 'completed',
         issuedAt: h(1),
         completedAt: h(0.5),
       },
-      { stepId: 'step-3', status: 'issued', issuedAt: h(0.2) },
+      {
+        stepId: 'cccc0000-0000-4000-8000-000000000003',
+        status: 'issued',
+        issuedAt: h(0.2),
+      },
     ],
-    createdAt: '2026-01-01T00:00:00.000Z',
+    createdAt: '2026-01-01T00:00',
     ...overrides,
   };
 }
 
 /** Студент с большим отставанием (давние completed) */
 function makeLaggingStudent(): TestStudent {
-  const daysAgo = (d: number) => new Date(Date.now() - d * 864e5).toISOString();
+  const daysAgo = (d: number) =>
+    new Date(Date.now() - d * 864e5).toISOString().slice(0, 16);
   return {
-    uuid: 'student-lag',
-    streamId: 'stream-1',
-    userId: 'user-lag',
-    enrolledAt: '2026-01-01T00:00:00.000Z',
+    uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0009',
+    streamId: '11111111-1111-4111-8111-111111111111',
+    userId: 'bbbb0000-0000-4000-8000-000000000009',
+    enrolledAt: '2026-01-01T00:00',
     status: 'active',
-    currentStepId: 'step-1',
+    currentStepId: 'cccc0000-0000-4000-8000-000000000001',
     steps: [
       {
-        stepId: 'step-1',
+        stepId: 'cccc0000-0000-4000-8000-000000000001',
         status: 'completed',
         issuedAt: daysAgo(10),
         completedAt: daysAgo(9),
       },
-      { stepId: 'step-2', status: 'issued', issuedAt: daysAgo(9) },
+      {
+        stepId: 'cccc0000-0000-4000-8000-000000000002',
+        status: 'issued',
+        issuedAt: daysAgo(9),
+      },
     ],
-    createdAt: '2026-01-01T00:00:00.000Z',
+    createdAt: '2026-01-01T00:00',
   };
 }
 
@@ -98,7 +107,7 @@ interface TestStream {
 
 function makeStream(overrides: Partial<TestStream> = {}): TestStream {
   return {
-    uuid: 'stream-1',
+    uuid: '11111111-1111-4111-8111-111111111111',
     title: 'Тестовый Поток',
     status: 'active',
     mentorId: 'mentor-1',
@@ -123,7 +132,7 @@ function setupStory(
     stream = makeStream(),
     apiErrors = new Set<string>(),
     userError = false,
-    userNames = { 'user-1': 'Иван Петров' },
+    userNames = { 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb': 'Иван Петров' },
   } = opts;
 
   const story = new MonitorStory();
@@ -175,7 +184,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('students: список с активным студентом, точные коды навигации', async () => {
     const { story } = setupStory();
     const response = await story.handleCallback(
-      'students:stream-1',
+      'students:11111111-1111-4111-8111-111111111111',
       mentorActor(),
       session,
     );
@@ -193,24 +202,30 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
     const { texts, codes, rowOf } = flat(response);
     // Строка студента: имя + ⛔/✅ с точными кодами
     const studentRow = rowOf('Иван Петров');
-    expect(studentRow?.[0]?.code).toBe('monitor:detail:student-1');
-    expect(studentRow?.map((b) => b.code)).toContain(
-      'monitor:mark-abandoned:student-1',
+    expect(studentRow?.[0]?.code).toBe(
+      'monitor:detail:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
     );
     expect(studentRow?.map((b) => b.code)).toContain(
-      'monitor:complete:student-1',
+      'monitor:mark-abandoned:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
+    );
+    expect(studentRow?.map((b) => b.code)).toContain(
+      'monitor:complete:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
     );
     // Навигация (инвентаризация S07)
     expect(texts.some((t) => t.includes('Показать выбывших'))).toBe(true);
-    expect(codes).toContain('monitor:students-all:stream-1');
-    expect(codes).toContain('view-stream-mentor:view:stream-1');
+    expect(codes).toContain(
+      'monitor:students-all:11111111-1111-4111-8111-111111111111',
+    );
+    expect(codes).toContain(
+      'view-stream-mentor:view:11111111-1111-4111-8111-111111111111',
+    );
     expect(texts.some((t) => t.includes('⬅️ Назад к потоку'))).toBe(true);
   });
 
   test('students: пустой список', async () => {
     const { story } = setupStory({ students: [] });
     const response = await story.handleCallback(
-      'students:stream-1',
+      'students:11111111-1111-4111-8111-111111111111',
       mentorActor(),
       session,
     );
@@ -220,7 +235,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('students: поток не найден — экран ошибки', async () => {
     const { story } = setupStory({ stream: null });
     const response = await story.handleCallback(
-      'students:stream-1',
+      'students:11111111-1111-4111-8111-111111111111',
       mentorActor(),
       session,
     );
@@ -230,15 +245,36 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('students: дефолт-фильтр FR-8 — только активные, сводка по всем', async () => {
     const { story } = setupStory({
       students: [
-        makeStudent({ uuid: 's1', userId: 'u1', status: 'active' }),
-        makeStudent({ uuid: 's2', userId: 'u2', status: 'advanced' }),
-        makeStudent({ uuid: 's3', userId: 'u3', status: 'abandoned' }),
-        makeStudent({ uuid: 's4', userId: 'u4', status: 'not_advanced' }),
+        makeStudent({
+          uuid: 'aaaa0000-0000-4000-8000-000000000001',
+          userId: 'bbbb0000-0000-4000-8000-000000000001',
+          status: 'active',
+        }),
+        makeStudent({
+          uuid: 'aaaa0000-0000-4000-8000-000000000002',
+          userId: 'bbbb0000-0000-4000-8000-000000000002',
+          status: 'advanced',
+        }),
+        makeStudent({
+          uuid: 'aaaa0000-0000-4000-8000-000000000003',
+          userId: 'bbbb0000-0000-4000-8000-000000000003',
+          status: 'abandoned',
+        }),
+        makeStudent({
+          uuid: 'aaaa0000-0000-4000-8000-000000000004',
+          userId: 'bbbb0000-0000-4000-8000-000000000004',
+          status: 'not_advanced',
+        }),
       ],
-      userNames: { u1: 'Активный', u2: 'Прошёл', u3: 'Выбыл', u4: 'Не прошёл' },
+      userNames: {
+        'bbbb0000-0000-4000-8000-000000000001': 'Активный',
+        'bbbb0000-0000-4000-8000-000000000002': 'Прошёл',
+        'bbbb0000-0000-4000-8000-000000000003': 'Выбыл',
+        'bbbb0000-0000-4000-8000-000000000004': 'Не прошёл',
+      },
     });
     const response = await story.handleCallback(
-      'students:stream-1',
+      'students:11111111-1111-4111-8111-111111111111',
       mentorActor(),
       session,
     );
@@ -260,15 +296,36 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('students-all: все студенты, метрики по всем, маркеры статусов', async () => {
     const { story } = setupStory({
       students: [
-        makeStudent({ uuid: 's1', userId: 'u1', status: 'active' }),
-        makeStudent({ uuid: 's2', userId: 'u2', status: 'advanced' }),
-        makeStudent({ uuid: 's3', userId: 'u3', status: 'abandoned' }),
-        makeStudent({ uuid: 's4', userId: 'u4', status: 'not_advanced' }),
+        makeStudent({
+          uuid: 'aaaa0000-0000-4000-8000-000000000001',
+          userId: 'bbbb0000-0000-4000-8000-000000000001',
+          status: 'active',
+        }),
+        makeStudent({
+          uuid: 'aaaa0000-0000-4000-8000-000000000002',
+          userId: 'bbbb0000-0000-4000-8000-000000000002',
+          status: 'advanced',
+        }),
+        makeStudent({
+          uuid: 'aaaa0000-0000-4000-8000-000000000003',
+          userId: 'bbbb0000-0000-4000-8000-000000000003',
+          status: 'abandoned',
+        }),
+        makeStudent({
+          uuid: 'aaaa0000-0000-4000-8000-000000000004',
+          userId: 'bbbb0000-0000-4000-8000-000000000004',
+          status: 'not_advanced',
+        }),
       ],
-      userNames: { u1: 'Активный', u2: 'Прошёл', u3: 'Выбыл', u4: 'Не прошёл' },
+      userNames: {
+        'bbbb0000-0000-4000-8000-000000000001': 'Активный',
+        'bbbb0000-0000-4000-8000-000000000002': 'Прошёл',
+        'bbbb0000-0000-4000-8000-000000000003': 'Выбыл',
+        'bbbb0000-0000-4000-8000-000000000004': 'Не прошёл',
+      },
     });
     const response = await story.handleCallback(
-      'students-all:stream-1',
+      'students-all:11111111-1111-4111-8111-111111111111',
       mentorActor(),
       session,
     );
@@ -288,31 +345,44 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
       true,
     );
     expect(texts.some((t) => t.includes('Скрыть выбывших'))).toBe(true);
-    expect(codes).toContain('monitor:students:stream-1');
+    expect(codes).toContain(
+      'monitor:students:11111111-1111-4111-8111-111111111111',
+    );
   });
 
   test('students-all: ⛔✅ у активного и в режиме «все»', async () => {
     const { story } = setupStory({
       students: [
-        makeStudent({ uuid: 's1', userId: 'u1', status: 'active' }),
-        makeStudent({ uuid: 's3', userId: 'u3', status: 'abandoned' }),
+        makeStudent({
+          uuid: 'aaaa0000-0000-4000-8000-000000000001',
+          userId: 'bbbb0000-0000-4000-8000-000000000001',
+          status: 'active',
+        }),
+        makeStudent({
+          uuid: 'aaaa0000-0000-4000-8000-000000000003',
+          userId: 'bbbb0000-0000-4000-8000-000000000003',
+          status: 'abandoned',
+        }),
       ],
-      userNames: { u1: 'Активный', u3: 'Выбыл' },
+      userNames: {
+        'bbbb0000-0000-4000-8000-000000000001': 'Активный',
+        'bbbb0000-0000-4000-8000-000000000003': 'Выбыл',
+      },
     });
     const response = await story.handleCallback(
-      'students-all:stream-1',
+      'students-all:11111111-1111-4111-8111-111111111111',
       mentorActor(),
       session,
     );
     const { rowOf } = flat(response);
     const activeRow = rowOf('Активный');
     expect(activeRow?.map((b) => b.code)).toContain(
-      'monitor:mark-abandoned:s1',
+      'monitor:mark-abandoned:aaaa0000-0000-4000-8000-000000000001',
     );
     // У выбывшего нет ⛔
     const abandonedRow = rowOf('Выбыл');
     expect(abandonedRow?.map((b) => b.code)).not.toContain(
-      'monitor:mark-abandoned:s3',
+      'monitor:mark-abandoned:aaaa0000-0000-4000-8000-000000000003',
     );
   });
 
@@ -322,7 +392,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
       userNames: { 'user-lag': 'Отстающий' },
     });
     const response = await story.handleCallback(
-      'students:stream-1',
+      'students:11111111-1111-4111-8111-111111111111',
       mentorActor(),
       session,
     );
@@ -332,11 +402,17 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
 
   test('students: advanced в режиме «все» — кнопка 🔄 без ⛔', async () => {
     const { story } = setupStory({
-      students: [makeStudent({ uuid: 's2', userId: 'u2', status: 'advanced' })],
-      userNames: { u2: 'Студент Прошёл' },
+      students: [
+        makeStudent({
+          uuid: 'aaaa0000-0000-4000-8000-000000000002',
+          userId: 'bbbb0000-0000-4000-8000-000000000002',
+          status: 'advanced',
+        }),
+      ],
+      userNames: { 'bbbb0000-0000-4000-8000-000000000002': 'Студент Прошёл' },
     });
     const response = await story.handleCallback(
-      'students-all:stream-1',
+      'students-all:11111111-1111-4111-8111-111111111111',
       mentorActor(),
       session,
     );
@@ -352,7 +428,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
       stream: makeStream({ mentorId: 'other-mentor' }),
     });
     const response = await story.handleCallback(
-      'students:stream-1',
+      'students:11111111-1111-4111-8111-111111111111',
       mentorActor(),
       session,
     );
@@ -365,11 +441,11 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('students: ошибка get-user не ломает список (имя — обрезок id)', async () => {
     const { story } = setupStory({ userError: true });
     const response = await story.handleCallback(
-      'students:stream-1',
+      'students:11111111-1111-4111-8111-111111111111',
       mentorActor(),
       session,
     );
-    expect(String(response.screen?.text)).toContain('user\\-1');
+    expect(String(response.screen?.text)).toContain('bbbbbbbb');
   });
 
   // ═══ сортировка ═══
@@ -377,13 +453,20 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('сортировка: отстающие раньше нормальных', async () => {
     const { story } = setupStory({
       students: [
-        makeStudent({ uuid: 's1', userId: 'u1', status: 'active' }),
+        makeStudent({
+          uuid: 'aaaa0000-0000-4000-8000-000000000001',
+          userId: 'bbbb0000-0000-4000-8000-000000000001',
+          status: 'active',
+        }),
         makeLaggingStudent(),
       ],
-      userNames: { u1: 'Нормальный', 'user-lag': 'Отстающий' },
+      userNames: {
+        'bbbb0000-0000-4000-8000-000000000001': 'Нормальный',
+        'user-lag': 'Отстающий',
+      },
     });
     const response = await story.handleCallback(
-      'students:stream-1',
+      'students:11111111-1111-4111-8111-111111111111',
       mentorActor(),
       session,
     );
@@ -394,13 +477,24 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('сортировка (students-all): завершённые — в конце', async () => {
     const { story } = setupStory({
       students: [
-        makeStudent({ uuid: 's1', userId: 'u1', status: 'active' }),
-        makeStudent({ uuid: 's2', userId: 'u2', status: 'advanced' }),
+        makeStudent({
+          uuid: 'aaaa0000-0000-4000-8000-000000000001',
+          userId: 'bbbb0000-0000-4000-8000-000000000001',
+          status: 'active',
+        }),
+        makeStudent({
+          uuid: 'aaaa0000-0000-4000-8000-000000000002',
+          userId: 'bbbb0000-0000-4000-8000-000000000002',
+          status: 'advanced',
+        }),
       ],
-      userNames: { u1: 'Активный', u2: 'Завершённый' },
+      userNames: {
+        'bbbb0000-0000-4000-8000-000000000001': 'Активный',
+        'bbbb0000-0000-4000-8000-000000000002': 'Завершённый',
+      },
     });
     const response = await story.handleCallback(
-      'students-all:stream-1',
+      'students-all:11111111-1111-4111-8111-111111111111',
       mentorActor(),
       session,
     );
@@ -413,7 +507,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('detail: три секции карточки, назад в список', async () => {
     const { story } = setupStory();
     const response = await story.handleCallback(
-      'detail:student-1',
+      'detail:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
       mentorActor(),
       session,
     );
@@ -429,14 +523,19 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
 
     // S08: только навигация, кнопок действий нет
     expect(response.screen?.keyboard?.rows).toEqual([
-      [{ text: '⬅️ Назад к списку', code: 'monitor:students:stream-1' }],
+      [
+        {
+          text: '⬅️ Назад к списку',
+          code: 'monitor:students:11111111-1111-4111-8111-111111111111',
+        },
+      ],
     ]);
   });
 
   test('detail: поток не найден — экран ошибки', async () => {
     const { story } = setupStory({ stream: null });
     const response = await story.handleCallback(
-      'detail:student-1',
+      'detail:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
       mentorActor(),
       session,
     );
@@ -448,7 +547,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('mark-abandoned: confirm-диалог с точными кнопками', async () => {
     const { story } = setupStory();
     const response = await story.handleCallback(
-      'mark-abandoned:student-1',
+      'mark-abandoned:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
       mentorActor(),
       session,
     );
@@ -462,9 +561,12 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
       [
         {
           text: '⚠️ Да, неактивен',
-          code: 'monitor:mark-abandoned-confirm:student-1',
+          code: 'monitor:mark-abandoned-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
         },
-        { text: '❌ Отмена', code: 'monitor:detail:student-1' },
+        {
+          text: '❌ Отмена',
+          code: 'monitor:detail:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
+        },
       ],
     ]);
   });
@@ -472,7 +574,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('mark-abandoned-confirm: UC mark-abandoned cause=inactivity + delegate на список', async () => {
     const { story, appApi } = setupStory();
     const response = await story.handleCallback(
-      'mark-abandoned-confirm:student-1',
+      'mark-abandoned-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
       mentorActor(),
       session,
     );
@@ -481,20 +583,22 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
     const calls = appApi.execute.mock.calls as unknown[][];
     const call = calls.find((c) => c[0] === 'mark-abandoned');
     expect(call?.[1]).toEqual({
-      streamId: 'stream-1',
-      studentId: 'student-1',
+      streamId: '11111111-1111-4111-8111-111111111111',
+      studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
       cause: 'inactivity',
     });
 
     expect(response.notify?.text).toContain('снят с учёбы');
     // delegate monitor→students: возврат к списку потока
-    expect(response.delegate?.path).toBe('monitor:students:stream-1');
+    expect(response.delegate?.path).toBe(
+      'monitor:students:11111111-1111-4111-8111-111111111111',
+    );
   });
 
   test('mark-abandoned-confirm: ошибка UC — экран ошибки с выходом в меню', async () => {
     const { story } = setupStory({ apiErrors: new Set(['mark-abandoned']) });
     const response = await story.handleCallback(
-      'mark-abandoned-confirm:student-1',
+      'mark-abandoned-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
       mentorActor(),
       session,
     );
@@ -509,7 +613,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('complete: выбор исхода с точными кодами', async () => {
     const { story } = setupStory();
     const response = await story.handleCallback(
-      'complete:student-1',
+      'complete:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
       mentorActor(),
       session,
     );
@@ -521,16 +625,24 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
       '🔴 забросил',
       '❌ Отмена',
     ]);
-    expect(codes).toContain('monitor:complete-confirm:student-1:advanced');
-    expect(codes).toContain('monitor:complete-confirm:student-1:not_advanced');
-    expect(codes).toContain('monitor:complete-confirm:student-1:abandoned');
-    expect(codes).toContain('monitor:detail:student-1');
+    expect(codes).toContain(
+      'monitor:complete-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001:advanced',
+    );
+    expect(codes).toContain(
+      'monitor:complete-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001:not_advanced',
+    );
+    expect(codes).toContain(
+      'monitor:complete-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001:abandoned',
+    );
+    expect(codes).toContain(
+      'monitor:detail:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
+    );
   });
 
   test('complete-confirm (advanced): confirm-диалог', async () => {
     const { story } = setupStory();
     const response = await story.handleCallback(
-      'complete-confirm:student-1:advanced',
+      'complete-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001:advanced',
       mentorActor(),
       session,
     );
@@ -540,22 +652,24 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
     const { texts, codes } = flat(response);
     expect(texts).toContain('✅ Завершить');
     expect(codes).toContain(
-      'monitor:complete-confirm-confirm:student-1:advanced',
+      'monitor:complete-confirm-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001:advanced',
     );
-    expect(codes).toContain('monitor:detail:student-1');
+    expect(codes).toContain(
+      'monitor:detail:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
+    );
   });
 
   test('complete-confirm (not_advanced / abandoned): тексты исходов', async () => {
     const { story } = setupStory();
     const notAdvanced = await story.handleCallback(
-      'complete-confirm:student-1:not_advanced',
+      'complete-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001:not_advanced',
       mentorActor(),
       session,
     );
     expect(String(notAdvanced.screen?.text)).toContain('окончил, не прошёл');
 
     const abandoned = await story.handleCallback(
-      'complete-confirm:student-1:abandoned',
+      'complete-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001:abandoned',
       mentorActor(),
       session,
     );
@@ -565,31 +679,33 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('complete-confirm-confirm: UC complete-student + delegate на список', async () => {
     const { story, appApi } = setupStory();
     const response = await story.handleCallback(
-      'complete-confirm-confirm:student-1:advanced',
+      'complete-confirm-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001:advanced',
       mentorActor(),
       session,
     );
     const calls = appApi.execute.mock.calls as unknown[][];
     expect(calls.find((c) => c[0] === 'complete-student')?.[1]).toEqual({
-      streamId: 'stream-1',
-      studentId: 'student-1',
+      streamId: '11111111-1111-4111-8111-111111111111',
+      studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
       outcome: 'advanced',
     });
     expect(response.notify?.text).toContain('завершён');
-    expect(response.delegate?.path).toBe('monitor:students:stream-1');
+    expect(response.delegate?.path).toBe(
+      'monitor:students:11111111-1111-4111-8111-111111111111',
+    );
   });
 
   test('complete-confirm-confirm: not_advanced и abandoned', async () => {
     const { story } = setupStory();
     const notAdvanced = await story.handleCallback(
-      'complete-confirm-confirm:student-1:not_advanced',
+      'complete-confirm-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001:not_advanced',
       mentorActor(),
       session,
     );
     expect(String(notAdvanced.notify?.text)).toContain('завершён');
 
     const abandoned = await story.handleCallback(
-      'complete-confirm-confirm:student-1:abandoned',
+      'complete-confirm-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001:abandoned',
       mentorActor(),
       session,
     );
@@ -599,7 +715,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('complete-confirm-confirm: неизвестный исход — экран ошибки', async () => {
     const { story } = setupStory();
     const response = await story.handleCallback(
-      'complete-confirm-confirm:student-1:invalid_outcome',
+      'complete-confirm-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001:invalid_outcome',
       mentorActor(),
       session,
     );
@@ -609,7 +725,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('complete-confirm-confirm: ошибка UC — экран ошибки', async () => {
     const { story } = setupStory({ apiErrors: new Set(['complete-student']) });
     const response = await story.handleCallback(
-      'complete-confirm-confirm:student-1:advanced',
+      'complete-confirm-confirm:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001:advanced',
       mentorActor(),
       session,
     );
@@ -621,7 +737,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
   test('history: заглушка «ещё не реализована»', async () => {
     const { story } = setupStory();
     const response = await story.handleCallback(
-      'history:student-1',
+      'history:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
       mentorActor(),
       session,
     );

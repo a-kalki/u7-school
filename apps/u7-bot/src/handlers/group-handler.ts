@@ -2,10 +2,7 @@ import type { User } from '@u7-scl/app';
 import type { Logger } from '@u7-scl/core/shared';
 import { md } from '@u7-scl/core/shared';
 import type { ProactiveSender } from '@u7-scl/core/ui';
-import {
-  StudentOutcomeCategory,
-  studentOutcomeCategory,
-} from '@u7-scl/stream/domain';
+import { StudentAr, StudentOutcomeCategory } from '@u7-scl/stream/domain';
 import type { UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
 import type { Bot } from 'grammy';
@@ -208,7 +205,8 @@ async function notifyMentorsAboutGroupLeft(
       const isActive = students.some(
         (s) =>
           s.userId === userUuid &&
-          studentOutcomeCategory(s) === StudentOutcomeCategory.IN_PROGRESS,
+          new StudentAr(s).outcomeCategory() ===
+            StudentOutcomeCategory.IN_PROGRESS,
       );
       if (!isActive) continue;
 

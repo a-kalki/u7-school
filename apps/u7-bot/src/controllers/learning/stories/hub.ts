@@ -11,10 +11,7 @@ import type {
 import { eventSubscription } from '@u7-scl/core/ui';
 import type { ModulePlace } from '@u7-scl/course/domain';
 import type { StudentCompletedEvent } from '@u7-scl/stream/domain';
-import {
-  StudentOutcomeCategory,
-  studentOutcomeCategory,
-} from '@u7-scl/stream/domain';
+import { StudentAr, StudentOutcomeCategory } from '@u7-scl/stream/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
 import { buttons } from '../../shared/buttons';
 import { getStudent } from '../shared';
@@ -128,7 +125,8 @@ export class HubStory extends U7BotUiStory {
 
     const student = studentResult.value;
     const isFinished =
-      studentOutcomeCategory(student) !== StudentOutcomeCategory.IN_PROGRESS;
+      new StudentAr(student).outcomeCategory() !==
+      StudentOutcomeCategory.IN_PROGRESS;
 
     const rows: KbButton[][] = [];
 

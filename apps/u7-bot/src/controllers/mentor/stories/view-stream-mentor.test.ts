@@ -42,13 +42,14 @@ const mockStream = {
 } as Stream;
 
 const mockStudent = {
-  uuid: 'student-1',
-  userId: 'user-id-1',
+  uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
+  userId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+  enrolledAt: '2026-01-01T00:00',
   status: 'active',
-  joinedAt: '2026-01-01T00:00:00.000Z',
-  streamId: 'stream-1',
-  currentStepId: null,
+  streamId: '11111111-1111-4111-8111-111111111111',
+  currentStepId: 'cccc0000-0000-4000-8000-000000000001',
   steps: [],
+  createdAt: '2026-01-01T00:00',
 };
 
 type Handler = (name: string, params?: Record<string, unknown>) => unknown;
@@ -207,10 +208,16 @@ describe('ViewStreamMentorStory (S02m-карточка) — контракт «�
 
     const { texts, codes } = flat(response);
     // Кнопка студента ведёт в monitor (менторский режим)
-    expect(codes).toContain('monitor:detail:student-1');
+    expect(codes).toContain(
+      'monitor:detail:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
+    );
     // Менторские кнопки с точными кодами
-    expect(codes).toContain('monitor:mark-abandoned:student-1');
-    expect(codes).toContain('monitor:complete:student-1');
+    expect(codes).toContain(
+      'monitor:mark-abandoned:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
+    );
+    expect(codes).toContain(
+      'monitor:complete:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
+    );
     expect(texts).toContain('⛔');
     expect(texts).toContain('✅');
     // Назад к потоку — на свою view
@@ -233,7 +240,9 @@ describe('ViewStreamMentorStory (S02m-карточка) — контракт «�
       session,
     );
     const { texts, codes } = flat(response);
-    expect(codes).toContain('monitor:complete:student-1');
+    expect(codes).toContain(
+      'monitor:complete:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
+    );
     expect(texts).toContain('🔄');
     expect(codes.some((c) => c.includes('mark-abandoned'))).toBe(false);
   });

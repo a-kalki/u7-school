@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, spyOn, test } from 'bun:test';
 import * as Shared from '@u7-scl/core/shared';
+import { AbandonSign, CompletionSign, StudentOutcomeCategory } from '../status';
 import { StudentAr } from './a-root';
 import type { Student } from './entity';
 
@@ -1071,6 +1072,223 @@ describe('StudentAr', () => {
     test('медиана 0 — false', () => {
       const ar = makeStudentWithLastActivity('2026-07-30T12:00');
       expect(ar.isLaggingFromMedian(0)).toBe(false);
+    });
+  });
+
+  describe('API исходов (outcome*)', () => {
+    const completedStep = {
+      stepId: '33333333-3333-4333-8333-333333333333',
+      status: 'completed' as const,
+      issuedAt: '2026-09-01T10:00',
+      completedAt: '2026-09-02T10:00',
+    };
+    const issuedStep = {
+      stepId: '44444444-4444-4444-8444-444444444444',
+      status: 'issued' as const,
+      issuedAt: '2026-09-03T10:00',
+    };
+
+    function makeStudent(
+      status: Student['status'],
+      opts: {
+        steps?: Student['steps'];
+        abandonDetails?: Student['abandonDetails'];
+      } = {},
+    ) {
+      return new StudentAr({
+        uuid: crypto.randomUUID(),
+        streamId: mockStreamId,
+        userId: mockUserId,
+        enrolledAt: '2026-07-01T00:00',
+        status,
+        currentStepId: mockStepId,
+        steps: opts.steps ?? [],
+        abandonDetails: opts.abandonDetails,
+        createdAt: '2026-07-01T00:00',
+      });
+    }
+
+    describe('outcomeCategory', () => {
+      test('advanced / not_advanced → завершение', () => {
+        expect(makeStudent('advanced').outcomeCategory()).toBe(
+          StudentOutcomeCategory.COMPLETED,
+        );
+        expect(makeStudent('not_advanced').outcomeCategory()).toBe(
+          StudentOutcomeCategory.COMPLETED,
+        );
+      });
+
+      test('abandoned → забросил (в т.ч. легаси без деталей)', () => {
+        expect(makeStudent('abandoned').outcomeCategory()).toBe(
+          StudentOutcomeCategory.ABANDONED,
+        );
+      });
+
+      test('enrolled / active → нетерминальный', () => {
+        expect(makeStudent('enrolled').outcomeCategory()).toBe(
+          StudentOutcomeCategory.IN_PROGRESS,
+        );
+        expect(makeStudent('active').outcomeCategory()).toBe(
+          StudentOutcomeCategory.IN_PROGRESS,
+        );
+      });
+    });
+
+    describe('neverStarted', () => {
+      test('abandoned без завершённых шагов → true', () => {
+        expect(makeStudent('abandoned').neverStarted()).toBe(true);
+      });
+
+      test('abandoned с завершённым шагом → false', () => {
+        const ar = makeStudent('abandoned', { steps: [completedStep] });
+        expect(ar.neverStarted()).toBe(false);
+      });
+
+      test('abandoned только с выданными шагами → true', () => {
+        const ar = makeStudent('abandoned', { steps: [issuedStep] });
+        expect(ar.neverStarted()).toBe(true);
+      });
+
+      test('active без шагов и advanced → false', () => {
+        expect(makeStudent('active').neverStarted()).toBe(false);
+        expect(makeStudent('advanced').neverStarted()).toBe(false);
+      });
+    });
+
+    describe('outcomeSigns', () => {
+      test('advanced → «прошёл», not_advanced → «не прошёл»', () => {
+        expect(makeStudent('advanced').outcomeSigns()).toEqual([
+          CompletionSign.PASSED,
+        ]);
+        expect(makeStudent('not_advanced').outcomeSigns()).toEqual([
+          CompletionSign.NOT_PASSED,
+        ]);
+      });
+
+      test('учащиеся — без признаков', () => {
+        expect(makeStudent('enrolled').outcomeSigns()).toEqual([]);
+        expect(makeStudent('active').outcomeSigns()).toEqual([]);
+      });
+
+      test('abandoned × voluntary, шаги были → «покинул сам»', () => {
+        const ar = makeStudent('abandoned', {
+          abandonDetails: { who: 'self', cause: 'voluntary' },
+          steps: [completedStep],
+        });
+        expect(ar.outcomeSigns()).toEqual([AbandonSign.LEFT_VOLUNTARILY]);
+      });
+
+      test('abandoned × voluntary, шагов нет → «не начал» + «покинул сам»', () => {
+        const ar = makeStudent('abandoned', {
+          abandonDetails: { who: 'self', cause: 'voluntary' },
+        });
+        expect(ar.outcomeSigns()).toEqual([
+          AbandonSign.NEVER_STARTED,
+          AbandonSign.LEFT_VOLUNTARILY,
+        ]);
+      });
+
+      test('abandoned × by_mentor, шагов нет → «не начал» + «снят ментором»', () => {
+        const ar = makeStudent('abandoned', {
+          abandonDetails: { who: 'mentor', cause: 'by_mentor' },
+        });
+        expect(ar.outcomeSigns()).toEqual([
+          AbandonSign.NEVER_STARTED,
+          AbandonSign.REMOVED_BY_MENTOR,
+        ]);
+      });
+
+      test('abandoned × inactivity, шаги были → «снят ментором»', () => {
+        const ar = makeStudent('abandoned', {
+          abandonDetails: { who: 'mentor', cause: 'inactivity' },
+          steps: [completedStep],
+        });
+        expect(ar.outcomeSigns()).toEqual([AbandonSign.REMOVED_BY_MENTOR]);
+      });
+
+      test('легаси без деталей: без шагов → «не начал»; с шагами → пусто', () => {
+        expect(makeStudent('abandoned').outcomeSigns()).toEqual([
+          AbandonSign.NEVER_STARTED,
+        ]);
+        expect(
+          makeStudent('abandoned', { steps: [completedStep] }).outcomeSigns(),
+        ).toEqual([]);
+      });
+    });
+
+    describe('outcomeLabel / outcomeDetailLabel', () => {
+      test('словарь: канонические строки из спеки', () => {
+        expect(StudentAr.outcomeLabel(CompletionSign.PASSED)).toBe('окончил');
+        expect(StudentAr.outcomeLabel(CompletionSign.NOT_PASSED)).toBe(
+          'окончил, не прошёл',
+        );
+        expect(StudentAr.outcomeLabel(AbandonSign.NEVER_STARTED)).toBe(
+          'не начал',
+        );
+        expect(StudentAr.outcomeLabel(AbandonSign.LEFT_VOLUNTARILY)).toBe(
+          'покинул сам',
+        );
+        expect(StudentAr.outcomeLabel(AbandonSign.REMOVED_BY_MENTOR)).toBe(
+          'снят ментором',
+        );
+        expect(StudentAr.outcomeLabel('abandoned')).toBe('забросил');
+        expect(StudentAr.outcomeLabel('in_progress')).toBe('учится');
+      });
+
+      test('главный лейбл: учащийся и завершившие', () => {
+        expect(makeStudent('active').outcomeLabel()).toBe('учится');
+        expect(makeStudent('advanced').outcomeLabel()).toBe('окончил');
+        expect(makeStudent('not_advanced').outcomeLabel()).toBe(
+          'окончил, не прошёл',
+        );
+      });
+
+      test('приоритет «не начал» над причиной ухода', () => {
+        const ar = makeStudent('abandoned', {
+          abandonDetails: { who: 'self', cause: 'voluntary' },
+        });
+        expect(ar.outcomeLabel()).toBe('не начал');
+      });
+
+      test('выбывший с шагами: по причине ухода', () => {
+        const ar = makeStudent('abandoned', {
+          abandonDetails: { who: 'mentor', cause: 'by_mentor' },
+          steps: [completedStep],
+        });
+        expect(ar.outcomeLabel()).toBe('снят ментором');
+      });
+
+      test('легаси с шагами без деталей → «забросил»', () => {
+        const ar = makeStudent('abandoned', { steps: [completedStep] });
+        expect(ar.outcomeLabel()).toBe('забросил');
+      });
+
+      test('составной: «не начал · покинул сам»', () => {
+        const ar = makeStudent('abandoned', {
+          abandonDetails: { who: 'self', cause: 'voluntary' },
+        });
+        expect(ar.outcomeDetailLabel()).toBe('не начал · покинул сам');
+      });
+
+      test('составной: «не начал · снят ментором»', () => {
+        const ar = makeStudent('abandoned', {
+          abandonDetails: { who: 'mentor', cause: 'inactivity' },
+        });
+        expect(ar.outcomeDetailLabel()).toBe('не начал · снят ментором');
+      });
+
+      test('составной: одиночный признак — без разделителя', () => {
+        const ar = makeStudent('abandoned', {
+          abandonDetails: { who: 'mentor', cause: 'by_mentor' },
+          steps: [completedStep],
+        });
+        expect(ar.outcomeDetailLabel()).toBe('снят ментором');
+      });
+
+      test('не-выбывшие — без составных деталей', () => {
+        expect(makeStudent('advanced').outcomeDetailLabel()).toBe('окончил');
+        expect(makeStudent('active').outcomeDetailLabel()).toBe('учится');
+      });
     });
   });
 });

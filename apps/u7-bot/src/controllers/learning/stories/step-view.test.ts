@@ -18,22 +18,24 @@ describe('StepViewStory', () => {
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
-  const STREAM_ID = '11111111-1111-1111-1111-111111111111';
-  const STEP1_ID = '22222222-2222-2222-2222-222222222222';
-  const STEP2_ID = '33333333-3333-3333-3333-333333333333';
-  const STEP3_ID = '44444444-4444-4444-4444-444444444444';
-  const STEP5_ID = '66666666-6666-6666-6666-666666666666';
+  const STREAM_ID = '11111111-1111-4111-8111-111111111111';
+  const STEP1_ID = '22222222-2222-4222-8222-222222222222';
+  const STEP2_ID = '33333333-3333-4333-8333-333333333333';
+  const STEP3_ID = '44444444-4444-4444-8444-444444444444';
+  const STEP5_ID = '66666666-6666-4666-8666-666666666666';
 
   const mockStudent = {
-    uuid: 'student-uuid',
+    uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
     streamId: STREAM_ID,
-    userId: 'user-1',
+    userId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    enrolledAt: '2026-01-01T00:00',
     status: 'active',
     currentStepId: STEP1_ID,
     steps: [
-      { stepId: STEP1_ID, status: 'completed' },
-      { stepId: STEP2_ID, status: 'completed' },
+      { stepId: STEP1_ID, status: 'completed', issuedAt: '2026-01-02T00:00' },
+      { stepId: STEP2_ID, status: 'completed', issuedAt: '2026-01-03T00:00' },
     ],
+    createdAt: '2026-01-01T00:00',
   };
 
   const mockStream = {
@@ -240,10 +242,10 @@ describe('StepViewStory', () => {
     ...mockStudent,
     currentStepId: STEP3_ID,
     steps: [
-      { stepId: STEP1_ID, status: 'completed' },
-      { stepId: STEP2_ID, status: 'completed' },
-      { stepId: STEP3_ID, status: 'completed' },
-      { stepId: 'step-4', status: 'completed' },
+      { stepId: STEP1_ID, status: 'completed', issuedAt: '2026-01-02T00:00' },
+      { stepId: STEP2_ID, status: 'completed', issuedAt: '2026-01-03T00:00' },
+      { stepId: STEP3_ID, status: 'completed', issuedAt: '2026-01-04T00:00' },
+      { stepId: STEP3_ID, status: 'completed', issuedAt: '2026-01-05T00:00' },
     ],
   };
 

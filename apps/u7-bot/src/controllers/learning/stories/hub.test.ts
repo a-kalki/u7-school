@@ -24,15 +24,24 @@ describe('HubStory', () => {
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
-  const STREAM_ID = '11111111-1111-1111-1111-111111111111';
+  const STREAM_ID = '11111111-1111-4111-8111-111111111111';
 
   const mockStudent = {
-    uuid: 'student-uuid',
+    uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
     streamId: STREAM_ID,
-    userId: 'user-1',
+    userId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    enrolledAt: '2026-01-01T00:00',
     status: 'active',
-    currentStepId: 'step-1',
-    steps: [{ stepId: 'step-1', status: 'completed' }],
+    currentStepId: 'cccc0000-0000-4000-8000-000000000001',
+    steps: [
+      {
+        stepId: 'cccc0000-0000-4000-8000-000000000001',
+        status: 'completed',
+        issuedAt: '2026-01-02T00:00',
+        completedAt: '2026-01-03T00:00',
+      },
+    ],
+    createdAt: '2026-01-01T00:00',
   };
 
   function makeStory(appApiOverrides?: Record<string, unknown>) {
@@ -124,7 +133,13 @@ describe('HubStory', () => {
     const { story } = makeStory({
       'get-student-by-user': {
         ...mockStudent,
-        steps: [{ stepId: 'step-1', status: 'issued' }],
+        steps: [
+          {
+            stepId: 'cccc0000-0000-4000-8000-000000000001',
+            status: 'issued',
+            issuedAt: '2026-01-02T00:00',
+          },
+        ],
       },
     });
 

@@ -17,11 +17,8 @@ import {
   CompletionSign,
   StreamDs,
   StreamPolicy,
+  StudentAr,
   StudentOutcomeCategory,
-  type StudentOutcomeInput,
-  studentOutcomeCategory,
-  studentOutcomeLabel,
-  studentOutcomeSigns,
 } from '@u7-scl/stream/domain';
 import type { TreeNode } from '../../../shared/tree-renderer';
 import { renderTree } from '../../../shared/tree-renderer';
@@ -372,6 +369,7 @@ export class ViewStreamStory extends U7BotUiStory {
 
     interface StudentRow {
       student: Student;
+      ar: StudentAr;
       name: string;
       progress: { completed: number; total: number; percent: number };
       lagLevel: CategorizedStudent['lagLevel'];
@@ -381,6 +379,7 @@ export class ViewStreamStory extends U7BotUiStory {
     for (const s of students) {
       const progress = StreamDs.computeProgress(stream.contentSnapshot, s);
       const lagLevel = lagMap.get(s.uuid) ?? 'on_track';
+      const ar = new StudentAr(s);
 
       let name = s.userId.slice(0, 8);
       try {
@@ -392,7 +391,7 @@ export class ViewStreamStory extends U7BotUiStory {
         // оставляем обрезок userId
       }
 
-      rows.push({ student: s, name, progress, lagLevel });
+      rows.push({ student: s, ar, name, progress, lagLevel });
     }
 
     // Сортировка: 🛑 → ⚠️ → 🏃 по прогрессу → ✅
@@ -408,11 +407,9 @@ export class ViewStreamStory extends U7BotUiStory {
       if (la !== lb) return la - lb;
 
       const aDone =
-        studentOutcomeCategory(a.student) !==
-        StudentOutcomeCategory.IN_PROGRESS;
+        a.ar.outcomeCategory() !== StudentOutcomeCategory.IN_PROGRESS;
       const bDone =
-        studentOutcomeCategory(b.student) !==
-        StudentOutcomeCategory.IN_PROGRESS;
+        b.ar.outcomeCategory() !== StudentOutcomeCategory.IN_PROGRESS;
       if (aDone !== bDone) return aDone ? 1 : -1;
 
       return b.progress.percent - a.progress.percent;
@@ -425,14 +422,12 @@ export class ViewStreamStory extends U7BotUiStory {
     let abandonedCount = 0;
 
     for (const r of rows) {
-      const category = studentOutcomeCategory(r.student);
+      const category = r.ar.outcomeCategory();
       if (category === StudentOutcomeCategory.IN_PROGRESS) {
         activeCount++;
       } else if (category === StudentOutcomeCategory.ABANDONED) {
         abandonedCount++;
-      } else if (
-        studentOutcomeSigns(r.student).includes(CompletionSign.PASSED)
-      ) {
+      } else if (r.ar.outcomeSigns().includes(CompletionSign.PASSED)) {
         advancedCount++;
       } else {
         notAdvancedCount++;
@@ -445,7 +440,7 @@ export class ViewStreamStory extends U7BotUiStory {
     const studentLines: MdText[] = [];
 
     for (const r of rows) {
-      const marker = this.#lagMarker(r.lagLevel, r.student);
+      const marker = this.#lagMarker(r.lagLevel, r.ar);
 
       const summary = StreamDs.computeStudentRowSummary(
         stream.contentSnapshot,
@@ -589,11 +584,12 @@ export class ViewStreamStory extends U7BotUiStory {
     );
 
     const bar = (c: number, t: number) => this.#formatProgressBar(c, t);
+    const ar = new StudentAr(student);
 
     const lines: MdText[] = [
       mdConcat(
         md`👤 *${userName}* \\| `,
-        md`${this.#statusIcon(student)} ${studentOutcomeLabel(student)}`,
+        md`${this.#statusIcon(ar)} ${ar.outcomeLabel()}`,
       ),
       md``,
       md`———`,
@@ -696,13 +692,11 @@ export class ViewStreamStory extends U7BotUiStory {
     return this.screen(mdJoin(lines), this.kb(keyboardRows));
   }
 
-  /** Иконка исхода студента (оформление; текст — из словаря меток stream) */
-  #statusIcon(student: StudentOutcomeInput): string {
-    switch (studentOutcomeCategory(student)) {
+  /** Иконка исхода студента (оформление; тексты — из словаря агрегата) */
+  #statusIcon(ar: StudentAr): string {
+    switch (ar.outcomeCategory()) {
       case StudentOutcomeCategory.COMPLETED:
-        return studentOutcomeSigns(student).includes(CompletionSign.PASSED)
-          ? '✅'
-          : '↩️';
+        return ar.outcomeSigns().includes(CompletionSign.PASSED) ? '✅' : '↩️';
       case StudentOutcomeCategory.ABANDONED:
         return '🚫';
       case StudentOutcomeCategory.IN_PROGRESS:
@@ -711,14 +705,9 @@ export class ViewStreamStory extends U7BotUiStory {
   }
 
   /** Возвращает маркер отставания с учётом исхода студента */
-  #lagMarker(
-    lagLevel: CategorizedStudent['lagLevel'],
-    student: StudentOutcomeInput,
-  ): string {
-    if (
-      studentOutcomeCategory(student) !== StudentOutcomeCategory.IN_PROGRESS
-    ) {
-      return this.#statusIcon(student);
+  #lagMarker(lagLevel: CategorizedStudent['lagLevel'], ar: StudentAr): string {
+    if (ar.outcomeCategory() !== StudentOutcomeCategory.IN_PROGRESS) {
+      return this.#statusIcon(ar);
     }
     if (lagLevel === 'critical') return '🛑';
     if (lagLevel === 'lagging') return '⚠️';

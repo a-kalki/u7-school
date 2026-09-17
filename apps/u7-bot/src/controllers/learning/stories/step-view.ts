@@ -11,8 +11,8 @@ import type { ContentSnapshot, Step } from '@u7-scl/course/domain';
 import type { Student } from '@u7-scl/stream/domain';
 import {
   StreamDs,
+  StudentAr,
   StudentOutcomeCategory,
-  studentOutcomeCategory,
 } from '@u7-scl/stream/domain';
 import { buttons } from '../../shared/buttons';
 import {
@@ -69,7 +69,8 @@ export class StepViewStory extends U7BotUiStory {
     const student = studentResult.value;
 
     if (
-      studentOutcomeCategory(student) !== StudentOutcomeCategory.IN_PROGRESS
+      new StudentAr(student).outcomeCategory() !==
+      StudentOutcomeCategory.IN_PROGRESS
     ) {
       return this.screen(
         md`🎉 *Поздравляю\\!* Вы завершили обучение в потоке\\!`,

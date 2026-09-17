@@ -6,7 +6,7 @@ import type { ContentSnapshot } from '@u7-scl/course/domain';
 import { Role } from '@u7-scl/user/domain';
 import { ViewStreamStory } from './view-stream.story';
 
-const STREAM_ID = 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s';
+const STREAM_ID = '11111111-1111-4111-8111-111111111111';
 
 /** Поток в статусе enrollment с кодовым словом и без */
 function makeStream(overrides: Record<string, unknown> = {}) {
@@ -279,13 +279,14 @@ describe('ViewStreamStory (S02-S04)', () => {
   /** Полная запись студента (как возвращает get-student-progress) */
   function makeStudent(overrides: Record<string, unknown> = {}) {
     return {
-      uuid: 'st-1',
-      userId: 'u-1',
+      uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001',
+      userId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      enrolledAt: '2026-01-01T00:00',
       status: 'active',
-      joinedAt: '2026-01-01T00:00:00.000Z',
       streamId: STREAM_ID,
-      currentStepId: null,
+      currentStepId: 'cccc0000-0000-4000-8000-000000000001',
       steps: [],
+      createdAt: '2026-01-01T00:00',
       ...overrides,
     };
   }
@@ -511,7 +512,12 @@ describe('ViewStreamStory (S02-S04)', () => {
 
   test('students: кнопка студента ведёт в view-stream:student-detail (не monitor)', async () => {
     const { story } = makeStory({
-      students: [makeStudent({ uuid: 'st-9', userId: 'u-9' })],
+      students: [
+        makeStudent({
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0009',
+          userId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb9',
+        }),
+      ],
     });
     const response = await story.handleCallback(
       `students:${STREAM_ID}`,
@@ -520,7 +526,9 @@ describe('ViewStreamStory (S02-S04)', () => {
     );
     const codes =
       response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
-    expect(codes).toContain('view-stream:student-detail:st-9');
+    expect(codes).toContain(
+      'view-stream:student-detail:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0009',
+    );
     expect(codes.some((c) => c.startsWith('monitor:'))).toBe(false);
   });
 });

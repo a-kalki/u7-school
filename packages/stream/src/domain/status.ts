@@ -45,3 +45,60 @@ export const StudentStatusSchema = v.picklist(
   ],
   `Недопустимый статус студента. Ожидается: ${Object.values(StudentStatus).join(', ')}`,
 );
+
+/**
+ * Категория исхода студента (ФР-1): обобщает `StudentStatus` для клиентов.
+ * Единственная точка знания «какой статус к какой категории относится» —
+ * методы агрегата StudentAr, клиенты не разбирают `status` сами.
+ */
+export enum StudentOutcomeCategory {
+  /** Завершил поток (успешно или нет) */
+  COMPLETED = 'completed',
+  /** Забросил учёбу */
+  ABANDONED = 'abandoned',
+  /** Нетерминальные состояния: ещё учится */
+  IN_PROGRESS = 'in_progress',
+}
+
+/** Valibot-схема для валидации категории исхода */
+export const StudentOutcomeCategorySchema = v.picklist(
+  Object.values(StudentOutcomeCategory),
+  `Недопустимая категория исхода. Ожидается: ${Object.values(StudentOutcomeCategory).join(', ')}`,
+);
+
+/** Признак завершения потока */
+export enum CompletionSign {
+  PASSED = 'passed',
+  NOT_PASSED = 'not_passed',
+}
+
+/** Valibot-схема для валидации признака завершения */
+export const CompletionSignSchema = v.picklist(
+  Object.values(CompletionSign),
+  `Недопустимый признак завершения. Ожидается: ${Object.values(CompletionSign).join(', ')}`,
+);
+
+/** Признак ухода из потока */
+export enum AbandonSign {
+  /** Не начал: нет ни одного завершённого шага (выводимый) */
+  NEVER_STARTED = 'never_started',
+  /** Покинул сам */
+  LEFT_VOLUNTARILY = 'left_voluntarily',
+  /** Снят ментором (по причине или из-за бездействия) */
+  REMOVED_BY_MENTOR = 'removed_by_mentor',
+}
+
+/** Valibot-схема для валидации признака ухода */
+export const AbandonSignSchema = v.picklist(
+  Object.values(AbandonSign),
+  `Недопустимый признак ухода. Ожидается: ${Object.values(AbandonSign).join(', ')}`,
+);
+
+/** Любой признак исхода (завершения или ухода) */
+export type StudentOutcomeSign = CompletionSign | AbandonSign;
+
+/** Valibot-схема для валидации набора признаков (например, в снапшотах peer-review) */
+export const StudentOutcomeSignSchema = v.union([
+  CompletionSignSchema,
+  AbandonSignSchema,
+]);

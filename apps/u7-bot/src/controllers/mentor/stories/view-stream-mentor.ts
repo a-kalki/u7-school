@@ -9,9 +9,9 @@ import type {
 import type { Stream, Student } from '@u7-scl/stream/domain';
 import {
   StreamPolicy,
+  StudentAr,
   StudentOutcomeCategory,
   StudentPolicy,
-  studentOutcomeCategory,
 } from '@u7-scl/stream/domain';
 import { ViewStreamStory } from '../../streams/stories/view-stream.story';
 
@@ -200,7 +200,8 @@ export class ViewStreamMentorStory extends ViewStreamStory {
       if (!student || !canManage) return row;
 
       const isActive =
-        studentOutcomeCategory(student) === StudentOutcomeCategory.IN_PROGRESS;
+        new StudentAr(student).outcomeCategory() ===
+        StudentOutcomeCategory.IN_PROGRESS;
       const extraBtns: KbButton[] = [];
 
       if (isActive) {
@@ -211,7 +212,8 @@ export class ViewStreamMentorStory extends ViewStreamStory {
           this.btn('✅', this.cbFor('monitor', 'complete', studentUuid!)),
         );
       } else if (
-        studentOutcomeCategory(student) === StudentOutcomeCategory.COMPLETED
+        new StudentAr(student).outcomeCategory() ===
+        StudentOutcomeCategory.COMPLETED
       ) {
         extraBtns.push(
           this.btn('🔄', this.cbFor('monitor', 'complete', studentUuid!)),

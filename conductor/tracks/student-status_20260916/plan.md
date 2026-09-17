@@ -16,7 +16,8 @@
 
 - [x] Task: Перевести затронутые клиенты из списка Фазы 1 (лейблы стори: view-stream, monitor, learning и пр.) на API/словарь — по одному, с прогоном тестов (f2b9b4e, 6ef1737, 22132fd)
 - [x] Task: Убедиться: в скоупе трека не осталось собственных switch по `status`/`cause` вне нового API (grep из Фазы 1 пуст по закрытым позициям) (aa58c35)
-- [ ] Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
+- [ ] Task: Замечание верификации Фазы 2 (владелец): логика исходов — в агрегате StudentAr как методы чтения (outcomeCategory / outcomeSigns / neverStarted / outcomeLabel / outcomeDetailLabel, словарь — статический метод); свободные функции outcome.ts / outcome-labels.ts убрать; enum'ы категорий — в status.ts; клиенты — на методы AR; тесты — в a-root.test.ts
+- [ ] Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md) — переоткрыта по замечанию владельца
 
 ## Фаза 3. Финал трека
 

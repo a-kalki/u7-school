@@ -9,14 +9,10 @@ import type {
 } from '@u7-scl/stream/domain';
 import {
   CompletionSign,
-  STUDENT_OUTCOME_SIGN_LABELS,
   StreamDs,
+  StudentAr,
   StudentOutcomeCategory,
-  type StudentOutcomeInput,
   StudentPolicy,
-  studentOutcomeCategory,
-  studentOutcomeLabel,
-  studentOutcomeSigns,
 } from '@u7-scl/stream/domain';
 
 /**
@@ -110,7 +106,8 @@ export class MonitorStory extends U7BotUiStory {
       ? students
       : students.filter(
           (s) =>
-            studentOutcomeCategory(s) === StudentOutcomeCategory.IN_PROGRESS,
+            new StudentAr(s).outcomeCategory() ===
+            StudentOutcomeCategory.IN_PROGRESS,
         );
 
     // Категоризируем через DS
@@ -120,6 +117,7 @@ export class MonitorStory extends U7BotUiStory {
     // Считаем прогресс и собираем данные для каждого студента
     interface StudentRow {
       student: Student;
+      ar: StudentAr;
       name: string;
       progress: { completed: number; total: number; percent: number };
       lagLevel: CategorizedStudent['lagLevel'];
@@ -129,6 +127,7 @@ export class MonitorStory extends U7BotUiStory {
     for (const s of visible) {
       const progress = StreamDs.computeProgress(stream.contentSnapshot, s);
       const lagLevel = lagMap.get(s.uuid) ?? 'on_track';
+      const ar = new StudentAr(s);
 
       let name = s.userId.slice(0, 8);
       try {
@@ -140,7 +139,7 @@ export class MonitorStory extends U7BotUiStory {
         // профиль недоступен — оставляем обрезок userId
       }
 
-      rows.push({ student: s, name, progress, lagLevel });
+      rows.push({ student: s, ar, name, progress, lagLevel });
     }
 
     // Сортировка: 🛑 → ⚠️ → 🏃 по прогрессу → ✅
@@ -157,11 +156,9 @@ export class MonitorStory extends U7BotUiStory {
 
       // Завершённые (исход зафиксирован) — в конец
       const aDone =
-        studentOutcomeCategory(a.student) !==
-        StudentOutcomeCategory.IN_PROGRESS;
+        a.ar.outcomeCategory() !== StudentOutcomeCategory.IN_PROGRESS;
       const bDone =
-        studentOutcomeCategory(b.student) !==
-        StudentOutcomeCategory.IN_PROGRESS;
+        b.ar.outcomeCategory() !== StudentOutcomeCategory.IN_PROGRESS;
       if (aDone !== bDone) return aDone ? 1 : -1;
 
       // По убыванию прогресса
@@ -175,14 +172,12 @@ export class MonitorStory extends U7BotUiStory {
     let abandonedCount = 0;
 
     for (const r of rows) {
-      const category = studentOutcomeCategory(r.student);
+      const category = r.ar.outcomeCategory();
       if (category === StudentOutcomeCategory.IN_PROGRESS) {
         activeCount++;
       } else if (category === StudentOutcomeCategory.ABANDONED) {
         abandonedCount++;
-      } else if (
-        studentOutcomeSigns(r.student).includes(CompletionSign.PASSED)
-      ) {
+      } else if (r.ar.outcomeSigns().includes(CompletionSign.PASSED)) {
         advancedCount++;
       } else {
         notAdvancedCount++;
@@ -198,7 +193,7 @@ export class MonitorStory extends U7BotUiStory {
     const studentLines: MdText[] = [];
 
     for (const r of rows) {
-      const marker = this.#lagMarker(r.lagLevel, r.student);
+      const marker = this.#lagMarker(r.lagLevel, r.ar);
       const isActive = r.student.status === 'active';
 
       // Сводка через DS
@@ -245,7 +240,7 @@ export class MonitorStory extends U7BotUiStory {
         );
       } else if (
         canManage &&
-        studentOutcomeCategory(r.student) === StudentOutcomeCategory.COMPLETED
+        r.ar.outcomeCategory() === StudentOutcomeCategory.COMPLETED
       ) {
         studentRow.push(
           this.btn('🔄', this.cbFor('monitor', 'complete', r.student.uuid)),
@@ -272,7 +267,9 @@ export class MonitorStory extends U7BotUiStory {
 
     // Сводка FR-8: всегда видна, от режима не зависит (по всем студентам)
     const activeTotal = students.filter(
-      (s) => studentOutcomeCategory(s) === StudentOutcomeCategory.IN_PROGRESS,
+      (s) =>
+        new StudentAr(s).outcomeCategory() ===
+        StudentOutcomeCategory.IN_PROGRESS,
     ).length;
     const departedTotal = students.length - activeTotal;
     const countLabel = this.#pluralize(
@@ -326,13 +323,11 @@ export class MonitorStory extends U7BotUiStory {
     return this.screen(mdJoin(header), this.kb(keyboardRows));
   }
 
-  /** Иконка исхода студента (оформление; текст — из словаря меток stream) */
-  #statusIcon(student: StudentOutcomeInput): string {
-    switch (studentOutcomeCategory(student)) {
+  /** Иконка исхода студента (оформление; тексты — из словаря агрегата) */
+  #statusIcon(ar: StudentAr): string {
+    switch (ar.outcomeCategory()) {
       case StudentOutcomeCategory.COMPLETED:
-        return studentOutcomeSigns(student).includes(CompletionSign.PASSED)
-          ? '✅'
-          : '↩️';
+        return ar.outcomeSigns().includes(CompletionSign.PASSED) ? '✅' : '↩️';
       case StudentOutcomeCategory.ABANDONED:
         return '🚫';
       case StudentOutcomeCategory.IN_PROGRESS:
@@ -341,14 +336,9 @@ export class MonitorStory extends U7BotUiStory {
   }
 
   /** Возвращает маркер отставания с учётом исхода студента */
-  #lagMarker(
-    lagLevel: CategorizedStudent['lagLevel'],
-    student: StudentOutcomeInput,
-  ): string {
-    if (
-      studentOutcomeCategory(student) !== StudentOutcomeCategory.IN_PROGRESS
-    ) {
-      return this.#statusIcon(student);
+  #lagMarker(lagLevel: CategorizedStudent['lagLevel'], ar: StudentAr): string {
+    if (ar.outcomeCategory() !== StudentOutcomeCategory.IN_PROGRESS) {
+      return this.#statusIcon(ar);
     }
     if (lagLevel === 'critical') return '🛑';
     if (lagLevel === 'lagging') return '⚠️';
@@ -421,11 +411,12 @@ export class MonitorStory extends U7BotUiStory {
     );
 
     const bar = (c: number, t: number) => this.#formatProgressBar(c, t);
+    const ar = new StudentAr(student);
 
     const lines: MdText[] = [
       mdConcat(
         md`👤 *${userName}* \\| `,
-        md`${this.#statusIcon(student)} ${studentOutcomeLabel(student)}`,
+        md`${this.#statusIcon(ar)} ${ar.outcomeLabel()}`,
       ),
       md``,
       md`———`,
@@ -602,8 +593,8 @@ export class MonitorStory extends U7BotUiStory {
   async #handleCompleteChoice(studentId: string): Promise<DialogResponse> {
     const choice = (
       icon: string,
-      sign: keyof typeof STUDENT_OUTCOME_SIGN_LABELS,
-    ) => `${icon} ${STUDENT_OUTCOME_SIGN_LABELS[sign]}`;
+      sign: Parameters<typeof StudentAr.outcomeLabel>[0],
+    ) => `${icon} ${StudentAr.outcomeLabel(sign)}`;
     const keyboardRows: KbButton[][] = [
       [
         this.btn(
@@ -654,11 +645,11 @@ export class MonitorStory extends U7BotUiStory {
       // профиль недоступен — оставляем обрезок userId
     }
 
-    // Связка «команда UC → ключ словаря меток» (тексты — из словаря stream)
+    // Связка «команда UC → ключ словаря меток» (тексты — из словаря агрегата)
     const outcomeLabels: Record<string, string> = {
-      advanced: STUDENT_OUTCOME_SIGN_LABELS[CompletionSign.PASSED],
-      not_advanced: STUDENT_OUTCOME_SIGN_LABELS[CompletionSign.NOT_PASSED],
-      abandoned: STUDENT_OUTCOME_SIGN_LABELS.abandoned,
+      advanced: StudentAr.outcomeLabel(CompletionSign.PASSED),
+      not_advanced: StudentAr.outcomeLabel(CompletionSign.NOT_PASSED),
+      abandoned: StudentAr.outcomeLabel('abandoned'),
     };
 
     // confirm-диалог использует действие 'complete-confirm' → кнопка подтверждения

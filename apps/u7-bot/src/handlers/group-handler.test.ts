@@ -10,9 +10,9 @@ const SCHOOL_GROUP_ID = -1002222222222; // школьная группа (deps.s
 const STREAM_GROUP_ID = -1003333333333; // группа потока (≠ школьной)
 const FOREIGN_GROUP_ID = -1009999999999; // посторонняя группа
 const STUDENT_TG = 1003;
-const STUDENT_UUID = '33333333-3333-3333-3333-333333333333';
-const MENTOR_UUID = '44444444-4444-4444-4444-444444444444';
-const STREAM_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1';
+const STUDENT_UUID = '33333333-3333-4333-8333-333333333333';
+const MENTOR_UUID = '44444444-4444-4444-8444-444444444444';
+const STREAM_ID = 'e1e1e1e1-e1e1-4e1e-8e1e-e1e1e1e1e1e1';
 const BOT_ACTOR_UUID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const BOT_ACTOR: User = {
   uuid: BOT_ACTOR_UUID,
@@ -142,10 +142,14 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
       if (name === 'list-stream-students') {
         return [
           {
-            uuid: 'f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0',
+            uuid: 'f0f0f0f0-f0f0-4f0f-8f0f-f0f0f0f0f0f0',
             streamId: STREAM_ID,
             userId: STUDENT_UUID,
+            enrolledAt: '2026-01-01T00:00',
             status: 'active',
+            currentStepId: 'cccc0000-0000-4000-8000-000000000001',
+            steps: [],
+            createdAt: '2026-01-01T00:00',
           },
         ];
       }
