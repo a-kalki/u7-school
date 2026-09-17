@@ -36,9 +36,9 @@
 
 ## Фаза 3. Домен peer-review: сущности, агрегаты, политика
 
-- [ ] Task: Схемы и типы — `ReviewCampaign` (каркас + payload по `context`), `CampaignParticipant` (`userId`, `role`, `outcome: completed | dropped | never_started`), `Review` (вал. текста 10–3500), константы окна (`REVIEW_WINDOW_DAYS = 7`), доменные ошибки (окно закрыто, дубликат пары и пр.)
-    - [ ] Red: тесты схем/валидации
-    - [ ] Green: реализация entity/констант/ошибок
+- [x] Task: Схемы и типы — `ReviewCampaign` (каркас + payload по `context`), `CampaignParticipant` (`userId`, `role`, `outcome: completed | dropped | never_started`), `Review` (вал. текста 10–3500), константы окна (`REVIEW_WINDOW_DAYS = 7`), доменные ошибки (окно закрыто, дубликат пары и пр.) (165e5c53)
+    - [x] Red: тесты схем/валидации
+    - [x] Green: реализация entity/констант/ошибок
 - [ ] Task: `ReviewCampaignAr` — `isExpired(now)`, `daysLeft(now)`, `ensureLive(now)` (доменная ошибка «возможность закрыта»), доступ к участникам; `expiresAt` выставляется только при создании
     - [ ] Red: тесты (свежая/истёкшая/граница окна)
     - [ ] Green: реализация агрегата
