@@ -17,3 +17,19 @@ export interface StreamCreatedEvent extends DomainEvent {
     moduleId: string;
   };
 }
+
+/**
+ * Событие завершения потока.
+ *
+ * Кладётся агрегатом Stream в complete(). Потребители:
+ * ER peer-review (stream-completed-er) — создание кампании сбора отзывов
+ * контекста stream_completed.
+ */
+export interface StreamCompletedEvent extends DomainEvent {
+  eventName: 'stream.completed';
+  aggregateName: 'Stream';
+  payload: {
+    /** uuid потока */
+    streamId: string;
+  };
+}

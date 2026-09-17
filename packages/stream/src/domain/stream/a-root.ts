@@ -79,6 +79,7 @@ export class StreamAr extends Aggregate<StreamArMeta> {
 
   /**
    * Успешное завершение потока.
+   * Кладёт доменное событие stream.completed (публикуется UC'ом).
    */
   complete(): void {
     if (this._state.status !== StreamStatus.ACTIVE) {
@@ -89,6 +90,17 @@ export class StreamAr extends Aggregate<StreamArMeta> {
 
     this.safeUpdate({
       status: StreamStatus.COMPLETED,
+    });
+
+    this.addEvent({
+      eventId: crypto.randomUUID(),
+      eventName: 'stream.completed',
+      occurredAt: isoNow(),
+      aggregateName: 'Stream',
+      aggregateId: this._state.uuid,
+      payload: {
+        streamId: this._state.uuid,
+      },
     });
   }
 

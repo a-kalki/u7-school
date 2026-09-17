@@ -308,5 +308,33 @@ describe('StreamAr', () => {
       ar.flushEvents();
       expect(ar.hasEvents()).toBe(false);
     });
+
+    test('complete() кладёт доменное событие stream.completed (ФР-1)', () => {
+      const ar = StreamAr.create(mockCreateCmd, validContentSnapshot);
+      ar.activate();
+      ar.flushEvents(); // сбрасываем очередь stream.created / student-событий
+
+      ar.complete();
+
+      expect(ar.hasEvents()).toBe(true);
+      const events = ar.flushEvents();
+      expect(events).toHaveLength(1);
+
+      const event = events[0]!;
+      expect(event.eventName).toBe('stream.completed');
+      expect(event.aggregateName).toBe('Stream');
+      expect(event.aggregateId).toBe(ar.state.uuid);
+      expect(event.eventId).toBeTruthy();
+      expect(event.occurredAt).toBeTruthy();
+      expect(event.payload).toEqual({ streamId: ar.state.uuid });
+    });
+
+    test('complete() из неверного статуса не кладёт событие', () => {
+      const ar = StreamAr.create(mockCreateCmd, validContentSnapshot);
+      ar.flushEvents(); // сбрасываем stream.created
+
+      expect(() => ar.complete()).toThrow();
+      expect(ar.hasEvents()).toBe(false);
+    });
   });
 });
