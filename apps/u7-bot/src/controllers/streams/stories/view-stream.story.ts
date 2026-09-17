@@ -663,8 +663,9 @@ export class ViewStreamStory extends U7BotUiStory {
       }
     }
 
-    // Отставание / статус
-    if (student.status === 'active') {
+    // Отставание / статус: учится сейчас (живая запись, не зачисление) —
+    // признаки агрегата StudentAr (ФР‑10)
+    if (ar.isInProgress() && !ar.isEnrolled()) {
       if (card.lagLevel === 'critical') {
         const days = Math.round(card.hoursSinceLastActivity / 24);
         lines.push(md``, md`🛑 Критическое отставание: ${days} дн\\.`);

@@ -195,7 +195,9 @@ export class MonitorStory extends U7BotUiStory {
 
     for (const r of rows) {
       const marker = this.#lagMarker(r.lagLevel, r.ar);
-      const isActive = r.student.status === 'active';
+      // Учится сейчас: живая запись, уже начавшая (не зачисление) —
+      // признаки агрегата StudentAr (ФР‑10)
+      const isActive = r.ar.isInProgress() && !r.ar.isEnrolled();
 
       // Сводка через DS
       const summary = StreamDs.computeStudentRowSummary(
@@ -515,8 +517,10 @@ export class MonitorStory extends U7BotUiStory {
       }
     }
 
-    // Отставание / статус
-    if (student.status === 'active') {
+    // Отставание / статус: учится сейчас (живая запись, не зачисление) —
+    // признаки агрегата StudentAr (ФР‑10)
+    const studentAr = new StudentAr(student);
+    if (studentAr.isInProgress() && !studentAr.isEnrolled()) {
       if (card.lagLevel === 'critical') {
         const days = Math.round(card.hoursSinceLastActivity / 24);
         lines.push(md``, md`🛑 Критическое отставание: ${days} дн\\.`);
