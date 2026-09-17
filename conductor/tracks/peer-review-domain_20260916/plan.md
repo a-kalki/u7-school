@@ -24,7 +24,7 @@
 - [ ] Task: `ReviewCampaignAr` — `isExpired(now)`, `daysLeft(now)`, доступ к участникам; `expiresAt` выставляется только при создании
     - [ ] Red: тесты (свежая/истёкшая/граница окна)
     - [ ] Green: реализация агрегата
-- [ ] Task: `ReviewCampaignFactory` (ФР-3) по образцу `QuestionnaireFactory`: `createModuleCompleted(scopeId, participants, now)` — вычисляет `expiresAt` из константы окна; `restore(state)` по дискриминанту `context`
+- [ ] Task: `ReviewCampaignFactory` (ФР-3) по образцу `QuestionnaireFactory`: `createStreamCompleted(scopeId, participants, now)` — вычисляет `expiresAt` из константы окна; `restore(state)` по дискриминанту `context`
     - [ ] Red: тесты фабрики (окно, restore по контексту)
     - [ ] Green: реализация
 - [ ] Task: `ReviewAr` — `create()` (снапшоты ролей/статуса автора из кампании), `overwrite(text)` (валидация длины)

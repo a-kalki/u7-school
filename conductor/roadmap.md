@@ -15,7 +15,7 @@
 | Модуль | Вопрос | Ответственность | Статус | Документ |
 |---|---|---|---|---|
 | `questionnaire` | **Как заполняется анкета?** | Чистый движок анкет: статусная машина, likert-шкалы, предвычисление баллов | ✅ реализован | [metrics-questionnaire-and-events](./roadmap/metrics/metrics-questionnaire-and-events.md) |
-| `peer-review` | **Что люди сказали друг о друге?** | Кампании сбора по мероприятиям (завершение студентом модуля, сессия, выход): окно, адресаты, снапшот участников; текстовые отзывы; фиксация анкетных оценок | 🔥 в работе (этап «отзывы», треки созданы) | [peer-review-system](./roadmap/metrics/peer-review-system.md) |
+| `peer-review` | **Что люди сказали друг о друге?** | Кампании сбора по мероприятиям (завершение студентом потока, сессия, выход): окно, адресаты, снапшот участников; текстовые отзывы; фиксация анкетных оценок | 🔥 в работе (этап «отзывы», треки созданы) | [peer-review-system](./roadmap/metrics/peer-review-system.md) |
 | `sessions` | **Что произошло?** | Реестр взаимодействий (парное программирование, код-ревью): участники, роли, место, событие `session.completed` | 📋 запланирован (концепция) | [sessions-system](./roadmap/sessions-system.md) |
 | `dossier` | **Что известно о студенте по модулю?** | Агрегация по модулю учёбы: метрики по сессиям и по модулю, отзывы по сессиям и по модулю, участники — обобщённый объект для паспорта; плюс досье студента в целом (бывш. `metrics`) | 📋 запланирован | [metrics-pipeline-and-modules](./roadmap/metrics/metrics-pipeline-and-modules.md) |
 | `passport` | **Как предъявить миру?** | Цифровой паспорт: витрина, PDF+QR, портфолио, рекомендация | 📋 запланирован (концепция), после `dossier` | [digital-passport](./roadmap/metrics/digital-passport.md) |
@@ -38,7 +38,7 @@
 | 6 | **DMG** — декларативные манифесты домена, сквозная типизация, `Result` вместо исключений, политики доступа, каузальный анализ | концепция (не начата) | [domain-manifest-graph.md](./roadmap/domain-manifest-graph.md) |
 | 7 | **Контент, Релиз 5**: `basedOn`, visibility, CRUD, `contentSnapshot` → чистое UUID-дерево | не начат | [content-management.md](./roadmap/content-management.md), треки 1–2 |
 | 8 | **Контент, Релиз 6**: Import/Export, Fork, publish-replace, gating | не начат | [content-management.md](./roadmap/content-management.md), треки 3–4 |
-| 9 | **Модуль отзывов peer-review** (этап «отзывы»): кампании `module_completed` (завершение студентом модуля через поток) + текстовые отзывы; далее анкеты в кампании (техдолг) | 🔥 треки созданы: статусы студента, домен+API, UI | [peer-review-system.md](./roadmap/metrics/peer-review-system.md) |
+| 9 | **Модуль отзывов peer-review** (этап «отзывы»): кампании `stream_completed` («студент завершил поток») + текстовые отзывы; далее анкеты в кампании (техдолг) | 🔥 треки созданы: статусы студента, домен+API, UI | [peer-review-system.md](./roadmap/metrics/peer-review-system.md) |
 | 10 | **Цифровой паспорт** (passport): витрина профиля, PDF+QR, портфолио, рекомендация | 📋 концепция; после п. 4 (поглощает витрину трека 3.4 документа 3) | [digital-passport.md](./roadmap/metrics/digital-passport.md) |
 
 ### Заметки к последовательности
