@@ -24,9 +24,9 @@
 - [x] Task: Домен stream на read-API — `StreamAr.enroll()` (конфликт активных записей), `StreamPolicy.canEnrollNextModule()` («прошёл» вместо `advanced`), `StreamDs.categorizeStudents()` (активные → `isInProgress()`) (62d82c0f)
     - [x] Red: тесты затронутых веток (существующие сценарии не теряются)
     - [x] Green: реализация
-- [ ] Task: API stream на read-API — `GetStudentByUserUc` (выбор активной/завершённой записи), `ActivateStreamUc` (активация зачисленных)
-    - [ ] Red: тесты UC (существующие сценарии не теряются)
-    - [ ] Green: реализация
+- [x] Task: API stream на read-API — `GetStudentByUserUc` (выбор активной/завершённой записи), `ActivateStreamUc` (активация зачисленных) (014727f2)
+    - [x] Red: тесты UC (существующие сценарии не теряются)
+    - [x] Green: реализация
 - [ ] Task: UI-сторисы на read-API — `view-stream.story` и `monitor` (блоки отставания/активности: `status === 'active'` → признак агрегата)
     - [ ] Red: тесты сторис (существующие сценарии не теряются)
     - [ ] Green: реализация
