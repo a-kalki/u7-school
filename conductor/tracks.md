@@ -13,7 +13,7 @@
 
 ---
 
-- [ ] **Track: Домен и API отзывов (peer-review)** — событие `stream.completed`, инвариант терминальности при завершении потока, кампания `module_completed` (агрегаты ReviewCampaign/Review, фабрика по образцу анкет), политика адресатов, UC, ER, json-репо, фасад. Зависит от трека student-status
+- [~] **Track: Домен и API отзывов (peer-review)** — событие `stream.completed`, инвариант терминальности при завершении потока, кампания `module_completed` (агрегаты ReviewCampaign/Review, фабрика по образцу анкет), политика адресатов, UC, ER, json-репо, фасад. Зависит от трека student-status
 *Link: [./tracks/peer-review-domain_20260916/](./tracks/peer-review-domain_20260916/)*
 
 ---
