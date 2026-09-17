@@ -18,9 +18,9 @@
 
 ## Фаза 2. Вычистка разбора статусов студента из чужих зон (ФР-10)
 
-- [ ] Task: Read-API `StudentAr`: `isInProgress()`, `isEnrolled()`, `isPassed()` (`isTerminal()` — уже из Фазы 1)
-    - [ ] Red: тесты признаков по всем статусам
-    - [ ] Green: реализация
+- [x] Task: Read-API `StudentAr`: `isInProgress()`, `isEnrolled()`, `isPassed()` (`isTerminal()` — уже из Фазы 1) (fd0b9ff0)
+    - [x] Red: тесты признаков по всем статусам
+    - [x] Green: реализация
 - [ ] Task: Домен stream на read-API — `StreamAr.enroll()` (конфликт активных записей), `StreamPolicy.canEnrollNextModule()` («прошёл» вместо `advanced`), `StreamDs.categorizeStudents()` (активные → `isInProgress()`)
     - [ ] Red: тесты затронутых веток (существующие сценарии не теряются)
     - [ ] Green: реализация
