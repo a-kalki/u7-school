@@ -45,9 +45,9 @@
 - [x] Task: `ReviewCampaignFactory` (ФР-3) по образцу `QuestionnaireFactory`: `createStreamCompleted(scopeId, participants, now)` — вычисляет `expiresAt` из константы окна; `restore(state)` по дискриминанту `context` (716dd4c7)
     - [x] Red: тесты фабрики (окно, restore по контексту)
     - [x] Green: реализация
-- [ ] Task: `ReviewAr` — `create()` (снапшоты ролей/исхода автора из кампании), `overwrite(text)` (валидация длины)
-    - [ ] Red: тесты агрегата
-    - [ ] Green: реализация
+- [x] Task: `ReviewAr` — `create()` (снапшоты ролей/исхода автора из кампании), `overwrite(text)` (валидация длины) (09b7d62c)
+    - [x] Red: тесты агрегата
+    - [x] Green: реализация
 - [ ] Task: `ReviewPolicy` (ФР-5) — адресаты по исходу автора; запрет «о себе»
     - [ ] Red: тесты всех веток (completed; dropped/never_started; ментор)
     - [ ] Green: реализация
