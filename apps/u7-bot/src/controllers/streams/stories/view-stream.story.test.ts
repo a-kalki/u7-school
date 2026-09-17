@@ -339,7 +339,7 @@ describe('ViewStreamStory (S02-S04)', () => {
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text);
     expect(text).toContain('Студент Студентов');
-    expect(text).toContain('Учится');
+    expect(text).toContain('учится');
     const codes =
       response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
     expect(codes).toContain(`view-stream:students:${STREAM_ID}`);

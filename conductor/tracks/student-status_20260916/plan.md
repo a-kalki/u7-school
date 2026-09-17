@@ -10,11 +10,11 @@
 - [x] Task: Red: тесты API — все ветки: advanced / not_advanced / abandoned × (voluntary, inactivity, by_mentor) × (шаги есть / нет) / enrolled / active; пограничный abandoned без `abandonDetails` (легаси) (819ad2b)
 - [x] Task: Green: реализация read-слоя (место по правилам границ: домен stream, без обращений к репо) (f925926)
 - [x] Task: Словарь продуктовых меток (ФР-2): «окончил», «окончил, не прошёл», «забросил», «не начал», «покинул сам», «снят ментором»; тест составных лейблов («не начал · покинул сам») (c1707e1)
-- [ ] Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
+- [x] Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md) — принято пользователем в чате (без замечаний)
 
 ## Фаза 2. Миграция клиентов на API
 
-- [ ] Task: Перевести затронутые клиенты из списка Фазы 1 (лейблы стори: view-stream, monitor, learning и пр.) на API/словарь — по одному, с прогоном тестов
+- [~] Task: Перевести затронутые клиенты из списка Фазы 1 (лейблы стори: view-stream, monitor, learning и пр.) на API/словарь — по одному, с прогоном тестов
 - [ ] Task: Убедиться: в скоупе трека не осталось собственных switch по `status`/`cause` вне нового API (grep из Фазы 1 пуст по закрытым позициям)
 - [ ] Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
