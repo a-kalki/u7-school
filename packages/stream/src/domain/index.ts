@@ -13,6 +13,7 @@ export * from './stream-ds';
 export * from './student/a-root';
 export * from './student/entity';
 export * from './student/events';
+export * from './student/outcome';
 export * from './student/policy';
 export * from './student/repo';
 export * from './types';
