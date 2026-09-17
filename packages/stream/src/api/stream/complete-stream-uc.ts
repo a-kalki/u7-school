@@ -55,6 +55,10 @@ export class CompleteStreamUc extends StreamUseCase<CompleteStreamCmdMeta> {
     streamAr.complete();
     await this.resolve.streamRepo.save(streamAr.state);
 
+    // Событие stream.completed — триггер кампаний peer-review и других
+    // подписчиков; публикуем только после успешного сохранения
+    this.publishEvents(streamAr);
+
     return undefined;
   }
 }
