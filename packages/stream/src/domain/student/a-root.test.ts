@@ -1134,6 +1134,19 @@ describe('StudentAr', () => {
       });
     });
 
+    describe('isTerminal', () => {
+      test('терминальные статусы → true (судьба разрешена)', () => {
+        expect(makeStudent('abandoned').isTerminal()).toBe(true);
+        expect(makeStudent('advanced').isTerminal()).toBe(true);
+        expect(makeStudent('not_advanced').isTerminal()).toBe(true);
+      });
+
+      test('нетерминальные (enrolled/active) → false', () => {
+        expect(makeStudent('enrolled').isTerminal()).toBe(false);
+        expect(makeStudent('active').isTerminal()).toBe(false);
+      });
+    });
+
     describe('neverStarted', () => {
       test('abandoned без завершённых шагов → true', () => {
         expect(makeStudent('abandoned').neverStarted()).toBe(true);

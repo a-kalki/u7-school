@@ -1,5 +1,7 @@
+import { errConflict, throwError } from '@u7-scl/core/domain';
 import type { ContentSnapshot, StepPosition } from '@u7-scl/course/domain';
 import { CourseDs } from '@u7-scl/course/domain';
+import type { StreamConflictUcError } from '../api/errors';
 import type { StreamAr } from './stream/a-root';
 import type { StudentAr } from './student/a-root';
 import type { StepRecord, Student } from './student/entity';
@@ -21,6 +23,34 @@ import type {
 } from './types';
 
 export const StreamDs = {
+  /**
+   * Завершить поток с инвариантом терминальности (ФР-2 трека peer-review).
+   *
+   * Координация двух агрегатов модуля: пока у кого-то из студентов
+   * нетерминальный статус (active/enrolled), завершение невозможно —
+   * ментор должен указать исход каждому. Терминальность спрашивает
+   * у StudentAr (зона Student), переход и событие — StreamAr (зона Stream).
+   *
+   * @throws STREAM_CONFLICT со списком нетерминальных студентов
+   */
+  completeStream(stream: StreamAr, students: StudentAr[]): void {
+    const pending = students
+      .filter((s) => !s.isTerminal())
+      .map((s) => ({ userId: s.state.userId, status: s.state.status }));
+
+    if (pending.length > 0) {
+      throwError(
+        errConflict<StreamConflictUcError>(
+          'STREAM_CONFLICT',
+          `Нельзя завершить поток: ${pending.length} студентов ещё учатся. Сначала укажите исход для каждого.`,
+          { pending },
+        ),
+      );
+    }
+
+    stream.complete();
+  },
+
   /**
    * Завершить шаг и выдать следующий.
    * Определяет уровень перехода: step / lesson / project / stream.

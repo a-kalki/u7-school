@@ -1,5 +1,4 @@
 import type { User } from '@u7-scl/app/domain';
-import { errConflict } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
 import {
@@ -8,13 +7,15 @@ import {
   CompleteStreamCmdSchema,
 } from '#domain/stream/commands/complete-stream-cmd';
 import { StreamPolicy } from '#domain/stream/policy';
-import type { StreamConflictUcError, StreamUcErrors } from '../errors';
+import { StreamDs } from '#domain/stream-ds';
+import { StudentAr } from '#domain/student/a-root';
 import { StreamUseCase } from '../stream-uc';
 
 /**
  * Use-case завершения потока.
- * Проверяет, что все студенты не в статусе active, и завершает поток.
- * Статусы студентов меняются заранее через complete-student / mark-abandoned.
+ * Оркестрация: инвариант терминальности студентов и переход — StreamDs
+ * (ФР-2 трека peer-review); статусы студентов меняются заранее через
+ * complete-student / mark-abandoned. UC доменных решений не принимает.
  */
 export class CompleteStreamUc extends StreamUseCase<CompleteStreamCmdMeta> {
   protected readonly ucName = 'complete-stream' as const;
@@ -36,23 +37,16 @@ export class CompleteStreamUc extends StreamUseCase<CompleteStreamCmdMeta> {
       this.throwAccessDenied();
     }
 
-    // Проверка: не должно остаться активных студентов
+    // Инвариант терминальности + переход — StreamDs (ФР-2)
     const students = await this.resolve.streamStudentRepo.getByStream(
       command.streamId,
     );
-    const activeStudents = students.filter((s) => s.status === 'active');
-    if (activeStudents.length > 0) {
-      this.throwError(
-        errConflict<StreamConflictUcError>(
-          'STREAM_CONFLICT',
-          `Нельзя завершить поток: ${activeStudents.length} студентов ещё активны. Сначала укажите исход для каждого.`,
-          { activeCount: activeStudents.length },
-        ) as StreamUcErrors,
-      );
-    }
-
     const streamAr = new StreamAr(streamEntity);
-    streamAr.complete();
+    StreamDs.completeStream(
+      streamAr,
+      students.map((s) => new StudentAr(s)),
+    );
+
     await this.resolve.streamRepo.save(streamAr.state);
 
     // Событие stream.completed — триггер кампаний peer-review и других

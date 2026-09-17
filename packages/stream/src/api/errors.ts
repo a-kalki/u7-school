@@ -13,7 +13,12 @@ export type StreamAccessDeniedUcError =
   AccessDeniedError<'STREAM_ACCESS_DENIED'>;
 export type StreamConflictUcError = ConflictError<
   'STREAM_CONFLICT',
-  { userId?: string; activeCount?: number }
+  {
+    userId?: string;
+    activeCount?: number;
+    /** Список нетерминальных студентов, блокирующих завершение потока (ФР-2) */
+    pending?: Array<{ userId: string; status: string }>;
+  }
 >;
 export type StreamBadRequestUcError = BadRequestError<'GATE_NOT_PASSED'>;
 

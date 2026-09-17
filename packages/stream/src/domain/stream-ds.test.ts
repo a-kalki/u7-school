@@ -1,8 +1,11 @@
 import { describe, expect, test } from 'bun:test';
+import { AppException } from '@u7-scl/core/domain';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
+import { StreamStatus } from './status';
 import { StreamAr } from './stream/a-root';
 import { StreamDs } from './stream-ds';
 import { StudentAr } from './student/a-root';
+import type { Student } from './student/entity';
 
 const _mockStreamId = '11111111-1111-4111-8111-111111111111';
 const mockUserId = '22222222-2222-4222-8222-222222222222';
@@ -596,6 +599,102 @@ describe('StreamDs.computeStreamProjectProgress', () => {
 });
 
 // ── categorizeStudents ──
+
+describe('StreamDs.completeStream (инвариант терминальности, ФР-2)', () => {
+  const mkStudent = (status: Student['status'], userId: string): StudentAr =>
+    new StudentAr({
+      uuid: crypto.randomUUID(),
+      streamId: _mockStreamId,
+      userId,
+      enrolledAt: '2026-07-01T00:00',
+      status,
+      currentStepId: '77777777-7777-4777-8777-777777777777',
+      steps: [],
+      createdAt: '2026-07-01T00:00',
+    });
+
+  const activeStream = (): StreamAr => {
+    const stream = StreamAr.create(mockCreateCmd, snapshot);
+    stream.activate();
+    stream.flushEvents();
+    return stream;
+  };
+
+  test('все студенты терминальные — завершает поток и кладёт событие', () => {
+    const stream = activeStream();
+    const students = [
+      mkStudent('abandoned', '11111111-1111-4111-8111-111111111111'),
+      mkStudent('advanced', '22222222-2222-4222-8222-222222222222'),
+      mkStudent('not_advanced', '99999999-9999-4999-8999-999999999999'),
+    ];
+
+    StreamDs.completeStream(stream, students);
+
+    expect(stream.state.status).toBe(StreamStatus.COMPLETED);
+    const events = stream.flushEvents();
+    expect(events).toHaveLength(1);
+    expect(events[0]!.eventName).toBe('stream.completed');
+  });
+
+  test('пустой список студентов — завершает поток', () => {
+    const stream = activeStream();
+
+    StreamDs.completeStream(stream, []);
+
+    expect(stream.state.status).toBe(StreamStatus.COMPLETED);
+  });
+
+  test('нетерминальный (active) блокирует завершение — STREAM_CONFLICT со списком', () => {
+    const stream = activeStream();
+    const students = [
+      mkStudent('abandoned', '11111111-1111-4111-8111-111111111111'),
+      mkStudent('active', '22222222-2222-4222-8222-222222222222'),
+    ];
+
+    let caught: unknown;
+    try {
+      StreamDs.completeStream(stream, students);
+    } catch (e) {
+      caught = e;
+    }
+
+    expect(caught).toBeInstanceOf(AppException);
+    const err = (caught as AppException).error;
+    expect(err.name).toBe('STREAM_CONFLICT');
+    expect(err.payload).toEqual({
+      pending: [
+        { userId: '22222222-2222-4222-8222-222222222222', status: 'active' },
+      ],
+    });
+    // Поток не завершён и событие не положено
+    expect(stream.state.status).toBe(StreamStatus.ACTIVE);
+    expect(stream.hasEvents()).toBe(false);
+  });
+
+  test('нетерминальный (enrolled) блокирует завершение — дыра ФР-2', () => {
+    const stream = activeStream();
+    const students = [
+      mkStudent('enrolled', '22222222-2222-4222-8222-222222222222'),
+    ];
+
+    let caught: unknown;
+    try {
+      StreamDs.completeStream(stream, students);
+    } catch (e) {
+      caught = e;
+    }
+
+    expect(caught).toBeInstanceOf(AppException);
+    const err = (caught as AppException).error;
+    expect(err.name).toBe('STREAM_CONFLICT');
+    expect(err.payload).toEqual({
+      pending: [
+        { userId: '22222222-2222-4222-8222-222222222222', status: 'enrolled' },
+      ],
+    });
+    expect(stream.state.status).toBe(StreamStatus.ACTIVE);
+  });
+});
 
 describe('StreamDs.categorizeStudents', () => {
   const now = new Date('2026-08-01T12:00');

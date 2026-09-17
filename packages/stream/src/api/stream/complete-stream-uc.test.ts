@@ -208,4 +208,63 @@ describe('CompleteStreamUc', () => {
       ),
     ).rejects.toThrow();
   });
+
+  test('ошибка если остались зачисленные (enrolled) студенты — дыра ФР-2', async () => {
+    const mockStudentRepo = {
+      getByStream: mock(() =>
+        Promise.resolve([
+          {
+            uuid: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+            streamId: '77777777-7777-4777-8777-777777777777',
+            userId: '22222222-2222-4222-8222-222222222222',
+            status: 'enrolled',
+            enrolledAt: mockDate,
+            currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
+            steps: [],
+            createdAt: mockDate,
+          },
+        ]),
+      ),
+      save: mock(() => Promise.resolve()),
+      getByUuid: mock(() => Promise.resolve(undefined)),
+      getByUser: mock(() => Promise.resolve([])),
+    };
+
+    const mockStreamRepo = {
+      getByUuid: mock(() =>
+        Promise.resolve({
+          uuid: '77777777-7777-4777-8777-777777777777',
+          title: 'Test Stream',
+          description: 'Test Description',
+          mentorId: '66666666-6666-4666-8666-666666666666',
+          moduleId: '33333333-3333-4333-8333-333333333333',
+          startDate: mockDate,
+          status: 'active',
+          contentSnapshot: [],
+          createdAt: mockDate,
+        }),
+      ),
+      save: mock(() => Promise.resolve()),
+      getAll: mock(() => Promise.resolve([])),
+    };
+
+    const uc = new CompleteStreamUc();
+    uc.init({
+      streamRepo: mockStreamRepo,
+      streamStudentRepo: mockStudentRepo,
+      userFacade: {
+        getUserByUuid: mock(() => Promise.resolve(undefined)),
+        userExists: mock(() => Promise.resolve(true)),
+      },
+      courseFacade: {},
+    } as unknown as StreamApiModuleResolver);
+
+    await expect(
+      uc.execute(
+        { streamId: '77777777-7777-4777-8777-777777777777' },
+        makeActor('66666666-6666-4666-8666-666666666666'),
+      ),
+    ).rejects.toThrow('Нельзя завершить поток');
+    expect(mockStreamRepo.save).not.toHaveBeenCalled();
+  });
 });
