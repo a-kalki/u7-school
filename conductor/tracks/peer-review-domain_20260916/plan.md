@@ -21,9 +21,9 @@
 - [x] Task: Read-API `StudentAr`: `isInProgress()`, `isEnrolled()`, `isPassed()` (`isTerminal()` — уже из Фазы 1) (fd0b9ff0)
     - [x] Red: тесты признаков по всем статусам
     - [x] Green: реализация
-- [ ] Task: Домен stream на read-API — `StreamAr.enroll()` (конфликт активных записей), `StreamPolicy.canEnrollNextModule()` («прошёл» вместо `advanced`), `StreamDs.categorizeStudents()` (активные → `isInProgress()`)
-    - [ ] Red: тесты затронутых веток (существующие сценарии не теряются)
-    - [ ] Green: реализация
+- [x] Task: Домен stream на read-API — `StreamAr.enroll()` (конфликт активных записей), `StreamPolicy.canEnrollNextModule()` («прошёл» вместо `advanced`), `StreamDs.categorizeStudents()` (активные → `isInProgress()`) (62d82c0f)
+    - [x] Red: тесты затронутых веток (существующие сценарии не теряются)
+    - [x] Green: реализация
 - [ ] Task: API stream на read-API — `GetStudentByUserUc` (выбор активной/завершённой записи), `ActivateStreamUc` (активация зачисленных)
     - [ ] Red: тесты UC (существующие сценарии не теряются)
     - [ ] Green: реализация
