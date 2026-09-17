@@ -8,7 +8,7 @@
 - [x] Task: Событие `stream.completed` в агрегате потока — падающий тест `StreamAr.complete()` кладёт событие (`streamId` в payload); тип события в `events.ts` по образцу `StreamCreatedEvent` (0812086)
     - [ ] Red: тест события
     - [ ] Green: реализация `addEvent` в `complete()`
-- [ ] Task: Публикация события — `CompleteStreamUc` вызывает `publishEvents` после `save`
+- [x] Task: Публикация события — `CompleteStreamUc` вызывает `publishEvents` после `save` (8acbfab)
     - [ ] Red: тест UC (событие доходит до шины)
     - [ ] Green: реализация
 - [ ] Task: Инвариант терминальности (ФР-2) через `StreamDs` — read-API `StudentAr.isTerminal()`; `StreamDs.completeStream(stream, students)`: гвард нетерминальности (`active`/`enrolled`) → `STREAM_CONFLICT` со списком `{ userId, status }[]`, затем `stream.complete()`; UC — чистая оркестрация (репо студентов → агрегаты → DS → save); payload `StreamConflictUcError` расширяется списком
