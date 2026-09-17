@@ -30,7 +30,7 @@
 
 | # | Работа | Статус | Документ |
 |---|--------|--------|----------|
-| 1 | **bot-ui: персистентность сессий** — трек 6 `bot-ui-session-persist`: сессии и shortIds переживают рестарт сервиса | 🔥 активный трек создан, план 0/13 | [bot-ui-session-architecture.md](./roadmap/bot-ui-session-architecture.md), §9 |
+| 1 | **bot-ui: персистентность сессий** — трек 6 `bot-ui-session-persist`: сессии и shortIds переживают рестарт сервиса | ✅ завершён (2026-09-15), [архив](./archive/bot-ui-session-persist_20260905/summary.md) | [bot-ui-session-architecture.md](./roadmap/bot-ui-session-architecture.md), §9 |
 | 2 | **Модуль задач** (tasks, этап B): `task-module` → `task-ui` → миграция бездействия и анкет-приглашений на задачи, удаление легаси `invite` (ФР-6) | концепция, архитектура и слои проработаны; декомпозиция на треки — при планировании | [tasks-system-architecture.md](./roadmap/tasks-system-architecture.md) |
 | 3 | **Модуль сессий** (sessions): реестр взаимодействий людей (парное программирование, код-ревью, ...) → событие `session.completed` → анкеты peer-review | концепция готова; треки — при планировании | [sessions-system.md](./roadmap/sessions-system.md) |
 | 4 | **Модуль досье** (dossier, бывш. metrics; Релиз 4): `packages/dossier` — агрегация по модулю учёбы (объект для паспорта: метрики и отзывы по сессиям и по модулю) + досье студента, порог достоверности | 📋 запланирован; пакет-заготовка создан (схемы навыков), агрегация — при треке | [metrics-pipeline-and-modules.md](./roadmap/metrics/metrics-pipeline-and-modules.md) |

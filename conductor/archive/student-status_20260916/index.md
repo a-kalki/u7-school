@@ -4,4 +4,4 @@
 - [План реализации](./plan.md)
 - [Метаданные](./metadata.json)
 - [Концепция peer-review, §3](../../roadmap/metrics/peer-review-system.md)
-- [Следующий трек: Домен и API отзывов (peer-review)](../peer-review-domain_20260916/index.md)
+- [Следующий трек: Домен и API отзывов (peer-review)](../../tracks/peer-review-domain_20260916/index.md)

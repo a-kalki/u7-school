@@ -3,7 +3,7 @@
 > Трек 2 из трёх ([концепция](../../roadmap/metrics/peer-review-system.md), §5; порядок:
 > `student-status` → этот трек → `peer-review-ui`).
 > Зависимость: API статусов и признаков студента — трек
-> [`student-status`](../student-status_20260916/index.md).
+> [`student-status`](../../archive/student-status_20260916/index.md).
 > Спека экранов — [ui-spec.md](../../../apps/u7-bot/src/controllers/peer-review/ui-spec.md) (утверждена владельцем).
 
 ## Обзор
