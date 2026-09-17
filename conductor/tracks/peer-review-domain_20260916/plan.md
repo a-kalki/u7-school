@@ -39,9 +39,9 @@
 - [x] Task: Схемы и типы — `ReviewCampaign` (каркас + payload по `context`), `CampaignParticipant` (`userId`, `role`, `outcome: completed | dropped | never_started`), `Review` (вал. текста 10–3500), константы окна (`REVIEW_WINDOW_DAYS = 7`), доменные ошибки (окно закрыто, дубликат пары и пр.) (165e5c53)
     - [x] Red: тесты схем/валидации
     - [x] Green: реализация entity/констант/ошибок
-- [ ] Task: `ReviewCampaignAr` — `isExpired(now)`, `daysLeft(now)`, `ensureLive(now)` (доменная ошибка «возможность закрыта»), доступ к участникам; `expiresAt` выставляется только при создании
-    - [ ] Red: тесты (свежая/истёкшая/граница окна)
-    - [ ] Green: реализация агрегата
+- [x] Task: `ReviewCampaignAr` — `isExpired(now)`, `daysLeft(now)`, `ensureLive(now)` (доменная ошибка «возможность закрыта»), доступ к участникам; `expiresAt` выставляется только при создании (d3f335c0)
+    - [x] Red: тесты (свежая/истёкшая/граница окна)
+    - [x] Green: реализация агрегата
 - [ ] Task: `ReviewCampaignFactory` (ФР-3) по образцу `QuestionnaireFactory`: `createStreamCompleted(scopeId, participants, now)` — вычисляет `expiresAt` из константы окна; `restore(state)` по дискриминанту `context`
     - [ ] Red: тесты фабрики (окно, restore по контексту)
     - [ ] Green: реализация
