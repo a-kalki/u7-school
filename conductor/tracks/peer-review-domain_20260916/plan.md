@@ -3,7 +3,7 @@
 > Спецификация: [spec.md](./spec.md). Концепция: [peer-review-system](../../roadmap/metrics/peer-review-system.md).
 > Порядок фаз обязателен: 1 → 2 → 3 → 4 → 5 → 6. Внутри фазы — сверху вниз.
 
-## Фаза 1. Зона stream: событие и инвариант завершения
+## Фаза 1. Зона stream: событие и инвариант завершения [checkpoint: 3dfc1c12]
 
 - [x] Task: Событие `stream.completed` в агрегате потока — падающий тест `StreamAr.complete()` кладёт событие (`streamId` в payload); тип события в `events.ts` по образцу `StreamCreatedEvent` (0812086)
     - [ ] Red: тест события
@@ -14,7 +14,7 @@
 - [x] Task: Инвариант терминальности (ФР-2) через `StreamDs` — read-API `StudentAr.isTerminal()`; `StreamDs.completeStream(stream, students)`: гвард нетерминальности (`active`/`enrolled`) → `STREAM_CONFLICT` со списком `{ userId, status }[]`, затем `stream.complete()`; UC — чистая оркестрация (репо студентов → агрегаты → DS → save); payload `StreamConflictUcError` расширяется списком (6bc3b58)
     - [ ] Red: тесты `isTerminal` (терминальные/нетерминальные), тесты DS (active блокирует; enrolled блокирует; все терминальные — успех), тест UC (конфликт и успех)
     - [ ] Green: реализация (StudentAr + DS + UC + payload ошибки)
-- [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
 ## Фаза 2. Вычистка разбора статусов студента из чужих зон (ФР-10)
 
