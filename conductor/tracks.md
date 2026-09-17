@@ -8,7 +8,12 @@
 *Link: [./tracks/bot-ui-session-persist_20260905/](./tracks/bot-ui-session-persist_20260905/)*
 ---
 
-- [ ] **Track: Домен и API отзывов (peer-review)** — событие `stream.completed`, инвариант терминальности при завершении потока, агрегаты ReviewCampaign/Review, фабрика кампаний, политика адресатов, UC, ER, json-репо, фасад
+- [ ] **Track: Статусы и признаки студента — единый API** — зона stream: категории исходов, признаки («не начал», «покинул сам», «снят ментором», «прошёл»/«не прошёл»), словарь меток; клиенты не разбирают состояние сами. Схема хранения не меняется
+*Link: [./tracks/student-status_20260916/](./tracks/student-status_20260916/)*
+
+---
+
+- [ ] **Track: Домен и API отзывов (peer-review)** — событие `stream.completed`, инвариант терминальности при завершении потока, кампания `module_completed` (агрегаты ReviewCampaign/Review, фабрика по образцу анкет), политика адресатов, UC, ER, json-репо, фасад. Зависит от трека student-status
 *Link: [./tracks/peer-review-domain_20260916/](./tracks/peer-review-domain_20260916/)*
 
 ---

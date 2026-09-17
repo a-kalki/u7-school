@@ -24,7 +24,7 @@
 - [ ] Task: `ReviewCampaignAr` — `isExpired(now)`, `daysLeft(now)`, доступ к участникам; `expiresAt` выставляется только при создании
     - [ ] Red: тесты (свежая/истёкшая/граница окна)
     - [ ] Green: реализация агрегата
-- [ ] Task: `ReviewCampaignFactory` (ФР-3) по образцу `QuestionnaireFactory`: `createStreamCompleted(scopeId, participants, now)` — вычисляет `expiresAt` из константы окна; `restore(state)` по дискриминанту `context`
+- [ ] Task: `ReviewCampaignFactory` (ФР-3) по образцу `QuestionnaireFactory`: `createModuleCompleted(scopeId, participants, now)` — вычисляет `expiresAt` из константы окна; `restore(state)` по дискриминанту `context`
     - [ ] Red: тесты фабрики (окно, restore по контексту)
     - [ ] Green: реализация
 - [ ] Task: `ReviewAr` — `create()` (снапшоты ролей/статуса автора из кампании), `overwrite(text)` (валидация длины)
@@ -39,7 +39,7 @@
 
 - [ ] Task: `PeerReviewApiModuleMeta` + резолвер (зависимости: stream-фасад, репозитории, eventBus)
     - [ ] Green: каркас модуля + регистрация резолвера
-- [ ] Task: `create-campaign-uc` — сбор участников и `neverStarted` фасадом stream, фабрика, save, событие `campaign.created` (ФР-6)
+- [ ] Task: `create-campaign-uc` — сбор участников фасадом stream, `neverStarted` — через API статусов студента (трек `student-status`), фабрика, save, событие `campaign.created` (ФР-6)
     - [ ] Red: тесты (создание, expiresAt, снапшот, публикация события)
     - [ ] Green: реализация
 - [ ] Task: `stream-completed-er` (ФР-7) — подписка на `stream.completed`, вызов UC, идемпотентность (повтор события — не дубль кампании)

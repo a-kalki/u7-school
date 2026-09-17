@@ -15,12 +15,14 @@
 | Модуль | Вопрос | Ответственность | Статус | Документ |
 |---|---|---|---|---|
 | `questionnaire` | **Как заполняется анкета?** | Чистый движок анкет: статусная машина, likert-шкалы, предвычисление баллов | ✅ реализован | [metrics-questionnaire-and-events](./roadmap/metrics/metrics-questionnaire-and-events.md) |
-| `peer-review` | **Что люди сказали друг о друге?** | Кампании по мероприятиям (модуль/поток, сессия, выход): окно, адресаты, снапшот участников; текстовые отзывы; фиксация анкетных оценок | 🔥 в работе (этап «отзывы», треки созданы) | [peer-review-system](./roadmap/metrics/peer-review-system.md) |
+| `peer-review` | **Что люди сказали друг о друге?** | Кампании сбора по мероприятиям (завершение студентом модуля, сессия, выход): окно, адресаты, снапшот участников; текстовые отзывы; фиксация анкетных оценок | 🔥 в работе (этап «отзывы», треки созданы) | [peer-review-system](./roadmap/metrics/peer-review-system.md) |
 | `sessions` | **Что произошло?** | Реестр взаимодействий (парное программирование, код-ревью): участники, роли, место, событие `session.completed` | 📋 запланирован (концепция) | [sessions-system](./roadmap/sessions-system.md) |
-| `metrics` | **Какие у студента цифры?** | Агрегация: системные метрики + анкетные баллы → StudentMetrics, пороги достоверности | ◐ частично (`MetricAr` есть, пакета нет) | [metrics-pipeline-and-modules](./roadmap/metrics/metrics-pipeline-and-modules.md) |
-| `passport` | **Как предъявить миру?** | Цифровой паспорт: витрина, PDF+QR, портфолио, рекомендация | 📋 запланирован (концепция), после `metrics` | [digital-passport](./roadmap/metrics/digital-passport.md) |
+| `dossier` | **Что известно о студенте по модулю?** | Агрегация по модулю учёбы: метрики по сессиям и по модулю, отзывы по сессиям и по модулю, участники — обобщённый объект для паспорта; плюс досье студента в целом (бывш. `metrics`) | 📋 запланирован | [metrics-pipeline-and-modules](./roadmap/metrics/metrics-pipeline-and-modules.md) |
+| `passport` | **Как предъявить миру?** | Цифровой паспорт: витрина, PDF+QR, портфолио, рекомендация | 📋 запланирован (концепция), после `dossier` | [digital-passport](./roadmap/metrics/digital-passport.md) |
 
 Смежные модули профиля: `task` (доставка приглашений, [tasks-system-architecture](./roadmap/tasks-system-architecture.md)), `contribution` (второе измерение — «член сообщества», [contribution-system](./roadmap/contribution-system.md)).
+
+Переименования (2026-09-16, пока пакеты не созданы): модуль `metrics` → **`dossier`** — зона шире цифр: обобщённый объект по модулю для паспорта включает и тексты отзывов; «метрики» остаются названием данных (likert-баллы, системные метрики), а не модуля.
 
 ---
 
@@ -31,12 +33,12 @@
 | 1 | **bot-ui: персистентность сессий** — трек 6 `bot-ui-session-persist`: сессии и shortIds переживают рестарт сервиса | 🔥 активный трек создан, план 0/13 | [bot-ui-session-architecture.md](./roadmap/bot-ui-session-architecture.md), §9 |
 | 2 | **Модуль задач** (tasks, этап B): `task-module` → `task-ui` → миграция бездействия и анкет-приглашений на задачи, удаление легаси `invite` (ФР-6) | концепция, архитектура и слои проработаны; декомпозиция на треки — при планировании | [tasks-system-architecture.md](./roadmap/tasks-system-architecture.md) |
 | 3 | **Модуль сессий** (sessions): реестр взаимодействий людей (парное программирование, код-ревью, ...) → событие `session.completed` → анкеты peer-review | концепция готова; треки — при планировании | [sessions-system.md](./roadmap/sessions-system.md) |
-| 4 | **Модуль метрик + витрина профиля** (Релиз 4): `packages/metrics` (агрегация QuestionnaireComplete → StudentMetrics), витрина профиля (студент + ментор), порог достоверности | ◐ частично: `peer-review` и `MetricAr` готовы, модуля `metrics` нет | [metrics-pipeline-and-modules.md](./roadmap/metrics/metrics-pipeline-and-modules.md) |
+| 4 | **Модуль досье** (dossier, бывш. metrics; Релиз 4): `packages/dossier` — агрегация по модулю учёбы (объект для паспорта: метрики и отзывы по сессиям и по модулю) + досье студента, порог достоверности | 📋 запланирован; имя пакета `dossier` (переименование пока пакет не создан) | [metrics-pipeline-and-modules.md](./roadmap/metrics/metrics-pipeline-and-modules.md) |
 | 5 | **Модуль вклада** (contribution): балл вклада из кросс-анкет командных задач + явные фиксации вклада; блок «член сообщества» в профиле | концепция (не начат), после п. 4 | [contribution-system.md](./roadmap/contribution-system.md) |
 | 6 | **DMG** — декларативные манифесты домена, сквозная типизация, `Result` вместо исключений, политики доступа, каузальный анализ | концепция (не начата) | [domain-manifest-graph.md](./roadmap/domain-manifest-graph.md) |
 | 7 | **Контент, Релиз 5**: `basedOn`, visibility, CRUD, `contentSnapshot` → чистое UUID-дерево | не начат | [content-management.md](./roadmap/content-management.md), треки 1–2 |
 | 8 | **Контент, Релиз 6**: Import/Export, Fork, publish-replace, gating | не начат | [content-management.md](./roadmap/content-management.md), треки 3–4 |
-| 9 | **Модуль отзывов peer-review** (этап «отзывы»): кампании по завершению модуля (потока) + текстовые отзывы; далее анкеты в кампании (техдолг) | 🔥 треки созданы: домен+API, UI | [peer-review-system.md](./roadmap/metrics/peer-review-system.md) |
+| 9 | **Модуль отзывов peer-review** (этап «отзывы»): кампании `module_completed` (завершение студентом модуля через поток) + текстовые отзывы; далее анкеты в кампании (техдолг) | 🔥 треки созданы: статусы студента, домен+API, UI | [peer-review-system.md](./roadmap/metrics/peer-review-system.md) |
 | 10 | **Цифровой паспорт** (passport): витрина профиля, PDF+QR, портфолио, рекомендация | 📋 концепция; после п. 4 (поглощает витрину трека 3.4 документа 3) | [digital-passport.md](./roadmap/metrics/digital-passport.md) |
 
 ### Заметки к последовательности
