@@ -5,7 +5,7 @@
 
 ## Фаза 1. Зона stream: событие и инвариант завершения
 
-- [ ] Task: Событие `stream.completed` в агрегате потока — падающий тест `StreamAr.complete()` кладёт событие (`streamId` в payload); тип события в `events.ts` по образцу `StreamCreatedEvent`
+- [x] Task: Событие `stream.completed` в агрегате потока — падающий тест `StreamAr.complete()` кладёт событие (`streamId` в payload); тип события в `events.ts` по образцу `StreamCreatedEvent` (0812086)
     - [ ] Red: тест события
     - [ ] Green: реализация `addEvent` в `complete()`
 - [ ] Task: Публикация события — `CompleteStreamUc` вызывает `publishEvents` после `save`
