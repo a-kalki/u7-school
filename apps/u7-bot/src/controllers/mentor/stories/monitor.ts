@@ -155,9 +155,10 @@ export class MonitorStory extends U7BotUiStory {
       const lb = lagOrder[b.lagLevel] ?? 3;
       if (la !== lb) return la - lb;
 
-      // Завершённые (advanced/not_advanced/abandoned) — в конец
+      // Завершённые (исход зафиксирован) — в конец
       const aDone =
-        a.student.status !== 'active' && a.student.status !== 'enrolled';
+        studentOutcomeCategory(a.student) !==
+        StudentOutcomeCategory.IN_PROGRESS;
       const bDone =
         studentOutcomeCategory(b.student) !==
         StudentOutcomeCategory.IN_PROGRESS;
