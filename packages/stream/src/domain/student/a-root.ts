@@ -49,7 +49,7 @@ export class StudentAr extends Aggregate<StudentArMeta> {
     return latest > 0 ? new Date(latest) : null;
   }
 
-  // ── Чтение: API исходов студента (ФР-1, ФР-2) ──
+  // ── Чтение: API исходов студента (ФР-1) ──
 
   /**
    * Категория исхода студента: завершил / забросил / учится.
@@ -113,78 +113,6 @@ export class StudentAr extends Aggregate<StudentArMeta> {
       case StudentOutcomeCategory.IN_PROGRESS:
         return [];
     }
-  }
-
-  /**
-   * Словарь продуктовых меток (ФР-2): канонические строки из спецификации.
-   * Ключ — признак или категория без признаков (abandoned/in_progress).
-   */
-  private static readonly outcomeLabels: Record<
-    StudentOutcomeSign | 'abandoned' | 'in_progress',
-    string
-  > = {
-    passed: 'окончил',
-    not_passed: 'окончил, не прошёл',
-    never_started: 'не начал',
-    left_voluntarily: 'покинул сам',
-    removed_by_mentor: 'снят ментором',
-    abandoned: 'забросил',
-    in_progress: 'учится',
-  };
-
-  /** Метка одного признака/категории из словаря (для композиции в UI) */
-  static outcomeLabel(
-    sign: StudentOutcomeSign | 'abandoned' | 'in_progress',
-  ): string {
-    return StudentAr.outcomeLabels[sign];
-  }
-
-  /**
-   * Главный лейбл исхода студента. Для выбывших с несколькими признаками
-   * приоритет — «не начал» (спека ФР-2).
-   */
-  outcomeLabel(): string {
-    const category = this.outcomeCategory();
-    if (category !== StudentOutcomeCategory.ABANDONED) {
-      switch (this._state.status) {
-        case 'advanced':
-          return StudentAr.outcomeLabel(CompletionSign.PASSED);
-        case 'not_advanced':
-          return StudentAr.outcomeLabel(CompletionSign.NOT_PASSED);
-        default:
-          return StudentAr.outcomeLabel('in_progress');
-      }
-    }
-
-    const signs = this.outcomeSigns();
-    if (signs.includes(AbandonSign.NEVER_STARTED)) {
-      return StudentAr.outcomeLabel(AbandonSign.NEVER_STARTED);
-    }
-    if (signs.includes(AbandonSign.LEFT_VOLUNTARILY)) {
-      return StudentAr.outcomeLabel(AbandonSign.LEFT_VOLUNTARILY);
-    }
-    if (signs.includes(AbandonSign.REMOVED_BY_MENTOR)) {
-      return StudentAr.outcomeLabel(AbandonSign.REMOVED_BY_MENTOR);
-    }
-    // Легаси: abandoned с шагами, причина неизвестна
-    return StudentAr.outcomeLabel('abandoned');
-  }
-
-  /**
-   * Составной лейбл карточки: все применимые метки через разделитель « · »,
-   * например «не начал · покинул сам». Собирается из словаря агрегата —
-   * клиенты не дублируют строки и разделитель.
-   */
-  outcomeDetailLabel(): string {
-    if (this.outcomeCategory() !== StudentOutcomeCategory.ABANDONED) {
-      return this.outcomeLabel();
-    }
-    const signs = this.outcomeSigns();
-    if (signs.length === 0) {
-      // Легаси: abandoned с шагами, причина неизвестна
-      return StudentAr.outcomeLabel('abandoned');
-    }
-    return signs.map((s) => StudentAr.outcomeLabel(s)).join(' · ');
   }
 
   constructor(state: Student) {

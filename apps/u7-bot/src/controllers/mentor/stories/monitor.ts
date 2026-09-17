@@ -8,6 +8,7 @@ import type {
   Student,
 } from '@u7-scl/stream/domain';
 import {
+  AbandonSign,
   CompletionSign,
   StreamDs,
   StudentAr,
@@ -323,7 +324,7 @@ export class MonitorStory extends U7BotUiStory {
     return this.screen(mdJoin(header), this.kb(keyboardRows));
   }
 
-  /** Иконка исхода студента (оформление; тексты — из словаря агрегата) */
+  /** Иконка исхода студента (оформление) */
   #statusIcon(ar: StudentAr): string {
     switch (ar.outcomeCategory()) {
       case StudentOutcomeCategory.COMPLETED:
@@ -332,6 +333,32 @@ export class MonitorStory extends U7BotUiStory {
         return '🚫';
       case StudentOutcomeCategory.IN_PROGRESS:
         return '🟢';
+    }
+  }
+
+  /**
+   * Подпись исхода студента. Термины унифицированы по спеке трека
+   * (см. spec.md ФР-2): «окончил», «окончил, не прошёл», «забросил»,
+   * «не начал», «покинул сам», «снят ментором», «учится».
+   */
+  #statusLabel(ar: StudentAr): string {
+    switch (ar.outcomeCategory()) {
+      case StudentOutcomeCategory.COMPLETED:
+        return ar.outcomeSigns().includes(CompletionSign.PASSED)
+          ? 'окончил'
+          : 'окончил, не прошёл';
+      case StudentOutcomeCategory.ABANDONED: {
+        const signs = ar.outcomeSigns();
+        // Приоритет «не начал» над причиной ухода
+        if (signs.includes(AbandonSign.NEVER_STARTED)) return 'не начал';
+        if (signs.includes(AbandonSign.LEFT_VOLUNTARILY)) return 'покинул сам';
+        if (signs.includes(AbandonSign.REMOVED_BY_MENTOR))
+          return 'снят ментором';
+        // Легаси: abandoned с шагами, причина неизвестна
+        return 'забросил';
+      }
+      case StudentOutcomeCategory.IN_PROGRESS:
+        return 'учится';
     }
   }
 
@@ -416,7 +443,7 @@ export class MonitorStory extends U7BotUiStory {
     const lines: MdText[] = [
       mdConcat(
         md`👤 *${userName}* \\| `,
-        md`${this.#statusIcon(ar)} ${ar.outcomeLabel()}`,
+        md`${this.#statusIcon(ar)} ${this.#statusLabel(ar)}`,
       ),
       md``,
       md`———`,
@@ -591,26 +618,24 @@ export class MonitorStory extends U7BotUiStory {
   // ── complete-student (выбор исхода) ──
 
   async #handleCompleteChoice(studentId: string): Promise<DialogResponse> {
-    const choice = (
-      icon: string,
-      sign: Parameters<typeof StudentAr.outcomeLabel>[0],
-    ) => `${icon} ${StudentAr.outcomeLabel(sign)}`;
+    // Термины унифицированы по спеке трека (см. spec.md ФР-2):
+    // «окончил», «окончил, не прошёл», «забросил».
     const keyboardRows: KbButton[][] = [
       [
         this.btn(
-          choice('✅', CompletionSign.PASSED),
+          '✅ окончил',
           `${this.cbFor('monitor', 'complete-confirm', studentId)}:advanced`,
         ),
       ],
       [
         this.btn(
-          choice('↩️', CompletionSign.NOT_PASSED),
+          '↩️ окончил, не прошёл',
           `${this.cbFor('monitor', 'complete-confirm', studentId)}:not_advanced`,
         ),
       ],
       [
         this.btn(
-          choice('🔴', 'abandoned'),
+          '🔴 забросил',
           `${this.cbFor('monitor', 'complete-confirm', studentId)}:abandoned`,
         ),
       ],
@@ -645,11 +670,11 @@ export class MonitorStory extends U7BotUiStory {
       // профиль недоступен — оставляем обрезок userId
     }
 
-    // Связка «команда UC → ключ словаря меток» (тексты — из словаря агрегата)
+    // Связка «команда UC → подпись исхода»; термины — унифицированные литералы
     const outcomeLabels: Record<string, string> = {
-      advanced: StudentAr.outcomeLabel(CompletionSign.PASSED),
-      not_advanced: StudentAr.outcomeLabel(CompletionSign.NOT_PASSED),
-      abandoned: StudentAr.outcomeLabel('abandoned'),
+      advanced: 'окончил',
+      not_advanced: 'окончил, не прошёл',
+      abandoned: 'забросил',
     };
 
     // confirm-диалог использует действие 'complete-confirm' → кнопка подтверждения
