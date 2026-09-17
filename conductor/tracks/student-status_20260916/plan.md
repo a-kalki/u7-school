@@ -5,7 +5,7 @@
 
 ## Фаза 1. Домен: API исходов и словарь меток
 
-- [ ] Task: Найти по grep все места с собственными switch/картами по `student.status` и `abandonDetails` вне зоны stream — список клиентов для Фазы 2
+- [~] Task: Найти по grep все места с собственными switch/картами по `student.status` и `abandonDetails` вне зоны stream — список клиентов для Фазы 2
 - [ ] Task: Схемы и типы API исходов: категория, признаки завершения/ухода; вход — состояние студента (ФР-1)
 - [ ] Task: Red: тесты API — все ветки: advanced / not_advanced / abandoned × (voluntary, inactivity, by_mentor) × (шаги есть / нет) / enrolled / active; пограничный abandoned без `abandonDetails` (легаси)
 - [ ] Task: Green: реализация read-слоя (место по правилам границ: домен stream, без обращений к репо)
