@@ -42,9 +42,9 @@
 - [x] Task: `ReviewCampaignAr` — `isExpired(now)`, `daysLeft(now)`, `ensureLive(now)` (доменная ошибка «возможность закрыта»), доступ к участникам; `expiresAt` выставляется только при создании (d3f335c0)
     - [x] Red: тесты (свежая/истёкшая/граница окна)
     - [x] Green: реализация агрегата
-- [ ] Task: `ReviewCampaignFactory` (ФР-3) по образцу `QuestionnaireFactory`: `createStreamCompleted(scopeId, participants, now)` — вычисляет `expiresAt` из константы окна; `restore(state)` по дискриминанту `context`
-    - [ ] Red: тесты фабрики (окно, restore по контексту)
-    - [ ] Green: реализация
+- [x] Task: `ReviewCampaignFactory` (ФР-3) по образцу `QuestionnaireFactory`: `createStreamCompleted(scopeId, participants, now)` — вычисляет `expiresAt` из константы окна; `restore(state)` по дискриминанту `context` (716dd4c7)
+    - [x] Red: тесты фабрики (окно, restore по контексту)
+    - [x] Green: реализация
 - [ ] Task: `ReviewAr` — `create()` (снапшоты ролей/исхода автора из кампании), `overwrite(text)` (валидация длины)
     - [ ] Red: тесты агрегата
     - [ ] Green: реализация
