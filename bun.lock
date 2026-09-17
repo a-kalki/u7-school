@@ -65,6 +65,13 @@
         "valibot": "^1.0.0",
       },
     },
+    "packages/dossier": {
+      "name": "@u7-scl/dossier",
+      "version": "0.1.0",
+      "dependencies": {
+        "valibot": "^1.0.0",
+      },
+    },
     "packages/peer-review": {
       "name": "@u7-scl/peer-review",
       "version": "0.1.0",
@@ -249,6 +256,8 @@
     "@u7-scl/core": ["@u7-scl/core@workspace:packages/core"],
 
     "@u7-scl/course": ["@u7-scl/course@workspace:packages/course"],
+
+    "@u7-scl/dossier": ["@u7-scl/dossier@workspace:packages/dossier"],
 
     "@u7-scl/peer-review": ["@u7-scl/peer-review@workspace:packages/peer-review"],
 

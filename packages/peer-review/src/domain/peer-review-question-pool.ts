@@ -1,5 +1,21 @@
 import * as v from 'valibot';
-import { SkillMappingSchema } from './peer-review';
+
+/**
+ * Привязка вопроса к навыку: только структура (категория/подкатегория/вес).
+ * Допустимые коды категорий и связь категория↔подкатегория — знание модуля
+ * `dossier` (@u7-scl/dossier, SkillMappingSchema); пул хранит их как данные.
+ */
+export const QuestionSkillMappingSchema = v.object({
+  category: v.pipe(v.string(), v.nonEmpty('Категория не может быть пустой')),
+  subcategory: v.pipe(
+    v.string(),
+    v.nonEmpty('Подкатегория не может быть пустой'),
+  ),
+  weight: v.union([v.literal(0.75), v.literal(1), v.literal(1.25)]),
+});
+export type QuestionSkillMapping = v.InferOutput<
+  typeof QuestionSkillMappingSchema
+>;
 
 /** Вопрос оценки — компактный тип с полным маппингом на навык. */
 export const PeerReviewQuestionSchema = v.object({
@@ -11,7 +27,7 @@ export const PeerReviewQuestionSchema = v.object({
     v.string(),
     v.nonEmpty('Текст вопроса не может быть пустым'),
   ),
-  skillMapping: SkillMappingSchema,
+  skillMapping: QuestionSkillMappingSchema,
 });
 export type PeerReviewQuestion = v.InferOutput<typeof PeerReviewQuestionSchema>;
 

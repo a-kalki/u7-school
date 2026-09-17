@@ -1,0 +1,20 @@
+{
+  "name": "@u7-scl/dossier",
+  "version": "0.1.0",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "bun test",
+    "lint": "bunx biome check .",
+    "tslint": "tsc --noEmit",
+    "format": "bunx biome check . --write",
+    "check": "bun run lint && bun run tslint && bun test"
+  },
+  "dependencies": {
+    "valibot": "^1.0.0"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
