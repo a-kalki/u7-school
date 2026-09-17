@@ -425,7 +425,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
     expect(text).toContain('Прогресс по модулю');
     expect(text).toContain('Усидчивость студента');
     expect(text).toContain('Активность студента');
-    expect(text).toContain('Учится');
+    expect(text).toContain('учится');
 
     // S08: только навигация, кнопок действий нет
     expect(response.screen?.keyboard?.rows).toEqual([
@@ -516,9 +516,9 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
     expect(String(response.screen?.text)).toContain('Выберите исход');
     const { texts, codes } = flat(response);
     expect(texts).toEqual([
-      '✅ Прошёл',
-      '↩️ Не прошёл',
-      '🔴 Выбыл',
+      '✅ окончил',
+      '↩️ окончил, не прошёл',
+      '🔴 забросил',
       '❌ Отмена',
     ]);
     expect(codes).toContain('monitor:complete-confirm:student-1:advanced');
@@ -536,7 +536,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
     );
     const text = String(response.screen?.text);
     expect(text).toContain('Иван Петров');
-    expect(text).toContain('прошёл');
+    expect(text).toContain('окончил');
     const { texts, codes } = flat(response);
     expect(texts).toContain('✅ Завершить');
     expect(codes).toContain(
@@ -552,14 +552,14 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
       mentorActor(),
       session,
     );
-    expect(String(notAdvanced.screen?.text)).toContain('не прошёл');
+    expect(String(notAdvanced.screen?.text)).toContain('окончил, не прошёл');
 
     const abandoned = await story.handleCallback(
       'complete-confirm:student-1:abandoned',
       mentorActor(),
       session,
     );
-    expect(String(abandoned.screen?.text)).toContain('выбыл');
+    expect(String(abandoned.screen?.text)).toContain('забросил');
   });
 
   test('complete-confirm-confirm: UC complete-student + delegate на список', async () => {

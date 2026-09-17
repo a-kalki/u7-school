@@ -226,7 +226,7 @@ describe('E2E: Ментор — управление студентами', () =
     expect(String(resultResp.screen?.text)).toContain('Студенты потока');
   });
 
-  test('ментор: ✅ complete → выбрать «Прошёл» → подтвердить → студент завершён', async () => {
+  test('ментор: ✅ complete → выбрать «окончил» → подтвердить → студент завершён', async () => {
     await openStudents();
 
     // Дефолт — только активные; показываем всех (FR-8)
@@ -244,13 +244,13 @@ describe('E2E: Ментор — управление студентами', () =
     );
     expect(String(choiceResp.screen?.text)).toContain('Выберите исход');
 
-    // 3. Выбираем «✅ Прошёл» → confirm-диалог
+    // 3. Выбираем «✅ окончил» (словарь меток stream) → confirm-диалог
     const confirmResp = await transport.handleCallback(
       transport.makeBotContext(tgId, {
-        callbackData: pressedCode(transport, tgId, 'Прошёл'),
+        callbackData: pressedCode(transport, tgId, '✅ окончил'),
       }),
     );
-    expect(String(confirmResp.screen?.text)).toContain('прошёл');
+    expect(String(confirmResp.screen?.text)).toContain('окончил');
 
     // 4. Подтверждаем: реплика + delegate к списку
     const resultResp = await transport.handleCallback(
