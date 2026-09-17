@@ -11,7 +11,7 @@
 - [x] Task: Публикация события — `CompleteStreamUc` вызывает `publishEvents` после `save` (8acbfab)
     - [ ] Red: тест UC (событие доходит до шины)
     - [ ] Green: реализация
-- [ ] Task: Инвариант терминальности (ФР-2) через `StreamDs` — read-API `StudentAr.isTerminal()`; `StreamDs.completeStream(stream, students)`: гвард нетерминальности (`active`/`enrolled`) → `STREAM_CONFLICT` со списком `{ userId, status }[]`, затем `stream.complete()`; UC — чистая оркестрация (репо студентов → агрегаты → DS → save); payload `StreamConflictUcError` расширяется списком
+- [x] Task: Инвариант терминальности (ФР-2) через `StreamDs` — read-API `StudentAr.isTerminal()`; `StreamDs.completeStream(stream, students)`: гвард нетерминальности (`active`/`enrolled`) → `STREAM_CONFLICT` со списком `{ userId, status }[]`, затем `stream.complete()`; UC — чистая оркестрация (репо студентов → агрегаты → DS → save); payload `StreamConflictUcError` расширяется списком (6bc3b58)
     - [ ] Red: тесты `isTerminal` (терминальные/нетерминальные), тесты DS (active блокирует; enrolled блокирует; все терминальные — успех), тест UC (конфликт и успех)
     - [ ] Green: реализация (StudentAr + DS + UC + payload ошибки)
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
