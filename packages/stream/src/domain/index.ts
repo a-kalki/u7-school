@@ -14,6 +14,7 @@ export * from './student/a-root';
 export * from './student/entity';
 export * from './student/events';
 export * from './student/outcome';
+export * from './student/outcome-labels';
 export * from './student/policy';
 export * from './student/repo';
 export * from './types';
