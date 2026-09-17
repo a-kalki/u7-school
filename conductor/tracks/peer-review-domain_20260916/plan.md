@@ -16,7 +16,7 @@
     - [ ] Green: реализация (StudentAr + DS + UC + payload ошибки)
 - [x] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
-## Фаза 2. Вычистка разбора статусов студента из чужих зон (ФР-10)
+## Фаза 2. Вычистка разбора статусов студента из чужих зон (ФР-10) [checkpoint: c69cac6]
 
 - [x] Task: Read-API `StudentAr`: `isInProgress()`, `isEnrolled()`, `isPassed()` (`isTerminal()` — уже из Фазы 1) (fd0b9ff0)
     - [x] Red: тесты признаков по всем статусам
@@ -32,7 +32,7 @@
     - [x] Green: реализация
 - [x] Task: Grep-контроль ФР-10 — вне зоны Student нет сравнений `status` студента с литералами (кроме контрактов входа команд/событий); обновить пример в `domain-boundaries.md` §3 при изменении кода (f5d5ace9)
     - [x] Green: проверка + правка доки
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
 ## Фаза 3. Домен peer-review: сущности, агрегаты, политика
 
