@@ -8,7 +8,7 @@
 - [x] Task: Найти по grep все места с собственными switch/картами по `student.status` и `abandonDetails` вне зоны stream — список клиентов для Фазы 2 (f915754e)
 - [x] Task: Схемы и типы API исходов: категория, признаки завершения/ухода; вход — состояние студента (ФР-1) (a05a0b9)
 - [x] Task: Red: тесты API — все ветки: advanced / not_advanced / abandoned × (voluntary, inactivity, by_mentor) × (шаги есть / нет) / enrolled / active; пограничный abandoned без `abandonDetails` (легаси) (819ad2b)
-- [~] Task: Green: реализация read-слоя (место по правилам границ: домен stream, без обращений к репо)
+- [x] Task: Green: реализация read-слоя (место по правилам границ: домен stream, без обращений к репо) (f925926)
 - [ ] Task: Словарь продуктовых меток (ФР-2): «окончил», «окончил, не прошёл», «забросил», «не начал», «покинул сам», «снят ментором»; тест составных лейблов («не начал · покинул сам»)
 - [ ] Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
