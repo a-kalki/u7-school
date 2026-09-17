@@ -9,7 +9,11 @@ import type {
 } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Step } from '@u7-scl/course/domain';
 import type { Student } from '@u7-scl/stream/domain';
-import { StreamDs } from '@u7-scl/stream/domain';
+import {
+  StreamDs,
+  StudentOutcomeCategory,
+  studentOutcomeCategory,
+} from '@u7-scl/stream/domain';
 import { buttons } from '../../shared/buttons';
 import {
   buildStepList,
@@ -65,9 +69,7 @@ export class StepViewStory extends U7BotUiStory {
     const student = studentResult.value;
 
     if (
-      student.status === 'advanced' ||
-      student.status === 'not_advanced' ||
-      student.status === 'abandoned'
+      studentOutcomeCategory(student) !== StudentOutcomeCategory.IN_PROGRESS
     ) {
       return this.screen(
         md`🎉 *Поздравляю\\!* Вы завершили обучение в потоке\\!`,

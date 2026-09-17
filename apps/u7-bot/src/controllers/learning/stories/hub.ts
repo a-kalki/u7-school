@@ -11,6 +11,10 @@ import type {
 import { eventSubscription } from '@u7-scl/core/ui';
 import type { ModulePlace } from '@u7-scl/course/domain';
 import type { StudentCompletedEvent } from '@u7-scl/stream/domain';
+import {
+  StudentOutcomeCategory,
+  studentOutcomeCategory,
+} from '@u7-scl/stream/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
 import { buttons } from '../../shared/buttons';
 import { getStudent } from '../shared';
@@ -124,9 +128,7 @@ export class HubStory extends U7BotUiStory {
 
     const student = studentResult.value;
     const isFinished =
-      student.status === 'advanced' ||
-      student.status === 'not_advanced' ||
-      student.status === 'abandoned';
+      studentOutcomeCategory(student) !== StudentOutcomeCategory.IN_PROGRESS;
 
     const rows: KbButton[][] = [];
 

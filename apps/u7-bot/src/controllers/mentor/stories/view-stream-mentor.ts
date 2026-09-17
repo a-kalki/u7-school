@@ -6,8 +6,13 @@ import type {
   KbButton,
   KeyboardDescription,
 } from '@u7-scl/core/ui';
-import type { Stream } from '@u7-scl/stream/domain';
-import { StreamPolicy, StudentPolicy } from '@u7-scl/stream/domain';
+import type { Stream, Student } from '@u7-scl/stream/domain';
+import {
+  StreamPolicy,
+  StudentOutcomeCategory,
+  StudentPolicy,
+  studentOutcomeCategory,
+} from '@u7-scl/stream/domain';
 import { ViewStreamStory } from '../../streams/stories/view-stream.story';
 
 /**
@@ -155,7 +160,7 @@ export class ViewStreamMentorStory extends ViewStreamStory {
       'list-stream-students',
       { streamId },
       actor,
-    )) as Array<{ uuid: string; userId: string; status: string }>;
+    )) as Student[];
 
     const stream = (await this.appApi.execute('get-stream', {
       streamId,
@@ -195,7 +200,7 @@ export class ViewStreamMentorStory extends ViewStreamStory {
       if (!student || !canManage) return row;
 
       const isActive =
-        student.status === 'active' || student.status === 'enrolled';
+        studentOutcomeCategory(student) === StudentOutcomeCategory.IN_PROGRESS;
       const extraBtns: KbButton[] = [];
 
       if (isActive) {
@@ -206,8 +211,7 @@ export class ViewStreamMentorStory extends ViewStreamStory {
           this.btn('✅', this.cbFor('monitor', 'complete', studentUuid!)),
         );
       } else if (
-        student.status === 'advanced' ||
-        student.status === 'not_advanced'
+        studentOutcomeCategory(student) === StudentOutcomeCategory.COMPLETED
       ) {
         extraBtns.push(
           this.btn('🔄', this.cbFor('monitor', 'complete', studentUuid!)),
