@@ -2,6 +2,7 @@ import { Aggregate } from '@u7-scl/core/domain';
 import { isoNow } from '@u7-scl/core/shared';
 import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
 import { StreamStatus } from '../status';
+import { StudentAr } from '../student/a-root';
 import type { Student } from '../student/entity';
 import type { CreateStreamCmd } from './commands/create-stream-cmd';
 import type { Stream, StreamArMeta } from './entity';
@@ -147,9 +148,10 @@ export class StreamAr extends Aggregate<StreamArMeta> {
       }
     }
 
-    // 2. Проверка на конфликт активных записей
-    const hasActive = params.existingStudents.some(
-      (s) => s.status === 'active' || s.status === 'enrolled',
+    // 2. Проверка на конфликт активных записей: живая запись
+    //    (учится/зачислен) — признак агрегата StudentAr (ФР-10)
+    const hasActive = params.existingStudents.some((s) =>
+      new StudentAr(s).isInProgress(),
     );
     if (hasActive) {
       this.throwBadRequest('Вы уже проходите обучение в другом потоке');

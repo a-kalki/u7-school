@@ -128,19 +128,19 @@ describe('StreamPolicy', () => {
 
 describe('StreamPolicy.canEnrollNextModule', () => {
   const mockStream = {
-    uuid: 's-syntax',
+    uuid: 'a1aaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     moduleId: syntaxModuleId,
   } as Stream;
 
   const mockStudentAdvanced = {
-    uuid: 'st1',
-    streamId: 's-syntax',
-    userId: 'u1',
-    enrolledAt: '2026-01-01T00:00:00.000Z',
+    uuid: 'b1bbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    streamId: 'a1aaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    userId: 'c1cccccc-cccc-4ccc-8ccc-cccccccccccc',
+    enrolledAt: '2026-01-01T00:00',
     status: 'advanced' as const,
-    currentStepId: 'step1',
+    currentStepId: 'd1dddddd-dddd-4ddd-8ddd-dddddddddddd',
     steps: [],
-    createdAt: '2026-01-01T00:00:00.000Z',
+    createdAt: '2026-01-01T00:00',
   };
 
   const mockStudentNotAdvanced = {

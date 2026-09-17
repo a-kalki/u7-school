@@ -249,12 +249,12 @@ describe('EnrollStudentUc', () => {
       getByUser: mock(() =>
         Promise.resolve([
           {
-            uuid: 'prev-completed',
-            streamId: 'previous-stream',
+            uuid: 'b1bbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+            streamId: 'a1aaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
             userId: '99999999-9999-4999-8999-999999999999',
             enrolledAt: mockDate,
             status: 'advanced',
-            currentStepId: 'some-step',
+            currentStepId: 'd1dddddd-dddd-4ddd-8ddd-dddddddddddd',
             steps: [],
             createdAt: mockDate,
           },
@@ -698,12 +698,12 @@ describe('EnrollStudentUc', () => {
       getByUser: mock(() =>
         Promise.resolve([
           {
-            uuid: 'prev-student-record',
+            uuid: 'b1bbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
             streamId: syntaxStreamId,
             userId,
             enrolledAt: mockDate,
             status: 'not_advanced',
-            currentStepId: 'some-step',
+            currentStepId: 'd1dddddd-dddd-4ddd-8ddd-dddddddddddd',
             steps: [],
             createdAt: mockDate,
           },
@@ -772,12 +772,12 @@ describe('EnrollStudentUc', () => {
       getByUser: mock(() =>
         Promise.resolve([
           {
-            uuid: 'prev-student-record',
+            uuid: 'b1bbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
             streamId: syntaxStreamId,
             userId,
             enrolledAt: mockDate,
             status: 'advanced',
-            currentStepId: 'some-step',
+            currentStepId: 'd1dddddd-dddd-4ddd-8ddd-dddddddddddd',
             steps: [],
             createdAt: mockDate,
           },
@@ -847,12 +847,12 @@ describe('EnrollStudentUc', () => {
     };
 
     const prevRecord = {
-      uuid: 'prev-student-record',
+      uuid: 'b1bbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
       streamId: syntaxStreamId,
       userId,
       enrolledAt: mockDate,
       status: 'advanced' as const,
-      currentStepId: 'some-step',
+      currentStepId: 'd1dddddd-dddd-4ddd-8ddd-dddddddddddd',
       steps: [],
       createdAt: mockDate,
     };

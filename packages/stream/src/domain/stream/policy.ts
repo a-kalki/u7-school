@@ -1,6 +1,7 @@
 import { type Course, CoursePolicy } from '@u7-scl/course/domain';
 import { type User, UserPolicy } from '@u7-scl/user/domain';
 import { StreamStatus } from '#domain/status';
+import { StudentAr } from '../student/a-root';
 import type { Student } from '../student/entity';
 import type { Stream } from './entity';
 
@@ -54,8 +55,10 @@ export const StreamPolicy = {
   ): boolean {
     const streamMap = new Map(streams.map((s) => [s.uuid, s.moduleId]));
 
+    // «Прошёл» — признак агрегата StudentAr (ФР-10): not_advanced
+    // не даёт права записи на следующий модуль
     const completedModuleIds = students
-      .filter((s) => s.status === 'advanced')
+      .filter((s) => new StudentAr(s).isPassed())
       .map((s) => streamMap.get(s.streamId))
       .filter((id): id is string => id !== undefined);
 

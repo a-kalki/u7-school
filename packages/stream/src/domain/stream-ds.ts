@@ -3,7 +3,7 @@ import type { ContentSnapshot, StepPosition } from '@u7-scl/course/domain';
 import { CourseDs } from '@u7-scl/course/domain';
 import type { StreamConflictUcError } from '../api/errors';
 import type { StreamAr } from './stream/a-root';
-import type { StudentAr } from './student/a-root';
+import { StudentAr } from './student/a-root';
 import type { StepRecord, Student } from './student/entity';
 import type {
   CategorizedStudent,
@@ -368,6 +368,14 @@ export const StreamDs = {
     const hoursMap = new Map<string, number>();
     const activeHours: number[] = [];
 
+    // Живые записи (учится/зачислен) — признак агрегата StudentAr (ФР-10):
+    // они участвуют в расчёте медианы и могут отставать
+    const inProgressIds = new Set(
+      students
+        .filter((s) => new StudentAr(s).isInProgress())
+        .map((s) => s.uuid),
+    );
+
     for (const s of students) {
       let latest = 0;
       for (const step of s.steps) {
@@ -379,7 +387,7 @@ export const StreamDs = {
         latest > 0 ? (now.getTime() - latest) / (1000 * 60 * 60) : 0;
       hoursMap.set(s.uuid, hours);
 
-      if (s.status === 'active' || s.status === 'enrolled') {
+      if (inProgressIds.has(s.uuid)) {
         activeHours.push(hours);
       }
     }
@@ -404,8 +412,8 @@ export const StreamDs = {
       const hours = hoursMap.get(s.uuid) ?? 0;
       let lagLevel: CategorizedStudent['lagLevel'] = 'on_track';
 
-      // Неактивные статусы — on_track
-      if (s.status !== 'active' && s.status !== 'enrolled') {
+      // Неактивные записи (судьба разрешена) — on_track
+      if (!inProgressIds.has(s.uuid)) {
         return {
           studentId: s.uuid,
           lagLevel: 'on_track',
