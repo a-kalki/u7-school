@@ -84,6 +84,30 @@ export class StudentAr extends Aggregate<StudentArMeta> {
   }
 
   /**
+   * Запись студента ещё «живая»: учится или зачислен (не терминальна).
+   * Заменяет клиентам разбор `status === 'active' || status === 'enrolled'` (ФР‑10).
+   */
+  isInProgress(): boolean {
+    return this.outcomeCategory() === StudentOutcomeCategory.IN_PROGRESS;
+  }
+
+  /**
+   * Зачислен, но ещё не начал учиться (enrolled). Заменяет клиентам
+   * сравнение `status === 'enrolled'` (ФР‑10, активация потока).
+   */
+  isEnrolled(): boolean {
+    return this._state.status === 'enrolled';
+  }
+
+  /**
+   * Прошёл поток (advanced) — основание записи на следующий модуль.
+   * `not_advanced` не «прошёл». Заменяет `status === 'advanced'` (ФР‑10).
+   */
+  isPassed(): boolean {
+    return this._state.status === 'advanced';
+  }
+
+  /**
    * Признак «не начал» (ФР-1, ФР-4): нет ни одного завершённого шага.
    * Выводимый признак — независим от деталей ухода; только для выбывших.
    */

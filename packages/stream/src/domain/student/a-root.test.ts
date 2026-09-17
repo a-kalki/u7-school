@@ -1147,6 +1147,39 @@ describe('StudentAr', () => {
       });
     });
 
+    describe('isInProgress', () => {
+      test('active / enrolled → true (запись ещё живая)', () => {
+        expect(makeStudent('active').isInProgress()).toBe(true);
+        expect(makeStudent('enrolled').isInProgress()).toBe(true);
+      });
+
+      test('терминальные (abandoned / advanced / not_advanced) → false', () => {
+        expect(makeStudent('abandoned').isInProgress()).toBe(false);
+        expect(makeStudent('advanced').isInProgress()).toBe(false);
+        expect(makeStudent('not_advanced').isInProgress()).toBe(false);
+      });
+    });
+
+    describe('isEnrolled', () => {
+      test('enrolled → true, остальные → false', () => {
+        expect(makeStudent('enrolled').isEnrolled()).toBe(true);
+        expect(makeStudent('active').isEnrolled()).toBe(false);
+        expect(makeStudent('abandoned').isEnrolled()).toBe(false);
+        expect(makeStudent('advanced').isEnrolled()).toBe(false);
+        expect(makeStudent('not_advanced').isEnrolled()).toBe(false);
+      });
+    });
+
+    describe('isPassed', () => {
+      test('advanced → true; «не прошёл» и остальные → false', () => {
+        expect(makeStudent('advanced').isPassed()).toBe(true);
+        expect(makeStudent('not_advanced').isPassed()).toBe(false);
+        expect(makeStudent('active').isPassed()).toBe(false);
+        expect(makeStudent('enrolled').isPassed()).toBe(false);
+        expect(makeStudent('abandoned').isPassed()).toBe(false);
+      });
+    });
+
     describe('neverStarted', () => {
       test('abandoned без завершённых шагов → true', () => {
         expect(makeStudent('abandoned').neverStarted()).toBe(true);
