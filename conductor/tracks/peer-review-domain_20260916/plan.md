@@ -48,9 +48,9 @@
 - [x] Task: `ReviewAr` — `create()` (снапшоты ролей/исхода автора из кампании), `overwrite(text)` (валидация длины) (09b7d62c)
     - [x] Red: тесты агрегата
     - [x] Green: реализация
-- [ ] Task: `ReviewPolicy` (ФР-5) — адресаты по исходу автора; запрет «о себе»
-    - [ ] Red: тесты всех веток (completed; dropped/never_started; ментор)
-    - [ ] Green: реализация
+- [x] Task: `ReviewPolicy` (ФР-5) — адресаты по исходу автора; запрет «о себе» (51843c1d)
+    - [x] Red: тесты всех веток (completed; dropped/never_started; ментор)
+    - [x] Green: реализация
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
 
 ## Фаза 4. API: модуль, UseCase'ы, ER, фасад
