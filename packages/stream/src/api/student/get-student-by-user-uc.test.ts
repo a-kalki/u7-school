@@ -18,7 +18,7 @@ const activeStudent = {
 
 const advancedStudent = {
   uuid: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
-  streamId: 'another-stream-id',
+  streamId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
   userId,
   enrolledAt: isoNow(),
   status: 'advanced' as const,

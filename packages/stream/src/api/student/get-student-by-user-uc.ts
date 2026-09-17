@@ -1,4 +1,5 @@
 import { errNotFound } from '@u7-scl/core/domain';
+import { StudentAr } from '#domain/student/a-root';
 import {
   type GetStudentByUserCmd,
   type GetStudentByUserCmdMeta,
@@ -27,19 +28,12 @@ export class GetStudentByUserUc extends StreamUseCase<GetStudentByUserCmdMeta> {
       command.userId,
     );
 
-    // Сначала ищем активную (enrolled/active) запись
-    const active = students.find(
-      (s) => s.status === 'active' || s.status === 'enrolled',
-    );
+    // Сначала ищем живую запись (учится/зачислен) — признак StudentAr (ФР-10)
+    const active = students.find((s) => new StudentAr(s).isInProgress());
     if (active) return active;
 
-    // Если активной нет — возвращаем любую (advanced, not_advanced, abandoned)
-    const record = students.find(
-      (s) =>
-        s.status === 'advanced' ||
-        s.status === 'not_advanced' ||
-        s.status === 'abandoned',
-    );
+    // Если живой нет — любую терминальную (судьба разрешена)
+    const record = students.find((s) => new StudentAr(s).isTerminal());
 
     if (!record) {
       this.throwError(

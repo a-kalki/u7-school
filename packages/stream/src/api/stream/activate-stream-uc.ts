@@ -48,8 +48,8 @@ export class ActivateStreamUc extends StreamUseCase<ActivateStreamCmdMeta> {
       const studentAr = new StudentAr(entity);
       let changed = false;
 
-      // enrolled → active
-      if (entity.status === 'enrolled') {
+      // enrolled → active — признак агрегата StudentAr (ФР-10)
+      if (studentAr.isEnrolled()) {
         studentAr.activate();
         changed = true;
       }
