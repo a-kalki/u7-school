@@ -62,11 +62,11 @@
     - [x] Green: реализация
 - [x] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
 
-- [~] Task: Рефакторинг по ревью: домен вместо логики в UC; переиспользование схем entity
-    - [ ] Red: AR `authorshipOf`/`assertCanWrite`, DS `campaign-facts-ds`/`scope-reviews-ds`
-    - [ ] Green: реализация домена
-    - [ ] cmd-схемы — композиция из entity/shared (без переопределений)
-    - [ ] UC — только оркестрация; `ReviewRepo.findByCampaignAndAuthor`
+- [x] Task: Рефакторинг по ревью: домен вместо логики в UC; переиспользование схем entity `[a060804f]`
+    - [x] Red: AR `authorshipOf`/`assertCanWrite`, DS `campaign-facts-ds`/`scope-reviews-ds`
+    - [x] Green: реализация домена
+    - [x] cmd-схемы — композиция из entity/shared (без переопределений)
+    - [x] UC — только оркестрация; `ReviewRepo.findByCampaignAndAuthor`
 
 ## Фаза 5. Инфраструктура и сборка
 
