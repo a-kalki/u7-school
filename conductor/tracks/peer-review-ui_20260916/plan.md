@@ -1,7 +1,7 @@
 # План: UI отзывов (peer-review)
 
 > Спецификация: [spec.md](./spec.md). Тексты и экраны — [ui-spec.md](../../../apps/u7-bot/src/controllers/peer-review/ui-spec.md).
-> **Предусловие:** завершён трек [peer-review-campaign_20260918](../peer-review-campaign_20260918/plan.md).
+> **Предусловие:** завершён трек [peer-review-campaign_20260918](../../archive/peer-review-campaign_20260918/plan.md).
 
 ## Фаза 1. Хелпер пагинации (core + nav-tree)
 

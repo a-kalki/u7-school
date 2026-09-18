@@ -3,8 +3,8 @@
 Порядок миграции bot-ui: 1 → 1.1 → 2 → (3 ∥ 4) → 5 → 6. Декомпозиция — в [bot-ui-session-architecture.md](./roadmap/bot-ui-session-architecture.md), §9.
 
 
-- [~] **Track: Кампании судьбы студента (peer-review v4)** — персональные кампании (`subjectId`, триггеры `student.completed`/`student.abandoned`, ментор — соавтор в кампании субъекта), мультисобытийная подписка ER в core, ER вместо UC создания, 4-значная проекция исходов, пользовательские UC, фасад, json-репо, bootstrap. Поглощает фазы 4–6 трека peer-review-domain
-*Link: [./tracks/peer-review-campaign_20260918/](./tracks/peer-review-campaign_20260918/)*
+- [x] **Track: Кампании судьбы студента (peer-review v4)** — персональные кампании (`subjectId`, триггеры `student.completed`/`student.abandoned`, ментор — соавтор в кампании субъекта), мультисобытийная подписка ER в core, ER вместо UC создания, 4-значная проекция исходов, пользовательские UC, фасад, json-репо, сборка. Завершён, итоги — в [summary](./archive/peer-review-campaign_20260918/summary.md)
+*Link: [./archive/peer-review-campaign_20260918/](./archive/peer-review-campaign_20260918/)*
 
 ---
 

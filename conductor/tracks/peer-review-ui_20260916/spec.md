@@ -1,6 +1,6 @@
 # Спецификация: UI отзывов (peer-review)
 
-> Трек 2 из двух. **Зависит от трека** [peer-review-campaign_20260918](../peer-review-campaign_20260918/spec.md)
+> Трек 2 из двух. **Зависит от трека** [peer-review-campaign_20260918](../../archive/peer-review-campaign_20260918/spec.md)
 > (домен v4, UC, фасад, событие `student-campaign.created`).
 > Экраны и тексты — утверждённая спека [ui-spec.md](../../../apps/u7-bot/src/controllers/peer-review/ui-spec.md)
 > (S01–S07); она — источник истины по текстам, кнопкам и условиям видимости.
