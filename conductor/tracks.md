@@ -2,23 +2,8 @@
 
 Порядок миграции bot-ui: 1 → 1.1 → 2 → (3 ∥ 4) → 5 → 6. Декомпозиция — в [bot-ui-session-architecture.md](./roadmap/bot-ui-session-architecture.md), §9.
 
----
 
-- [x] **Track: Персистентность сессий и shortIds — диалоги переживают перезапуск сервиса** (завершён 2026-09-15, принят владельцем)
-*Link: [./archive/bot-ui-session-persist_20260905/](./archive/bot-ui-session-persist_20260905/)*
----
-
-- [x] **Track: Статусы и признаки студента — единый API** — зона stream: категории исходов, признаки («не начал», «покинул сам», «снят ментором», «прошёл»/«не прошёл»); клиенты не разбирают состояние сами. Схема хранения не меняется (завершён 2026-09-16, принят владельцем)
-*Link: [./archive/student-status_20260916/](./archive/student-status_20260916/)*
-
----
-
-- [x] **Track: Домен и API отзывов (peer-review)** — событие `stream.completed`, инвариант терминальности, домен peer-review v1 (завершён 2026-09-18 поглощением: концепция v4 — кампания как окно судьбы студента; зона stream — фазы 1–2 — принята владельцем и в силе)
-*Link: [./archive/peer-review-domain_20260916/](./archive/peer-review-domain_20260916/)*
-
----
-
-- [ ] **Track: Кампании судьбы студента (peer-review v4)** — персональные кампании (`subjectId`, триггеры `student.completed`/`student.abandoned`, ментор — соавтор в кампании субъекта), мультисобытийная подписка ER в core, ER вместо UC создания, 4-значная проекция исходов, пользовательские UC, фасад, json-репо, bootstrap. Поглощает фазы 4–6 трека peer-review-domain
+- [~] **Track: Кампании судьбы студента (peer-review v4)** — персональные кампании (`subjectId`, триггеры `student.completed`/`student.abandoned`, ментор — соавтор в кампании субъекта), мультисобытийная подписка ER в core, ER вместо UC создания, 4-значная проекция исходов, пользовательские UC, фасад, json-репо, bootstrap. Поглощает фазы 4–6 трека peer-review-domain
 *Link: [./tracks/peer-review-campaign_20260918/](./tracks/peer-review-campaign_20260918/)*
 
 ---
