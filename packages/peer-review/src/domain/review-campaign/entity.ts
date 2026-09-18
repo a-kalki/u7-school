@@ -1,6 +1,6 @@
 import type { ArMeta } from '@u7-scl/core/domain';
 import * as v from 'valibot';
-import type { CampaignCreatedEvent } from './events';
+import type { StudentCampaignCreatedEvent } from './events';
 
 /** Роль участника кампании: студент потока или его ментор. */
 export const CampaignRoleSchema = v.picklist(
@@ -10,9 +10,9 @@ export const CampaignRoleSchema = v.picklist(
 
 export type CampaignRole = v.InferOutput<typeof CampaignRoleSchema>;
 
-/** Статус участника при окончании модуля. */
+/** Исход участника-студента — проекция статуса на момент события субъекта. */
 export const ParticipantOutcomeSchema = v.picklist(
-  ['completed', 'dropped', 'never_started'],
+  ['completed', 'in_progress', 'dropped', 'never_started'],
   'Недопустимый исход участника кампании',
 );
 
@@ -34,26 +34,28 @@ export type CampaignParticipant = v.InferOutput<
 
 /** Контекст кампании — дискриминант payload. Сейчас только завершение потока. */
 export const CampaignContextSchema = v.picklist(
-  ['stream_completed'],
+  ['stream_ended'],
   'Недопустимый контекст кампании',
 );
 
 export type CampaignContext = v.InferOutput<typeof CampaignContextSchema>;
 
 /** Специфика скоупа завершённого потока — «чистый случай», без доп. данных. */
-export const StreamCompletedPayloadSchema = v.object({});
+export const StreamEndedPayloadSchema = v.object({});
 
-export type StreamCompletedPayload = v.InferOutput<
-  typeof StreamCompletedPayloadSchema
->;
+export type StreamEndedPayload = v.InferOutput<typeof StreamEndedPayloadSchema>;
 
-/** Кампания контекста stream_completed: каркас + пустой payload. */
-export const StreamCompletedCampaignSchema = v.object({
+/**
+ * Кампания контекста stream_ended: каркас + пустой payload.
+ * `subjectId` — студент, чьё событие открыло окно судьбы (ФР-2).
+ */
+export const StreamEndedCampaignSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID кампании')),
-  context: v.literal('stream_completed'),
-  scopeId: v.pipe(
+  context: v.literal('stream_ended'),
+  scopeId: v.pipe(v.string(), v.uuid('scopeId кампании должен быть UUID')),
+  subjectId: v.pipe(
     v.string(),
-    v.uuid('scopeId кампании должен быть UUID (для потока — streamId)'),
+    v.uuid('subjectId кампании должен быть UUID'),
   ),
   createdAt: v.pipe(
     v.string(),
@@ -65,18 +67,18 @@ export const StreamCompletedCampaignSchema = v.object({
     v.isoDateTime('Некорректный формат даты закрытия окна'),
   ),
   participants: v.array(CampaignParticipantSchema),
-  payload: StreamCompletedPayloadSchema,
+  payload: StreamEndedPayloadSchema,
 });
 
-export type StreamCompletedCampaign = v.InferOutput<
-  typeof StreamCompletedCampaignSchema
+export type StreamEndedCampaign = v.InferOutput<
+  typeof StreamEndedCampaignSchema
 >;
 
 /**
  * Схема кампании — вариантный тип по `context`
  */
 export const ReviewCampaignSchema = v.variant('context', [
-  StreamCompletedCampaignSchema,
+  StreamEndedCampaignSchema,
 ]);
 
 export type ReviewCampaign = v.InferOutput<typeof ReviewCampaignSchema>;
@@ -86,5 +88,5 @@ export interface ReviewCampaignArMeta extends ArMeta {
   name: 'ReviewCampaign';
   label: 'Кампания отзывов';
   state: ReviewCampaign;
-  events: CampaignCreatedEvent;
+  events: StudentCampaignCreatedEvent;
 }

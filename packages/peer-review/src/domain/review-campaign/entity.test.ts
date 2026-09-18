@@ -10,6 +10,7 @@ import {
 const UUIDS = {
   campaign: '11111111-1111-4111-8111-111111111111',
   scope: '22222222-2222-4222-8222-222222222222',
+  subject: '77777777-7777-4777-8777-777777777777',
   user1: '33333333-3333-4333-8333-333333333333',
   user2: '44444444-4444-4444-8444-444444444444',
 };
@@ -26,8 +27,9 @@ function participant(overrides: Record<string, unknown> = {}) {
 function campaign(overrides: Record<string, unknown> = {}) {
   return {
     uuid: UUIDS.campaign,
-    context: 'stream_completed',
+    context: 'stream_ended',
     scopeId: UUIDS.scope,
+    subjectId: UUIDS.subject,
     createdAt: '2026-09-20T10:00',
     expiresAt: '2026-09-27T10:00',
     participants: [participant()],
@@ -48,8 +50,11 @@ describe('CampaignRoleSchema', () => {
 });
 
 describe('ParticipantOutcomeSchema', () => {
-  test('принимает три исхода-проекции', () => {
+  test('принимает четыре исхода-проекции (ФР-2: + in_progress)', () => {
     expect(v.safeParse(ParticipantOutcomeSchema, 'completed').success).toBe(
+      true,
+    );
+    expect(v.safeParse(ParticipantOutcomeSchema, 'in_progress').success).toBe(
       true,
     );
     expect(v.safeParse(ParticipantOutcomeSchema, 'dropped').success).toBe(true);
@@ -72,6 +77,14 @@ describe('ParticipantOutcomeSchema', () => {
 describe('CampaignParticipantSchema', () => {
   test('валидный студент с исходом', () => {
     const result = v.safeParse(CampaignParticipantSchema, participant());
+    expect(result.success).toBe(true);
+  });
+
+  test('студент «ещё учился» (in_progress) — валиден', () => {
+    const result = v.safeParse(
+      CampaignParticipantSchema,
+      participant({ outcome: 'in_progress' }),
+    );
     expect(result.success).toBe(true);
   });
 
@@ -101,9 +114,19 @@ describe('CampaignParticipantSchema', () => {
 });
 
 describe('ReviewCampaignSchema', () => {
-  test('валидная кампания stream_completed', () => {
+  test('валидная кампания stream_ended с субъектом (ФР-2)', () => {
     const result = v.safeParse(ReviewCampaignSchema, campaign());
     expect(result.success).toBe(true);
+  });
+
+  test('subjectId обязателен и должен быть UUID', () => {
+    expect(
+      v.safeParse(ReviewCampaignSchema, campaign({ subjectId: 'x' })).success,
+    ).toBe(false);
+    expect(
+      v.safeParse(ReviewCampaignSchema, { ...campaign(), subjectId: undefined })
+        .success,
+    ).toBe(false);
   });
 
   test('каркас: uuid/scopeId/окно/участники обязательны', () => {
@@ -134,6 +157,15 @@ describe('ReviewCampaignSchema', () => {
     ).toBe(false);
   });
 
+  test('старый контекст stream_completed больше не валиден (ФР-2)', () => {
+    expect(
+      v.safeParse(
+        ReviewCampaignSchema,
+        campaign({ context: 'stream_completed' }),
+      ).success,
+    ).toBe(false);
+  });
+
   test('неизвестный контекст отклоняется', () => {
     expect(
       v.safeParse(ReviewCampaignSchema, campaign({ context: 'exit' })).success,
@@ -151,13 +183,13 @@ describe('ReviewCampaignSchema', () => {
     ).toBe(false);
   });
 
-  test('несколько участников сохраняются в снапшоте', () => {
+  test('несколько участников сохраняются в снапшоте (вкл. in_progress)', () => {
     const result = v.safeParse(
       ReviewCampaignSchema,
       campaign({
         participants: [
-          participant(),
-          participant({ userId: UUIDS.user2, outcome: 'dropped' }),
+          participant({ userId: UUIDS.subject }),
+          participant({ userId: UUIDS.user2, outcome: 'in_progress' }),
           participant({
             userId: UUIDS.scope,
             role: 'mentor',
