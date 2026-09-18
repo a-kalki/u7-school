@@ -32,7 +32,7 @@
     - [x] Green: реализация
 - [x] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md) `[01f5594]`
 
-## Фаза 3. API: ER создания студенческих кампаний
+## Фаза 3. API: ER создания студенческих кампаний `[checkpoint: 7e05702]`
 
 - [x] Task: Контракт `ReviewCampaignRepo` — `findBySubject(scopeId, subjectId)` (идемпотентность ER), `findActiveBySubject(userId)`, `findActiveByMentor(userId)`, `save` `[$SHA]`
     - [x] Green: интерфейс
@@ -41,7 +41,7 @@
     - [x] Green: реализация
 - [x] Task: Удаление `create-campaign-uc`, `stream-completed-er`, `create-campaign-cmd.ts` (команды/меты); `module.ts` — `useCases: []`, `reactions: [CreateStudentCampaignEr]`; `PeerReviewUcMetas` `[1846ea1]`
     - [x] Green: чистка + прогон
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) `[7e05702]`
 
 ## Фаза 4. API: пользовательские UC и фасад
 
