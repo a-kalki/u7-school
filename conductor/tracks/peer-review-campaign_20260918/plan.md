@@ -78,8 +78,8 @@
     - [ ] Green: реализация
 - [x] Task: `peer-review-bootstrap` (подписка ER) + регистрация модуля в `create-api-app.ts` `[e265d60]`
     - [x] Green: сборка + smoke
-- [ ] Task: Интеграционный тест вертикали: `student.completed` → ER → кампания → отзыв → чтение
-    - [ ] Red/Green
+- [x] Task: Интеграционный тест вертикали: `student.completed` → ER → кампания → отзыв → чтение `[f3ea036]`
+    - [x] Red/Green
 - [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md)
 
 ## Фаза 6. Финал трека
