@@ -70,11 +70,15 @@ export abstract class ApiModule<
 
     for (const er of this.reactions) {
       er.init(this.resolve);
-      this.reactionsUnsubscribes.push(
-        this.resolve.eventBus.subscribe(er.getEventName(), (event) =>
-          er.handle(event),
-        ),
-      );
+      // Мультисобытийная подписка: реакция подписывается на каждое
+      // имя из своего eventNames.
+      for (const eventName of er.getEventNames()) {
+        this.reactionsUnsubscribes.push(
+          this.resolve.eventBus.subscribe(eventName, (event) =>
+            er.handle(event),
+          ),
+        );
+      }
     }
 
     for (const job of this.jobs) {

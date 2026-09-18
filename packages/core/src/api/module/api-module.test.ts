@@ -222,7 +222,7 @@ interface TestErMeta extends ErMeta<TestEvent> {
 class TestEr extends EventReaction<TestErMeta, TestResolve> {
   protected readonly erName = 'record-test' as const;
   protected readonly erLabel = 'Записать тест';
-  protected readonly eventName = 'test.event' as const;
+  protected readonly eventNames = ['test.event'] as const;
 
   handled: TestEvent[] = [];
 
@@ -253,52 +253,55 @@ class TestReactionsModule extends ApiModule<
   }
 }
 
-describe('ApiModule.reactions (авто-подписка)', () => {
-  function makeResolveWithSubscribingBus(): {
-    resolve: TestResolve;
-    subscriptions: Array<{
-      eventName: string;
-      handler: (e: DomainEvent) => Promise<void>;
-    }>;
-  } {
-    const subscriptions: Array<{
-      eventName: string;
-      handler: (e: DomainEvent) => Promise<void>;
-    }> = [];
-    const eb = {
-      publish: mock(() => {}),
-      subscribe: mock(
-        (eventName: string, handler: (e: DomainEvent) => Promise<void>) => {
-          const entry = { eventName, handler };
-          subscriptions.push(entry);
-          return () => {
-            const idx = subscriptions.indexOf(entry);
-            if (idx >= 0) subscriptions.splice(idx, 1);
-          };
-        },
-      ),
-    };
-    const resolve: TestResolve = {
-      value: 'resolved',
-      eventBus: eb,
-      appResolver: {
-        eventBus: eb,
-        logger: {
-          debug: mock(() => {}),
-          info: mock(() => {}),
-          warn: mock(() => {}),
-          error: mock(() => {}),
-          setLogLevel: mock(() => {}),
-          getLogLevel: mock(() => LogLevel.DEBUG),
-          setSourceLevel: mock(() => {}),
-        },
-        mode: 'test',
+/**
+ * Хелпер: резолвер с подписывающей шиной (общий для тестов авто-подписки).
+ */
+function makeResolveWithSubscribingBus(): {
+  resolve: TestResolve;
+  subscriptions: Array<{
+    eventName: string;
+    handler: (e: DomainEvent) => Promise<void>;
+  }>;
+} {
+  const subscriptions: Array<{
+    eventName: string;
+    handler: (e: DomainEvent) => Promise<void>;
+  }> = [];
+  const eb = {
+    publish: mock(() => {}),
+    subscribe: mock(
+      (eventName: string, handler: (e: DomainEvent) => Promise<void>) => {
+        const entry = { eventName, handler };
+        subscriptions.push(entry);
+        return () => {
+          const idx = subscriptions.indexOf(entry);
+          if (idx >= 0) subscriptions.splice(idx, 1);
+        };
       },
-    };
-    return { resolve, subscriptions };
-  }
+    ),
+  };
+  const resolve: TestResolve = {
+    value: 'resolved',
+    eventBus: eb,
+    appResolver: {
+      eventBus: eb,
+      logger: {
+        debug: mock(() => {}),
+        info: mock(() => {}),
+        warn: mock(() => {}),
+        error: mock(() => {}),
+        setLogLevel: mock(() => {}),
+        getLogLevel: mock(() => LogLevel.DEBUG),
+        setSourceLevel: mock(() => {}),
+      },
+      mode: 'test',
+    },
+  };
+  return { resolve, subscriptions };
+}
 
-  test('init() подписывает реакции на их eventName', () => {
+describe('ApiModule.reactions (авто-подписка)', () => {
+  test('init() подписывает реакции на их eventNames', () => {
     const { resolve, subscriptions } = makeResolveWithSubscribingBus();
     const module = new TestReactionsModule(resolve);
     module.init();
@@ -335,5 +338,90 @@ describe('ApiModule.reactions (авто-подписка)', () => {
     const module = new TestModule(resolve);
     module.init();
     expect(module.hasCommand('test-cmd')).toBe(true);
+  });
+});
+
+// ══ Мультисобытийная реакция для тестов авто-подписки ══
+
+interface MultiEventA extends DomainEvent {
+  eventName: 'multi.a';
+  payload: { tag: 'a' };
+}
+
+interface MultiEventB extends DomainEvent {
+  eventName: 'multi.b';
+  payload: { tag: 'b' };
+}
+
+interface MultiErMeta extends ErMeta<MultiEventA | MultiEventB> {
+  erName: 'multi-er';
+}
+
+class MultiEr extends EventReaction<MultiErMeta, TestResolve> {
+  protected readonly erName = 'multi-er' as const;
+  protected readonly erLabel = 'Мультисобытийная реакция';
+  protected readonly eventNames = ['multi.a', 'multi.b'] as const;
+
+  handled: Array<MultiEventA | MultiEventB> = [];
+
+  async handle(event: MultiEventA | MultiEventB): Promise<void> {
+    this.handled.push(event);
+  }
+}
+
+class MultiErModule extends ApiModule<
+  TestReactionsModuleMeta,
+  TestResolve,
+  TestActor
+> {
+  readonly name = 'TestReactionsModule';
+  readonly useCases = [new TestUseCase()];
+  readonly reactions = [new MultiEr()];
+  readonly jobs = [];
+
+  constructor(resolve: TestResolve) {
+    super(resolve);
+    this.init();
+  }
+}
+
+describe('ApiModule.reactions (мультисобытийная подписка)', () => {
+  test('init() подписывает реакцию на каждое имя юниона', () => {
+    const { resolve, subscriptions } = makeResolveWithSubscribingBus();
+    const module = new MultiErModule(resolve);
+    module.init();
+
+    expect(subscriptions).toHaveLength(2);
+    expect(subscriptions.map((s) => s.eventName).sort()).toEqual([
+      'multi.a',
+      'multi.b',
+    ]);
+  });
+
+  test('событие каждого имени доходит до handle реакции', async () => {
+    const { resolve, subscriptions } = makeResolveWithSubscribingBus();
+    const module = new MultiErModule(resolve);
+    module.init();
+
+    const er = module.reactions[0] as MultiEr;
+
+    for (const name of ['multi.a', 'multi.b'] as const) {
+      const handler = subscriptions.find((s) => s.eventName === name)?.handler;
+      expect(handler).toBeDefined();
+      await handler?.({
+        eventId: `evt-${name}`,
+        eventName: name,
+        occurredAt: '2026-08-14T00:00:00.000Z',
+        aggregateName: 'Test',
+        aggregateId: 'agg-1',
+        payload: { tag: name.split('.')[1] as 'a' | 'b' },
+      });
+    }
+
+    expect(er.handled).toHaveLength(2);
+    expect(er.handled.map((e) => e.eventName).sort()).toEqual([
+      'multi.a',
+      'multi.b',
+    ]);
   });
 });

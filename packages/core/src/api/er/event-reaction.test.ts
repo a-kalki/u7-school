@@ -6,12 +6,22 @@ import { EventReaction } from './event-reaction';
 
 // ══ Тестовые типы ══
 
-interface TestEvent extends DomainEvent {
-  eventName: 'test.event';
-  payload: { foo: string };
+interface TestEventA extends DomainEvent {
+  eventName: 'test.a';
+  payload: { kind: 'a'; foo: string };
 }
 
-interface TestErMeta extends ErMeta<TestEvent> {
+interface TestEventB extends DomainEvent {
+  eventName: 'test.b';
+  payload: { kind: 'b'; bar: number };
+}
+
+/**
+ * Мета по точному юниону событий: без деградации до DomainEvent.
+ * TMeta['event'] = TestEventA | TestEventB,
+ * TMeta['event']['eventName'] = 'test.a' | 'test.b'.
+ */
+interface TestErMeta extends ErMeta<TestEventA | TestEventB> {
   erName: 'record-test';
 }
 
@@ -42,18 +52,39 @@ function makeResolve(): TestResolve {
 class TestEr extends EventReaction<TestErMeta, TestResolve> {
   protected readonly erName = 'record-test' as const;
   protected readonly erLabel = 'Записать тест';
-  protected readonly eventName = 'test.event' as const;
+  protected readonly eventNames = ['test.a', 'test.b'] as const;
 
-  handled: TestEvent[] = [];
+  handled: Array<TestEventA | TestEventB> = [];
+  /** Имена веток, прошедших сужение (для проверки exhaustive-контроля). */
+  narrowed: string[] = [];
 
-  async handle(event: TestEvent): Promise<void> {
+  async handle(event: TestEventA | TestEventB): Promise<void> {
     this.handled.push(event);
+    // Разбор юниона — сужение по дискриминанту eventName
+    // с exhaustive-веткой (never-контроль).
+    switch (event.eventName) {
+      case 'test.a': {
+        this.narrowed.push(`a:${event.payload.foo}`);
+        break;
+      }
+      case 'test.b': {
+        this.narrowed.push(`b:${event.payload.bar}`);
+        break;
+      }
+      default: {
+        // exhaustive-контроль: непокрытая ветка ломает компиляцию
+        const exhaustive: never = event;
+        this.narrowed.push(
+          `unknown:${String((exhaustive as { eventName: string }).eventName)}`,
+        );
+      }
+    }
   }
 }
 
 // ══ Тесты ══
 
-describe('EventReaction', () => {
+describe('EventReaction (мультисобытийная подписка)', () => {
   test('init сохраняет резолвер и делает его доступным', () => {
     const er = new TestEr();
     const resolve = makeResolve();
@@ -70,33 +101,56 @@ describe('EventReaction', () => {
     expect(er.getErName()).toBe('record-test');
   });
 
-  test('getEventName возвращает имя события', () => {
+  test('getEventNames возвращает все имена подписки', () => {
     const er = new TestEr();
     er.init(makeResolve());
 
-    expect(er.getEventName()).toBe('test.event');
+    expect(er.getEventNames()).toEqual(['test.a', 'test.b']);
   });
 
-  test('handle вызывается с событием', async () => {
+  test('handle вызывается с событием первого типа юниона', async () => {
     const er = new TestEr();
     er.init(makeResolve());
 
-    const event: TestEvent = {
+    const event: TestEventA = {
       eventId: 'evt-1',
-      eventName: 'test.event',
+      eventName: 'test.a',
       occurredAt: '2026-08-14T00:00:00.000Z',
       aggregateName: 'Test',
       aggregateId: 'agg-1',
-      payload: { foo: 'bar' },
+      payload: { kind: 'a', foo: 'bar' },
     };
 
     await er.handle(event);
 
     expect(er.handled).toHaveLength(1);
     expect(er.handled[0]?.eventId).toBe('evt-1');
+    // сужение по дискриминанту: доступ к полям payload ветки A
+    expect(er.narrowed).toEqual(['a:bar']);
   });
 
-  test('getDocType возвращает метаданные реакции', () => {
+  test('handle вызывается с событием второго типа юниона', async () => {
+    const er = new TestEr();
+    er.init(makeResolve());
+
+    const event: TestEventB = {
+      eventId: 'evt-2',
+      eventName: 'test.b',
+      occurredAt: '2026-08-14T00:00:00.000Z',
+      aggregateName: 'Test',
+      aggregateId: 'agg-2',
+      payload: { kind: 'b', bar: 42 },
+    };
+
+    await er.handle(event);
+
+    expect(er.handled).toHaveLength(1);
+    expect(er.handled[0]?.eventId).toBe('evt-2');
+    // сужение по дискриминанту: доступ к полям payload ветки B
+    expect(er.narrowed).toEqual(['b:42']);
+  });
+
+  test('getDocType возвращает метаданные со списком eventNames', () => {
     const er = new TestEr();
     er.init(makeResolve());
 
@@ -105,7 +159,7 @@ describe('EventReaction', () => {
     expect(doc).toEqual({
       erName: 'record-test',
       erLabel: 'Записать тест',
-      eventName: 'test.event',
+      eventNames: ['test.a', 'test.b'],
     });
   });
 });

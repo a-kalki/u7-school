@@ -13,7 +13,8 @@ export interface ErMeta<TEvent extends DomainEvent = DomainEvent> {
 export interface ErDocType {
   erName: ErMeta['erName'];
   erLabel: string;
-  eventName: string;
+  /** Имена всех событий, на которые подписана реакция. */
+  eventNames: string[];
 }
 
 /**
@@ -26,7 +27,15 @@ export abstract class EventReaction<
   TMeta extends ErMeta,
   TResolve extends ModuleResolver = ModuleResolver,
 > {
-  protected abstract readonly eventName: TMeta['event']['eventName'];
+  /**
+   * Имена всех событий, на которые реакция подписывается.
+   * Мультисобытийная подписка: `ErMeta` объявляется по точному юниону
+   * событий (`ErMeta<A | B>`), тогда тип здесь — юнион имён,
+   * а `handle(event: A | B)` сохраняет типизацию без деградации
+   * до `DomainEvent`. Разбор внутри `handle` — сужением по
+   * дискриминанту `eventName` с exhaustive-веткой.
+   */
+  protected abstract readonly eventNames: readonly TMeta['event']['eventName'][];
 
   protected abstract readonly erName: TMeta['erName'];
 
@@ -43,8 +52,9 @@ export abstract class EventReaction<
     return this.erName;
   }
 
-  getEventName(): TMeta['event']['eventName'] {
-    return this.eventName;
+  /** Имена всех событий подписки (для авто-подписки модуля). */
+  getEventNames(): readonly TMeta['event']['eventName'][] {
+    return this.eventNames;
   }
 
   /**
@@ -59,7 +69,7 @@ export abstract class EventReaction<
     return {
       erName: this.erName,
       erLabel: this.erLabel,
-      eventName: this.eventName,
+      eventNames: [...this.eventNames],
     };
   }
 }
