@@ -73,7 +73,7 @@
 - [x] Task: `review-campaign-json-repo` (ФР-9) — уникальность `(scopeId, subjectId)`, `findBySubject`, `findActiveBySubject`, `findActiveByMentor` `[678981a]`
     - [ ] Red: тесты репо
     - [ ] Green: реализация
-- [ ] Task: `review-json-repo` — уникальность пары, выборки по кампании/скоупу
+- [x] Task: `review-json-repo` — уникальность пары, выборки по кампании/скоупу `[a3b84d4]`
     - [ ] Red: тесты репо
     - [ ] Green: реализация
 - [ ] Task: `peer-review-bootstrap` (подписка ER) + регистрация модуля в `create-api-app.ts`
