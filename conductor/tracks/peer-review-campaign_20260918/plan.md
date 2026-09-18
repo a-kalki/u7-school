@@ -76,8 +76,8 @@
 - [x] Task: `review-json-repo` — уникальность пары, выборки по кампании/скоупу `[a3b84d4]`
     - [ ] Red: тесты репо
     - [ ] Green: реализация
-- [ ] Task: `peer-review-bootstrap` (подписка ER) + регистрация модуля в `create-api-app.ts`
-    - [ ] Green: сборка + smoke
+- [x] Task: `peer-review-bootstrap` (подписка ER) + регистрация модуля в `create-api-app.ts` `[e265d60]`
+    - [x] Green: сборка + smoke
 - [ ] Task: Интеграционный тест вертикали: `student.completed` → ER → кампания → отзыв → чтение
     - [ ] Red/Green
 - [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md)
