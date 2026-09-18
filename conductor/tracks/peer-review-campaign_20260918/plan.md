@@ -71,13 +71,14 @@
 ## Фаза 5. Инфраструктура и сборка
 
 - [x] Task: `review-campaign-json-repo` (ФР-9) — уникальность `(scopeId, subjectId)`, `findBySubject`, `findActiveBySubject`, `findActiveByMentor` `[678981a]`
-    - [ ] Red: тесты репо
-    - [ ] Green: реализация
+    - [x] Red: тесты репо
+    - [x] Green: реализация
 - [x] Task: `review-json-repo` — уникальность пары, выборки по кампании/скоупу `[a3b84d4]`
-    - [ ] Red: тесты репо
-    - [ ] Green: реализация
+    - [x] Red: тесты репо
+    - [x] Green: реализация
 - [x] Task: `peer-review-bootstrap` (подписка ER) + регистрация модуля в `create-api-app.ts` `[e265d60]`
     - [x] Green: сборка + smoke
+    - Отклонение по решению владельца: отдельная фабрика растворена в create-api-app.ts (инлайн-сборка, как у остальных модулей) `[2d8fac1]`
 - [x] Task: Интеграционный тест вертикали: `student.completed` → ER → кампания → отзыв → чтение `[f3ea036]`
     - [x] Red/Green
 - [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md)
