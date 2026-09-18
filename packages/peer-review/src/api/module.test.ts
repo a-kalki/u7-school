@@ -48,12 +48,18 @@ function makeResolve(members: StreamMembers | undefined) {
 }
 
 describe('PeerReviewApiModule (ФР-6)', () => {
-  test('пользовательских UC нет — кампании создаёт реакция', () => {
+  test('пять пользовательских UC (ФР-7) + ER реакции (ФР-6)', () => {
     const { resolve } = makeResolve(makeMembers());
     const mod = new PeerReviewApiModule(
       resolve as unknown as PeerReviewApiModuleResolver,
     );
-    expect(mod.useCases).toHaveLength(0);
+    expect(mod.useCases.map((uc) => uc.getUcName()).sort()).toEqual([
+      'create-review',
+      'get-campaign-recipients',
+      'get-my-campaigns',
+      'list-scope-facts',
+      'list-scope-reviews',
+    ]);
     expect(mod.reactions).toHaveLength(1);
     const [er] = mod.reactions;
     expect([...er!.getEventNames()].sort()).toEqual([

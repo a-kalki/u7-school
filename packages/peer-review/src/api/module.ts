@@ -5,14 +5,25 @@ import type {
   PeerReviewApiModuleResolver,
 } from '../domain/module';
 import { CreateStudentCampaignEr } from './er/create-student-campaign-er';
+import { CreateReviewUc } from './review/create-review-uc';
+import { ListScopeFactsUc } from './review/list-scope-facts-uc';
+import { ListScopeReviewsUc } from './review/list-scope-reviews-uc';
+import { GetCampaignRecipientsUc } from './review-campaign/get-campaign-recipients-uc';
+import { GetMyCampaignsUc } from './review-campaign/get-my-campaigns-uc';
 
 export class PeerReviewApiModule extends U7ApiModule<
   PeerReviewApiModuleMeta,
   PeerReviewApiModuleResolver
 > {
   readonly name = 'peer-review' as const;
-  /** Пользовательских UC нет — кампании создаёт ER из событий stream (ФР-6). */
-  readonly useCases = [];
+  /** Пользовательские UC (ФР-7) — кампании создаёт ER из событий stream (ФР-6). */
+  readonly useCases = [
+    new GetMyCampaignsUc(),
+    new GetCampaignRecipientsUc(),
+    new CreateReviewUc(),
+    new ListScopeReviewsUc(),
+    new ListScopeFactsUc(),
+  ];
   readonly reactions: EventReaction<ErMeta>[] = [new CreateStudentCampaignEr()];
   readonly jobs = [];
 }
