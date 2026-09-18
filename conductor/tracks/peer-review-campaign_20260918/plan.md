@@ -70,7 +70,7 @@
 
 ## Фаза 5. Инфраструктура и сборка
 
-- [ ] Task: `review-campaign-json-repo` (ФР-9) — уникальность `(scopeId, subjectId)`, `findBySubject`, `findActiveBySubject`, `findActiveByMentor`
+- [x] Task: `review-campaign-json-repo` (ФР-9) — уникальность `(scopeId, subjectId)`, `findBySubject`, `findActiveBySubject`, `findActiveByMentor` `[678981a]`
     - [ ] Red: тесты репо
     - [ ] Green: реализация
 - [ ] Task: `review-json-repo` — уникальность пары, выборки по кампании/скоупу
