@@ -5,6 +5,7 @@ import {
   StudentOutcomeCategory,
 } from '@u7-scl/stream/domain';
 import type { PeerReviewApiModuleResolver } from '#domain/module';
+import type { ReviewCampaign } from '#domain/review-campaign/entity';
 import type { ReviewCampaignRepo } from '#domain/review-campaign/repo';
 import { PeerReviewApiModule } from './module';
 
@@ -26,10 +27,10 @@ function makeMembers(): StreamMembers {
 /** Мок-резолвер: реальный UC работает против моков репо/фасада. */
 function makeResolve(members: StreamMembers | undefined) {
   const eventBus = new InProcEventBus();
-  const saved: unknown[] = [];
+  const saved: ReviewCampaign[] = [];
   const resolve = {
     reviewCampaignRepo: {
-      save: mock((c: unknown) => {
+      save: mock((c: ReviewCampaign) => {
         saved.push(c);
         return Promise.resolve();
       }),
@@ -58,5 +59,27 @@ describe('PeerReviewApiModule', () => {
 
     expect(saved).toHaveLength(1);
     expect(campaign?.scopeId).toBe(SCOPE);
+  });
+
+  test('init подписывает ER: stream.completed создаёт кампанию (ФР-7)', async () => {
+    const { resolve, saved } = makeResolve(makeMembers());
+    const mod = new PeerReviewApiModule(
+      resolve as unknown as PeerReviewApiModuleResolver,
+    );
+    mod.init();
+
+    resolve.eventBus.publish({
+      eventId: crypto.randomUUID(),
+      eventName: 'stream.completed',
+      occurredAt: '2026-09-20T10:00',
+      aggregateName: 'Stream',
+      aggregateId: SCOPE,
+      payload: { streamId: SCOPE },
+    });
+
+    // ER асинхронен (подписка шины) — ждём микротаск
+    await new Promise((r) => setTimeout(r, 0));
+    expect(saved).toHaveLength(1);
+    expect(saved[0]!.context).toBe('stream_completed');
   });
 });

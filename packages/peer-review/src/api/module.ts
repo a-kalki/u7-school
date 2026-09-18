@@ -4,6 +4,7 @@ import type {
   PeerReviewApiModuleMeta,
   PeerReviewApiModuleResolver,
 } from '../domain/module';
+import { StreamCompletedEr } from './er/stream-completed-er';
 import { CreateCampaignUc } from './review-campaign/create-campaign-uc';
 
 export class PeerReviewApiModule extends U7ApiModule<
@@ -11,7 +12,11 @@ export class PeerReviewApiModule extends U7ApiModule<
   PeerReviewApiModuleResolver
 > {
   readonly name = 'peer-review' as const;
-  readonly useCases = [new CreateCampaignUc()];
-  readonly reactions: EventReaction<ErMeta>[] = [];
+  /** UC и ER делят инстанс: реакция зовёт use-case с тем же резолвером */
+  private readonly createCampaignUc = new CreateCampaignUc();
+  readonly useCases = [this.createCampaignUc];
+  readonly reactions: EventReaction<ErMeta>[] = [
+    new StreamCompletedEr(this.createCampaignUc),
+  ];
   readonly jobs = [];
 }
