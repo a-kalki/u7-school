@@ -21,10 +21,10 @@
 - [x] Task: `entity` (ФР-2) — `subjectId`; контекст `stream_ended`; `ParticipantOutcome` + `in_progress`; инварианты (субъект в participants, исход субъекта терминален, userId уникальны) `[2afa72c]`
     - [ ] Red: тесты схем/валидации/инвариантов
     - [ ] Green: реализация
-- [ ] Task: Фабрика (ФР-3) — `createStudentCampaign({scopeId, subjectId, participants, now})`, `restore(state)`; окно 7 дней от now
+- [x] Task: Фабрика (ФР-3) — `createStudentCampaign({scopeId, subjectId, participants, now})`, `restore(state)`; окно 7 дней от now `[d4b98bb]`
     - [ ] Red: тесты (окно, restore, инварианты субъекта)
     - [ ] Green: реализация
-- [ ] Task: Событие `student-campaign.created` (ФР-5) — payload `{campaignId, context, scopeId, subjectId}`
+- [x] Task: Событие `student-campaign.created` (ФР-5) — payload `{campaignId, context, scopeId, subjectId}` `[d4b98bb]`
     - [ ] Red: тест события
     - [ ] Green: реализация
 - [ ] Task: `ReviewPolicy` (ФР-4) — субъект completed → ментор + соученики completed/in_progress; субъект dropped/never_started → только ментор; ментор → только субъект; запрет «о себе»
