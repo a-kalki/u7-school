@@ -13,12 +13,17 @@
 
 ---
 
-- [~] **Track: Домен и API отзывов (peer-review)** — событие `stream.completed`, инвариант терминальности при завершении потока, кампания `module_completed` (агрегаты ReviewCampaign/Review, фабрика по образцу анкет), политика адресатов, UC, ER, json-репо, фасад. Зависит от трека student-status
-*Link: [./tracks/peer-review-domain_20260916/](./tracks/peer-review-domain_20260916/)*
+- [x] **Track: Домен и API отзывов (peer-review)** — событие `stream.completed`, инвариант терминальности, домен peer-review v1 (завершён 2026-09-18 поглощением: концепция v4 — кампания как окно судьбы студента; зона stream — фазы 1–2 — принята владельцем и в силе)
+*Link: [./archive/peer-review-domain_20260916/](./archive/peer-review-domain_20260916/)*
 
 ---
 
-- [ ] **Track: UI отзывов (peer-review)** — экраны S01–S07 по утверждённой спеке, приглашения при завершении потока, хаб «Мои отзывы», кнопка карточки потока, хелпер пагинации в core + nav-tree. Зависит от трека peer-review-domain
+- [ ] **Track: Кампании судьбы студента (peer-review v4)** — персональные кампании (`subjectId`, триггеры `student.completed`/`student.abandoned`, ментор — соавтор в кампании субъекта), мультисобытийная подписка ER в core, ER вместо UC создания, 4-значная проекция исходов, пользовательские UC, фасад, json-репо, bootstrap. Поглощает фазы 4–6 трека peer-review-domain
+*Link: [./tracks/peer-review-campaign_20260918/](./tracks/peer-review-campaign_20260918/)*
+
+---
+
+- [ ] **Track: UI отзывов (peer-review)** — экраны S01–S07 по утверждённой спеке, приглашения по событиям судьбы студента (субъекту и ментору, `student-campaign.created`), хаб «Мои отзывы» с рендером по `myRole`, кнопка карточки потока, хелпер пагинации в core + nav-tree. Зависит от трека peer-review-campaign (спека обновлена под v4)
 *Link: [./tracks/peer-review-ui_20260916/](./tracks/peer-review-ui_20260916/)*
 
 ---

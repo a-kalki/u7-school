@@ -1,0 +1,84 @@
+# План: Кампании судьбы студента (peer-review v4)
+
+> Спецификация: [spec.md](./spec.md). Концепция: [peer-review-system](../../roadmap/metrics/peer-review-system.md) (v4).
+> Порядок фаз обязателен: 1 → 2 → 3 → 4 → 5 → 6. Внутри фазы — сверху вниз.
+> Поглощённый трек: [peer-review-domain_20260916](../../archive/peer-review-domain_20260916/plan.md)
+> (зона stream — фазы 1–2 — принята и в силе).
+
+## Фаза 1. Core: мультисобытийная подписка ER
+
+- [ ] Task: `EventReaction.eventNames` (ФР-1) — `ErMeta` по юниону событий, подписка модуля на каждое имя, `ErDocType.eventNames`; тест-реакция со сужением по `eventName` и exhaustive-веткой
+    - [ ] Red: тесты каркаса (подписка на оба имени, типизация юниона)
+    - [ ] Green: реализация (`eventName` → `eventNames`)
+- [ ] Task: Миграция 4 ER модуля `wish` на `eventNames` — поведение и тесты не меняются
+    - [ ] Green: миграция + прогон тестов wish
+- [ ] Task: Styleguide `event-reaction.md` — правило мультисобытийности (юнион в ErMeta, явный список имён, сужение по дискриминанту)
+    - [ ] Green: правка доки
+- [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
+
+## Фаза 2. Домен peer-review: каркас v4
+
+- [ ] Task: `entity` (ФР-2) — `subjectId`; контекст `stream_ended`; `ParticipantOutcome` + `in_progress`; инварианты (субъект в participants, исход субъекта терминален, userId уникальны)
+    - [ ] Red: тесты схем/валидации/инвариантов
+    - [ ] Green: реализация
+- [ ] Task: Фабрика (ФР-3) — `createStudentCampaign({scopeId, subjectId, participants, now})`, `restore(state)`; окно 7 дней от now
+    - [ ] Red: тесты (окно, restore, инварианты субъекта)
+    - [ ] Green: реализация
+- [ ] Task: Событие `student-campaign.created` (ФР-5) — payload `{campaignId, context, scopeId, subjectId}`
+    - [ ] Red: тест события
+    - [ ] Green: реализация
+- [ ] Task: `ReviewPolicy` (ФР-4) — субъект completed → ментор + соученики completed/in_progress; субъект dropped/never_started → только ментор; ментор → только субъект; запрет «о себе»
+    - [ ] Red: тесты всех веток
+    - [ ] Green: реализация
+- [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
+
+## Фаза 3. API: ER создания студенческих кампаний
+
+- [ ] Task: Контракт `ReviewCampaignRepo` — `findBySubject(scopeId, subjectId)` (идемпотентность ER), `findActiveBySubject(userId)`, `findActiveByMentor(userId)`, `save`
+    - [ ] Green: интерфейс
+- [ ] Task: `create-student-campaign-er` (ФР-6) — подписка `student.completed` + `student.abandoned` (юнион, сужение по `eventName` при необходимости): идемпотентность, фасад stream, проекция исходов (4 значения), фабрика, save, `eventBus.publish`
+    - [ ] Red: тесты ER (оба события, идемпотентность, снапшот, публикация)
+    - [ ] Green: реализация
+- [ ] Task: Удаление `create-campaign-uc`, `stream-completed-er`, `create-campaign-cmd.ts` (команды/меты); `module.ts` — `useCases: []`, `reactions: [CreateStudentCampaignEr]`; `PeerReviewUcMetas`
+    - [ ] Green: чистка + прогон
+- [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
+
+## Фаза 4. API: пользовательские UC и фасад
+
+- [ ] Task: `get-my-campaigns-uc` (ФР-7) — `myRole: 'subject' | 'mentor'` в ответе; `only_lives` (прогресс M/K, остаток дней) и `filter`
+    - [ ] Red: тесты (роли, живость, фильтры, прогресс)
+    - [ ] Green: реализация
+- [ ] Task: `get-campaign-recipients-uc` — роль автора из кампании, адресаты по политике, признак «мой отзыв есть»
+    - [ ] Red: тесты (ветки политики по ролям, ✅-признак)
+    - [ ] Green: реализация
+- [ ] Task: `create-review-uc` — `ensureLive`, адресат политикой, create/overwrite
+    - [ ] Red: тесты (создание, перезапись, истёкшее окно, чужой адресат, дубль пары)
+    - [ ] Green: реализация
+- [ ] Task: `list-scope-reviews-uc` — отзывы скоупа, группировка по адресатам, снапшоты
+    - [ ] Red: тесты
+    - [ ] Green: реализация
+- [ ] Task: Фасад (ФР-8) — `hasLiveCampaigns`, `hasReviews`, `listScopeFacts`; только делегирование (query-UC)
+    - [ ] Red: тесты фасада
+    - [ ] Green: реализация
+- [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
+
+## Фаза 5. Инфраструктура и сборка
+
+- [ ] Task: `review-campaign-json-repo` (ФР-9) — уникальность `(scopeId, subjectId)`, `findBySubject`, `findActiveBySubject`, `findActiveByMentor`
+    - [ ] Red: тесты репо
+    - [ ] Green: реализация
+- [ ] Task: `review-json-repo` — уникальность пары, выборки по кампании/скоупу
+    - [ ] Red: тесты репо
+    - [ ] Green: реализация
+- [ ] Task: `peer-review-bootstrap` (подписка ER) + регистрация модуля в `create-api-app.ts`
+    - [ ] Green: сборка + smoke
+- [ ] Task: Интеграционный тест вертикали: `student.completed` → ER → кампания → отзыв → чтение
+    - [ ] Red/Green
+- [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md)
+
+## Фаза 6. Финал трека
+
+- [ ] Task: Полный прогон `bun run check` (lint + tslint + тесты), триаж красных по workflow
+- [ ] Task: Обновить §5 [концепции](../../roadmap/metrics/peer-review-system.md) при отклонениях от плана
+- [ ] Task: Создать summary.md трека (решения, файлы, отклонения)
+- [ ] Task: Conductor - User Manual Verification 'Фаза 6' (Protocol in workflow.md)
