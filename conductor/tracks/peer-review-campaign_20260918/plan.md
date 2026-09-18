@@ -39,8 +39,8 @@
 - [x] Task: `create-student-campaign-er` (ФР-6) — подписка `student.completed` + `student.abandoned` (юнион, сужение по `eventName` при необходимости): идемпотентность, фасад stream, проекция исходов (4 значения), фабрика, save, `eventBus.publish` `[1d3362c]`
     - [x] Red: тесты ER (оба события, идемпотентность, снапшот, публикация)
     - [x] Green: реализация
-- [ ] Task: Удаление `create-campaign-uc`, `stream-completed-er`, `create-campaign-cmd.ts` (команды/меты); `module.ts` — `useCases: []`, `reactions: [CreateStudentCampaignEr]`; `PeerReviewUcMetas`
-    - [ ] Green: чистка + прогон
+- [x] Task: Удаление `create-campaign-uc`, `stream-completed-er`, `create-campaign-cmd.ts` (команды/меты); `module.ts` — `useCases: []`, `reactions: [CreateStudentCampaignEr]`; `PeerReviewUcMetas` `[1846ea1]`
+    - [x] Green: чистка + прогон
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
 
 ## Фаза 4. API: пользовательские UC и фасад
