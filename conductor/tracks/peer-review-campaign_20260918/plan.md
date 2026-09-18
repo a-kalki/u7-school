@@ -54,9 +54,9 @@
 - [x] Task: `create-review-uc` — `ensureLive`, адресат политикой, create/overwrite `[b2e53172]`
     - [x] Red: тесты (создание, перезапись, истёкшее окно, чужой адресат, дубль пары)
     - [x] Green: реализация
-- [ ] Task: `list-scope-reviews-uc` — отзывы скоупа, группировка по адресатам, снапшоты
-    - [ ] Red: тесты
-    - [ ] Green: реализация
+- [x] Task: `list-scope-reviews-uc` — отзывы скоупа, группировка по адресатам, снапшоты `[34d7b31]`
+    - [x] Red: тесты
+    - [x] Green: реализация
 - [ ] Task: Фасад (ФР-8) — `hasLiveCampaigns`, `hasReviews`, `listScopeFacts`; только делегирование (query-UC)
     - [ ] Red: тесты фасада
     - [ ] Green: реализация
