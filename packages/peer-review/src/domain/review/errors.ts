@@ -1,9 +1,8 @@
 import type { ConflictError, ValidationError } from '@u7-scl/core/domain';
 
 /**
- * Отзыв парой (кампания, автор, адресат) уже написан.
- * Уникальность пары — инвариант репозитория (ФР-4); новая версия —
- * только перезаписью `overwrite(text)` в пределах окна.
+ * Отзыв парой (кампания, автор, адресат) уже написан; новая версия —
+ * перезаписью `overwrite(text)` в пределах окна.
  */
 export type ReviewDuplicateUcError = ConflictError<
   'REVIEW_DUPLICATE',

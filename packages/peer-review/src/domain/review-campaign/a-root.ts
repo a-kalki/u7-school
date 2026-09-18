@@ -10,14 +10,7 @@ import type { ReviewWindowClosedUcError } from './errors';
 /** Миллисекунд в сутках — для расчёта остатка окна. */
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/**
- * Агрегат ReviewCampaign — кампания сбора отзывов.
- *
- * Каркас + типизированный payload по контексту (сейчас — stream_completed:
- * «студент завершил поток»). Участники — снапшот на момент создания,
- * состояние кампании после создания неизменно: живость читается из
- * сохранённого `expiresAt` (константа окна — `REVIEW_WINDOW_DAYS`).
- */
+/** Агрегат ReviewCampaign — кампания сбора отзывов. */
 export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
   static readonly arName = 'ReviewCampaign';
   static readonly arLabel = 'Кампания отзывов';
@@ -104,18 +97,14 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
 
   // ── Чтение: окно жизни ──
 
-  /**
-   * Истекло ли окно кампании на момент T.
-   * Граница включительно: в момент `expiresAt` окно уже закрыто.
-   */
+  /** Истекло ли окно кампании на момент T (граница включительно). */
   isExpired(now: Date): boolean {
     return now.getTime() >= new Date(this._state.expiresAt).getTime();
   }
 
   /**
    * Остаток окна в полных отображаемых днях (округление вверх):
-   * сразу после создания — 7, меньше суток до конца — 1, истёкшая — 0.
-   * Основа строки «Возможность открыта ещё {N} дн.» (экран S03).
+   * меньше суток до конца — 1, истёкшая — 0.
    */
   daysLeft(now: Date): number {
     if (this.isExpired(now)) return 0;
@@ -125,8 +114,6 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
 
   /**
    * Подтвердить живость окна: доменная ошибка «возможность закрыта»
-   * (REVIEW_WINDOW_CLOSED, conflict) — отличает «окно закрыто» от
-   * «кампания не найдена». UC не сравнивает даты сам (решение 7, ФР-6).
    */
   ensureLive(now: Date): void {
     if (this.isExpired(now)) {

@@ -10,17 +10,7 @@ export const CampaignRoleSchema = v.picklist(
 
 export type CampaignRole = v.InferOutput<typeof CampaignRoleSchema>;
 
-/**
- * Исход участника — собственная проекция модуля peer-review
- * (не копия статусов студента и их словаря меток):
- * - `completed` — «завершил»;
- * - `dropped` — «забросил»;
- * - `never_started` — «не начал».
- *
- * Вычисляется при создании кампании через API статусов и признаков
- * студента (трек student-status). Сырые статусы (`advanced`,
- * `abandoned`, …) в кампанию и UI не попадают.
- */
+/** Статус участника при окончании модуля. */
 export const ParticipantOutcomeSchema = v.picklist(
   ['completed', 'dropped', 'never_started'],
   'Недопустимый исход участника кампании',
@@ -83,8 +73,7 @@ export type StreamCompletedCampaign = v.InferOutput<
 >;
 
 /**
- * Схема кампании — вариантный тип по `context` (каркас + типизированный
- * payload). Новые контексты добавляются новыми членами варианта.
+ * Схема кампании — вариантный тип по `context`
  */
 export const ReviewCampaignSchema = v.variant('context', [
   StreamCompletedCampaignSchema,

@@ -8,15 +8,7 @@ import {
 } from './entity';
 import type { ReviewTextInvalidUcError } from './errors';
 
-/**
- * Агрегат Review — текстовый отзыв одного участника кампании о другом.
- *
- * Роли и исход автора — снапшоты кампании на момент написания (в UX
- * отображаются даже после изменений в потоке). Уникальность пары
- * (campaignId, authorId, recipientId) — инвариант репозитория (ФР-4),
- * перезапись текста — `overwrite(text)` в пределах окна (живость окна
- * гвардит UC через кампанию, не отзыв).
- */
+/** Агрегат Review — текстовый отзыв одного участника кампании о другом. */
 export class ReviewAr extends Aggregate<ReviewArMeta> {
   static readonly arName = 'Review';
   static readonly arLabel = 'Отзыв';
@@ -25,12 +17,7 @@ export class ReviewAr extends Aggregate<ReviewArMeta> {
     super(state, ReviewSchema);
   }
 
-  /**
-   * Создать отзыв: снапшоты ролей/исхода автора берутся из кампании
-   * (передаются данными — агрегат не создаёт агрегат). Время передаётся
-   * явно (решение 8). Адресацию (кому можно) проверяет ReviewPolicy —
-   * в UC.
-   */
+  /** Создать отзыв: снапшоты ролей/исхода автора — данные кампании. */
   static create(params: {
     campaignId: string;
     /** Автор — участник кампании (снапшот роли и исхода) */
@@ -58,16 +45,13 @@ export class ReviewAr extends Aggregate<ReviewArMeta> {
     return new ReviewAr(state);
   }
 
-  /**
-   * Перезаписать текст отзыва (в пределах окна кампании — живость
-   * гвардит UC). Валидирует длину: при отказе состояние не меняется.
-   */
+  /** Перезаписать текст (окно гвардит UC через кампанию). */
   overwrite(text: string): void {
     ReviewAr.#validateText(text);
     this.safeUpdate({ text });
   }
 
-  /** Валидация длины текста: доменная ошибка REVIEW_TEXT_INVALID. */
+  /** Валидация длины текста — REVIEW_TEXT_INVALID. */
   static #validateText(text: string): void {
     const length = text.length;
     if (length < REVIEW_TEXT_MIN_LENGTH || length > REVIEW_TEXT_MAX_LENGTH) {

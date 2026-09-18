@@ -41,8 +41,8 @@ describe('ReviewCampaignFactory.createStreamCompleted', () => {
     expect(ar.state.createdAt).toBe('2026-09-20T10:00');
   });
 
-  test(`expiresAt = createdAt + ${REVIEW_WINDOW_DAYS} дней (из константы окна)`, () => {
-    expect(REVIEW_WINDOW_DAYS).toBe(7);
+  test(`expiresAt = createdAt + ${REVIEW_WINDOW_DAYS.streamCompleted} дней (из константы окна)`, () => {
+    expect(REVIEW_WINDOW_DAYS.streamCompleted).toBe(7);
     const ar = ReviewCampaignFactory.createStreamCompleted(
       UUIDS.scope,
       participants(),
@@ -58,7 +58,7 @@ describe('ReviewCampaignFactory.createStreamCompleted', () => {
       NOW,
     );
     expect(ar.isExpired(NOW)).toBe(false);
-    expect(ar.daysLeft(NOW)).toBe(REVIEW_WINDOW_DAYS);
+    expect(ar.daysLeft(NOW)).toBe(REVIEW_WINDOW_DAYS.streamCompleted);
   });
 
   test('участники — снапшот без изменения порядка', () => {
@@ -114,7 +114,8 @@ describe('ReviewCampaignFactory.restore', () => {
     );
     const restored = ReviewCampaignFactory.restore(created.state);
     const almost = new Date(
-      NOW.getTime() + (REVIEW_WINDOW_DAYS - 1) * 24 * 60 * 60 * 1000,
+      NOW.getTime() +
+        (REVIEW_WINDOW_DAYS.streamCompleted - 1) * 24 * 60 * 60 * 1000,
     );
     expect(restored.isExpired(almost)).toBe(false);
     expect(restored.ensureLive(almost)).toBeUndefined();
