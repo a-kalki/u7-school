@@ -7,7 +7,7 @@
 
 ## Фаза 1. Core: мультисобытийная подписка ER
 
-- [ ] Task: `EventReaction.eventNames` (ФР-1) — `ErMeta` по юниону событий, подписка модуля на каждое имя, `ErDocType.eventNames`; тест-реакция со сужением по `eventName` и exhaustive-веткой
+- [x] Task: `EventReaction.eventNames` (ФР-1) — `ErMeta` по юниону событий, подписка модуля на каждое имя, `ErDocType.eventNames`; тест-реакция со сужением по `eventName` и exhaustive-веткой `[c67f76f]`
     - [ ] Red: тесты каркаса (подписка на оба имени, типизация юниона)
     - [ ] Green: реализация (`eventName` → `eventNames`)
 - [ ] Task: Миграция 4 ER модуля `wish` на `eventNames` — поведение и тесты не меняются
