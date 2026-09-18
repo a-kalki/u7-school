@@ -43,7 +43,7 @@
     - [x] Green: чистка + прогон
 - [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) `[7e05702]`
 
-## Фаза 4. API: пользовательские UC и фасад `[checkpoint: SHA7PENDING]`
+## Фаза 4. API: пользовательские UC и фасад `[checkpoint: c6d53013]`
 
 - [x] Task: `get-my-campaigns-uc` (ФР-7) — `myRole: 'subject' | 'mentor'` в ответе; `only_lives` (прогресс M/K, остаток дней) и `filter` `[3750649]`
     - [x] Red: тесты (роли, живость, фильтры, прогресс)
