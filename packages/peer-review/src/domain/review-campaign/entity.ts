@@ -47,7 +47,7 @@ export type StreamEndedPayload = v.InferOutput<typeof StreamEndedPayloadSchema>;
 
 /**
  * Кампания контекста stream_ended: каркас + пустой payload.
- * `subjectId` — студент, чьё событие открыло окно судьбы (ФР-2).
+ * `subjectId` — студент, чьё событие открыло окно судьбы.
  */
 export const StreamEndedCampaignSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID кампании')),
@@ -58,7 +58,9 @@ export const StreamEndedCampaignSchema = v.object({
     v.string(),
     v.isoDateTime('Некорректный формат даты создания'),
   ),
-  /** Вычисляется при создании из константы окна и сохраняется. */
+  updatedAt: v.optional(
+    v.pipe(v.string(), v.isoDateTime('Некорректный формат даты обновления')),
+  ),
   expiresAt: v.pipe(
     v.string(),
     v.isoDateTime('Некорректный формат даты закрытия окна'),

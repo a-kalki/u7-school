@@ -120,6 +120,15 @@ describe('ReviewCampaignFactory.restore', () => {
     expect(restored.context).toBe('stream_ended');
   });
 
+  test('updatedAt в состоянии не вырезается при restore (штамп базового Aggregate)', () => {
+    const created = ReviewCampaignFactory.createStudentCampaign(createInput());
+    const restored = ReviewCampaignFactory.restore({
+      ...created.state,
+      updatedAt: '2026-09-21T12:00',
+    });
+    expect(restored.state.updatedAt).toBe('2026-09-21T12:00');
+  });
+
   test('восстановленная кампания отвечает на вопросы окна', () => {
     const created = ReviewCampaignFactory.createStudentCampaign(createInput());
     const restored = ReviewCampaignFactory.restore(created.state);

@@ -13,11 +13,7 @@ export interface PeerReviewApiModuleResolver extends ModuleResolver {
   streamFacade: StreamFacade;
 }
 
-/**
- * Меты UC модуля peer-review.
- * Пользовательских UC пока нет — кампании создаёт ER (ФР-6);
- * пользовательские UC появятся с API-треком UI (ФР-7).
- */
+/** Меты UC модуля peer-review (пользовательских UC пока нет). */
 export type PeerReviewUcMetas = never;
 
 /**
