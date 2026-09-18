@@ -53,10 +53,7 @@ export const StreamEndedCampaignSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID кампании')),
   context: v.literal('stream_ended'),
   scopeId: v.pipe(v.string(), v.uuid('scopeId кампании должен быть UUID')),
-  subjectId: v.pipe(
-    v.string(),
-    v.uuid('subjectId кампании должен быть UUID'),
-  ),
+  subjectId: v.pipe(v.string(), v.uuid('subjectId кампании должен быть UUID')),
   createdAt: v.pipe(
     v.string(),
     v.isoDateTime('Некорректный формат даты создания'),

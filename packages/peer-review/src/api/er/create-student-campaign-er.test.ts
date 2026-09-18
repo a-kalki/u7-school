@@ -129,7 +129,7 @@ function makeEr(overrides: ResolveOverrides = {}) {
     },
     appResolver: {
       logger: {
-        warn: mock((msg: string) => warns.push(msg)),
+        warn: mock((_source: string, msg: string) => warns.push(msg)),
         error: mock(() => {}),
         info: mock(() => {}),
       },

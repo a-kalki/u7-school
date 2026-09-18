@@ -1,7 +1,6 @@
 import type { ModuleResolver } from '@u7-scl/core/domain';
 import type { StreamFacade } from '@u7-scl/stream/domain';
 import type { ReviewRepo } from './review/repo';
-import type { CreateCampaignCmdMeta } from './review-campaign/commands/create-campaign-cmd';
 import type { ReviewCampaignRepo } from './review-campaign/repo';
 
 /**
@@ -10,12 +9,16 @@ import type { ReviewCampaignRepo } from './review-campaign/repo';
 export interface PeerReviewApiModuleResolver extends ModuleResolver {
   reviewCampaignRepo: ReviewCampaignRepo;
   reviewRepo: ReviewRepo;
-  /** Сбор участников завершённого потока (ментор + студенты с исходами). */
+  /** Состав окружения субъекта окна (ментор + студенты с исходами). */
   streamFacade: StreamFacade;
 }
 
-/** Меты UC модуля peer-review. */
-export type PeerReviewUcMetas = CreateCampaignCmdMeta;
+/**
+ * Меты UC модуля peer-review.
+ * Пользовательских UC пока нет — кампании создаёт ER (ФР-6);
+ * пользовательские UC появятся с API-треком UI (ФР-7).
+ */
+export type PeerReviewUcMetas = never;
 
 /**
  * Метаданные API-модуля peer-review.

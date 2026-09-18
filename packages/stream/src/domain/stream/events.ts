@@ -21,9 +21,10 @@ export interface StreamCreatedEvent extends DomainEvent {
 /**
  * Событие завершения потока.
  *
- * Кладётся агрегатом Stream в complete(). Потребители:
- * ER peer-review (stream-completed-er) — создание кампании сбора отзывов
- * контекста stream_completed.
+ * Кладётся агрегатом Stream в complete(). Потребители: уведомления
+ * участников потока; peer-review кампании не ждёт этого события —
+ * окна создаются из событий судьбы студента (student.completed /
+ * student.abandoned) раньше закрытия потока.
  */
 export interface StreamCompletedEvent extends DomainEvent {
   eventName: 'stream.completed';

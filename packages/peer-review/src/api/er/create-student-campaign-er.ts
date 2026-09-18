@@ -44,7 +44,7 @@ export class CreateStudentCampaignEr extends EventReaction<
     'student.abandoned',
   ] as const;
 
-  protected async handle(
+  async handle(
     event: StudentCompletedEvent | StudentAbandonedEvent,
   ): Promise<void> {
     const scopeId = event.payload.streamId;
@@ -61,7 +61,9 @@ export class CreateStudentCampaignEr extends EventReaction<
     const members = await this.resolve.streamFacade.getMembers(scopeId);
     if (!members) {
       this.resolve.appResolver.logger.warn(
-        `[peer-review] ${this.erName}: состав потока ${scopeId} недоступен — кампания для субъекта ${subjectId} не создана`,
+        `peer-review:${this.erName}`,
+        'Состав потока недоступен — кампания не создана',
+        { scopeId, subjectId },
       );
       return;
     }
