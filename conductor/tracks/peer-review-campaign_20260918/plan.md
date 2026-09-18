@@ -34,8 +34,8 @@
 
 ## Фаза 3. API: ER создания студенческих кампаний
 
-- [ ] Task: Контракт `ReviewCampaignRepo` — `findBySubject(scopeId, subjectId)` (идемпотентность ER), `findActiveBySubject(userId)`, `findActiveByMentor(userId)`, `save`
-    - [ ] Green: интерфейс
+- [x] Task: Контракт `ReviewCampaignRepo` — `findBySubject(scopeId, subjectId)` (идемпотентность ER), `findActiveBySubject(userId)`, `findActiveByMentor(userId)`, `save` `[$SHA]`
+    - [x] Green: интерфейс
 - [ ] Task: `create-student-campaign-er` (ФР-6) — подписка `student.completed` + `student.abandoned` (юнион, сужение по `eventName` при необходимости): идемпотентность, фасад stream, проекция исходов (4 значения), фабрика, save, `eventBus.publish`
     - [ ] Red: тесты ER (оба события, идемпотентность, снапшот, публикация)
     - [ ] Green: реализация
