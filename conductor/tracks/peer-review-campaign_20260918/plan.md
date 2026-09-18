@@ -12,7 +12,7 @@
     - [ ] Green: реализация (`eventName` → `eventNames`)
 - [x] Task: Миграция 4 ER модуля `wish` на `eventNames` — поведение и тесты не меняются `[eb23c28]`
     - [ ] Green: миграция + прогон тестов wish
-- [ ] Task: Styleguide `event-reaction.md` — правило мультисобытийности (юнион в ErMeta, явный список имён, сужение по дискриминанту)
+- [x] Task: Styleguide `event-reaction.md` — правило мультисобытийности (юнион в ErMeta, явный список имён, сужение по дискриминанту) `[371e6bb]`
     - [ ] Green: правка доки
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
