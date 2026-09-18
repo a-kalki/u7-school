@@ -22,4 +22,7 @@ export interface ReviewCampaignRepo {
 
   /** Активные (не истёкшие) кампании, где пользователь — ментор. */
   findActiveByMentor(userId: string): Promise<ReviewCampaign[]>;
+
+  /** Кампания по uuid — UI приходит с campaignId. */
+  findById(uuid: string): Promise<ReviewCampaign | undefined>;
 }
