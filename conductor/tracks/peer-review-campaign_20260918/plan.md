@@ -27,9 +27,9 @@
 - [x] Task: Событие `student-campaign.created` (ФР-5) — payload `{campaignId, context, scopeId, subjectId}` `[d4b98bb]`
     - [x] Red: тест события
     - [x] Green: реализация
-- [ ] Task: `ReviewPolicy` (ФР-4) — субъект completed → ментор + соученики completed/in_progress; субъект dropped/never_started → только ментор; ментор → только субъект; запрет «о себе»
-    - [ ] Red: тесты всех веток
-    - [ ] Green: реализация
+- [x] Task: `ReviewPolicy` (ФР-4) — субъект completed → ментор + соученики completed/in_progress; субъект dropped/never_started → только ментор; ментор → только субъект; запрет «о себе» `[93e98e8]`
+    - [x] Red: тесты всех веток
+    - [x] Green: реализация
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
 ## Фаза 3. API: ER создания студенческих кампаний
