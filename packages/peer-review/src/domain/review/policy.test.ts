@@ -6,63 +6,89 @@ const UUIDS = {
   alice: '33333333-3333-4333-8333-333333333333',
   bob: '44444444-4444-4444-8444-444444444444',
   carol: '66666666-6666-4666-8666-666666666666',
+  dave: '88888888-8888-4888-8888-888888888888',
   mentor: '55555555-5555-4555-8555-555555555555',
 };
 
-/** Полный состав кампании: три студента с разными исходами + ментор. */
+/**
+ * Полный состав кампании: субъект завершает поток, окружение —
+ * «ещё учился», «забросил», «не начал» + ментор (ФР-2).
+ */
 function participants(): CampaignParticipant[] {
   return [
     { userId: UUIDS.alice, role: 'student', outcome: 'completed' },
-    { userId: UUIDS.bob, role: 'student', outcome: 'dropped' },
-    { userId: UUIDS.carol, role: 'student', outcome: 'never_started' },
+    { userId: UUIDS.bob, role: 'student', outcome: 'in_progress' },
+    { userId: UUIDS.carol, role: 'student', outcome: 'dropped' },
+    { userId: UUIDS.dave, role: 'student', outcome: 'never_started' },
     { userId: UUIDS.mentor, role: 'mentor' },
   ];
 }
 
+/** Субъект окна — alice (completed). */
+const SUBJECT_ID = UUIDS.alice;
+
 const byUser = (list: CampaignParticipant[]) => list.map((p) => p.userId);
 
 describe('ReviewPolicy.recipientsOf', () => {
-  test('автор «завершил» → все студенты кампании + ментор, без себя', () => {
+  test('субъект «завершил» → ментор + соученики completed/in_progress', () => {
     const author = participants()[0]!; // alice, completed
-    const recipients = ReviewPolicy.recipientsOf(author, participants());
-    expect(recipients).toHaveLength(3);
-    expect(byUser(recipients).sort()).toEqual(
-      [UUIDS.bob, UUIDS.carol, UUIDS.mentor].sort(),
+    const recipients = ReviewPolicy.recipientsOf(
+      author,
+      participants(),
+      SUBJECT_ID,
     );
+    expect(byUser(recipients).sort()).toEqual([UUIDS.bob, UUIDS.mentor].sort());
   });
 
-  test('автор «завершил» → адресаты-студенты любого исхода (и «забросил»)', () => {
+  test('субъект «завершил» → «забросившим» и «не начавшим» не пишем', () => {
     const author = participants()[0]!;
-    const recipients = ReviewPolicy.recipientsOf(author, participants());
-    const bob = recipients.find((p) => p.userId === UUIDS.bob);
-    expect(bob?.role).toBe('student');
-    expect(bob?.outcome).toBe('dropped');
-  });
-
-  test('автор «забросил» → только ментор', () => {
-    const author = participants()[1]!; // bob, dropped
-    const recipients = ReviewPolicy.recipientsOf(author, participants());
-    expect(byUser(recipients)).toEqual([UUIDS.mentor]);
-  });
-
-  test('автор «не начал» → только ментор', () => {
-    const author = participants()[2]!; // carol, never_started
-    const recipients = ReviewPolicy.recipientsOf(author, participants());
-    expect(byUser(recipients)).toEqual([UUIDS.mentor]);
-  });
-
-  test('автор-ментор → все студенты, без менторов', () => {
-    const author = participants()[3]!; // mentor
-    const recipients = ReviewPolicy.recipientsOf(author, participants());
-    expect(byUser(recipients).sort()).toEqual(
-      [UUIDS.alice, UUIDS.bob, UUIDS.carol].sort(),
+    const recipients = ReviewPolicy.recipientsOf(
+      author,
+      participants(),
+      SUBJECT_ID,
     );
-    expect(recipients.every((p) => p.role === 'student')).toBe(true);
+    const ids = byUser(recipients);
+    expect(ids).not.toContain(UUIDS.carol);
+    expect(ids).not.toContain(UUIDS.dave);
+  });
+
+  test('субъект «забросил» → только ментор', () => {
+    const author = participants()[2]!; // carol, dropped
+    const recipients = ReviewPolicy.recipientsOf(
+      author,
+      participants(),
+      SUBJECT_ID,
+    );
+    expect(byUser(recipients)).toEqual([UUIDS.mentor]);
+  });
+
+  test('субъект «не начал» → только ментор', () => {
+    const author = participants()[3]!; // dave, never_started
+    const recipients = ReviewPolicy.recipientsOf(
+      author,
+      participants(),
+      SUBJECT_ID,
+    );
+    expect(byUser(recipients)).toEqual([UUIDS.mentor]);
+  });
+
+  test('автор-ментор → только субъект окна (ФР-4)', () => {
+    const author = participants()[4]!; // mentor
+    const recipients = ReviewPolicy.recipientsOf(
+      author,
+      participants(),
+      SUBJECT_ID,
+    );
+    expect(byUser(recipients)).toEqual([UUIDS.alice]);
   });
 
   test('никогда — о себе: автора нет ни в одном списке адресатов', () => {
     for (const author of participants()) {
-      const recipients = ReviewPolicy.recipientsOf(author, participants());
+      const recipients = ReviewPolicy.recipientsOf(
+        author,
+        participants(),
+        SUBJECT_ID,
+      );
       expect(recipients.some((p) => p.userId === author.userId)).toBe(false);
     }
   });
@@ -73,32 +99,57 @@ describe('ReviewPolicy.recipientsOf', () => {
       role: 'student',
       outcome: 'completed',
     };
-    expect(ReviewPolicy.recipientsOf(stranger, participants())).toEqual([]);
+    expect(
+      ReviewPolicy.recipientsOf(stranger, participants(), SUBJECT_ID),
+    ).toEqual([]);
   });
 });
 
 describe('ReviewPolicy.canReview', () => {
-  const alice = participants()[0]!; // completed
-  const bob = participants()[1]!; // dropped
-  const carol = participants()[2]!;
-  const mentor = participants()[3]!;
+  const alice = participants()[0]!; // completed, субъект
+  const bob = participants()[1]!; // in_progress
+  const carol = participants()[2]!; // dropped
+  const dave = participants()[3]!; // never_started
+  const mentor = participants()[4]!;
 
   test('разрешённый адресат — true', () => {
-    expect(ReviewPolicy.canReview(alice, bob, participants())).toBe(true);
-    expect(ReviewPolicy.canReview(alice, mentor, participants())).toBe(true);
-    expect(ReviewPolicy.canReview(mentor, carol, participants())).toBe(true);
+    expect(ReviewPolicy.canReview(alice, bob, participants(), SUBJECT_ID)).toBe(
+      true,
+    );
+    expect(
+      ReviewPolicy.canReview(alice, mentor, participants(), SUBJECT_ID),
+    ).toBe(true);
+    // Ментор пишет только субъекту
+    expect(
+      ReviewPolicy.canReview(mentor, alice, participants(), SUBJECT_ID),
+    ).toBe(true);
   });
 
-  test('«забросившему» студенту-одногруппнику — false', () => {
-    // carol (never_started) может только ментору
-    expect(ReviewPolicy.canReview(carol, alice, participants())).toBe(false);
-    expect(ReviewPolicy.canReview(carol, bob, participants())).toBe(false);
-    expect(ReviewPolicy.canReview(carol, mentor, participants())).toBe(true);
+  test('«забросившему» и «не начавшему» соученику — false', () => {
+    expect(
+      ReviewPolicy.canReview(alice, carol, participants(), SUBJECT_ID),
+    ).toBe(false);
+    expect(
+      ReviewPolicy.canReview(alice, dave, participants(), SUBJECT_ID),
+    ).toBe(false);
+  });
+
+  test('ментору-автору доступны только субъект, не соученики', () => {
+    expect(
+      ReviewPolicy.canReview(mentor, bob, participants(), SUBJECT_ID),
+    ).toBe(false);
+    expect(
+      ReviewPolicy.canReview(mentor, carol, participants(), SUBJECT_ID),
+    ).toBe(false);
   });
 
   test('о себе — всегда false', () => {
-    expect(ReviewPolicy.canReview(alice, alice, participants())).toBe(false);
-    expect(ReviewPolicy.canReview(mentor, mentor, participants())).toBe(false);
+    expect(
+      ReviewPolicy.canReview(alice, alice, participants(), SUBJECT_ID),
+    ).toBe(false);
+    expect(
+      ReviewPolicy.canReview(mentor, mentor, participants(), SUBJECT_ID),
+    ).toBe(false);
   });
 
   test('посторонний (не участник кампании) — false', () => {
@@ -107,7 +158,11 @@ describe('ReviewPolicy.canReview', () => {
       role: 'student',
       outcome: 'completed',
     };
-    expect(ReviewPolicy.canReview(alice, stranger, participants())).toBe(false);
-    expect(ReviewPolicy.canReview(stranger, bob, participants())).toBe(false);
+    expect(
+      ReviewPolicy.canReview(alice, stranger, participants(), SUBJECT_ID),
+    ).toBe(false);
+    expect(
+      ReviewPolicy.canReview(stranger, bob, participants(), SUBJECT_ID),
+    ).toBe(false);
   });
 });
