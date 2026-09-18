@@ -119,10 +119,8 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
   }
 
   /**
-   * Зафиксировать факт создания кампании — событие student-campaign.created
-   * (ФР-5: payload campaignId, context, scopeId, subjectId — получатели
-   * приглашений UI: субъект и ментор).
-   * Вызывается фабрикой при конструировании; публикует UC после save.
+   * Зафиксировать факт создания кампании.
+   * Вызывается фабрикой при создании нового агрегата.
    */
   announceCreated(): void {
     this.addEvent({

@@ -3,14 +3,11 @@ import type { StudentOutcomeCategory } from './status';
 import type { Stream } from './stream/entity';
 
 /**
- * Факт участия студента в потоке — read-API студента без сырых статусов.
- * Для снапшотов кампаний peer-review (ФР-3 трека peer-review-domain).
+ * Факт участия студента в потоке.
  */
 export interface StreamMemberOutcome {
   userId: string;
-  /** Категория исхода студента (StudentAr.outcomeCategory). */
   outcomeCategory: StudentOutcomeCategory;
-  /** Признак «не начал»: нет ни одного завершённого шага (StudentAr.neverStarted). */
   neverStarted: boolean;
 }
 
@@ -29,8 +26,7 @@ export interface StreamFacade {
   getStream(streamId: string, actor?: User): Promise<Stream | undefined>;
 
   /**
-   * Состав потока с исходами студентов (read-API StudentAr, без сырых
-   * статусов). Поток не найден — undefined.
+   * Состав потока с исходами студентов. Поток не найден — undefined.
    */
   getMembers(streamId: string): Promise<StreamMembers | undefined>;
 }

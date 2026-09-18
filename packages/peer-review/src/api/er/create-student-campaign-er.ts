@@ -17,8 +17,7 @@ import type {
 import { ReviewCampaignFactory } from '#domain/review-campaign/review-campaign-factory';
 
 /**
- * Метаданные реакции создания студенческой кампании:
- * юнион событий судьбы студента (ФР-6).
+ * Метаданные реакции создания студенческой кампании
  */
 export interface CreateStudentCampaignErMeta
   extends ErMeta<StudentCompletedEvent | StudentAbandonedEvent> {}
@@ -26,10 +25,6 @@ export interface CreateStudentCampaignErMeta
 /**
  * ER «создать студенческую кампанию»: реакция на события судьбы
  * студента (student.completed / student.abandoned).
- *
- * Окно судьбы студента открывается событием субъекта; состав
- * собирается фасадом stream, исходы проецируются в 4 значения,
- * кампания сохраняется и её событие публикуется в шину.
  */
 export class CreateStudentCampaignEr extends EventReaction<
   CreateStudentCampaignErMeta,
@@ -38,7 +33,6 @@ export class CreateStudentCampaignEr extends EventReaction<
   protected readonly erName = 'create-student-campaign' as const;
   protected readonly erLabel = 'Создать студенческую кампанию' as const;
 
-  /** Мультисобытийная подписка: завершение или уход студента (ФР-6). */
   protected readonly eventNames = [
     'student.completed',
     'student.abandoned',
