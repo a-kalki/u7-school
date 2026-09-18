@@ -1,8 +1,9 @@
 import type { UcMeta } from '@u7-scl/core/api';
 import * as v from 'valibot';
+import { uuidField } from '../../shared/schema';
 
 export const ListScopeFactsCmdSchema = v.object({
-  scopeId: v.pipe(v.string(), v.uuid('Некорректный формат UUID скоупа')),
+  scopeId: uuidField('Некорректный формат UUID скоупа'),
 });
 
 export type ListScopeFactsCmd = v.InferOutput<typeof ListScopeFactsCmdSchema>;

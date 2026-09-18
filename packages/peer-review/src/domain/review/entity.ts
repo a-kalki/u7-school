@@ -4,6 +4,7 @@ import {
   CampaignRoleSchema,
   ParticipantOutcomeSchema,
 } from '../review-campaign/entity';
+import { isoMinuteField, uuidField } from '../shared/schema';
 
 /** Минимальная длина текста отзыва (символов). */
 export const REVIEW_TEXT_MIN_LENGTH = 10;
@@ -20,26 +21,18 @@ export const ReviewTextSchema = v.pipe(
 
 /** Схема сущности текстового отзыва. */
 export const ReviewSchema = v.object({
-  uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID отзыва')),
+  uuid: uuidField('Некорректный формат UUID отзыва'),
   /** Скоуп кампании — денормализация для выборок по скоупу (ФР-9). */
-  scopeId: v.pipe(v.string(), v.uuid('scopeId отзыва должен быть UUID')),
-  campaignId: v.pipe(v.string(), v.uuid('campaignId отзыва должен быть UUID')),
-  authorId: v.pipe(v.string(), v.uuid('authorId отзыва должен быть UUID')),
+  scopeId: uuidField('scopeId отзыва должен быть UUID'),
+  campaignId: uuidField('campaignId отзыва должен быть UUID'),
+  authorId: uuidField('authorId отзыва должен быть UUID'),
   authorRole: CampaignRoleSchema,
   authorOutcome: v.optional(ParticipantOutcomeSchema),
-  recipientId: v.pipe(
-    v.string(),
-    v.uuid('recipientId отзыва должен быть UUID'),
-  ),
+  recipientId: uuidField('recipientId отзыва должен быть UUID'),
   recipientRole: CampaignRoleSchema,
   text: ReviewTextSchema,
-  createdAt: v.pipe(
-    v.string(),
-    v.isoDateTime('Некорректный формат даты создания'),
-  ),
-  updatedAt: v.optional(
-    v.pipe(v.string(), v.isoDateTime('Некорректный формат даты обновления')),
-  ),
+  createdAt: isoMinuteField('Некорректный формат даты создания'),
+  updatedAt: v.optional(isoMinuteField('Некорректный формат даты обновления')),
 });
 
 export type Review = v.InferOutput<typeof ReviewSchema>;

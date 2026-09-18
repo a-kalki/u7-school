@@ -1,5 +1,6 @@
 import type { ArMeta } from '@u7-scl/core/domain';
 import * as v from 'valibot';
+import { isoMinuteField, uuidField } from '../shared/schema';
 import type { StudentCampaignCreatedEvent } from './events';
 
 /** Роль участника кампании: студент потока или его ментор. */
@@ -23,7 +24,7 @@ export type ParticipantOutcome = v.InferOutput<typeof ParticipantOutcomeSchema>;
  * Студент — с исходом-проекцией; ментор — отдельная роль, без исхода.
  */
 export const CampaignParticipantSchema = v.object({
-  userId: v.pipe(v.string(), v.uuid('userId участника должен быть UUID')),
+  userId: uuidField('userId участника должен быть UUID'),
   role: CampaignRoleSchema,
   outcome: v.optional(ParticipantOutcomeSchema),
 });
@@ -50,21 +51,13 @@ export type StreamEndedPayload = v.InferOutput<typeof StreamEndedPayloadSchema>;
  * `subjectId` — студент, чьё событие открыло окно судьбы.
  */
 export const StreamEndedCampaignSchema = v.object({
-  uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID кампании')),
+  uuid: uuidField('Некорректный формат UUID кампании'),
   context: v.literal('stream_ended'),
-  scopeId: v.pipe(v.string(), v.uuid('scopeId кампании должен быть UUID')),
-  subjectId: v.pipe(v.string(), v.uuid('subjectId кампании должен быть UUID')),
-  createdAt: v.pipe(
-    v.string(),
-    v.isoDateTime('Некорректный формат даты создания'),
-  ),
-  updatedAt: v.optional(
-    v.pipe(v.string(), v.isoDateTime('Некорректный формат даты обновления')),
-  ),
-  expiresAt: v.pipe(
-    v.string(),
-    v.isoDateTime('Некорректный формат даты закрытия окна'),
-  ),
+  scopeId: uuidField('scopeId кампании должен быть UUID'),
+  subjectId: uuidField('subjectId кампании должен быть UUID'),
+  createdAt: isoMinuteField('Некорректный формат даты создания'),
+  updatedAt: v.optional(isoMinuteField('Некорректный формат даты обновления')),
+  expiresAt: isoMinuteField('Некорректный формат даты закрытия окна'),
   participants: v.array(CampaignParticipantSchema),
   payload: StreamEndedPayloadSchema,
 });

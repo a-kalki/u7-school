@@ -1,7 +1,7 @@
 import { U7UseCase } from '@u7-scl/app/domain';
-import { errAccessDenied, errNotFound } from '@u7-scl/core/domain';
+import { errNotFound } from '@u7-scl/core/domain';
 import type { PeerReviewApiModuleResolver } from '#domain/module';
-import { ReviewPolicy } from '#domain/review/policy';
+import { CampaignFactsDs } from '#domain/review-campaign/campaign-facts-ds';
 import {
   CampaignRecipientsSchema,
   type GetCampaignRecipientsCmd,
@@ -9,14 +9,11 @@ import {
   GetCampaignRecipientsCmdSchema,
 } from '#domain/review-campaign/commands/get-campaign-recipients-cmd';
 import { ReviewCampaignFactory } from '#domain/review-campaign/review-campaign-factory';
-import type {
-  CampaignNotFoundUcError,
-  PeerReviewNotParticipantUcError,
-} from '../errors';
+import type { CampaignNotFoundUcError } from '../errors';
 
 /**
- * Адресаты отзыва в кампании: политика по роли/исходу автора (ФР-7).
- * Роль автора выводится из кампании; соученик пишет только в своём окне.
+ * Адресаты отзыва в кампании (ФР-7): роль и адресаты — AR/DS,
+ * UC добывает кампанию и отзывы автора и собирает ответ.
  */
 export class GetCampaignRecipientsUc extends U7UseCase<
   GetCampaignRecipientsCmdMeta,
@@ -49,46 +46,21 @@ export class GetCampaignRecipientsUc extends U7UseCase<
       );
     }
     const ar = ReviewCampaignFactory.restore(state);
-    const author = ar.findParticipant(command.authorId);
-    if (
-      !author ||
-      (!ar.isSubject(command.authorId) && author.role !== 'mentor')
-    ) {
-      this.throwError(
-        errAccessDenied<PeerReviewNotParticipantUcError>(
-          'PEER_REVIEW_NOT_PARTICIPANT',
-          'Автор не субъект окна и не ментор этой кампании',
-          {},
-        ) as GetCampaignRecipientsCmdMeta['errors'],
-      );
-    }
-
-    const recipients = ReviewPolicy.recipientsOf(
-      author,
-      ar.participants,
-      ar.subjectId,
+    const myReviews = await this.resolve.reviewRepo.findByCampaignAndAuthor(
+      command.campaignId,
+      command.authorId,
     );
-    const out = await Promise.all(
-      recipients.map(async (r) => {
-        const existing = await this.resolve.reviewRepo.findByPair(
-          command.campaignId,
-          command.authorId,
-          r.userId,
-        );
-        return {
-          userId: r.userId,
-          role: r.role,
-          ...(r.outcome ? { outcome: r.outcome } : {}),
-          hasMyReview: existing !== undefined,
-        };
-      }),
-    );
+    const { myRole } = ar.authorshipOf(command.authorId);
 
     return {
       campaignId: command.campaignId,
-      myRole: ar.isSubject(command.authorId) ? 'subject' : 'mentor',
+      myRole,
       daysLeft: ar.daysLeft(new Date()),
-      recipients: out,
+      recipients: CampaignFactsDs.recipientsWithMyReview(
+        ar,
+        command.authorId,
+        myReviews,
+      ),
     };
   }
 }

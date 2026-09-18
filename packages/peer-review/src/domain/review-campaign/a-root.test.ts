@@ -215,3 +215,73 @@ describe('ReviewCampaignAr: инварианты субъекта (ФР-2)', () 
     expect(() => new ReviewCampaignAr(broken)).toThrow();
   });
 });
+
+describe('ReviewCampaignAr: авторство (домен вместо UC)', () => {
+  test('authorshipOf субъекта completed — роль subject, адресаты соученик in_progress + ментор', () => {
+    const { myRole, recipients } = ar().authorshipOf(UUIDS.subject);
+    expect(myRole).toBe('subject');
+    expect(recipients.map((p) => p.userId)).toEqual([UUIDS.bob, UUIDS.mentor]);
+  });
+
+  test('authorshipOf ментора — роль mentor, единственный адресат субъект', () => {
+    const { myRole, recipients } = ar().authorshipOf(UUIDS.mentor);
+    expect(myRole).toBe('mentor');
+    expect(recipients.map((p) => p.userId)).toEqual([UUIDS.subject]);
+  });
+
+  test.each([
+    ['соученик-студент', UUIDS.alice],
+    ['посторонний', '29999999-9999-4999-8999-999999999999'],
+  ])(
+    'authorshipOf: %s — access-denied PEER_REVIEW_NOT_PARTICIPANT',
+    (_label, userId) => {
+      try {
+        ar().authorshipOf(userId);
+        expect.unreachable('должен бросить ошибку доступа');
+      } catch (e) {
+        expect(e).toBeInstanceOf(AppException);
+        const error = (e as AppException).error;
+        expect(error.name).toBe('PEER_REVIEW_NOT_PARTICIPANT');
+        expect(error.kind).toBe('access-denied');
+      }
+    },
+  );
+
+  test('assertCanWrite: субъект пишет ментору — возвращает снапшоты автора и адресата', () => {
+    const { author, recipient } = ar().assertCanWrite(
+      UUIDS.subject,
+      UUIDS.mentor,
+    );
+    expect(recipient).toEqual({ userId: UUIDS.mentor, role: 'mentor' });
+    expect(author.userId).toBe(UUIDS.subject);
+  });
+
+  test.each([
+    ['о себе', UUIDS.subject],
+    ['dropped-соученик', UUIDS.alice],
+    ['посторонний адресат', '29999999-9999-4999-8999-999999999999'],
+  ])(
+    'assertCanWrite: %s — conflict PEER_REVIEW_RECIPIENT_NOT_ALLOWED',
+    (_label, recipientId) => {
+      try {
+        ar().assertCanWrite(UUIDS.subject, recipientId);
+        expect.unreachable('должен бросить конфликт адресата');
+      } catch (e) {
+        expect(e).toBeInstanceOf(AppException);
+        const error = (e as AppException).error;
+        expect(error.name).toBe('PEER_REVIEW_RECIPIENT_NOT_ALLOWED');
+        expect(error.kind).toBe('conflict');
+      }
+    },
+  );
+
+  test('assertCanWrite: соученик-автор (не субъект/ментор) — access-denied', () => {
+    try {
+      ar().assertCanWrite(UUIDS.alice, UUIDS.mentor);
+      expect.unreachable('должен бросить ошибку доступа');
+    } catch (e) {
+      const error = (e as AppException).error;
+      expect(error.name).toBe('PEER_REVIEW_NOT_PARTICIPANT');
+    }
+  });
+});

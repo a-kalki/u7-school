@@ -1,8 +1,9 @@
 import { U7UseCase } from '@u7-scl/app/domain';
 import * as v from 'valibot';
 import type { PeerReviewApiModuleResolver } from '#domain/module';
-import { ReviewPolicy } from '#domain/review/policy';
 import type { ReviewCampaignAr } from '#domain/review-campaign/a-root';
+import type { MyCampaignCard } from '#domain/review-campaign/campaign-facts-ds';
+import { CampaignFactsDs } from '#domain/review-campaign/campaign-facts-ds';
 import {
   type GetMyCampaignsCmd,
   type GetMyCampaignsCmdMeta,
@@ -12,8 +13,8 @@ import {
 import { ReviewCampaignFactory } from '#domain/review-campaign/review-campaign-factory';
 
 /**
- * Кампании, где пользователь субъект окна или ментор (ФР-7).
- * Роль автора выводится из кампании раздельными выборками репо.
+ * Список «моих кампаний» (ФР-7): репо добывает, домен считает
+ * (роль — AR, прогресс M/K — DS), UC только фильтрует ввод и собирает.
  */
 export class GetMyCampaignsUc extends U7UseCase<
   GetMyCampaignsCmdMeta,
@@ -30,68 +31,50 @@ export class GetMyCampaignsUc extends U7UseCase<
   protected readonly inputSchema = GetMyCampaignsCmdSchema;
   protected readonly outputSchema = v.array(MyCampaignSchema);
 
-  async execute(
-    command: GetMyCampaignsCmd,
-  ): Promise<GetMyCampaignsCmdMeta['output']> {
+  async execute(command: GetMyCampaignsCmd): Promise<MyCampaignCard[]> {
     const now = new Date();
+    const repo = this.resolve.reviewCampaignRepo;
 
-    const items: Array<{
-      ar: ReviewCampaignAr;
-      myRole: 'subject' | 'mentor';
-    }> = [];
-    for (const state of await this.resolve.reviewCampaignRepo.findActiveBySubject(
-      command.userId,
-    )) {
-      items.push({
-        ar: ReviewCampaignFactory.restore(state),
-        myRole: 'subject',
-      });
+    const campaigns: ReviewCampaignAr[] = [];
+    for (const state of await repo.findActiveBySubject(command.userId)) {
+      campaigns.push(ReviewCampaignFactory.restore(state));
     }
-    for (const state of await this.resolve.reviewCampaignRepo.findActiveByMentor(
-      command.userId,
-    )) {
-      items.push({
-        ar: ReviewCampaignFactory.restore(state),
-        myRole: 'mentor',
-      });
+    for (const state of await repo.findActiveByMentor(command.userId)) {
+      campaigns.push(ReviewCampaignFactory.restore(state));
     }
 
-    let filtered = items;
+    let selected = campaigns;
     if (command.onlyLives) {
-      filtered = filtered.filter((i) => !i.ar.isExpired(now));
+      selected = selected.filter((ar) => !ar.isExpired(now));
     }
     const context = command.filter?.context;
     if (context) {
-      filtered = filtered.filter((i) => i.ar.context === context);
+      selected = selected.filter((ar) => ar.context === context);
     }
     const scopeId = command.filter?.scopeId;
     if (scopeId) {
-      filtered = filtered.filter((i) => i.ar.scopeId === scopeId);
+      selected = selected.filter((ar) => ar.scopeId === scopeId);
     }
 
-    const result: GetMyCampaignsCmdMeta['output'] = [];
-    for (const { ar, myRole } of filtered) {
-      const author = ar.findParticipant(command.userId);
-      if (!author) continue;
-      const recipients = ReviewPolicy.recipientsOf(
-        author,
-        ar.participants,
-        ar.subjectId,
-      );
-      const reviews = await this.resolve.reviewRepo.findByCampaign(
+    const result: MyCampaignCard[] = [];
+    for (const ar of selected) {
+      const myReviews = await this.resolve.reviewRepo.findByCampaignAndAuthor(
         ar.state.uuid,
+        command.userId,
       );
-      const done = reviews.filter((r) => r.authorId === command.userId).length;
-
+      const facts = CampaignFactsDs.myCampaignFacts(
+        ar,
+        command.userId,
+        myReviews,
+        now,
+      );
       result.push({
         campaignId: ar.state.uuid,
         context: ar.context,
         scopeId: ar.scopeId,
         subjectId: ar.subjectId,
-        myRole,
         expiresAt: ar.expiresAt,
-        daysLeft: ar.daysLeft(now),
-        progress: { done, total: recipients.length },
+        ...facts,
       });
     }
     return result;

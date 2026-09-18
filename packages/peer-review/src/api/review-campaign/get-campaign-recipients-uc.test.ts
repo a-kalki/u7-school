@@ -39,22 +39,22 @@ function makeResolve(
       findById: mock(() => Promise.resolve(campaign?.state)),
     } as unknown as ReviewCampaignRepo,
     reviewRepo: {
-      findByPair: mock((_, authorId: string, recipientId: string) =>
+      findByCampaignAndAuthor: mock((_cid: string, authorId: string) =>
         Promise.resolve(
-          pairs.some(([a, r]) => a === authorId && r === recipientId)
-            ? {
-                uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-000000000000',
-                scopeId: SCOPE,
-                campaignId: campaign?.state.uuid ?? CAMPAIGN_ID,
-                authorId,
-                authorRole: 'student',
-                authorOutcome: 'completed',
-                recipientId,
-                recipientRole: 'student',
-                text: 'Достаточно длинный текст отзыва.',
-                createdAt: '2026-09-20T11:00',
-              }
-            : undefined,
+          pairs
+            .filter(([a]) => a === authorId)
+            .map(([, r], i) => ({
+              uuid: `aaaaaaaa-aaaa-4aaa-8aaa-${String(i).padStart(12, '0')}`,
+              scopeId: SCOPE,
+              campaignId: campaign?.state.uuid ?? CAMPAIGN_ID,
+              authorId,
+              authorRole: 'student' as const,
+              authorOutcome: 'completed' as const,
+              recipientId: r,
+              recipientRole: 'student' as const,
+              text: 'Достаточно длинный текст отзыва.',
+              createdAt: '2026-09-20T11:00',
+            })),
         ),
       ),
     } as unknown as ReviewRepo,

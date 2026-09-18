@@ -1,12 +1,22 @@
-import { Aggregate, errConflict, throwError } from '@u7-scl/core/domain';
+import {
+  Aggregate,
+  errAccessDenied,
+  errConflict,
+  throwError,
+} from '@u7-scl/core/domain';
 import { isoNow } from '@u7-scl/core/shared';
+import { ReviewPolicy } from '../review/policy';
 import type {
   CampaignParticipant,
   ReviewCampaign,
   ReviewCampaignArMeta,
 } from './entity';
 import { ReviewCampaignSchema } from './entity';
-import type { ReviewWindowClosedUcError } from './errors';
+import type {
+  PeerReviewNotParticipantUcError,
+  RecipientNotAllowedUcError,
+  ReviewWindowClosedUcError,
+} from './errors';
 
 /** Миллисекунд в сутках — для расчёта остатка окна. */
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -167,6 +177,82 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
     if (this.isExpired(now)) return 0;
     const msLeft = new Date(this._state.expiresAt).getTime() - now.getTime();
     return Math.max(1, Math.ceil(msLeft / DAY_MS));
+  }
+
+  // ── Чтение: авторство (домен вместо UC) ──
+
+  /**
+   * Роль автора окна и его адресаты по политике.
+   * Автор обязан быть субъектом окна или ментором; соученик пишет
+   * только в собственном окне — доступ запрещён.
+   */
+  authorshipOf(userId: string): {
+    myRole: 'subject' | 'mentor';
+    recipients: CampaignParticipant[];
+  } {
+    const author = this.authorOf(userId);
+    const myRole =
+      author.userId === this._state.subjectId ? 'subject' : 'mentor';
+    return {
+      myRole,
+      recipients: ReviewPolicy.recipientsOf(
+        author,
+        this.participants,
+        this._state.subjectId,
+      ),
+    };
+  }
+
+  /** Автор окна; посторонний и соученик — не авторы (доступ запрещён). */
+  private authorOf(userId: string): CampaignParticipant {
+    const author = this._state.participants.find((p) => p.userId === userId);
+    if (
+      !author ||
+      (author.userId !== this._state.subjectId && author.role !== 'mentor')
+    ) {
+      throwError(
+        errAccessDenied<PeerReviewNotParticipantUcError>(
+          'PEER_REVIEW_NOT_PARTICIPANT',
+          'Автор не субъект окна и не ментор этой кампании',
+          {},
+        ),
+      );
+    }
+    return author;
+  }
+
+  /**
+   * Проверить право написать отзыв адресату; вернуть снапшоты
+   * автора и адресата (для создания отзыва).
+   * Ошибки домена: автор не субъект/ментор, адресат вне политики
+   * (включая запрет «о себе» и неучастника кампании).
+   */
+  assertCanWrite(
+    authorId: string,
+    recipientId: string,
+  ): { author: CampaignParticipant; recipient: CampaignParticipant } {
+    const author = this.authorOf(authorId);
+    const recipient = this._state.participants.find(
+      (p) => p.userId === recipientId,
+    );
+    if (
+      !recipient ||
+      !ReviewPolicy.canReview(
+        author,
+        recipient,
+        this._state.participants,
+        this._state.subjectId,
+      )
+    ) {
+      throwError(
+        errConflict<RecipientNotAllowedUcError>(
+          'PEER_REVIEW_RECIPIENT_NOT_ALLOWED',
+          'Адресат недоступен по политике для роли автора',
+          { campaignId: this._state.uuid, authorId, recipientId },
+        ),
+      );
+    }
+    return { author, recipient: structuredClone(recipient) };
   }
 
   /**

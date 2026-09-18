@@ -6,10 +6,12 @@ import {
   ListScopeReviewsCmdSchema,
   ScopeReviewsSchema,
 } from '#domain/review/commands/list-scope-reviews-cmd';
+import type { ScopeReviewsProjection } from '#domain/review/scope-reviews-ds';
+import { ScopeReviewsDs } from '#domain/review/scope-reviews-ds';
 
 /**
- * Отзывы скоупа, сгруппированные по адресатам (ФР-7).
- * Снапшоты ролей/исходов берутся из самих отзывов — кампания не читается.
+ * Отзывы скоупа, сгруппированные по адресатам (ФР-7):
+ * группировка — DS, UC добывает отзывы и добавляет scopeId.
  */
 export class ListScopeReviewsUc extends U7UseCase<
   ListScopeReviewsCmdMeta,
@@ -26,42 +28,11 @@ export class ListScopeReviewsUc extends U7UseCase<
   protected readonly inputSchema = ListScopeReviewsCmdSchema;
   protected readonly outputSchema = ScopeReviewsSchema;
 
-  async execute(
-    command: ListScopeReviewsCmd,
-  ): Promise<ListScopeReviewsCmdMeta['output']> {
+  async execute(command: ListScopeReviewsCmd): Promise<ScopeReviewsProjection> {
     const reviews = await this.resolve.reviewRepo.findByScope(command.scopeId);
-    const ordered = [...reviews].sort(
-      (a, b) =>
-        a.createdAt.localeCompare(b.createdAt) || a.uuid.localeCompare(b.uuid),
-    );
-
-    const groups = new Map<
-      string,
-      ListScopeReviewsCmdMeta['output']['recipients'][number]
-    >();
-    for (const r of ordered) {
-      let group = groups.get(r.recipientId);
-      if (!group) {
-        group = {
-          recipientId: r.recipientId,
-          recipientRole: r.recipientRole,
-          reviews: [],
-        };
-        groups.set(r.recipientId, group);
-      }
-      group.reviews.push({
-        reviewId: r.uuid,
-        authorId: r.authorId,
-        authorRole: r.authorRole,
-        ...(r.authorOutcome ? { authorOutcome: r.authorOutcome } : {}),
-        text: r.text,
-        createdAt: r.createdAt,
-      });
-    }
-
     return {
       scopeId: command.scopeId,
-      recipients: [...groups.values()],
+      recipients: ScopeReviewsDs.groupByRecipient(reviews),
     };
   }
 }

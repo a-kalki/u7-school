@@ -19,6 +19,12 @@ export interface ReviewRepo {
   /** Все отзывы кампании — прогресс M/K. */
   findByCampaign(campaignId: string): Promise<Review[]>;
 
+  /** Отзывы автора в кампании — прогресс M и ✅-признаки. */
+  findByCampaignAndAuthor(
+    campaignId: string,
+    authorId: string,
+  ): Promise<Review[]>;
+
   /** Все отзывы скоупа — чтение и факты фасада (ФР-8). */
   findByScope(scopeId: string): Promise<Review[]>;
 }

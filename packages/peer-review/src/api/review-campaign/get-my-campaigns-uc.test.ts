@@ -71,7 +71,9 @@ function makeResolve(
       ),
     } as unknown as ReviewCampaignRepo,
     reviewRepo: {
-      findByCampaign: mock(() => Promise.resolve(reviews)),
+      findByCampaignAndAuthor: mock((_cid: string, authorId: string) =>
+        Promise.resolve(reviews.filter((r) => r.authorId === authorId)),
+      ),
     } as unknown as ReviewRepo,
     streamFacade: {},
     appResolver: {
