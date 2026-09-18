@@ -16,7 +16,7 @@
     - [ ] Green: правка доки
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
-## Фаза 2. Домен peer-review: каркас v4
+## Фаза 2. Домен peer-review: каркас v4 `[checkpoint: 01f5594]`
 
 - [x] Task: `entity` (ФР-2) — `subjectId`; контекст `stream_ended`; `ParticipantOutcome` + `in_progress`; инварианты (субъект в participants, исход субъекта терминален, userId уникальны) `[2afa72c]`
     - [x] Red: тесты схем/валидации/инвариантов
@@ -30,7 +30,7 @@
 - [x] Task: `ReviewPolicy` (ФР-4) — субъект completed → ментор + соученики completed/in_progress; субъект dropped/never_started → только ментор; ментор → только субъект; запрет «о себе» `[93e98e8]`
     - [x] Red: тесты всех веток
     - [x] Green: реализация
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md) `[01f5594]`
 
 ## Фаза 3. API: ER создания студенческих кампаний
 
