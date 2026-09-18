@@ -3,6 +3,7 @@ import type { U7ApiApp } from '@u7-scl/app/domain';
 import type { AppMeta, AppResolver } from '@u7-scl/core/domain';
 import type { BotUiAppResolve } from '@u7-scl/core/ui';
 import type { CourseApiModuleMeta } from '@u7-scl/course/domain';
+import type { PeerReviewApiModuleMeta } from '@u7-scl/peer-review/domain';
 import type { QuestionnaireApiModuleMeta } from '@u7-scl/questionnaire/domain';
 import type { StreamApiModuleMeta } from '@u7-scl/stream';
 import type { UserApiModuleMeta, UserFacade } from '@u7-scl/user/domain';
@@ -32,7 +33,8 @@ export interface U7BotAppMeta extends AppMeta {
     | WishApiModuleMeta
     | StreamApiModuleMeta
     | CourseApiModuleMeta
-    | QuestionnaireApiModuleMeta;
+    | QuestionnaireApiModuleMeta
+    | PeerReviewApiModuleMeta;
 }
 
 /** Тип API-приложения U7 бота (актор закрыт на User в модуле app) */

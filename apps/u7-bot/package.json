@@ -16,6 +16,7 @@
     "@u7-scl/course": "workspace:*",
     "@u7-scl/questionnaire": "workspace:*",
     "@u7-scl/wish": "workspace:*",
+    "@u7-scl/peer-review": "workspace:*",
     "@u7-scl/stream": "workspace:*",
     "@u7-scl/user": "workspace:*",
     "@u7-scl/app": "workspace:*",

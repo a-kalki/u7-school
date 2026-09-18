@@ -16,6 +16,8 @@ import {
   ModuleJsonRepo,
   StepJsonRepo,
 } from '@u7-scl/course/infra';
+import type { PeerReviewInProcFacade } from '@u7-scl/peer-review';
+import { peerReviewBootstrap } from '@u7-scl/peer-review';
 import { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
 import type { QuestionnaireApiModuleResolver } from '@u7-scl/questionnaire/domain';
 import {
@@ -48,6 +50,7 @@ export interface ApiAppBundle {
   streamModule: StreamApiModule;
   courseModule: CourseApiModule;
   wishModule: WishApiModule;
+  peerReviewFacade: PeerReviewInProcFacade;
 }
 
 /**
@@ -150,6 +153,15 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
 
   const wishModule = new WishApiModule(wishResolver);
 
+  // ══ Peer-review: bootstrap-сборка (репозитории, модуль, фасад) ══
+  // Подписка ER на события судьбы студента — в module.init() (apiApp.init).
+  const { module: peerReviewModule, facade: peerReviewFacade } =
+    peerReviewBootstrap({
+      dbDir: config.dbDir,
+      streamFacade,
+      appResolver,
+    });
+
   // ══ ApiApp: модули ══
   const apiApp = new ApiApp<U7BotAppMeta>([
     userModule,
@@ -157,6 +169,7 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     streamModule,
     courseModule,
     questionnaireModule,
+    peerReviewModule,
   ]);
 
   // Планировщик — техническая зависимость: передаётся через init(),
@@ -177,5 +190,6 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     streamModule,
     courseModule,
     wishModule,
+    peerReviewFacade,
   };
 }

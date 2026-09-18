@@ -67,11 +67,7 @@ describe('ReviewJsonRepo', () => {
     await repo.save(review);
 
     expect(
-      await repo.findByPair(
-        UUIDS.campaignA,
-        UUIDS.author1,
-        UUIDS.recipient1,
-      ),
+      await repo.findByPair(UUIDS.campaignA, UUIDS.author1, UUIDS.recipient1),
     ).toEqual(review);
     expect(
       await repo.findByPair(UUIDS.campaignA, UUIDS.author1, UUIDS.recipient2),
