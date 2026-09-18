@@ -23,7 +23,7 @@ export class FulfillWishEr extends EventReaction<
   FulfillWishErMeta,
   WishApiModuleResolver
 > {
-  protected readonly eventName = 'student.enrolled' as const;
+  protected readonly eventNames = ['student.enrolled'] as const;
   protected readonly erName = 'fulfill-wish' as const;
   protected readonly erLabel = 'Отметить желание реализованным' as const;
 

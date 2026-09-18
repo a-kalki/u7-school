@@ -20,7 +20,7 @@ export class AbandonWishEr extends EventReaction<
   AbandonWishErMeta,
   WishApiModuleResolver
 > {
-  protected readonly eventName = 'questionnaire:abandon' as const;
+  protected readonly eventNames = ['questionnaire:abandon'] as const;
   protected readonly erName = 'abandon-wish' as const;
   protected readonly erLabel = 'Бросить желание при прерывании анкеты' as const;
 

@@ -26,7 +26,7 @@ export class ConfirmWishEr extends EventReaction<
   ConfirmWishErMeta,
   WishApiModuleResolver
 > {
-  protected readonly eventName = 'questionnaire:complete' as const;
+  protected readonly eventNames = ['questionnaire:complete'] as const;
   protected readonly erName = 'confirm-wish' as const;
   protected readonly erLabel =
     'Подтвердить желание по завершении анкеты' as const;

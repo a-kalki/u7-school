@@ -30,7 +30,7 @@ export class InviteWishersEr extends EventReaction<
   InviteWishersErMeta,
   WishApiModuleResolver
 > {
-  protected readonly eventName = 'stream.created' as const;
+  protected readonly eventNames = ['stream.created'] as const;
   protected readonly erName = 'invite-wishers' as const;
   protected readonly erLabel = 'Пригласить желающих при открытии набора';
 
