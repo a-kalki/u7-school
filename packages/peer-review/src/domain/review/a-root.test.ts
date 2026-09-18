@@ -5,6 +5,7 @@ import { ReviewAr } from './a-root';
 import { REVIEW_TEXT_MIN_LENGTH } from './entity';
 
 const UUIDS = {
+  scope: '11111111-1111-4111-8111-111111111111',
   campaign: '22222222-2222-4222-8222-222222222222',
   alice: '33333333-3333-4333-8333-333333333333',
   bob: '44444444-4444-4444-8444-444444444444',
@@ -34,6 +35,7 @@ function createReview(
 ) {
   return ReviewAr.create({
     campaignId: UUIDS.campaign,
+    scopeId: UUIDS.scope,
     author: overrides.author ?? AUTHOR_STUDENT,
     recipient: overrides.recipient ?? { userId: UUIDS.bob, role: 'student' },
     text: overrides.text ?? 'Крепкий одногруппник, надёжный в команде.',

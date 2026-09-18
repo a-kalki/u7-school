@@ -21,6 +21,8 @@ export const ReviewTextSchema = v.pipe(
 /** Схема сущности текстового отзыва. */
 export const ReviewSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID отзыва')),
+  /** Скоуп кампании — денормализация для выборок по скоупу (ФР-9). */
+  scopeId: v.pipe(v.string(), v.uuid('scopeId отзыва должен быть UUID')),
   campaignId: v.pipe(v.string(), v.uuid('campaignId отзыва должен быть UUID')),
   authorId: v.pipe(v.string(), v.uuid('authorId отзыва должен быть UUID')),
   authorRole: CampaignRoleSchema,

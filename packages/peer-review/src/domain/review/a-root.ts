@@ -20,6 +20,8 @@ export class ReviewAr extends Aggregate<ReviewArMeta> {
   /** Создать отзыв: снапшоты ролей/исхода автора — данные кампании. */
   static create(params: {
     campaignId: string;
+    /** Скоуп кампании — денормализация для выборок по скоупу (ФР-9). */
+    scopeId: string;
     /** Автор — участник кампании (снапшот роли и исхода) */
     author: CampaignParticipant;
     recipient: { userId: string; role: 'student' | 'mentor' };
@@ -32,6 +34,7 @@ export class ReviewAr extends Aggregate<ReviewArMeta> {
 
     const state: ReviewArMeta['state'] = {
       uuid: crypto.randomUUID(),
+      scopeId: params.scopeId,
       campaignId: params.campaignId,
       authorId: author.userId,
       authorRole: author.role,

@@ -8,6 +8,7 @@ import {
 
 const UUIDS = {
   review: '11111111-1111-4111-8111-111111111111',
+  scope: '12222222-2222-4222-8222-222222222222',
   campaign: '22222222-2222-4222-8222-222222222222',
   author: '33333333-3333-4333-8333-333333333333',
   recipient: '44444444-4444-4444-8444-444444444444',
@@ -16,6 +17,7 @@ const UUIDS = {
 function review(overrides: Record<string, unknown> = {}) {
   return {
     uuid: UUIDS.review,
+    scopeId: UUIDS.scope,
     campaignId: UUIDS.campaign,
     authorId: UUIDS.author,
     authorRole: 'student',
