@@ -57,7 +57,7 @@
 - [x] Task: `list-scope-reviews-uc` — отзывы скоупа, группировка по адресатам, снапшоты `[34d7b31]`
     - [x] Red: тесты
     - [x] Green: реализация
-- [ ] Task: Фасад (ФР-8) — `hasLiveCampaigns`, `hasReviews`, `listScopeFacts`; только делегирование (query-UC)
+- [x] Task: Фасад (ФР-8) — `hasLiveCampaigns`, `hasReviews`, `listScopeFacts`; только делегирование (query-UC) `[3856fe64]`
     - [ ] Red: тесты фасада
     - [ ] Green: реализация
 - [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
