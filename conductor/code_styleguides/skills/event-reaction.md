@@ -24,13 +24,65 @@ export interface RecordWishErMeta extends ErMeta<QuestionnaireCompletedEvent> {
 
 Ключевое: `ErMeta` выполнена дженериком (в отличие от `UcMeta`), что позволяет захватить типизированное имя события для подписки и само событие как входящий объект.
 
+### Мультисобытийная подписка (правило)
+
+Одна реакция может подписываться на **несколько событий**. Три составляющие:
+
+1. **Юнион в `ErMeta`.** Мета объявляется по точному юниону событий — без
+   деградации до `DomainEvent`:
+
+   ```typescript
+   export interface CreateStudentCampaignErMeta
+     extends ErMeta<StudentCompletedEvent | StudentAbandonedEvent> {
+     erName: 'create-student-campaign';
+   }
+   ```
+
+   Тогда `TMeta['event']['eventName']` — юнион имён, а `handle(event: A | B)`
+   сохраняет типизацию payload каждого события.
+
+2. **Явный список имён.** Реакция объявляет `eventNames` — массив всех имён
+   подписки (вместо одиночного `eventName`); `ApiModule.init()` подписывает
+   реакцию на **каждое** имя:
+
+   ```typescript
+   protected readonly eventNames = [
+     'student.completed',
+     'student.abandoned',
+   ] as const;
+   ```
+
+3. **Сужение по дискриминанту.** Если у событий своя логика — разбор внутри
+   `handle` сужением по `event.eventName` с exhaustive-веткой (`never`-контроль:
+   добавление нового события в юнион без новой ветки ломает компиляцию):
+
+   ```typescript
+   async handle(event: CreateStudentCampaignErMeta['event']): Promise<void> {
+     switch (event.eventName) {
+       case 'student.completed': {
+         break; // payload ветки completed
+       }
+       case 'student.abandoned': {
+         break; // payload ветки abandoned
+       }
+       default: {
+         const exhaustive: never = event;
+         throw new Error(`Неизвестное событие: ${(exhaustive as DomainEvent).eventName}`);
+       }
+     }
+   }
+   ```
+
+   Если логика общая (payload не разбирается по веткам) — сужение не нужно.
+
 ---
 
 ## 3. Тестирование
 
 - Тестируй функционал реакции: `handle`.
+- Для мультисобытийной реакции — сценарий на каждое имя подписки.
 - Мокай инфраструктуру (repo, фасад) — не импортируй её.
-- Авто-подписку тестируй на уровне `ApiModule`: что `init()` вызывает `subscribe` с правильным `eventName` и что подписанный обработчик вызывает `handle`.
+- Авто-подписку тестируй на уровне `ApiModule`: что `init()` вызывает `subscribe` с каждым `eventName` из `eventNames` и что подписанный обработчик вызывает `handle`.
 
 ## Регресс
 
