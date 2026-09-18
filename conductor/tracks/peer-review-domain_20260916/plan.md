@@ -57,9 +57,9 @@
 
 - [x] Task: `PeerReviewApiModuleMeta` + резолвер (зависимости: stream-фасад, репозитории, eventBus) (0b8568ce)
     - [x] Green: каркас модуля + регистрация резолвера
-- [~] Task: `create-campaign-uc` — сбор участников фасадом stream, проекция исходов — через API статусов студента (трек `student-status`), фабрика, save, событие `campaign.created` (ФР-6)
-    - [ ] Red: тесты (создание, expiresAt, снапшот с исходами, публикация события)
-    - [ ] Green: реализация
+- [x] Task: `create-campaign-uc` — сбор участников фасадом stream, проекция исходов — через API статусов студента (трек `student-status`), фабрика, save, событие `campaign.created` (ФР-6) (1e763d8a)
+    - [x] Red: тесты (создание, expiresAt, снапшот с исходами, публикация события)
+    - [x] Green: реализация
 - [ ] Task: `stream-completed-er` (ФР-7) — подписка на `stream.completed`, вызов UC, идемпотентность (повтор события — не дубль кампании)
     - [ ] Red: интеграционный тест ER
     - [ ] Green: реализация
