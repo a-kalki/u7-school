@@ -5,7 +5,7 @@
 > Поглощённый трек: [peer-review-domain_20260916](../../archive/peer-review-domain_20260916/plan.md)
 > (зона stream — фазы 1–2 — принята и в силе).
 
-## Фаза 1. Core: мультисобытийная подписка ER
+## Фаза 1. Core: мультисобытийная подписка ER `[checkpoint: 41aff1a]`
 
 - [x] Task: `EventReaction.eventNames` (ФР-1) — `ErMeta` по юниону событий, подписка модуля на каждое имя, `ErDocType.eventNames`; тест-реакция со сужением по `eventName` и exhaustive-веткой `[c67f76f]`
     - [ ] Red: тесты каркаса (подписка на оба имени, типизация юниона)
