@@ -60,9 +60,9 @@
 - [x] Task: `create-campaign-uc` — сбор участников фасадом stream, проекция исходов — через API статусов студента (трек `student-status`), фабрика, save, событие `campaign.created` (ФР-6) (1e763d8a)
     - [x] Red: тесты (создание, expiresAt, снапшот с исходами, публикация события)
     - [x] Green: реализация
-- [ ] Task: `stream-completed-er` (ФР-7) — подписка на `stream.completed`, вызов UC, идемпотентность (повтор события — не дубль кампании)
-    - [ ] Red: интеграционный тест ER
-    - [ ] Green: реализация
+- [x] Task: `stream-completed-er` (ФР-7) — подписка на `stream.completed`, вызов UC, идемпотентность (повтор события — не дубль кампании) (7009f56c)
+    - [x] Red: интеграционный тест ER
+    - [x] Green: реализация
 - [ ] Task: `get-my-campaigns-uc` — query-юнион ФР-6: `{ kind: 'only_lives' }` (хаб S02) и `{ kind: 'filter', live, context?, scopeId? }`; прогресс M/K и остаток дней для живых
     - [ ] Red: тесты (живая/истёкшая, фильтры, прогресс)
     - [ ] Green: реализация
