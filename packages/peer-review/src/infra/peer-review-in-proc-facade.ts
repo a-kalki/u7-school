@@ -15,11 +15,11 @@ export class PeerReviewInProcFacade implements PeerReviewFacade {
   }
 
   async hasLiveCampaigns(userId: string, actor?: User): Promise<boolean> {
-    const campaigns = (await this.#peerReviewApi.execute(
+    const campaigns = await this.#peerReviewApi.execute(
       'get-my-campaigns',
       { userId, onlyLives: true },
       actor,
-    )) as unknown[];
+    );
     return campaigns.length > 0;
   }
 
@@ -29,10 +29,10 @@ export class PeerReviewInProcFacade implements PeerReviewFacade {
   }
 
   async listScopeFacts(scopeId: string, actor?: User): Promise<ScopeFacts> {
-    return (await this.#peerReviewApi.execute(
+    return await this.#peerReviewApi.execute(
       'list-scope-facts',
       { scopeId },
       actor,
-    )) as ScopeFacts;
+    );
   }
 }

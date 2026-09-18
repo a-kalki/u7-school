@@ -43,7 +43,7 @@
     - [x] Green: чистка + прогон
 - [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) `[7e05702]`
 
-## Фаза 4. API: пользовательские UC и фасад
+## Фаза 4. API: пользовательские UC и фасад `[checkpoint: SHA7PENDING]`
 
 - [x] Task: `get-my-campaigns-uc` (ФР-7) — `myRole: 'subject' | 'mentor'` в ответе; `only_lives` (прогресс M/K, остаток дней) и `filter` `[3750649]`
     - [x] Red: тесты (роли, живость, фильтры, прогресс)
@@ -58,9 +58,9 @@
     - [x] Red: тесты
     - [x] Green: реализация
 - [x] Task: Фасад (ФР-8) — `hasLiveCampaigns`, `hasReviews`, `listScopeFacts`; только делегирование (query-UC) `[3856fe64]`
-    - [ ] Red: тесты фасада
-    - [ ] Green: реализация
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
+    - [x] Red: тесты фасада
+    - [x] Green: реализация
+- [x] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
 
 ## Фаза 5. Инфраструктура и сборка
 
