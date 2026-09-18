@@ -85,7 +85,7 @@
 
 ## Фаза 6. Финал трека
 
-- [ ] Task: Полный прогон `bun run check` (lint + tslint + тесты), триаж красных по workflow
-- [ ] Task: Обновить §5 [концепции](../../roadmap/metrics/peer-review-system.md) при отклонениях от плана
-- [ ] Task: Создать summary.md трека (решения, файлы, отклонения)
-- [ ] Task: Conductor - User Manual Verification 'Фаза 6' (Protocol in workflow.md)
+- [x] Task: Полный прогон `bun run check` (lint + tslint + тесты), триаж красных по workflow — 2309 pass, красных нет
+- [x] Task: Обновить §5 [концепции](../../roadmap/metrics/peer-review-system.md) при отклонениях от плана — статус 2b «завершён»
+- [x] Task: Создать summary.md трека (решения, файлы, отклонения)
+- [ ] Task: Conductor - User Manual Verification 'Фаза 6' — пропущена по прямому указанию владельца (закрыть и архивировать трек без ручной проверки)

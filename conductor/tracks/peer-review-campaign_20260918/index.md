@@ -2,6 +2,7 @@
 
 - [Спецификация](./spec.md)
 - [План реализации](./plan.md)
+- [Summary (итоги)](./summary.md)
 - [Метаданные](./metadata.json)
 - [Концепция peer-review (v4)](../../roadmap/metrics/peer-review-system.md)
 - [Поглощённый трек peer-review-domain (архив)](../../archive/peer-review-domain_20260916/index.md)
