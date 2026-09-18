@@ -16,8 +16,12 @@ import {
   ModuleJsonRepo,
   StepJsonRepo,
 } from '@u7-scl/course/infra';
-import type { PeerReviewInProcFacade } from '@u7-scl/peer-review';
-import { peerReviewBootstrap } from '@u7-scl/peer-review';
+import {
+  PeerReviewApiModule,
+  PeerReviewInProcFacade,
+  ReviewCampaignJsonRepo,
+  ReviewJsonRepo,
+} from '@u7-scl/peer-review';
 import { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
 import type { QuestionnaireApiModuleResolver } from '@u7-scl/questionnaire/domain';
 import {
@@ -153,14 +157,24 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
 
   const wishModule = new WishApiModule(wishResolver);
 
-  // ══ Peer-review: bootstrap-сборка (репозитории, модуль, фасад) ══
+  // ══ Peer-review: репозитории, модуль и фасад ══
   // Подписка ER на события судьбы студента — в module.init() (apiApp.init).
-  const { module: peerReviewModule, facade: peerReviewFacade } =
-    peerReviewBootstrap({
-      dbDir: config.dbDir,
-      streamFacade,
-      appResolver,
-    });
+  const reviewCampaignRepo = new ReviewCampaignJsonRepo(
+    `${config.dbDir}/peer-review/campaigns.json`,
+  );
+  const reviewRepo = new ReviewJsonRepo(
+    `${config.dbDir}/peer-review/reviews.json`,
+  );
+
+  const peerReviewModule = new PeerReviewApiModule({
+    reviewCampaignRepo,
+    reviewRepo,
+    streamFacade,
+    appResolver,
+    eventBus: appResolver.eventBus,
+  });
+
+  const peerReviewFacade = new PeerReviewInProcFacade(peerReviewModule);
 
   // ══ ApiApp: модули ══
   const apiApp = new ApiApp<U7BotAppMeta>([
