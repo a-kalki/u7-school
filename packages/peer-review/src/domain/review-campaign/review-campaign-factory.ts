@@ -40,7 +40,9 @@ export const ReviewCampaignFactory = {
       payload: {},
     };
 
-    return new ReviewCampaignAr(state);
+    const ar = new ReviewCampaignAr(state);
+    ar.announceCreated();
+    return ar;
   },
 
   /**

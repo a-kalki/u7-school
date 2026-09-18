@@ -133,4 +133,25 @@ describe('ReviewCampaignFactory.restore', () => {
     } as unknown as Parameters<typeof ReviewCampaignFactory.restore>[0];
     expect(() => ReviewCampaignFactory.restore(corrupted)).toThrow();
   });
+
+  test('кампания создаётся с событием campaign.created (ФР-6)', () => {
+    const ar = ReviewCampaignFactory.createStreamCompleted(
+      UUIDS.scope,
+      participants(),
+      NOW,
+    );
+
+    expect(ar.hasEvents()).toBe(true);
+    const [event] = ar.flushEvents();
+    expect(event).toBeDefined();
+    expect(event!.eventName).toBe('campaign.created');
+    expect(event!.aggregateName).toBe('ReviewCampaign');
+    expect(event!.aggregateId).toBe(ar.state.uuid);
+    expect(event!.payload).toEqual({
+      campaignId: ar.state.uuid,
+      context: 'stream_completed',
+      scopeId: UUIDS.scope,
+    });
+    expect(ar.hasEvents()).toBe(false); // flush — единожды
+  });
 });

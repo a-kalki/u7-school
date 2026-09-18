@@ -1,4 +1,5 @@
 import { Aggregate, errConflict, throwError } from '@u7-scl/core/domain';
+import { isoNow } from '@u7-scl/core/shared';
 import type {
   CampaignParticipant,
   ReviewCampaign,
@@ -79,6 +80,26 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
   /** Дата закрытия окна — вычислена при создании и сохранена. */
   get expiresAt(): string {
     return this._state.expiresAt;
+  }
+
+  /**
+   * Зафиксировать факт создания кампании — событие campaign.created
+   * (payload: campaignId, context, scopeId — основа приглашений UI-трека).
+   * Вызывается фабрикой при конструировании; публикует UC после save.
+   */
+  announceCreated(): void {
+    this.addEvent({
+      eventId: crypto.randomUUID(),
+      eventName: 'campaign.created',
+      occurredAt: isoNow(),
+      aggregateName: 'ReviewCampaign',
+      aggregateId: this._state.uuid,
+      payload: {
+        campaignId: this._state.uuid,
+        context: this._state.context,
+        scopeId: this._state.scopeId,
+      },
+    });
   }
 
   // ── Чтение: участники ──
