@@ -1,19 +1,25 @@
-import type { CampaignContext, ReviewCampaign } from './entity';
+import type { ReviewCampaign } from './entity';
 
 /**
  * Интерфейс репозитория кампаний отзывов.
+ * Ключ кампании — пара (scopeId, subjectId): окно судьбы студента (ФР-2).
  */
 export interface ReviewCampaignRepo {
-  /** Сохранить кампанию. */
+  /** Сохранить кампанию. Дубль (scopeId, subjectId) — ошибка репозитория. */
   save(campaign: ReviewCampaign): Promise<void>;
 
   /**
-   * Кампания контекста по скоупу (для stream_completed — streamId).
-   * Основа идемпотентности ER: повторное событие завершения потока
-   * не создаёт дубль кампании.
+   * Кампания окна по ключу (scopeId, subjectId).
+   * Основа идемпотентности ER: повтор события субъекта не создаёт дубль.
    */
-  findByScope(
-    context: CampaignContext,
+  findBySubject(
     scopeId: string,
+    subjectId: string,
   ): Promise<ReviewCampaign | undefined>;
+
+  /** Активные (не истёкшие) кампании, где пользователь — субъект окна. */
+  findActiveBySubject(userId: string): Promise<ReviewCampaign[]>;
+
+  /** Активные (не истёкшие) кампании, где пользователь — ментор. */
+  findActiveByMentor(userId: string): Promise<ReviewCampaign[]>;
 }
