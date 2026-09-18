@@ -36,9 +36,9 @@
 
 - [x] Task: Контракт `ReviewCampaignRepo` — `findBySubject(scopeId, subjectId)` (идемпотентность ER), `findActiveBySubject(userId)`, `findActiveByMentor(userId)`, `save` `[$SHA]`
     - [x] Green: интерфейс
-- [ ] Task: `create-student-campaign-er` (ФР-6) — подписка `student.completed` + `student.abandoned` (юнион, сужение по `eventName` при необходимости): идемпотентность, фасад stream, проекция исходов (4 значения), фабрика, save, `eventBus.publish`
-    - [ ] Red: тесты ER (оба события, идемпотентность, снапшот, публикация)
-    - [ ] Green: реализация
+- [x] Task: `create-student-campaign-er` (ФР-6) — подписка `student.completed` + `student.abandoned` (юнион, сужение по `eventName` при необходимости): идемпотентность, фасад stream, проекция исходов (4 значения), фабрика, save, `eventBus.publish` `[1d3362c]`
+    - [x] Red: тесты ER (оба события, идемпотентность, снапшот, публикация)
+    - [x] Green: реализация
 - [ ] Task: Удаление `create-campaign-uc`, `stream-completed-er`, `create-campaign-cmd.ts` (команды/меты); `module.ts` — `useCases: []`, `reactions: [CreateStudentCampaignEr]`; `PeerReviewUcMetas`
     - [ ] Green: чистка + прогон
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
