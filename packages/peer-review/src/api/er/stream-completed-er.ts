@@ -22,7 +22,7 @@ export class StreamCompletedEr extends EventReaction<
   StreamCompletedErMeta,
   PeerReviewApiModuleResolver
 > {
-  protected readonly eventName = 'stream.completed' as const;
+  protected readonly eventNames = ['stream.completed'] as const;
   protected readonly erName = 'stream-completed' as const;
   protected readonly erLabel = 'Создать кампанию отзывов при завершении потока';
 
