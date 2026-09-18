@@ -18,7 +18,7 @@
 
 ## Фаза 2. Домен peer-review: каркас v4
 
-- [ ] Task: `entity` (ФР-2) — `subjectId`; контекст `stream_ended`; `ParticipantOutcome` + `in_progress`; инварианты (субъект в participants, исход субъекта терминален, userId уникальны)
+- [x] Task: `entity` (ФР-2) — `subjectId`; контекст `stream_ended`; `ParticipantOutcome` + `in_progress`; инварианты (субъект в participants, исход субъекта терминален, userId уникальны) `[2afa72c]`
     - [ ] Red: тесты схем/валидации/инвариантов
     - [ ] Green: реализация
 - [ ] Task: Фабрика (ФР-3) — `createStudentCampaign({scopeId, subjectId, participants, now})`, `restore(state)`; окно 7 дней от now
