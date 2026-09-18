@@ -1,6 +1,6 @@
 /**
- * Длительность окна сбора отзывов кампании `stream_completed` (дней).
+ * Длительность окна сбора отзывов кампании `stream_ended` (дней).
  */
 export const REVIEW_WINDOW_DAYS = {
-  streamCompleted: 7,
+  streamEnded: 7,
 };

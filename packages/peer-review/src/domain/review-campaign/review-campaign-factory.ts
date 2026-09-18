@@ -10,30 +10,37 @@ function isoMinute(date: Date): string {
   return date.toISOString().slice(0, 16);
 }
 
+/** Вход фабрики студенческой кампании — окно судьбы студента (ФР-3). */
+export interface CreateStudentCampaignInput {
+  /** uuid скоупа (для stream_ended — streamId). */
+  scopeId: string;
+  /** uuid студента, чьё событие открыло окно. */
+  subjectId: string;
+  /** Снапшот окружения субъекта на момент события. */
+  participants: CampaignParticipant[];
+  /** Момент создания (берётся вызывающим, UC/ER). */
+  now: Date;
+}
+
 /**
  * Единая фабрика агрегатов кампании отзывов.
  */
 export const ReviewCampaignFactory = {
   /**
-   * Создать кампанию контекста stream_completed по завершению потока.
-   *
-   * @param scopeId — uuid потока
-   * @param participants — снапшот участников с исходами-проекциями
-   * @param now — момент создания (берётся вызывающим, UC/ER)
+   * Создать студенческую кампанию контекста stream_ended (ФР-3):
+   * окно 7 дней от now, инварианты субъекта проверяет агрегат.
    */
-  createStreamCompleted(
-    scopeId: string,
-    participants: CampaignParticipant[],
-    now: Date,
-  ): ReviewCampaignAr {
+  createStudentCampaign(input: CreateStudentCampaignInput): ReviewCampaignAr {
+    const { scopeId, subjectId, participants, now } = input;
     const expiresAt = new Date(
-      now.getTime() + REVIEW_WINDOW_DAYS.streamCompleted * DAY_MS,
+      now.getTime() + REVIEW_WINDOW_DAYS.streamEnded * DAY_MS,
     );
 
     const state: ReviewCampaign = {
       uuid: crypto.randomUUID(),
-      context: 'stream_completed',
+      context: 'stream_ended',
       scopeId,
+      subjectId,
       createdAt: isoMinute(now),
       expiresAt: isoMinute(expiresAt),
       participants: structuredClone(participants),
@@ -50,7 +57,7 @@ export const ReviewCampaignFactory = {
    */
   restore(state: ReviewCampaign): ReviewCampaignAr {
     switch (state.context) {
-      case 'stream_completed':
+      case 'stream_ended':
         return new ReviewCampaignAr(structuredClone(state));
       default:
         return new ReviewCampaignAr(structuredClone(state));

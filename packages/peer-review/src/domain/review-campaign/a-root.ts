@@ -25,6 +25,7 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
     'createdAt',
     'context',
     'scopeId',
+    'subjectId',
     'expiresAt',
     'participants',
     'payload',
@@ -38,7 +39,10 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
    * Инварианты снапшота участников:
    * - студент обязан иметь исход-проекцию, ментор — обязан не иметь
    *   (роль «ментор» — отдельная роль, не исход);
-   * - userId участников уникальны (человек представлен в кампании один раз).
+   * - userId участников уникальны (человек представлен в кампании один раз);
+   * - субъект окна (ФР-2) присутствует среди участников: студент с
+   *   ТЕРМИНАЛЬНЫМ исходом (completed | dropped | never_started, не
+   *   in_progress) — его событие открыло окно судьбы.
    */
   protected override checkInvariant(): void {
     const seen = new Set<string>();
@@ -46,7 +50,7 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
       if (p.role === 'student' && p.outcome === undefined) {
         this.throwInvariant(
           { campaignId: this._state.uuid, userId: p.userId },
-          'Студент-участник кампании обязан иметь исход-проекцию (completed | dropped | never_started)',
+          'Студент-участник кампании обязан иметь исход-проекцию (completed | in_progress | dropped | never_started)',
         );
       }
       if (p.role === 'mentor' && p.outcome !== undefined) {
@@ -63,13 +67,45 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
       }
       seen.add(p.userId);
     }
+
+    const subject = this._state.participants.find(
+      (p) => p.userId === this._state.subjectId,
+    );
+    if (!subject) {
+      this.throwInvariant(
+        { campaignId: this._state.uuid, userId: this._state.subjectId },
+        'Субъект кампании обязан присутствовать среди участников',
+      );
+    }
+    if (subject.role !== 'student') {
+      this.throwInvariant(
+        { campaignId: this._state.uuid, userId: subject.userId },
+        'Субъект кампании обязан быть студентом (окно открывает событие студента)',
+      );
+    }
+    if (subject.outcome === undefined || subject.outcome === 'in_progress') {
+      this.throwInvariant(
+        { campaignId: this._state.uuid, userId: subject.userId },
+        'Исход субъекта кампании обязан быть терминальным (completed | dropped | never_started)',
+      );
+    }
   }
 
   // ── Чтение: каркас ──
 
-  /** uuid скоупа кампании (для stream_completed — streamId). */
+  /** uuid скоупа кампании (для stream_ended — streamId). */
   get scopeId(): string {
     return this._state.scopeId;
+  }
+
+  /** uuid студента, чьё событие открыло окно судьбы (ФР-2). */
+  get subjectId(): string {
+    return this._state.subjectId;
+  }
+
+  /** Является ли userId субъектом окна. */
+  isSubject(userId: string): boolean {
+    return this._state.subjectId === userId;
   }
 
   /** Контекст кампании (дискриминант payload). */
@@ -83,14 +119,15 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
   }
 
   /**
-   * Зафиксировать факт создания кампании — событие campaign.created
-   * (payload: campaignId, context, scopeId — основа приглашений UI-трека).
+   * Зафиксировать факт создания кампании — событие student-campaign.created
+   * (ФР-5: payload campaignId, context, scopeId, subjectId — получатели
+   * приглашений UI: субъект и ментор).
    * Вызывается фабрикой при конструировании; публикует UC после save.
    */
   announceCreated(): void {
     this.addEvent({
       eventId: crypto.randomUUID(),
-      eventName: 'campaign.created',
+      eventName: 'student-campaign.created',
       occurredAt: isoNow(),
       aggregateName: 'ReviewCampaign',
       aggregateId: this._state.uuid,
@@ -98,6 +135,7 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
         campaignId: this._state.uuid,
         context: this._state.context,
         scopeId: this._state.scopeId,
+        subjectId: this._state.subjectId,
       },
     });
   }
