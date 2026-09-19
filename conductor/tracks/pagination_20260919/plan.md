@@ -58,7 +58,7 @@
       commits: ui-spec помечены (streams/courses)
 - [x] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
-## Фаза 3. Финал
+## Фаза 3. Финал — [checkpoint: f313547]
 
 - [x] Task: Полный прогон `bun run check`, триаж по workflow; `grep truncate`
       по сторям — пусто —
