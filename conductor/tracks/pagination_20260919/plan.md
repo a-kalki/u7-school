@@ -34,7 +34,7 @@
     - [x] Green: реализация — e5fa1b5
 - [x] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
-## Фаза 2. Перенос обрезок (streams S03, courses S00)
+## Фаза 2. Перенос обрезок (streams S03, courses S00) — [checkpoint: df008af]
 
 - [x] Task: streams S03 «Программа курса» (ФР-4): блок = проект с уроками
       (tree-renderer отдаёт блоки), `#truncate` удалён, кеш через DialogCache,
@@ -64,6 +64,6 @@
       по сторям — пусто —
       полный check зелёный (2359 тестов), truncate в src пуст; попутно
       исправлен дубликат updated_at в metadata.json трека
-- [ ] Task: Создать summary.md трека (включая исследование UUID-сжатия и
-      решение о системном кеше DialogCache)
+- [x] Task: Создать summary.md трека (включая исследование UUID-сжатия и
+      решение о системном кеше DialogCache) — summary.md создан
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
