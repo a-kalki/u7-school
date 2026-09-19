@@ -16,18 +16,20 @@ import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { MenuButton } from './u7-menu';
 
 /** Опции постраничного экрана (хелпер U7BotUiStory.pagedScreen). */
-interface PagedScreenOpts {
-  /** Сборка экрана: чтение домена + шапка и ЦЕЛЫЕ блоки контента.
-   * Вызывается ТОЛЬКО при промахе кеша — тыки навигации не перечитывают домен. */
+interface PagedScreenOpts<T> {
+  /** Сборка экрана: чтение домена + шапка, ЦЕЛЫЕ блоки контента и данные
+   * для кнопок (payload). Вызывается ТОЛЬКО при промахе кеша — тыки
+   * навигации не перечитывают домен. */
   build: () =>
-    | { header: MdText; blocks: string[] }
-    | Promise<{ header: MdText; blocks: string[] }>;
-  /** Экран-заглушка при пустом наборе блоков (не кешируется). */
-  emptyScreen: () => DialogResponse;
+    | { header: MdText; blocks: string[]; payload: T }
+    | Promise<{ header: MdText; blocks: string[]; payload: T }>;
+  /** Экран-заглушка при пустом наборе блоков (payload — как у rows). */
+  emptyScreen: (payload: T) => DialogResponse;
+  /** Кнопки под навигацией — чистая функция payload («Назад», карточки
+   * элементов уровня и т.п.). */
+  rows: (payload: T) => KbButton[][];
   /** Ключ кеша `DialogCache` — включает параметры экрана (id и т.п.). */
   cacheKey: string;
-  /** Ряды под навигацией («Назад», главное меню и т.п.). */
-  bottomRows: KbButton[][];
   /** Запрошенная страница (0-based; за пределами — clamp). */
   pageIndex?: number;
   /** Callback-код страницы: `cb(n)` для навигационных кнопок. */
@@ -38,10 +40,11 @@ interface PagedScreenOpts {
   tgId: number;
 }
 
-/** Закешированные страницы экрана: шапка + разбиение. */
-interface CachedPaged {
+/** Закешированные страницы экрана: шапка, разбиение, данные кнопок. */
+interface CachedPaged<T> {
   header: MdText;
   paged: Paged;
+  payload: T;
 }
 
 /**
@@ -103,13 +106,15 @@ export abstract class U7BotUiStory extends BotUiStory<
   /**
    * Экран с постраничным контентом: страницы из целых блоков, кеш страниц
    * в `DialogCache` (ленивая `build` — тыки навигации не перечитывают
-   * домен), ряд `‹ Пред` / `След ›` над `bottomRows`, индикатор
-   * `· Стр. N/M` — суффикс шапки (только на многостраничных экранах).
-   * Листание — edit на месте (тот же диалог — seq не растёт, транспорт
-   * редактирует сообщение).
+   * домен), ряд `‹ Пред` / `След ›` над кнопками `rows(payload)`,
+   * индикатор `· Стр. N/M` — суффикс шапки (только на многостраничных
+   * экранах). Листание — edit на месте (тот же диалог — seq не растёт,
+   * транспорт редактирует сообщение).
    */
-  protected async pagedScreen(opts: PagedScreenOpts): Promise<DialogResponse> {
-    let cached = this.dialogCache.get<CachedPaged>(
+  protected async pagedScreen<T>(
+    opts: PagedScreenOpts<T>,
+  ): Promise<DialogResponse> {
+    let cached = this.dialogCache.get<CachedPaged<T>>(
       opts.tgId,
       opts.cacheKey,
       opts.session,
@@ -122,13 +127,14 @@ export abstract class U7BotUiStory extends BotUiStory<
         paged: this.botPaginator.paginate(built.blocks, {
           limit: this.botPaginator.botLimit(built.header.length + 16),
         }),
+        payload: built.payload,
       };
       this.dialogCache.set(opts.tgId, opts.cacheKey, cached, opts.session);
     }
 
     const page = this.botPaginator.page(cached.paged, opts.pageIndex ?? 0);
     if (!page) {
-      return opts.emptyScreen();
+      return opts.emptyScreen(cached.payload);
     }
 
     const indicator = this.botPaginator.indicator(page);
@@ -140,7 +146,7 @@ export abstract class U7BotUiStory extends BotUiStory<
       mdConcat(header, md`\n\n`, mdRaw(page.text)),
       this.kb([
         ...this.botPaginator.navRows(page, opts.cbPage),
-        ...opts.bottomRows,
+        ...opts.rows(cached.payload),
       ]),
     );
   }

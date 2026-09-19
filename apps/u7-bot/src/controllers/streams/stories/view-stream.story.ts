@@ -235,8 +235,7 @@ export class ViewStreamStory extends U7BotUiStory {
             ],
           ]),
         ),
-      cacheKey: `program:${streamId}`,
-      bottomRows: [
+      rows: () => [
         [
           this.btn(
             '⬅️ Назад к потоку',
@@ -244,6 +243,7 @@ export class ViewStreamStory extends U7BotUiStory {
           ),
         ],
       ],
+      cacheKey: `program:${streamId}`,
       pageIndex,
       cbPage: (n) => this.cbFor(this.storyName, 'program', streamId, String(n)),
       session,
@@ -254,7 +254,7 @@ export class ViewStreamStory extends U7BotUiStory {
   /** Читает снапшот программы потока и собирает блоки «проект с уроками». */
   async #buildProgramBlocks(
     streamId: string,
-  ): Promise<{ header: MdText; blocks: string[] }> {
+  ): Promise<{ header: MdText; blocks: string[]; payload: undefined }> {
     const stream = (await this.appApi.execute('get-stream', {
       streamId,
     })) as Stream;
@@ -285,6 +285,7 @@ export class ViewStreamStory extends U7BotUiStory {
     return {
       header: md`📖 *Программа курса*`,
       blocks: renderTreeBlocks(projectNodes),
+      payload: undefined,
     };
   }
 

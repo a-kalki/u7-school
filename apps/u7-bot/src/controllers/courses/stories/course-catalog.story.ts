@@ -1,12 +1,12 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { MenuButton } from '@u7-scl/bot/u7-menu';
-import { fromError } from '@u7-scl/core/domain';
-import { type MdText, md, mdConcat, mdJoin, mdRaw } from '@u7-scl/core/shared';
+import { errNotFound, fromError, throwError } from '@u7-scl/core/domain';
+import { type MdText, md, mdJoin } from '@u7-scl/core/shared';
 import type { BotSession, DialogResponse, KbButton } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
 import type { Wish } from '@u7-scl/wish/domain';
-import { renderTree, type TreeNode } from '../../../shared/tree-renderer';
+import { renderTreeBlocks, type TreeNode } from '../../../shared/tree-renderer';
 import { buttons } from '../../shared/buttons';
 import { Routes } from '../../shared/routes';
 
@@ -60,19 +60,40 @@ export class CourseCatalogStory extends U7BotUiStory {
 
     switch (cmd) {
       case 'list':
-        return this.#handleList(actor);
+        return this.#handleList(actor, session, this.#pageSeg(ids[0]));
       case 'phases':
-        return this.#handlePhases(ids[0] ?? '');
+        return this.#handlePhases(
+          ids[0] ?? '',
+          actor,
+          session,
+          this.#pageSeg(ids[1]),
+        );
       case 'modules':
-        return this.#handleModules(ids[0] ?? '', Number(ids[1]));
+        return this.#handleModules(
+          ids[0] ?? '',
+          Number(ids[1]),
+          actor,
+          session,
+          this.#pageSeg(ids[2]),
+        );
       case 'projects':
-        return this.#handleProjects(ids[0] ?? '', Number(ids[1]), ids[2] ?? '');
+        return this.#handleProjects(
+          ids[0] ?? '',
+          Number(ids[1]),
+          ids[2] ?? '',
+          actor,
+          session,
+          this.#pageSeg(ids[3]),
+        );
       case 'lessons':
         return this.#handleLessons(
           ids[0] ?? '',
           Number(ids[1]),
           ids[2] ?? '',
           Number(ids[3]),
+          actor,
+          session,
+          this.#pageSeg(ids[4]),
         );
       case 'wish':
         return this.#handleWishModule(ids[0] ?? '', actor);
@@ -109,57 +130,95 @@ export class CourseCatalogStory extends U7BotUiStory {
 
   // ═══ Уровень 0: Курсы + этапы inline ═══
 
-  async #handleList(actor: User): Promise<DialogResponse> {
-    const courses = await this.appApi.execute('list-courses', {});
+  async #handleList(
+    actor: User,
+    session: BotSession,
+    pageIndex = 0,
+  ): Promise<DialogResponse> {
+    // Блок = курс со своими этапами inline; страницы кешируются в системном
+    // кеше эпохи диалога — build (чтение домена) вызывается только при
+    // промахе кеша, тыки навигации домен не перечитывают.
+    return this.pagedScreen({
+      build: async () => {
+        const courses = (await this.appApi.execute(
+          'list-courses',
+          {},
+        )) as Course[];
+        if (courses.length === 0) {
+          return {
+            header: md`📖 *Курсы*`,
+            blocks: [],
+            payload: {
+              courses: [],
+              wishStatusByCourse: new Map<string, string>(),
+            },
+          };
+        }
 
-    if (courses.length === 0) {
-      return this.screen(
-        md`📖 *Курсы*\n\nПока нет доступных курсов\\.`,
-        this.kb([[buttons.mainMenu()]]),
-      );
-    }
+        // Батч-запрос желаний пользователя: одна выборка на весь каталог
+        const wishes = ((await this.appApi.execute(
+          'list-user-wishes',
+          {},
+          actor,
+        )) ?? []) as Wish[];
+        const wishStatusByCourse = this.#activeCourseWishStatuses(wishes);
 
-    // Батч-запрос желаний пользователя: одна выборка на весь каталог
-    const wishes =
-      (await this.appApi.execute('list-user-wishes', {}, actor)) ?? [];
-    const wishStatusByCourse = this.#activeCourseWishStatuses(wishes);
+        const blocks: string[] = [];
+        for (const course of courses) {
+          const direction = this.#getDirectionEmoji(course);
 
-    const lines: MdText[] = [md`📖 *Курсы*`, md``];
-    const rows: KbButton[][] = [];
+          const lines: MdText[] = [md`${direction} *Курс: ${course.title}*`];
 
-    for (const course of courses) {
-      const direction = this.#getDirectionEmoji(course);
+          // Этапы курса inline (один уровень вниз)
+          for (const phase of course.phases) {
+            const phaseEmoji = phase.track
+              ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
+              : '🗂️';
+            const modCount = phase.moduleIds?.length ?? 0;
+            lines.push(
+              md`    ${phaseEmoji} Этап: ${phase.title} — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
+            );
+          }
 
-      lines.push(md`${direction} *Курс: ${course.title}*`);
+          lines.push(md``);
+          blocks.push(mdJoin(lines));
+        }
 
-      // Этапы курса inline (один уровень вниз)
-      for (const phase of course.phases) {
-        const phaseEmoji = phase.track
-          ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
-          : '🗂️';
-        const modCount = phase.moduleIds?.length ?? 0;
-        lines.push(
-          md`    ${phaseEmoji} Этап: ${phase.title} — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
-        );
-      }
-
-      lines.push(md``);
-
-      rows.push([
-        this.btn(
-          `${direction} ${course.title}`,
-          this.cb('phases', course.uuid),
+        return {
+          header: md`📖 *Курсы*`,
+          blocks,
+          payload: { courses, wishStatusByCourse },
+        };
+      },
+      emptyScreen: () =>
+        this.screen(
+          md`📖 *Курсы*\\n\\nПока нет доступных курсов\\.`,
+          this.kb([[buttons.mainMenu()]]),
         ),
-        ...this.#courseWishButtons(
-          course.uuid,
-          wishStatusByCourse.get(course.uuid),
-        ),
-      ]);
-    }
-
-    rows.push([buttons.mainMenu()]);
-
-    return this.screen(mdJoin(lines), this.kb(rows));
+      rows: ({ courses, wishStatusByCourse }) => {
+        const rows: KbButton[][] = [];
+        for (const course of courses) {
+          const direction = this.#getDirectionEmoji(course);
+          rows.push([
+            this.btn(
+              `${direction} ${course.title}`,
+              this.cb('phases', course.uuid),
+            ),
+            ...this.#courseWishButtons(
+              course.uuid,
+              wishStatusByCourse.get(course.uuid),
+            ),
+          ]);
+        }
+        rows.push([buttons.mainMenu()]);
+        return rows;
+      },
+      cacheKey: 'list',
+      pageIndex,
+      cbPage: (n) => this.cb('list', String(n)),
+      session,
+      tgId: actor.telegramId,
+    });
   }
 
   /**
@@ -198,7 +257,12 @@ export class CourseCatalogStory extends U7BotUiStory {
 
   // ═══ Уровень 1: Этапы + модули inline ═══
 
-  async #handlePhases(courseId: string): Promise<DialogResponse> {
+  async #handlePhases(
+    courseId: string,
+    actor: User,
+    session: BotSession,
+    pageIndex = 0,
+  ): Promise<DialogResponse> {
     if (!courseId) {
       return this.screen(md`⚠️ Курс не указан`);
     }
@@ -212,52 +276,83 @@ export class CourseCatalogStory extends U7BotUiStory {
       return this.screen(md`⚠️ Курс не найден или недоступен`);
     }
 
-    const lines: MdText[] = [md`📖 *Курс: ${course.title}*`, md``];
-    const rows: KbButton[][] = [];
+    // Блок = этап со своими модулями inline (модули читаются только при
+    // промахе кеша — N запросов get-module не повторяются при листании).
+    return this.pagedScreen({
+      build: async () => {
+        const blocks: string[] = [];
+        for (const phase of course.phases) {
+          const emoji = phase.track
+            ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
+            : '🗂️';
+          const modCount = phase.moduleIds?.length ?? 0;
 
-    for (let pi = 0; pi < course.phases.length; pi++) {
-      const phase = course.phases[pi];
-      if (!phase) continue;
-      const emoji = phase.track
-        ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
-        : '🗂️';
-      const modCount = phase.moduleIds?.length ?? 0;
+          const lines: MdText[] = [
+            md`${emoji} *Этап: ${phase.title}* — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
+          ];
 
-      lines.push(
-        md`${emoji} *Этап: ${phase.title}* — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
-      );
+          // Модули этапа inline (один уровень вниз) — нужны заголовки
+          for (const modId of phase.moduleIds ?? []) {
+            try {
+              const mod = (await this.appApi.execute('get-module', {
+                uuid: modId,
+              })) as {
+                title: string;
+                projects?: Array<{ lessonIds: string[] }>;
+              };
+              const projCount = mod.projects?.length ?? 0;
+              const lessonCount =
+                mod.projects?.reduce(
+                  (sum, pr) => sum + (pr.lessonIds?.length ?? 0),
+                  0,
+                ) ?? 0;
+              lines.push(
+                md`    📦 Модуль: ${mod.title} — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
+              );
+            } catch {
+              lines.push(md`    📦 _модуль ${modId.slice(0, 8)}\\.\\.\\._`);
+            }
+          }
 
-      // Модули этапа inline (один уровень вниз) — нужны заголовки
-      for (const modId of phase.moduleIds ?? []) {
-        try {
-          const mod = (await this.appApi.execute('get-module', {
-            uuid: modId,
-          })) as { title: string; projects?: Array<{ lessonIds: string[] }> };
-          const projCount = mod.projects?.length ?? 0;
-          const lessonCount =
-            mod.projects?.reduce((s, p) => s + (p.lessonIds?.length ?? 0), 0) ??
-            0;
-          lines.push(
-            md`    📦 Модуль: ${mod.title} — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
-          );
-        } catch {
-          lines.push(md`    📦 _модуль ${modId.slice(0, 8)}\\.\\.\\._`);
+          lines.push(md``);
+          blocks.push(mdJoin(lines));
         }
-      }
 
-      lines.push(md``);
-
-      rows.push([
-        this.btn(
-          `${emoji} ${phase.title}`,
-          this.cb('modules', courseId, String(pi)),
+        return {
+          header: md`📖 *Курс: ${course.title}*`,
+          blocks,
+          payload: course,
+        };
+      },
+      emptyScreen: () =>
+        this.screen(
+          md`📖 *Курс: ${course.title}*`,
+          this.kb([[this.btn('⬅️ Назад к курсам школы', this.cb('list'))]]),
         ),
-      ]);
-    }
-
-    rows.push([this.btn('⬅️ Назад к курсам школы', this.cb('list'))]);
-
-    return this.screen(this.#truncate(mdJoin(lines)), this.kb(rows));
+      rows: (c) => {
+        const rows: KbButton[][] = [];
+        for (let pi = 0; pi < c.phases.length; pi++) {
+          const phase = c.phases[pi];
+          if (!phase) continue;
+          const emoji = phase.track
+            ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
+            : '🗂️';
+          rows.push([
+            this.btn(
+              `${emoji} ${phase.title}`,
+              this.cb('modules', courseId, String(pi)),
+            ),
+          ]);
+        }
+        rows.push([this.btn('⬅️ Назад к курсам школы', this.cb('list'))]);
+        return rows;
+      },
+      cacheKey: `phases:${courseId}`,
+      pageIndex,
+      cbPage: (n) => this.cb('phases', courseId, String(n)),
+      session,
+      tgId: actor.telegramId,
+    });
   }
 
   // ═══ Уровень 2: Модули + проекты inline ═══
@@ -265,6 +360,9 @@ export class CourseCatalogStory extends U7BotUiStory {
   async #handleModules(
     courseId: string,
     phaseIdx: number,
+    actor: User,
+    session: BotSession,
+    pageIndex = 0,
   ): Promise<DialogResponse> {
     if (!courseId) {
       return this.screen(md`⚠️ Курс не указан`);
@@ -284,54 +382,81 @@ export class CourseCatalogStory extends U7BotUiStory {
       return this.screen(md`⚠️ Этап не найден`);
     }
 
-    const lines: MdText[] = [md`📖 *Этап: ${phase.title}*`, md``];
-    const rows: KbButton[][] = [];
+    // Блок = модуль со своими проектами inline; кнопки модулей строятся из
+    // payload кеша — get-module вызывается только при промахе кеша.
+    return this.pagedScreen({
+      build: async () => {
+        const blocks: string[] = [];
+        const mods: Array<{ id: string; title: string }> = [];
 
-    for (const modId of phase.moduleIds ?? []) {
-      let mod: {
-        title: string;
-        projects?: Array<{ uuid: string; title: string; lessonIds: string[] }>;
-      };
-      try {
-        mod = (await this.appApi.execute('get-module', {
-          uuid: modId,
-        })) as typeof mod;
-      } catch {
-        continue;
-      }
+        for (const modId of phase.moduleIds ?? []) {
+          let mod: {
+            title: string;
+            projects?: Array<{
+              uuid: string;
+              title: string;
+              lessonIds: string[];
+            }>;
+          };
+          try {
+            mod = (await this.appApi.execute('get-module', {
+              uuid: modId,
+            })) as typeof mod;
+          } catch {
+            continue;
+          }
 
-      const projects = mod.projects ?? [];
-      const projCount = projects.length;
-      const lessonCount = projects.reduce(
-        (s, p) => s + (p.lessonIds?.length ?? 0),
-        0,
-      );
+          mods.push({ id: modId, title: mod.title });
 
-      lines.push(
-        md`📦 *Модуль: ${mod.title}* — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
-      );
+          const projects = mod.projects ?? [];
+          const projCount = projects.length;
+          const lessonCount = projects.reduce(
+            (sum, pr) => sum + (pr.lessonIds?.length ?? 0),
+            0,
+          );
 
-      // Проекты модуля inline (один уровень вниз)
-      for (const proj of projects) {
-        const lCount = proj.lessonIds?.length ?? 0;
-        lines.push(
-          md`    📁 Проект: ${proj.title} — ${lCount} урок${this.#plural(lCount, '', 'а', 'ов')}`,
-        );
-      }
+          const lines: MdText[] = [
+            md`📦 *Модуль: ${mod.title}* — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
+          ];
 
-      lines.push(md``);
+          // Проекты модуля inline (один уровень вниз)
+          for (const proj of projects) {
+            const lCount = proj.lessonIds?.length ?? 0;
+            lines.push(
+              md`    📁 Проект: ${proj.title} — ${lCount} урок${this.#plural(lCount, '', 'а', 'ов')}`,
+            );
+          }
 
-      rows.push([
-        this.btn(
-          `📦 ${mod.title}`,
-          this.cb('projects', courseId, String(phaseIdx), modId),
+          lines.push(md``);
+          blocks.push(mdJoin(lines));
+        }
+
+        return { header: md`📖 *Этап: ${phase.title}*`, blocks, payload: mods };
+      },
+      emptyScreen: () =>
+        this.screen(
+          md`📖 *Этап: ${phase.title}*`,
+          this.kb([[this.btn('⬅️ Назад к курсу', this.cb('phases', courseId))]]),
         ),
-      ]);
-    }
-
-    rows.push([this.btn('⬅️ Назад к курсу', this.cb('phases', courseId))]);
-
-    return this.screen(this.#truncate(mdJoin(lines)), this.kb(rows));
+      rows: (mods) => {
+        const rows: KbButton[][] = [];
+        for (const mod of mods) {
+          rows.push([
+            this.btn(
+              `📦 ${mod.title}`,
+              this.cb('projects', courseId, String(phaseIdx), mod.id),
+            ),
+          ]);
+        }
+        rows.push([this.btn('⬅️ Назад к курсу', this.cb('phases', courseId))]);
+        return rows;
+      },
+      cacheKey: `modules:${courseId}:${phaseIdx}`,
+      pageIndex,
+      cbPage: (n) => this.cb('modules', courseId, String(phaseIdx), String(n)),
+      session,
+      tgId: actor.telegramId,
+    });
   }
 
   // ═══ Уровень 3: Проекты + уроки inline (tree-renderer) ═══
@@ -340,74 +465,104 @@ export class CourseCatalogStory extends U7BotUiStory {
     courseId: string,
     phaseIdx: number,
     moduleId: string,
+    actor: User,
+    session: BotSession,
+    pageIndex = 0,
   ): Promise<DialogResponse> {
     if (!moduleId) {
       return this.screen(md`⚠️ Модуль не указан`);
     }
 
-    let snapshot: ContentSnapshot;
+    // Снапшот модуля — тяжёлое чтение: только при промахе кеша (в build).
+    // Not-found экрана — по ошибке build.
     try {
-      snapshot = (await this.appApi.execute('get-module-snapshot', {
-        moduleId,
-      })) as ContentSnapshot;
+      return await this.pagedScreen({
+        build: async () => {
+          const snapshot = (await this.appApi.execute('get-module-snapshot', {
+            moduleId,
+          })) as ContentSnapshot;
+
+          // Название модуля для заголовка (не критично)
+          let modTitle = '';
+          try {
+            const mod = (await this.appApi.execute('get-module', {
+              uuid: moduleId,
+            })) as { title: string };
+            modTitle = mod.title;
+          } catch {
+            // оставляем пустым
+          }
+
+          // Строим дерево через tree-renderer.
+          // Контракт TreeNode.title — «уже экранированный для MarkdownV2»,
+          // поэтому заголовки пропускаем через md-интерполяцию ДО renderTree.
+          // Тип объекта подписан явно («Проект:», «Урок:») — как на других уровнях.
+          const treeNodes: TreeNode[] = snapshot.map((project) => ({
+            title: md`Проект: ${project.projectTitle}`,
+            emoji: '📁',
+            meta: this.#lessonSummary(project.lessons),
+            children: project.lessons.map((lesson) => ({
+              title: md`Урок: ${lesson.lessonTitle}`,
+              emoji: '📝',
+              meta: `${lesson.stepIds.length} шаг${this.#plural(lesson.stepIds.length, '', 'а', 'ов')}`,
+            })),
+          }));
+
+          // Блок = проект с уроками (целый, не рвётся)
+          return {
+            header: md`📖 *Модуль: ${modTitle}*`,
+            blocks: renderTreeBlocks(treeNodes),
+            payload: { snapshot, modTitle },
+          };
+        },
+        emptyScreen: ({ modTitle }) =>
+          this.screen(
+            md`📖 *Модуль: ${modTitle}*`,
+            this.kb([
+              [
+                this.btn(
+                  '⬅️ Назад к этапу',
+                  this.cb('modules', courseId, String(phaseIdx)),
+                ),
+              ],
+            ]),
+          ),
+        rows: ({ snapshot }) => {
+          const rows: KbButton[][] = [];
+          for (let pi = 0; pi < snapshot.length; pi++) {
+            const project = snapshot[pi];
+            if (!project) continue;
+            rows.push([
+              this.btn(
+                `📁 ${project.projectTitle}`,
+                this.cb(
+                  'lessons',
+                  courseId,
+                  String(phaseIdx),
+                  moduleId,
+                  String(pi),
+                ),
+              ),
+            ]);
+          }
+          rows.push([
+            this.btn(
+              '⬅️ Назад к этапу',
+              this.cb('modules', courseId, String(phaseIdx)),
+            ),
+          ]);
+          return rows;
+        },
+        cacheKey: `projects:${moduleId}`,
+        pageIndex,
+        cbPage: (n) =>
+          this.cb('projects', courseId, String(phaseIdx), moduleId, String(n)),
+        session,
+        tgId: actor.telegramId,
+      });
     } catch {
       return this.screen(md`⚠️ Модуль не найден или недоступен`);
     }
-
-    // Получаем название модуля для заголовка
-    let modTitle = '';
-    try {
-      const mod = (await this.appApi.execute('get-module', {
-        uuid: moduleId,
-      })) as { title: string };
-      modTitle = mod.title;
-    } catch {
-      // оставляем пустым
-    }
-
-    // Строим дерево через tree-renderer.
-    // Контракт TreeNode.title — «уже экранированный для MarkdownV2»,
-    // поэтому заголовки пропускаем через md-интерполяцию ДО renderTree.
-    // Тип объекта подписан явно («Проект:», «Урок:») — как на других уровнях.
-    const treeNodes: TreeNode[] = snapshot.map((project) => ({
-      title: md`Проект: ${project.projectTitle}`,
-      emoji: '📁',
-      meta: this.#lessonSummary(project.lessons),
-      children: project.lessons.map((lesson) => ({
-        title: md`Урок: ${lesson.lessonTitle}`,
-        emoji: '📝',
-        meta: `${lesson.stepIds.length} шаг${this.#plural(lesson.stepIds.length, '', 'а', 'ов')}`,
-      })),
-    }));
-
-    const lines: MdText[] = [
-      md`📖 *Модуль: ${modTitle}*`,
-      md``,
-      mdRaw(renderTree(treeNodes)),
-      md``,
-    ];
-
-    // Кнопки — проекты
-    const rows: KbButton[][] = [];
-    for (let pi = 0; pi < snapshot.length; pi++) {
-      const project = snapshot[pi];
-      if (!project) continue;
-      rows.push([
-        this.btn(
-          `📁 ${project.projectTitle}`,
-          this.cb('lessons', courseId, String(phaseIdx), moduleId, String(pi)),
-        ),
-      ]);
-    }
-
-    rows.push([
-      this.btn(
-        '⬅️ Назад к этапу',
-        this.cb('modules', courseId, String(phaseIdx)),
-      ),
-    ]);
-
-    return this.screen(this.#truncate(mdJoin(lines)), this.kb(rows));
   }
 
   // ═══ Уровень 4: Уроки + заголовки шагов (тела скрыты) ═══
@@ -417,70 +572,126 @@ export class CourseCatalogStory extends U7BotUiStory {
     phaseIdx: number,
     moduleId: string,
     projectIdx: number,
+    actor: User,
+    session: BotSession,
+    pageIndex = 0,
   ): Promise<DialogResponse> {
     if (!moduleId) {
       return this.screen(md`⚠️ Модуль не указан`);
     }
 
-    let snapshot: ContentSnapshot;
+    // Блок = урок с заголовками шагов inline; снапшот и шаги читаются
+    // только при промахе кеша (в build).
     try {
-      snapshot = (await this.appApi.execute('get-module-snapshot', {
-        moduleId,
-      })) as ContentSnapshot;
-    } catch {
+      return await this.pagedScreen({
+        build: async () => {
+          const snapshot = (await this.appApi.execute('get-module-snapshot', {
+            moduleId,
+          })) as ContentSnapshot;
+          const project = snapshot[projectIdx];
+          if (!project) {
+            throwError(
+              errNotFound('PROJECT_NOT_FOUND', 'Проект не найден', undefined),
+            );
+          }
+
+          const blocks: string[] = [];
+          if (project.lessons.length === 0) {
+            // Блоков нет — заглушка через emptyScreen
+            return {
+              header: md`📖 *Проект: ${project.projectTitle}*`,
+              blocks: [],
+              payload: project.projectTitle,
+            };
+          }
+
+          for (const lesson of project.lessons) {
+            const sCount = lesson.stepIds.length;
+
+            const lines: MdText[] = [
+              md`📝 *Урок: ${lesson.lessonTitle}* — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
+            ];
+
+            // Шаги урока inline
+            if (sCount > 0) {
+              const stepsByLesson = (await this.appApi.execute(
+                'get-steps-by-lessons',
+                { lessonIds: [lesson.lessonId] },
+              )) as Record<
+                string,
+                Array<{ uuid: string; description: string }>
+              >;
+
+              const steps = stepsByLesson[lesson.lessonId] ?? [];
+              const maxSteps = Math.min(steps.length, 3);
+              for (let si = 0; si < maxSteps; si++) {
+                const step = steps[si];
+                if (!step) continue;
+                lines.push(md`    ${si + 1}\\. ${step.description}`);
+              }
+              if (steps.length > 3) {
+                lines.push(md`    \\.\\.\\.`);
+              }
+            }
+
+            blocks.push(mdJoin(lines));
+          }
+
+          return {
+            header: md`📖 *Проект: ${project.projectTitle}*`,
+            blocks,
+            payload: project.projectTitle,
+          };
+        },
+        emptyScreen: (title) =>
+          this.screen(
+            md`📖 *Проект: ${title}*\n\n_В этом проекте пока нет уроков_`,
+            this.kb([
+              [
+                this.btn(
+                  '⬅️ Назад к модулю',
+                  this.cb('projects', courseId, String(phaseIdx), moduleId),
+                ),
+              ],
+            ]),
+          ),
+        rows: () => [
+          [
+            this.btn(
+              '⬅️ Назад к модулю',
+              this.cb('projects', courseId, String(phaseIdx), moduleId),
+            ),
+          ],
+        ],
+        cacheKey: `lessons:${moduleId}:${projectIdx}`,
+        pageIndex,
+        cbPage: (n) =>
+          this.cb(
+            'lessons',
+            courseId,
+            String(phaseIdx),
+            moduleId,
+            String(projectIdx),
+            String(n),
+          ),
+        session,
+        tgId: actor.telegramId,
+      });
+    } catch (err) {
+      if (fromError(err).name === 'PROJECT_NOT_FOUND') {
+        return this.screen(md`⚠️ Проект не найден`);
+      }
       return this.screen(md`⚠️ Модуль не найден или недоступен`);
     }
-
-    const project = snapshot[projectIdx];
-    if (!project) {
-      return this.screen(md`⚠️ Проект не найден`);
-    }
-
-    const lines: MdText[] = [md`📖 *Проект: ${project.projectTitle}*`, md``];
-    const rows: KbButton[][] = [];
-
-    if (project.lessons.length === 0) {
-      lines.push(md`_В этом проекте пока нет уроков_`);
-    } else {
-      for (const lesson of project.lessons) {
-        const sCount = lesson.stepIds.length;
-
-        lines.push(
-          md`📝 *Урок: ${lesson.lessonTitle}* — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
-        );
-
-        // Шаги урока inline
-        if (sCount > 0) {
-          const stepsByLesson = (await this.appApi.execute(
-            'get-steps-by-lessons',
-            { lessonIds: [lesson.lessonId] },
-          )) as Record<string, Array<{ uuid: string; description: string }>>;
-
-          const steps = stepsByLesson[lesson.lessonId] ?? [];
-          const maxSteps = Math.min(steps.length, 3);
-          for (let si = 0; si < maxSteps; si++) {
-            const step = steps[si];
-            if (!step) continue;
-            lines.push(md`    ${si + 1}\\. ${step.description}`);
-          }
-          if (steps.length > 3) {
-            lines.push(md`    \\.\\.\\.`);
-          }
-        }
-      }
-    }
-
-    rows.push([
-      this.btn(
-        '⬅️ Назад к модулю',
-        this.cb('projects', courseId, String(phaseIdx), moduleId),
-      ),
-    ]);
-
-    return this.screen(this.#truncate(mdJoin(lines)), this.kb(rows));
   }
 
   // ═══ Утилиты ═══
+
+  /** Номер страницы из сегмента колбэка (NaN/отсутствие → 0). */
+  #pageSeg(seg: string | undefined): number {
+    const n = Number(seg);
+    return Number.isNaN(n) ? 0 : n;
+  }
 
   #getDirectionEmoji(course: Course): string {
     for (const phase of course.phases) {
@@ -505,11 +716,6 @@ export class CourseCatalogStory extends U7BotUiStory {
     const lessonCount = lessons.length;
     const stepCount = lessons.reduce((s, l) => s + l.stepIds.length, 0);
     return `${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}, ${stepCount} шаг${this.#plural(stepCount, '', 'а', 'ов')}`;
-  }
-
-  #truncate(text: MdText, maxLen = 4000): MdText {
-    if (text.length <= maxLen) return text;
-    return mdConcat(mdRaw(text.slice(0, maxLen - 15)), md`${'...'}`);
   }
 
   // ── Желание пройти курс (кнопка из карточки курса) ──

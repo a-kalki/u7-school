@@ -572,7 +572,9 @@ describe('CourseCatalogStory', () => {
 
   // ── Обрезка длинных сообщений ──
 
-  test('длинные сообщения обрезаются на ~4000 символов', async () => {
+  // Трек pagination ФР-5: обрезка #truncate удалена — экран остаётся
+  // компактным за счёт лимита шагов урока (максимум 3 + многоточие)
+  test('lessons: длинный урок — максимум 3 шага + многоточие, экран не раздувается', async () => {
     const courseUuid = 'c-big';
     const manySteps = Array.from({ length: 100 }, (_, i) => ({
       uuid: `step-${i}`,
@@ -1238,6 +1240,187 @@ describe('CourseCatalogStory', () => {
       const text = String(response.screen?.text ?? '');
       expect(text).not.toContain('⚠️');
       expect(text).toContain('уже нет');
+    });
+  });
+
+  // ── Пагинация уровней каталога (S00, трек pagination) ──
+
+  describe('Пагинация уровней каталога (S00)', () => {
+    /** Минимальная форма ответа для поиска кнопок. */
+    interface ScreenLike {
+      screen?: {
+        text?: string;
+        keyboard?: { rows: Array<Array<{ text: string; code: string }>> };
+      };
+    }
+
+    function findBtn(response: ScreenLike, textContains: string) {
+      return (response.screen?.keyboard?.rows ?? [])
+        .flat()
+        .find((b) => b.text.includes(textContains));
+    }
+
+    /** Длинный снапшот модуля: блок «проект с уроками» ~500 символов. */
+    function longSnapshot(projectCount: number, lessonsPerProject: number) {
+      return Array.from({ length: projectCount }, (_, p) => ({
+        projectId: `p${p}`,
+        projectTitle: `Тема ${p + 1}: Проектирование и реализация надёжных компонентов интерфейса пользователя`,
+        lessons: Array.from({ length: lessonsPerProject }, (_, l) => ({
+          lessonId: `l${p}-${l}`,
+          lessonTitle: `Занятие ${p + 1}.${l + 1}: Разбор практических приёмов работы со сложным состоянием приложения`,
+          stepIds: ['s1', 's2', 's3'],
+        })),
+      }));
+    }
+
+    /** Считает вызовы UC в appApi-моке. */
+    function callsOf(api: ReturnType<typeof makeAppApi>, ucName: string) {
+      return api.execute.mock.calls.filter((c) => c[0] === ucName).length;
+    }
+
+    test('уровень 3 (модуль): ≥3 страницы из целых проектов, полный цикл листания', async () => {
+      const appApi = makeAppApi(
+        [],
+        {
+          'big-mod': {
+            uuid: 'big-mod',
+            title: 'Большой модуль',
+            description: '...',
+            projects: [],
+          },
+        },
+        { 'big-mod': longSnapshot(26, 4) },
+      );
+      const story = new CourseCatalogStory();
+      initStory(story, appApi);
+
+      const pageTexts: string[] = [];
+      let response = await story.handleCallback(
+        'projects:c1:0:big-mod',
+        actor,
+        session,
+      );
+      assertDialogResponseMarkdownSafe(response);
+      pageTexts.push(String(response.screen?.text ?? ''));
+
+      for (let i = 0; i < 10; i++) {
+        const next = findBtn(response, 'След ›');
+        if (!next) break;
+        const pageSeg = next.code.split(':').pop() ?? '0';
+        response = await story.handleCallback(
+          `projects:c1:0:big-mod:${pageSeg}`,
+          actor,
+          session,
+        );
+        assertDialogResponseMarkdownSafe(response);
+        pageTexts.push(String(response.screen?.text ?? ''));
+      }
+
+      expect(pageTexts.length).toBeGreaterThanOrEqual(3);
+      const total = pageTexts.length;
+      for (let i = 0; i < total; i++) {
+        expect(pageTexts[i]).toContain('Модуль: Большой модуль');
+        expect(pageTexts[i]).toContain(`Стр\\. ${i + 1}/${total}`);
+      }
+
+      // Все 26 проектов по порядку, каждый со всеми 4 уроками
+      const projectLines = pageTexts
+        .join('\n')
+        .split('\n')
+        .filter((l) => l.includes('Проект:'));
+      expect(projectLines).toHaveLength(26);
+      const lessonLines = pageTexts
+        .join('\n')
+        .split('\n')
+        .filter((l) => l.includes('Урок:'));
+      expect(lessonLines).toHaveLength(26 * 4);
+
+      // Кнопки «След ›» несут номер страницы в коде
+      expect(findBtn(response, '‹ Пред')?.code).toBe(
+        `course-catalog:projects:c1:0:big-mod:${total - 2}`,
+      );
+    });
+
+    test('уровень 3: кеш — листание не перечитывает снапшот модуля', async () => {
+      const appApi = makeAppApi(
+        [],
+        {
+          'big-mod': {
+            uuid: 'big-mod',
+            title: 'Большой модуль',
+            description: '...',
+            projects: [],
+          },
+        },
+        { 'big-mod': longSnapshot(26, 4) },
+      );
+      const story = new CourseCatalogStory();
+      initStory(story, appApi);
+
+      await story.handleCallback('projects:c1:0:big-mod', actor, session);
+      await story.handleCallback('projects:c1:0:big-mod:1', actor, session);
+      await story.handleCallback('projects:c1:0:big-mod:0', actor, session);
+
+      expect(callsOf(appApi, 'get-module-snapshot')).toBe(1);
+    });
+
+    test('уровень 1 короткий: одна страница — без навигации и индикатора', async () => {
+      const appApi = makeAppApi([
+        {
+          uuid: 'c1',
+          title: 'JS Basics',
+          description: 'd',
+          authorId: 'a',
+          phases: [{ title: 'Синтаксис', moduleIds: ['m1'] }],
+          status: 'published',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]);
+      const story = new CourseCatalogStory();
+      initStory(story, appApi);
+
+      const response = await story.handleCallback('phases:c1', actor, session);
+      const text = String(response.screen?.text ?? '');
+      expect(text).toContain('Синтаксис');
+      expect(text).not.toContain('Стр');
+      const btns =
+        response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      expect(btns.some((t) => t.includes('След'))).toBe(false);
+      expect(btns.some((t) => t.includes('Пред'))).toBe(false);
+    });
+
+    test('уровень 0 (курсы): многостраничность, код list:<n>, clamp', async () => {
+      // 10 курсов × 8 этапов — блок ~900 символов → ≥2 страницы
+      const courses = Array.from({ length: 10 }, (_, i) => ({
+        uuid: `cc${i}`,
+        title: `Курс ${i + 1}: Полное руководство по современной разработке интерфейсов`,
+        description: 'd',
+        authorId: 'a',
+        phases: Array.from({ length: 8 }, (_, ph) => ({
+          title: `Этап ${ph + 1}: Основы проектирования интерактивных приложений`,
+          moduleIds: ['m1', 'm2'],
+        })),
+        status: 'published',
+        createdAt: '2026-01-01T00:00:00.000Z',
+      }));
+      const appApi = makeAppApi(courses);
+      const story = new CourseCatalogStory();
+      initStory(story, appApi);
+
+      const first = await story.handleCallback('list', actor, session);
+      assertDialogResponseMarkdownSafe(first);
+      const firstText = String(first.screen?.text ?? '');
+      expect(firstText).toContain('Стр\\. 1/');
+
+      const next = findBtn(first, 'След ›');
+      expect(next?.code).toBe('course-catalog:list:1');
+
+      // Clamp: номер за пределами — последняя страница (без «След ›»)
+      const clamped = await story.handleCallback('list:99', actor, session);
+      const clampText = String(clamped.screen?.text ?? '');
+      const m = /Стр\\. (\d+)\/(\d+)/.exec(clampText);
+      expect(m?.[1]).toBe(m?.[2]);
+      expect(findBtn(clamped, 'След ›')).toBeUndefined();
     });
   });
 });
