@@ -40,6 +40,8 @@ export type RecipientWithMyReview = CampaignParticipant & {
 export interface MyRecipientsView {
   campaignId: string;
   myRole: AuthorRole;
+  /** Исход автора-студента (у ментора отсутствует) — выбор текста-подсказки S05. */
+  myOutcome?: CampaignParticipant['outcome'];
   daysLeft: number;
   recipients: RecipientWithMyReview[];
 }

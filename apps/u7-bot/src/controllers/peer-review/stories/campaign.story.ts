@@ -1,7 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import { md, mdJoin } from '@u7-scl/core/shared';
-import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
+import { type MdText, md, mdJoin } from '@u7-scl/core/shared';
+import type { BotSession, BotUpdate, DialogResponse } from '@u7-scl/core/ui';
 import { buttons } from '../../shared/buttons';
 
 /**
@@ -21,11 +21,43 @@ export class CampaignStory extends U7BotUiStory {
     actor: User,
     _session: BotSession,
   ): Promise<DialogResponse> {
-    const [cmd, campaignId] = action.split(':');
+    const [cmd, campaignId, recipientId] = action.split(':');
     if (cmd === 'list' && campaignId) {
       return this.#showRecipients(campaignId, actor);
     }
+    if (cmd === 'open' && campaignId && recipientId) {
+      return this.#askReview(campaignId, recipientId, actor);
+    }
+    if (cmd === 'skip' && campaignId) {
+      return this.#showRecipients(campaignId, actor);
+    }
     return this.unknownCommand(action, actor, _session);
+  }
+
+  override async handleMessage(
+    update: BotUpdate,
+    actor: User,
+    session: BotSession,
+  ): Promise<DialogResponse> {
+    const context = session.dialog?.input?.context as
+      | ReviewInputContext
+      | undefined;
+    if (!context) {
+      return this.screen(md`⚠️ Неизвестное сообщение`);
+    }
+    const text = update.type === 'message' ? update.text : '';
+    if (text.length < REVIEW_MIN_CHARS) {
+      return this.warn(
+        md`✍️ Отзыв — от ${REVIEW_MIN_CHARS} символов\\. Напишите чуть подробнее\\.`,
+      );
+    }
+    if (text.length > REVIEW_MAX_CHARS) {
+      return this.warn(
+        md`✍️ Спасибо за развёрнутость, но лимит — ${REVIEW_MAX_CHARS} символов\\. Пожалуйста, сократите отзыв\\.`,
+      );
+    }
+    // Сохранение — S06 (create-review); пока — возврат в список
+    return this.#showRecipients(context.campaignId, actor);
   }
 
   /** S03: список адресатов кампании; ✅ — мой отзыв уже есть. */
@@ -77,6 +109,39 @@ export class CampaignStory extends U7BotUiStory {
     );
   }
 
+  /** S05: ввод отзыва — подсказка по направлению и исходу автора. */
+  async #askReview(
+    campaignId: string,
+    recipientId: string,
+    actor: User,
+  ): Promise<DialogResponse> {
+    const view = await this.appApi.execute(
+      'get-campaign-recipients',
+      { campaignId, authorId: actor.uuid },
+      actor,
+    );
+    const recipient = view.recipients.find((r) => r.userId === recipientId);
+    if (!recipient) {
+      return this.screen(
+        md`⚠️ Адресат недоступен\\.`,
+        this.kb([[buttons.mainMenu()]]),
+      );
+    }
+    const name =
+      (await this.#namesOf([recipientId], actor)).get(recipientId) ?? '';
+    const prompt = reviewPrompt(
+      view.myRole,
+      view.myOutcome,
+      recipient.role,
+      name,
+    );
+    return this.ask(
+      prompt,
+      { campaignId, recipientId },
+      this.kb([[this.btn('⏭️ Пропустить', this.cb('skip', campaignId))]]),
+    );
+  }
+
   /** Имена адресатов для подписей кнопок. */
   async #namesOf(userIds: string[], actor: User): Promise<Map<string, string>> {
     const names = new Map<string, string>();
@@ -95,4 +160,39 @@ export class CampaignStory extends U7BotUiStory {
 /** Подпись роли адресата в кнопке S03. */
 function recipientLabel(role: 'student' | 'mentor'): string {
   return role === 'mentor' ? 'Ментор' : 'Студент';
+}
+
+/** Границы длины отзыва (спека S05). */
+const REVIEW_MIN_CHARS = 10;
+const REVIEW_MAX_CHARS = 3500;
+
+/** Контекст ввода отзыва (живёт в dialog.input.context). */
+interface ReviewInputContext {
+  campaignId: string;
+  recipientId: string;
+}
+
+type AuthorOutcome = 'completed' | 'in_progress' | 'dropped' | 'never_started';
+
+/** Текст-подсказка S05 — по направлению и исходу автора (ui-spec S05). */
+function reviewPrompt(
+  myRole: 'subject' | 'mentor',
+  myOutcome: AuthorOutcome | undefined,
+  recipientRole: 'student' | 'mentor',
+  name: string,
+): MdText {
+  if (recipientRole === 'student') {
+    if (myRole === 'mentor') {
+      return md`Расскажите о студенте ${name}: сильные стороны, чего удалось достичь за поток, что стоит подтянуть\\.`;
+    }
+    return md`Расскажите о ${name}\\. Как бы вы описали его профессиональные, командные и личностные качества? Не обязательно перечислять всё — пишите только то, что хотите написать, и пишите правду\\. Если считаете, что что\\-то стоит подтянуть, — напишите и об этом\\.`;
+  }
+  if (myOutcome === 'never_started') {
+    return md`Почему так и не начали учёбу? Что не совпало с ожиданиями? Ваши впечатления о менторе и школе помогут тем, кто только выбирает\\.`;
+  }
+  if (myOutcome === 'dropped') {
+    return md`Почему забросили учёбу? Какие пожелания оставите школе и ментору? Что стоит ожидать людям, которые рассматривают возможность здесь учиться\\.`;
+  }
+  // «завершил» и учившийся на момент закрытия потока (in_progress)
+  return md`Поделитесь впечатлением о работе с ментором ${name}: что помогало учиться, что мешало, чего не хватило\\. Пишите правду — это поможет и ментору, и школе\\.`;
 }

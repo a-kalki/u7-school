@@ -55,6 +55,7 @@ export class GetCampaignRecipientsUc extends U7UseCase<
     return {
       campaignId: command.campaignId,
       myRole,
+      myOutcome: ar.findParticipant(command.authorId)?.outcome,
       daysLeft: ar.daysLeft(new Date()),
       recipients: CampaignFactsDs.recipientsWithMyReview(
         ar,

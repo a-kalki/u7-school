@@ -41,6 +41,7 @@ describe('CampaignStory (S03 — список адресатов)', () => {
   function makeAppApi(
     recipients: RecipientView[],
     myRole: 'subject' | 'mentor' = 'subject',
+    myOutcome?: RecipientView['outcome'],
   ) {
     return {
       execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
@@ -49,6 +50,7 @@ describe('CampaignStory (S03 — список адресатов)', () => {
             return {
               campaignId: CAMPAIGN_ID,
               myRole,
+              myOutcome,
               daysLeft: 5,
               recipients,
             };
@@ -213,5 +215,221 @@ describe('CampaignStory (S03 — список адресатов)', () => {
 
     expect(findBtn(response, 'Студент: Борис')).not.toBeNull();
     expect(findBtn(response, 'Ментор:')).toBeNull();
+  });
+
+  // ── S05: ввод отзыва ──
+
+  const message = (text: string) =>
+    ({ type: 'message', text, telegramId: actor.telegramId }) as const;
+
+  test('open: студент → о студенте — подсказка, awaitInput, кнопка Пропустить', async () => {
+    const appApi = makeAppApi([
+      {
+        userId: PEER_ID,
+        role: 'student',
+        outcome: 'completed',
+        hasMyReview: false,
+      },
+    ]);
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const response = await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${PEER_ID}`,
+      actor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text ?? '');
+
+    expect(text).toContain('Расскажите о Борис');
+    expect(text).toContain('профессиональные');
+    expect(response.awaitInput?.context).toEqual({
+      campaignId: CAMPAIGN_ID,
+      recipientId: PEER_ID,
+    });
+    const skip = findBtn(response, 'Пропустить');
+    expect(skip?.code).toBe(`campaign:skip:${CAMPAIGN_ID}`);
+  });
+
+  test('open: ментор → о студенте — своя подсказка', async () => {
+    const appApi = makeAppApi(
+      [
+        {
+          userId: PEER_ID,
+          role: 'student',
+          outcome: 'completed',
+          hasMyReview: false,
+        },
+      ],
+      'mentor',
+      undefined,
+    );
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const response = await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${PEER_ID}`,
+      actor,
+      session,
+    );
+
+    expect(String(response.screen?.text ?? '')).toContain(
+      'Расскажите о студенте Борис',
+    );
+  });
+
+  test('open: исход «завершил» → о менторе — своя подсказка', async () => {
+    const appApi = makeAppApi(
+      [{ userId: MENTOR_ID, role: 'mentor', hasMyReview: false }],
+      'subject',
+      'completed',
+    );
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const response = await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${MENTOR_ID}`,
+      actor,
+      session,
+    );
+
+    const text = String(response.screen?.text ?? '');
+    expect(text).toContain('Поделитесь впечатлением о работе с ментором');
+    expect(text).toContain('Пётр Петров');
+  });
+
+  test('open: исход «не начал» → о менторе — своя подсказка', async () => {
+    const appApi = makeAppApi(
+      [{ userId: MENTOR_ID, role: 'mentor', hasMyReview: false }],
+      'subject',
+      'never_started',
+    );
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const response = await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${MENTOR_ID}`,
+      actor,
+      session,
+    );
+
+    expect(String(response.screen?.text ?? '')).toContain(
+      'Почему так и не начали учёбу',
+    );
+  });
+
+  test('open: исход «забросил» → о менторе — своя подсказка', async () => {
+    const appApi = makeAppApi(
+      [{ userId: MENTOR_ID, role: 'mentor', hasMyReview: false }],
+      'subject',
+      'dropped',
+    );
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const response = await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${MENTOR_ID}`,
+      actor,
+      session,
+    );
+
+    expect(String(response.screen?.text ?? '')).toContain(
+      'Почему забросили учёбу',
+    );
+  });
+
+  test('ввод: короткий текст — переспрос-предупреждение без потери ввода', async () => {
+    const appApi = makeAppApi([
+      {
+        userId: PEER_ID,
+        role: 'student',
+        outcome: 'completed',
+        hasMyReview: false,
+      },
+    ]);
+    const story = new CampaignStory();
+    initStory(story, appApi);
+    await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${PEER_ID}`,
+      actor,
+      session,
+    );
+
+    const dialog: BotSession = {
+      dialog: {
+        path: 'peer-review/campaign',
+        seq: 2,
+        input: { context: { campaignId: CAMPAIGN_ID, recipientId: PEER_ID } },
+      },
+    };
+    const response = await story.handleMessage(
+      message('коротко'),
+      actor,
+      dialog,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    expect(response.notify).not.toBeNull();
+    expect(String(response.notify?.text ?? '')).toContain('10');
+    // переспрос не трогает экран и ожидание ввода
+    expect(response.screen).toBeUndefined();
+    expect(response.awaitInput).toBeUndefined();
+  });
+
+  test('ввод: длинный текст (>3500) — просьба сократить', async () => {
+    const appApi = makeAppApi([
+      {
+        userId: PEER_ID,
+        role: 'student',
+        outcome: 'completed',
+        hasMyReview: false,
+      },
+    ]);
+    const story = new CampaignStory();
+    initStory(story, appApi);
+    await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${PEER_ID}`,
+      actor,
+      session,
+    );
+
+    const dialog: BotSession = {
+      dialog: {
+        path: 'peer-review/campaign',
+        seq: 2,
+        input: { context: { campaignId: CAMPAIGN_ID, recipientId: PEER_ID } },
+      },
+    };
+    const response = await story.handleMessage(
+      message('х'.repeat(3501)),
+      actor,
+      dialog,
+    );
+
+    expect(String(response.notify?.text ?? '')).toContain('3500');
+  });
+
+  test('skip: возврат в список адресатов без сохранения', async () => {
+    const appApi = makeAppApi([
+      {
+        userId: PEER_ID,
+        role: 'student',
+        outcome: 'completed',
+        hasMyReview: false,
+      },
+    ]);
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const response = await story.handleCallback(
+      `skip:${CAMPAIGN_ID}`,
+      actor,
+      session,
+    );
+
+    expect(String(response.screen?.text ?? '')).toContain(
+      'О ком хотите рассказать',
+    );
   });
 });

@@ -25,6 +25,7 @@ export const RecipientSchema = v.object({
 export const CampaignRecipientsSchema = v.object({
   campaignId: uuidField('Некорректный формат UUID кампании'),
   myRole: AuthorRoleSchema,
+  myOutcome: v.optional(ParticipantOutcomeSchema),
   daysLeft: v.pipe(v.number(), v.integer(), v.minValue(0)),
   recipients: v.array(RecipientSchema),
 });
