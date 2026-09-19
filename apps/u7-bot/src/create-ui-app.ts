@@ -4,6 +4,7 @@ import type { BotConfig } from './config';
 import { CoursesController } from './controllers/courses/controller';
 import { LearningController } from './controllers/learning/controller';
 import { MentorController } from './controllers/mentor/controller';
+import { PeerReviewController } from './controllers/peer-review/controller';
 import { QuestionnaireController } from './controllers/questionnaire/controller';
 import { StreamsController } from './controllers/streams/controller';
 import { UserController } from './controllers/user/controller';
@@ -24,6 +25,7 @@ export interface UiAppBundle {
   learningController: LearningController;
   mentorController: MentorController;
   questionnaireController: QuestionnaireController;
+  peerReviewController: PeerReviewController;
 }
 
 /**
@@ -42,6 +44,7 @@ export async function createUiApp(
   const learningController = new LearningController();
   const mentorController = new MentorController();
   const questionnaireController = new QuestionnaireController();
+  const peerReviewController = new PeerReviewController();
   const userController = new UserController();
   // Админ-гейт /log_level — app-контроллер (ФР-4)
   const appController = new AppController(
@@ -58,6 +61,7 @@ export async function createUiApp(
     learningController,
     mentorController,
     questionnaireController,
+    peerReviewController,
   ]);
 
   // resolve для каскадной инициализации UiApp → контроллеры → стори.
@@ -93,5 +97,6 @@ export async function createUiApp(
     learningController,
     mentorController,
     questionnaireController,
+    peerReviewController,
   };
 }
