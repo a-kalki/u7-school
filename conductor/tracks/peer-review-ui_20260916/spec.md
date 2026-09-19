@@ -4,7 +4,7 @@
 > [peer-review-campaign_20260918](../../archive/peer-review-campaign_20260918/spec.md)
 > (домен v4, UC, фасад, событие `student-campaign.created`) и
 > [pagination_20260919](../pagination_20260919/spec.md) (готовый пагинатор:
-> ядро `Paginator`, бот-наследник `BotPaginator`, кеш `PageCache`).
+> ядро `Paginator`, бот-наследник `BotPaginator`, системный кеш `DialogCache`).
 > Экраны и тексты — утверждённая спека [ui-spec.md](../../../apps/u7-bot/src/controllers/peer-review/ui-spec.md)
 > (S01–S07); она — источник истины по текстам, кнопкам и условиям видимости.
 
@@ -19,7 +19,7 @@
 ## Функциональные требования
 
 - **ФР-1. Пагинация S07 — готовый пагинатор** (трек pagination_20260919):
-  `BotPaginator` + кеш `PageCache` из core `ui/bot`; своя механика разбиения
+  `BotPaginator` + системный кеш `DialogCache` из core `ui/bot`; своя механика разбиения
   в этом треке не разрабатывается.
 - **ФР-2. Контроллер + стори кампании** (`apps/u7-bot/src/controllers/peer-review/`):
   - **S03** список адресатов: кнопки `Студент: {Имя}` / `Ментор: {Имя}`, `✅` при

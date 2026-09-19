@@ -245,7 +245,7 @@
 ### Абстракция пагинации 📋
 
 > Пагинатор уже готов — трек `pagination` (ядро в core `ui/pagination`,
-> бот-наследник `BotPaginator` + кеш `PageCache` в core `ui/bot`; реализуется
+> бот-наследник `BotPaginator` + системный кеш `DialogCache` в core `ui/bot`; реализуется
 > раньше этого трека). S07 потребляет его готовым. Это не вопрос ui-spec.
 
 ---

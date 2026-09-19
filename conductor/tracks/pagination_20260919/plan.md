@@ -21,18 +21,20 @@
     - [ ] Red: тесты (ряд кнопок, коды с номером страницы — числовой сегмент,
           лимит 64 байта не нарушается, индикатор)
     - [ ] Green: реализация
-- [ ] Task: Кеш `PageCache` — `packages/core/src/ui/bot/page-cache.ts` (ФР-3):
-      put/get по (telegramId, эпоха path+seq), одна запись на пользователя,
-      miss при чужой эпохе
-    - [ ] Red: тесты (hit/miss по эпохе, перезапись одной записи, miss после
-          «смены диалога»)
+- [ ] Task: Системный кеш `DialogCache` — `packages/core/src/ui/bot/dialog-cache.ts`
+      (ФР-3): set/get по (tgId, key) с эпохой path+seq (miss при чужой);
+      инстанс в `BotUiApp`, каскад init в стори (как proactiveSender);
+      физический drop(tgId) в `enterDialog` при переходе в новую эпоху
+      (сигнатура + tgId, обновить 3 вызова в apps/u7-bot)
+    - [ ] Red: тесты (hit/miss по эпохе, drop при смене диалога через
+          enterDialog — только текущий пользователь, доставка каскадом в стори)
     - [ ] Green: реализация
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
 ## Фаза 2. Перенос обрезок (streams S03, courses S00)
 
 - [ ] Task: streams S03 «Программа курса» (ФР-4): блок = проект с уроками
-      (tree-renderer отдаёт блоки), `#truncate` удалён, кеш через PageCache,
+      (tree-renderer отдаёт блоки), `#truncate` удалён, кеш через DialogCache,
       листание edit на месте
     - [ ] Red: стори-тест длинной программы (границы страниц по целым
           проектам, `‹ Пред`/`След ›` одним рядом, `Стр. N/M`, кеш — домен
@@ -53,5 +55,5 @@
 - [ ] Task: Полный прогон `bun run check`, триаж по workflow; `grep truncate`
       по сторям — пусто
 - [ ] Task: Создать summary.md трека (включая исследование UUID-сжатия и
-      решение о кеше в памяти стори)
+      решение о системном кеше DialogCache)
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
