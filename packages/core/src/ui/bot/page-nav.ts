@@ -2,6 +2,16 @@ import type { Page } from '../pagination/paginator';
 import { Paginator } from '../pagination/paginator';
 import { btn, type KbButton } from './response-builders';
 
+/** Опции лимита контента страниц. */
+export interface BotLimitOpts {
+  /**
+   * Клиент сам распорядился бюджетом («попросил полную длину»):
+   * ровно столько символов на контент страниц, шапка и резерв
+   * НЕ вычитаются — клиент уже всё учёл.
+   */
+  fullLength?: number;
+}
+
 /**
  * Бот-наследник ядра `Paginator` (паттерн как `UiStory → BotUiStory`):
  * лимит Telegram, ряд кнопок навигации, индикатор страницы. Без состояния
@@ -18,15 +28,25 @@ export class BotPaginator extends Paginator {
   static readonly LIMIT_RESERVE = 64;
 
   /**
-   * Лимит меры блоков страницы: 4096 − длина шапки экрана − резерв.
-   * Шапка повторяется на каждой странице, индикатор и разделители
-   * покрывает резерв.
+   * Дефолтный запас на сопровождающий текст (шапку экрана) — когда
+   * клиент не передал её длину, место для неё всё равно остаётся.
    */
-  botLimit(headerLength: number): number {
+  static readonly HEADER_RESERVE = 256;
+
+  /**
+   * Лимит меры блоков страницы: 4096 − шапка − резерв.
+   *
+   * Шапка (сопровождающий текст) повторяется на каждой странице,
+   * индикатор и разделители покрывает резерв. По умолчанию длина шапки
+   * неизвестна — вычитается дефолтный HEADER_RESERVE (запас для шапки
+   * остаётся всегда). `fullLength` — клиент сам распорядился длиной
+   * контента: используется как есть, без вычетов.
+   */
+  botLimit(headerLength?: number, opts?: BotLimitOpts): number {
+    if (opts?.fullLength !== undefined) return opts.fullLength;
+    const header = headerLength ?? BotPaginator.HEADER_RESERVE;
     return (
-      BotPaginator.TELEGRAM_TEXT_LIMIT -
-      headerLength -
-      BotPaginator.LIMIT_RESERVE
+      BotPaginator.TELEGRAM_TEXT_LIMIT - header - BotPaginator.LIMIT_RESERVE
     );
   }
 

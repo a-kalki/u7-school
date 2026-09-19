@@ -17,6 +17,26 @@ describe('BotPaginator / botLimit', () => {
     expect(p.botLimit(150)).toBe(4096 - 150 - BotPaginator.LIMIT_RESERVE);
   });
 
+  test('без шапки — дефолтный запас на сопровождающий текст всегда вычитается', () => {
+    const p = new BotPaginator();
+
+    expect(BotPaginator.HEADER_RESERVE).toBeGreaterThan(0);
+    // Клиент не сказал длину шапки — пагинатор сам оставляет запас
+    expect(p.botLimit()).toBe(
+      4096 - BotPaginator.HEADER_RESERVE - BotPaginator.LIMIT_RESERVE,
+    );
+  });
+
+  test('клиент попросил полную длину (fullLength) — без вычетов шапки и резерва', () => {
+    const p = new BotPaginator();
+
+    // Клиент сам распорядился бюджетом контента — используем как есть
+    expect(p.botLimit(150, { fullLength: 3000 })).toBe(3000);
+    expect(p.botLimit(undefined, { fullLength: 2000 })).toBe(2000);
+    // Полная длина Telegram без запасов
+    expect(p.botLimit(150, { fullLength: 4096 })).toBe(4096);
+  });
+
   test('шапка + резерв не съедают лимит целиком', () => {
     const p = new BotPaginator();
     const header = 200; // типичная шапка экрана
