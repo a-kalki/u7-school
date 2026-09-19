@@ -14,13 +14,13 @@
           список, oversized-блок, кастомная measure, курсоры prevStart/nextStart,
           clamp номера страницы, isSingle/isEmpty) — 20b3547
     - [x] Green: реализация — 20b3547
-- [ ] Task: Бот-наследник `BotPaginator` — `packages/core/src/ui/bot/page-nav.ts`
+- [x] Task: Бот-наследник `BotPaginator` — `packages/core/src/ui/bot/page-nav.ts`
       (ФР-2): `botLimit(headerLength)` (4096 − шапка − резерв), `navRows(page, cb)`
       — один ряд `‹ Пред`/`След ›` только при соседних страницах, `indicator(page)`
       — `Стр. N/M` (undefined на единственной)
-    - [ ] Red: тесты (ряд кнопок, коды с номером страницы — числовой сегмент,
-          лимит 64 байта не нарушается, индикатор)
-    - [ ] Green: реализация
+    - [x] Red: тесты (ряд кнопок, коды с номером страницы — числовой сегмент,
+          лимит 64 байта не нарушается, индикатор) — 7d92c8b
+    - [x] Green: реализация — 7d92c8b
 - [ ] Task: Системный кеш `DialogCache` — `packages/core/src/ui/bot/dialog-cache.ts`
       (ФР-3): set/get по (tgId, key) с эпохой path+seq (miss при чужой);
       инстанс в `BotUiApp`, каскад init в стори (как proactiveSender);
