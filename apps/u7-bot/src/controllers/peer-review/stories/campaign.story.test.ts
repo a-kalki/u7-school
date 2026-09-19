@@ -43,6 +43,7 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     myRole: 'subject' | 'mentor' = 'subject',
     myOutcome?: RecipientView['outcome'],
     failUc?: string,
+    myReviewText?: string,
   ) {
     return {
       execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
@@ -77,6 +78,10 @@ describe('CampaignStory (S03 — список адресатов)', () => {
               campaignId: attrs.campaignId,
               recipientId: attrs.recipientId,
             };
+          case 'get-my-review':
+            return myReviewText === undefined
+              ? { found: false }
+              : { found: true, text: myReviewText };
           case 'get-stream':
             return { uuid: attrs.uuid, title: 'Поток S' };
           case 'get-user':
@@ -517,6 +522,119 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     expect(response.screen).toBeUndefined();
     expect(response.notify).not.toBeNull();
     expect(String(response.notify?.text ?? '')).not.toContain('сохранён');
+  });
+
+  // ── S04: перезапись отзыва ──
+
+  test('open: ✅-адресат — экран перезаписи с текущим текстом, кнопка Назад', async () => {
+    const appApi = makeAppApi(
+      [
+        {
+          userId: PEER_ID,
+          role: 'student',
+          outcome: 'completed',
+          hasMyReview: true,
+        },
+      ],
+      'subject',
+      'completed',
+      undefined,
+      'старый отзыв',
+    );
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const response = await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${PEER_ID}`,
+      actor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text ?? '');
+
+    expect(text).toContain('✏️ Вы уже писали о Борис');
+    expect(text).toContain('старый отзыв');
+    expect(text).toContain('Отправьте новый текст');
+    expect(response.awaitInput?.context).toEqual({
+      campaignId: CAMPAIGN_ID,
+      recipientId: PEER_ID,
+    });
+    const back = findBtn(response, 'Назад');
+    expect(back?.code).toBe(`campaign:skip:${CAMPAIGN_ID}`);
+  });
+
+  test('open: ✅-адресат — ввод заменяет текст (create-review перезапись)', async () => {
+    const appApi = makeAppApi(
+      [
+        {
+          userId: PEER_ID,
+          role: 'student',
+          outcome: 'completed',
+          hasMyReview: true,
+        },
+      ],
+      'subject',
+      'completed',
+      undefined,
+      'старый отзыв',
+    );
+    const story = new CampaignStory();
+    initStory(story, appApi);
+    await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${PEER_ID}`,
+      actor,
+      session,
+    );
+
+    const dialog: BotSession = {
+      dialog: {
+        path: 'peer-review/campaign',
+        seq: 2,
+        input: { context: { campaignId: CAMPAIGN_ID, recipientId: PEER_ID } },
+      },
+    };
+    const response = await story.handleMessage(
+      message('Обновлённый отзыв, всё было отлично'),
+      actor,
+      dialog,
+    );
+
+    expect(String(response.screen?.text ?? '')).toContain('сохранён');
+    const calls = (
+      appApi.execute.mock.calls as unknown as Array<
+        [string, Record<string, unknown>, unknown]
+      >
+    ).map(([ucName, attrs]) => [ucName, attrs]);
+    expect(calls).toContainEqual([
+      'create-review',
+      {
+        campaignId: CAMPAIGN_ID,
+        authorId: actor.uuid,
+        recipientId: PEER_ID,
+        text: 'Обновлённый отзыв, всё было отлично',
+      },
+    ]);
+  });
+
+  test('open: ✅-адресат, отзыв уже не найден — обычный ввод S05', async () => {
+    const appApi = makeAppApi([
+      {
+        userId: PEER_ID,
+        role: 'student',
+        outcome: 'completed',
+        hasMyReview: true,
+      },
+    ]);
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const response = await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${PEER_ID}`,
+      actor,
+      session,
+    );
+
+    expect(String(response.screen?.text ?? '')).toContain('Расскажите о Борис');
   });
 
   test('skip: возврат в список адресатов без сохранения', async () => {

@@ -125,7 +125,7 @@ export class CampaignStory extends U7BotUiStory {
     );
   }
 
-  /** S05: ввод отзыва — подсказка по направлению и исходу автора. */
+  /** S05/S04: ввод отзыва — обычная подсказка или перезапись (✅-адресат). */
   async #askReview(
     campaignId: string,
     recipientId: string,
@@ -151,10 +151,35 @@ export class CampaignStory extends U7BotUiStory {
       recipient.role,
       name,
     );
+    const context: ReviewInputContext = { campaignId, recipientId };
+    const kb = this.kb([
+      [this.btn('⏭️ Пропустить', this.cb('skip', campaignId))],
+    ]);
+    if (!recipient.hasMyReview) {
+      return this.ask(prompt, context, kb);
+    }
+
+    // S04: адресат уже отозван — экран перезаписи с текущим текстом
+    const my = await this.appApi.execute(
+      'get-my-review',
+      { campaignId, authorId: actor.uuid, recipientId },
+      actor,
+    );
+    if (!my.found) {
+      // рассинхрон признака (гонка) — обычный ввод S05
+      return this.ask(prompt, context, kb);
+    }
     return this.ask(
-      prompt,
-      { campaignId, recipientId },
-      this.kb([[this.btn('⏭️ Пропустить', this.cb('skip', campaignId))]]),
+      mdJoin([
+        md`✏️ Вы уже писали о ${name}:`,
+        md``,
+        md`«${my.text ?? ''}»`,
+        md``,
+        md`Отправьте новый текст — он заменит текущий\\.`,
+        md`Или нажмите «Назад»\\.`,
+      ]),
+      context,
+      this.kb([[this.btn('❌ Назад', this.cb('skip', campaignId))]]),
     );
   }
 

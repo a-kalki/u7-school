@@ -6,6 +6,7 @@ import type {
 } from '../domain/module';
 import { CreateStudentCampaignEr } from './er/create-student-campaign-er';
 import { CreateReviewUc } from './review/create-review-uc';
+import { GetMyReviewUc } from './review/get-my-review-uc';
 import { ListScopeFactsUc } from './review/list-scope-facts-uc';
 import { ListScopeReviewsUc } from './review/list-scope-reviews-uc';
 import { GetCampaignRecipientsUc } from './review-campaign/get-campaign-recipients-uc';
@@ -21,6 +22,7 @@ export class PeerReviewApiModule extends U7ApiModule<
     new GetMyCampaignsUc(),
     new GetCampaignRecipientsUc(),
     new CreateReviewUc(),
+    new GetMyReviewUc(),
     new ListScopeReviewsUc(),
     new ListScopeFactsUc(),
   ];
