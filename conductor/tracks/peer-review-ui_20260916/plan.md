@@ -1,22 +1,11 @@
 # План: UI отзывов (peer-review)
 
 > Спецификация: [spec.md](./spec.md). Тексты и экраны — [ui-spec.md](../../../apps/u7-bot/src/controllers/peer-review/ui-spec.md).
-> **Предусловие:** завершён трек [peer-review-campaign_20260918](../../archive/peer-review-campaign_20260918/plan.md).
+> **Предусловия:** завершён трек [peer-review-campaign_20260918](../../archive/peer-review-campaign_20260918/plan.md);
+> пагинатор готов треком [pagination_20260919](../pagination_20260919/plan.md)
+> (Фаза 1 старого плана — хелпер пагинации — перенесена туда).
 
-## Фаза 1. Хелпер пагинации (core + nav-tree)
-
-- [ ] Task: Хелпер пагинации в `packages/core/src/ui/bot/` (ФР-1) — чистая функция: элементы + рендерер элемента + лимит → страницы целых элементов; константа запаса на шапку/клавиатуру
-    - [ ] Red: тесты (целые элементы, лимит, одна страница, пустой список, длинный элемент)
-    - [ ] Green: реализация
-- [ ] Task: Адресация страниц (ФР-2) — параметр страницы в callback-коде, кнопки `‹ Пред`/`След ›`, edit на месте
-    - [ ] Red: тесты адресации
-    - [ ] Green: реализация/договорённость хелпера с стори
-- [ ] Task: Рефактор nav-tree (ФР-3) — дерево программы (streams S03) на хелпере, обрезка удалена
-    - [ ] Red: тест стори на длинной программе (страницы, навигация)
-    - [ ] Green: реализация
-- [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
-
-## Фаза 2. Контроллер и стори кампании (S03–S06)
+## Фаза 1. Контроллер и стори кампании (S03–S06)
 
 - [ ] Task: Каркас контроллера peer-review + стори кампании: S03 список адресатов (`✅`-признаки, шапка с остатком дней, адресация v4: субъекту по исходу, ментору — только субъект) через `get-campaign-recipients`
     - [ ] Red: тесты S03 (роли кнопок, ✅, заголовок)
@@ -33,9 +22,9 @@
 - [ ] Task: Экран-заглушка истёкшего окна (ошибка «возможность закрыта» из UC → экран стори)
     - [ ] Red: тест
     - [ ] Green: реализация
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
-## Фаза 3. Хаб «Мои отзывы» (S02) и меню
+## Фаза 2. Хаб «Мои отзывы» (S02) и меню
 
 - [ ] Task: `menuButtons` «💬 Отзывы» — видимость по фасаду `hasLiveCampaigns` (декларативно, без обработчиков)
     - [ ] Red: тесты (есть/нет живых кампаний)
@@ -43,28 +32,28 @@
 - [ ] Task: Экран S02 — список живых кампаний с рендером по `myRole` (субъекту: M/K + дни; ментору: «отзыв о {Имя}» + дни) через `get-my-campaigns`, выбор кампании → S03
     - [ ] Red: тесты
     - [ ] Green: реализация
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
-## Фаза 4. Приглашения (S01)
+## Фаза 3. Приглашения (S01)
 
 - [ ] Task: Подписка на `student-campaign.created` → два приглашения: субъекту (текст по его исходу) и ментору («дайте отзыв о студенте {Имя}»), механика `ProactiveSender.invite` (ФР-6), кнопка `💬 Отзывы` → S03 кампании
     - [ ] Red: тесты подписки (адресация, тексты по ролям, одно приглашение каждому получателю)
     - [ ] Green: реализация
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
 
-## Фаза 5. Просмотр S07 и карточка потока
+## Фаза 4. Просмотр S07 и карточка потока
 
-- [ ] Task: Стори просмотра S07 — `list-scope-reviews`, группировка по адресатам с исходами-снапшотами, пагинация (хелпер Фазы 1), `⬅️ Назад к потоку`
-    - [ ] Red: тесты (формат, статусы, страницы)
+- [ ] Task: Стори просмотра S07 — `list-scope-reviews`, группировка по адресатам с исходами-снапшотами, пагинация готовым пагинатором трека pagination (`BotPaginator` + `PageCache`, блок = отзыв, кнопки одним рядом), `⬅️ Назад к потоку`
+    - [ ] Red: тесты (формат, статусы, страницы, кеш)
     - [ ] Green: реализация
 - [ ] Task: Кнопка `💬 Отзывы` в карточке потока (streams S02) — видимость по фасаду `hasReviews`, мост в стори просмотра
     - [ ] Red: тесты (видимость, переход)
     - [ ] Green: реализация
-- [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
 
-## Фаза 6. Документация и финал
+## Фаза 5. Документация и финал
 
 - [ ] Task: Обновить ui-spec peer-review (✅-пометки) и ui-spec streams (кнопка S02); удалить `tactics-draft.md`; обновить §5 концепции при отклонениях
-- [ ] Task: Полный прогон `bun run check`, триаж по workflow; решение о судьбе хелпера пагинации зафиксировать в summary
+- [ ] Task: Полный прогон `bun run check`, триаж по workflow
 - [ ] Task: Создать summary.md трека
-- [ ] Task: Conductor - User Manual Verification 'Фаза 6' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md)
