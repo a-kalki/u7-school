@@ -16,6 +16,27 @@ export interface TreeNode {
 }
 
 /**
+ * Рендерит блоки дерева: один блок = корневой узел со всеми его детьми.
+ *
+ * Блок — единица пагинации (трек pagination): страница наполняется
+ * ЦЕЛЫМИ блоками, узел с детьми не рвётся посередине. Строки блока —
+ * готовый MarkdownV2 (title уже экранирован).
+ */
+export function renderTreeBlocks(nodes: TreeNode[]): string[] {
+  return nodes.map((node) => {
+    const meta = node.meta ? ` — ${node.meta}` : '';
+    const lines = [`${node.emoji} *${node.title}*${meta}`];
+
+    for (const child of node.children ?? []) {
+      const childMeta = child.meta ? ` — ${child.meta}` : '';
+      lines.push(`    ${child.emoji} ${child.title}${childMeta}`);
+    }
+
+    return lines.join('\n');
+  });
+}
+
+/**
  * Рендерит дерево узлов в MarkdownV2.
  *
  * Каждый узел: `эмодзи *жирный заголовок* — мета`.
@@ -24,19 +45,5 @@ export interface TreeNode {
  * Чистая функция, без зависимостей от доменов и внешних сервисов.
  */
 export function renderTree(nodes: TreeNode[]): string {
-  const lines: string[] = [];
-
-  for (const node of nodes) {
-    const meta = node.meta ? ` — ${node.meta}` : '';
-    lines.push(`${node.emoji} *${node.title}*${meta}`);
-
-    if (node.children && node.children.length > 0) {
-      for (const child of node.children) {
-        const childMeta = child.meta ? ` — ${child.meta}` : '';
-        lines.push(`    ${child.emoji} ${child.title}${childMeta}`);
-      }
-    }
-  }
-
-  return lines.join('\n');
+  return renderTreeBlocks(nodes).join('\n');
 }

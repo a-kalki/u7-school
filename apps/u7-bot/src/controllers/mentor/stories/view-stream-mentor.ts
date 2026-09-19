@@ -32,7 +32,7 @@ export class ViewStreamMentorStory extends ViewStreamStory {
     actor: User,
     session: BotSession,
   ): Promise<DialogResponse> {
-    const [cmd, streamId] = action.split(':');
+    const [cmd, streamId, pageSeg] = action.split(':');
 
     // Делегируем просмотр карточки, программы и деталей родителю
     if (cmd === 'view' && streamId) {
@@ -40,7 +40,13 @@ export class ViewStreamMentorStory extends ViewStreamStory {
     }
 
     if (cmd === 'program' && streamId) {
-      return this.handleProgramView(streamId);
+      const page = Number(pageSeg);
+      return this.handleProgramView(
+        streamId,
+        actor,
+        session,
+        Number.isNaN(page) ? 0 : page,
+      );
     }
 
     if (cmd === 'details' && streamId) {

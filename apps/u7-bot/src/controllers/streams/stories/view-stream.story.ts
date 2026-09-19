@@ -22,7 +22,7 @@ import {
   StudentOutcomeCategory,
 } from '@u7-scl/stream/domain';
 import type { TreeNode } from '../../../shared/tree-renderer';
-import { renderTree } from '../../../shared/tree-renderer';
+import { renderTreeBlocks } from '../../../shared/tree-renderer';
 import { Routes } from '../../shared/routes';
 
 /** Контекст awaitInput при вводе кодового слова */
@@ -56,10 +56,16 @@ export class ViewStreamStory extends U7BotUiStory {
     actor: User,
     session: BotSession,
   ): Promise<DialogResponse> {
-    const [cmd, streamId] = action.split(':');
+    const [cmd, streamId, pageSeg] = action.split(':');
 
     if (cmd === 'program' && streamId) {
-      return this.handleProgramView(streamId);
+      const page = Number(pageSeg);
+      return this.handleProgramView(
+        streamId,
+        actor,
+        session,
+        Number.isNaN(page) ? 0 : page,
+      );
     }
 
     if (cmd === 'details' && streamId) {
@@ -206,30 +212,58 @@ export class ViewStreamStory extends U7BotUiStory {
     return this.screen(text, keyboard.rows.length > 0 ? keyboard : undefined);
   }
 
-  protected async handleProgramView(streamId: string): Promise<DialogResponse> {
+  protected async handleProgramView(
+    streamId: string,
+    actor: User,
+    session: BotSession,
+    pageIndex = 0,
+  ): Promise<DialogResponse> {
+    // Блок = проект с уроками (целый, не рвётся); страницы кешируются
+    // в системном кеш эпохи диалога — build (чтение домена) вызывается
+    // только при промахе кеша, тыки навигации домен не перечитывают.
+    return this.pagedScreen({
+      build: () => this.#buildProgramBlocks(streamId),
+      emptyScreen: () =>
+        this.screen(
+          md`📖 *Программа курса*\n\nПрограмма пока не загружена\\.`,
+          this.kb([
+            [
+              this.btn(
+                '⬅️ Назад к потоку',
+                this.cbFor(this.storyName, 'view', streamId),
+              ),
+            ],
+          ]),
+        ),
+      cacheKey: `program:${streamId}`,
+      bottomRows: [
+        [
+          this.btn(
+            '⬅️ Назад к потоку',
+            this.cbFor(this.storyName, 'view', streamId),
+          ),
+        ],
+      ],
+      pageIndex,
+      cbPage: (n) => this.cbFor(this.storyName, 'program', streamId, String(n)),
+      session,
+      tgId: actor.telegramId,
+    });
+  }
+
+  /** Читает снапшот программы потока и собирает блоки «проект с уроками». */
+  async #buildProgramBlocks(
+    streamId: string,
+  ): Promise<{ header: MdText; blocks: string[] }> {
     const stream = (await this.appApi.execute('get-stream', {
       streamId,
     })) as Stream;
     const snapshot = stream.contentSnapshot;
 
-    if (!snapshot || snapshot.length === 0) {
-      return this.screen(
-        md`📖 *Программа курса*\n\nПрограмма пока не загружена\\.`,
-        this.kb([
-          [
-            this.btn(
-              '⬅️ Назад к потоку',
-              this.cbFor(this.storyName, 'view', streamId),
-            ),
-          ],
-        ]),
-      );
-    }
-
     // Собираем дерево проектов для tree-renderer.
     // Контракт TreeNode.title — «уже экранированный для MarkdownV2»,
     // поэтому заголовки пропускаем через md-интерполяцию ДО renderTree.
-    const projectNodes: TreeNode[] = snapshot.map(
+    const projectNodes: TreeNode[] = (snapshot ?? []).map(
       (p: {
         projectTitle: string;
         lessons: Array<{ lessonTitle: string; stepIds: string[] }>;
@@ -248,20 +282,10 @@ export class ViewStreamStory extends U7BotUiStory {
       }),
     );
 
-    const treeText = renderTree(projectNodes);
-    const text = mdConcat(md`📖 *Программа курса*\n\n`, mdRaw(treeText));
-
-    return this.screen(
-      this.#truncate(text),
-      this.kb([
-        [
-          this.btn(
-            '⬅️ Назад к потоку',
-            this.cbFor(this.storyName, 'view', streamId),
-          ),
-        ],
-      ]),
-    );
+    return {
+      header: md`📖 *Программа курса*`,
+      blocks: renderTreeBlocks(projectNodes),
+    };
   }
 
   protected async handleDetailsView(streamId: string): Promise<DialogResponse> {
@@ -876,10 +900,5 @@ export class ViewStreamStory extends U7BotUiStory {
     if (r === 1) return one;
     if (r >= 2 && r <= 4) return two;
     return five;
-  }
-
-  #truncate(text: MdText, maxLen = 4000): MdText {
-    if (text.length <= maxLen) return text;
-    return mdConcat(mdRaw(text.slice(0, maxLen - 15)), md`${'...'}`);
   }
 }

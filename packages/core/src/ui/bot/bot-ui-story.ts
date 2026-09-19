@@ -7,7 +7,7 @@ import { type MdText, md, mdConcat, mdJoin } from '#shared/markdown';
 import { serializeError } from '#shared/serialize-error';
 import { UiStory } from '../ui-story';
 import type { BotUiAppResolve } from './app-types';
-import type { DialogCache } from './dialog-cache';
+import { DialogCache } from './dialog-cache';
 import type { KbButton } from './response-builders';
 import * as rb from './response-builders';
 import type {
@@ -40,8 +40,10 @@ export abstract class BotUiStory<
   protected proactiveSender!: ProactiveSender;
 
   /** Системный эпохальный кеш стори (сброс при смене диалога): страницы
-   * пагинатора и другие пересобираемые данные домена. */
-  protected dialogCache!: DialogCache;
+   * пагинатора и другие пересобираемые данные домена. Дефолт — собственный
+   * инстанс (юнит-тесты стори без каскада init тоже получают кеш);
+   * прикладное ядро подменяет общим инстансом BotUiApp. */
+  protected dialogCache: DialogCache = new DialogCache();
 
   protected get logger(): Logger | undefined {
     return getGlobalLogger();

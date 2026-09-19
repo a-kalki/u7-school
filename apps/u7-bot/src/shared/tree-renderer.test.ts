@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { renderTree, type TreeNode } from './tree-renderer';
+import { renderTree, renderTreeBlocks, type TreeNode } from './tree-renderer';
 
 describe('renderTree', () => {
   test('пустой массив — пустая строка', () => {
@@ -81,5 +81,38 @@ describe('renderTree', () => {
     // Символы * и _ в заголовке будут обработаны Markdown как форматирование
     // renderTree НЕ экранирует — это pure rendering
     expect(renderTree(nodes)).toBe('📁 *Asterisk\\*underscore\\_tilde\\~*');
+  });
+});
+
+describe('renderTreeBlocks (пагинация)', () => {
+  test('блок = корневой узел со всеми детьми; renderTree = join блоков', () => {
+    const nodes: TreeNode[] = [
+      {
+        title: 'Проект A',
+        emoji: '📁',
+        children: [
+          { title: 'Урок 1', emoji: '📝', meta: '1 шаг' },
+          { title: 'Урок 2', emoji: '📝', meta: '2 шага' },
+        ],
+      },
+      {
+        title: 'Проект B',
+        emoji: '📁',
+        meta: 'модуль',
+        children: [{ title: 'Урок 3', emoji: '📝' }],
+      },
+    ];
+    const blocks = renderTreeBlocks(nodes);
+    expect(blocks).toEqual([
+      ['📁 *Проект A*', '    📝 Урок 1 — 1 шаг', '    📝 Урок 2 — 2 шага'].join(
+        '\n',
+      ),
+      ['📁 *Проект B* — модуль', '    📝 Урок 3'].join('\n'),
+    ]);
+    expect(renderTree(nodes)).toBe(blocks.join('\n'));
+  });
+
+  test('пустой массив — пустой список блоков', () => {
+    expect(renderTreeBlocks([])).toEqual([]);
   });
 });
