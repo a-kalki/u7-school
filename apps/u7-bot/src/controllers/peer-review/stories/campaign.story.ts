@@ -56,14 +56,29 @@ export class CampaignStory extends U7BotUiStory {
         md`✍️ Спасибо за развёрнутость, но лимит — ${REVIEW_MAX_CHARS} символов\\. Пожалуйста, сократите отзыв\\.`,
       );
     }
-    // Сохранение — S06 (create-review); пока — возврат в список
-    return this.#showRecipients(context.campaignId, actor);
+    try {
+      const saved = await this.appApi.execute(
+        'create-review',
+        {
+          campaignId: context.campaignId,
+          authorId: actor.uuid,
+          recipientId: context.recipientId,
+          text,
+        },
+        actor,
+      );
+      return this.#showRecipients(saved.campaignId, actor, saved.recipientId);
+    } catch (err) {
+      // Ошибки домена (окно закрыто, чужой адресат и т.п.) — реплика поверх
+      return this.errorNotify(err);
+    }
   }
 
   /** S03: список адресатов кампании; ✅ — мой отзыв уже есть. */
   async #showRecipients(
     campaignId: string,
     actor: User,
+    savedId?: string,
   ): Promise<DialogResponse> {
     const view = await this.appApi.execute(
       'get-campaign-recipients',
@@ -100,11 +115,12 @@ export class CampaignStory extends U7BotUiStory {
     ]);
     rows.push([buttons.mainMenu()]);
 
+    // S06: после сохранения — другой заголовок, с именем адресата
+    const header = savedId
+      ? md`✅ Отзыв о ${names.get(savedId) ?? ''} сохранён\\. О ком ещё рассказать?`
+      : md`✍️ Поток «${stream.title}»\\. О ком хотите рассказать? Пишите кому хотите и сколько хотите\\.`;
     return this.screen(
-      mdJoin([
-        md`✍️ Поток «${stream.title}»\\. О ком хотите рассказать? Пишите кому хотите и сколько хотите\\.`,
-        md`⏳ Возможность открыта ещё ${view.daysLeft} дн\\.`,
-      ]),
+      mdJoin([header, md`⏳ Возможность открыта ещё ${view.daysLeft} дн\\.`]),
       this.kb(rows),
     );
   }

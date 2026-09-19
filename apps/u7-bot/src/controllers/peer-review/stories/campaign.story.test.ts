@@ -42,9 +42,13 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     recipients: RecipientView[],
     myRole: 'subject' | 'mentor' = 'subject',
     myOutcome?: RecipientView['outcome'],
+    failUc?: string,
   ) {
     return {
       execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
+        if (ucName === failUc) {
+          throw new Error('имитация ошибки UC');
+        }
         switch (ucName) {
           case 'get-campaign-recipients':
             return {
@@ -67,6 +71,12 @@ describe('CampaignStory (S03 — список адресатов)', () => {
                 progress: { done: 1, total: recipients.length },
               },
             ];
+          case 'create-review':
+            return {
+              reviewId: '10000000-0000-0000-0000-000000000001',
+              campaignId: attrs.campaignId,
+              recipientId: attrs.recipientId,
+            };
           case 'get-stream':
             return { uuid: attrs.uuid, title: 'Поток S' };
           case 'get-user':
@@ -408,6 +418,105 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     );
 
     expect(String(response.notify?.text ?? '')).toContain('3500');
+  });
+
+  // ── S06: сохранение отзыва ──
+
+  const reviewText = 'Отличный напарник, всё успел и помогал другим!';
+
+  test('ввод: валидный текст — create-review, экран «сохранён», ✅ у адресата', async () => {
+    const recipients: RecipientView[] = [
+      {
+        userId: PEER_ID,
+        role: 'student',
+        outcome: 'completed',
+        hasMyReview: false,
+      },
+    ];
+    const appApi = makeAppApi(recipients);
+    const story = new CampaignStory();
+    initStory(story, appApi);
+    await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${PEER_ID}`,
+      actor,
+      session,
+    );
+
+    // после сохранения повторный список адресатов увидит ✅
+    const first = recipients[0];
+    if (first) {
+      first.hasMyReview = true;
+    }
+
+    const dialog: BotSession = {
+      dialog: {
+        path: 'peer-review/campaign',
+        seq: 2,
+        input: { context: { campaignId: CAMPAIGN_ID, recipientId: PEER_ID } },
+      },
+    };
+    const response = await story.handleMessage(
+      message(reviewText),
+      actor,
+      dialog,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    const screenText = String(response.screen?.text ?? '');
+    expect(screenText).toContain('Отзыв о Борис сохранён');
+    expect(screenText).toContain('О ком ещё рассказать');
+    const btn = findBtn(response, 'Студент: Борис');
+    expect(btn?.text.startsWith('✅')).toBe(true);
+
+    const calls = (
+      appApi.execute.mock.calls as unknown as Array<
+        [string, Record<string, unknown>, unknown]
+      >
+    ).map(([ucName, attrs]) => [ucName, attrs]);
+    expect(calls).toContainEqual([
+      'create-review',
+      {
+        campaignId: CAMPAIGN_ID,
+        authorId: actor.uuid,
+        recipientId: PEER_ID,
+        text: reviewText,
+      },
+    ]);
+  });
+
+  test('ввод: ошибка сохранения — реплика об ошибке, экран «сохранён» не показан', async () => {
+    const appApi = makeAppApi(
+      [
+        {
+          userId: PEER_ID,
+          role: 'student',
+          outcome: 'completed',
+          hasMyReview: false,
+        },
+      ],
+      'subject',
+      'completed',
+      'create-review',
+    );
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const dialog: BotSession = {
+      dialog: {
+        path: 'peer-review/campaign',
+        seq: 2,
+        input: { context: { campaignId: CAMPAIGN_ID, recipientId: PEER_ID } },
+      },
+    };
+    const response = await story.handleMessage(
+      message(reviewText),
+      actor,
+      dialog,
+    );
+
+    expect(response.screen).toBeUndefined();
+    expect(response.notify).not.toBeNull();
+    expect(String(response.notify?.text ?? '')).not.toContain('сохранён');
   });
 
   test('skip: возврат в список адресатов без сохранения', async () => {
