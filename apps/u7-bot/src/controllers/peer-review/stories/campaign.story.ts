@@ -1,5 +1,6 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
+import { AppException } from '@u7-scl/core/domain';
 import { type MdText, md, mdJoin } from '@u7-scl/core/shared';
 import type { BotSession, BotUpdate, DialogResponse } from '@u7-scl/core/ui';
 import { buttons } from '../../shared/buttons';
@@ -69,7 +70,17 @@ export class CampaignStory extends U7BotUiStory {
       );
       return this.#showRecipients(saved.campaignId, actor, saved.recipientId);
     } catch (err) {
-      // Ошибки домена (окно закрыто, чужой адресат и т.п.) — реплика поверх
+      // Окно истекло пока писали — экран-заглушка (спека: возможности нет)
+      if (
+        err instanceof AppException &&
+        err.error.name === 'REVIEW_WINDOW_CLOSED'
+      ) {
+        return this.screen(
+          md`⌛ Возможность написать отзыв уже закрыта\\.`,
+          this.kb([[buttons.mainMenu()]]),
+        );
+      }
+      // Прочие ошибки домена (чужой адресат и т.п.) — реплика поверх
       return this.errorNotify(err);
     }
   }

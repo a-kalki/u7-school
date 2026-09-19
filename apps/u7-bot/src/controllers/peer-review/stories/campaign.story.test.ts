@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
+import { AppException } from '@u7-scl/core/domain';
 import {
   assertDialogResponseMarkdownSafe,
   type BotSession,
@@ -44,9 +45,22 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     myOutcome?: RecipientView['outcome'],
     failUc?: string,
     myReviewText?: string,
+    failWindow?: boolean,
   ) {
     return {
       execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
+        if (failWindow && ucName === 'create-review') {
+          throw new AppException({
+            name: 'REVIEW_WINDOW_CLOSED',
+            level: 'domain',
+            kind: 'conflict',
+            message: 'Окно отзывов закрыто',
+            payload: {
+              campaignId: CAMPAIGN_ID,
+              expiresAt: '2026-09-19T00:00',
+            },
+          });
+        }
         if (ucName === failUc) {
           throw new Error('имитация ошибки UC');
         }
@@ -522,6 +536,43 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     expect(response.screen).toBeUndefined();
     expect(response.notify).not.toBeNull();
     expect(String(response.notify?.text ?? '')).not.toContain('сохранён');
+  });
+
+  test('ввод: окно истекло — экран-заглушка, не реплика', async () => {
+    const appApi = makeAppApi(
+      [
+        {
+          userId: PEER_ID,
+          role: 'student',
+          outcome: 'completed',
+          hasMyReview: false,
+        },
+      ],
+      'subject',
+      'completed',
+      undefined,
+      undefined,
+      true,
+    );
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const dialog: BotSession = {
+      dialog: {
+        path: 'peer-review/campaign',
+        seq: 2,
+        input: { context: { campaignId: CAMPAIGN_ID, recipientId: PEER_ID } },
+      },
+    };
+    const response = await story.handleMessage(
+      message(reviewText),
+      actor,
+      dialog,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    expect(String(response.screen?.text ?? '')).toContain('уже закрыта');
+    expect(findBtn(response, 'Главное меню')).not.toBeNull();
   });
 
   // ── S04: перезапись отзыва ──
