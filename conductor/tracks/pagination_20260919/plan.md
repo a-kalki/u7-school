@@ -54,7 +54,8 @@
     - [x] фикстуры: поток e6e6 + курс f1f1/модуль f2f2 — ad38d70
     - [x] e2e: полный цикл (вперёд до конца и назад), edit на месте,
           assertDialogResponseMarkdownSafe на каждом ответе — ad38d70
-- [ ] Task: ✅-пометки ui-spec (streams S03, courses S00) — ФР-8
+- [x] Task: ✅-пометки ui-spec (streams S03, courses S00) — ФР-8 —
+      commits: ui-spec помечены (streams/courses)
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
 ## Фаза 3. Финал
