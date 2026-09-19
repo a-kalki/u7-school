@@ -21,6 +21,8 @@
     - [x] Red: тесты (ряд кнопок, коды с номером страницы — числовой сегмент,
           лимит 64 байта не нарушается, индикатор) — 7d92c8b
     - [x] Green: реализация — 7d92c8b
+    - [x] Правка по замечанию: botLimit с опциональной шапкой (дефолтный
+          HEADER_RESERVE) и fullLength клиента — b4c0d9a
 - [x] Task: Системный кеш `DialogCache` — `packages/core/src/ui/bot/dialog-cache.ts`
       (ФР-3): set/get по (tgId, key) с эпохой path+seq (miss при чужой);
       инстанс в `BotUiApp`, каскад init в стори (как proactiveSender);
