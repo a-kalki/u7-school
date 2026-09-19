@@ -7,6 +7,7 @@ import { type MdText, md, mdConcat, mdJoin } from '#shared/markdown';
 import { serializeError } from '#shared/serialize-error';
 import { UiStory } from '../ui-story';
 import type { BotUiAppResolve } from './app-types';
+import type { DialogCache } from './dialog-cache';
 import type { KbButton } from './response-builders';
 import * as rb from './response-builders';
 import type {
@@ -38,6 +39,10 @@ export abstract class BotUiStory<
   /** Родитель (BotController) — получается через init отдельным аргументом */
   protected proactiveSender!: ProactiveSender;
 
+  /** Системный эпохальный кеш стори (сброс при смене диалога): страницы
+   * пагинатора и другие пересобираемые данные домена. */
+  protected dialogCache!: DialogCache;
+
   protected get logger(): Logger | undefined {
     return getGlobalLogger();
   }
@@ -45,10 +50,17 @@ export abstract class BotUiStory<
   /**
    * Инициализация сценария — вызывается контроллером при старте бота.
    */
-  override init(resolve: TResolve, proactiveSender?: ProactiveSender): void {
+  override init(
+    resolve: TResolve,
+    proactiveSender?: ProactiveSender,
+    dialogCache?: DialogCache,
+  ): void {
     this.appApi = resolve.appApi;
     if (proactiveSender) {
       this.proactiveSender = proactiveSender;
+    }
+    if (dialogCache) {
+      this.dialogCache = dialogCache;
     }
     super.init(resolve);
   }

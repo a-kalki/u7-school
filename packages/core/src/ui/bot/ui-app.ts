@@ -2,6 +2,7 @@ import { type MdText, mdJoin, mdRaw } from '../../shared/markdown';
 import { UiApp } from '../ui-app';
 import type { BotUiAppResolve } from './app-types';
 import type { BotController } from './bot-controller';
+import { DialogCache } from './dialog-cache';
 import * as rb from './response-builders';
 import type {
   BotSession,
@@ -39,17 +40,21 @@ export abstract class BotUiApp<
 
   protected transport!: ProactiveSender;
 
+  /** Системный эпохальный кеш стори (сброс при смене диалога, не персистится). */
+  readonly dialogCache = new DialogCache();
+
   constructor(controllers: BotController<TAppMeta, TActor, TResolve>[]) {
     super(controllers);
   }
 
   /**
-   * Каскадная инициализация.
+   * Каскадная инициализация: кеш доставляется в контроллеры и стори
+   * (как transport).
    */
   override init(resolve: TResolve, transport?: ProactiveSender): void {
     this.resolve = resolve;
     for (const controller of this.controllers.values()) {
-      controller.init(resolve, this);
+      controller.init(resolve, this, this.dialogCache);
     }
 
     if (transport) {
@@ -88,6 +93,7 @@ export abstract class BotUiApp<
       if (reaction.reaction === 'stop') {
         const response = await this.#resolveDelegate(
           reaction.response,
+          tgId,
           actor,
           session,
         );
@@ -136,8 +142,8 @@ export abstract class BotUiApp<
     session: BotSession,
   ): Promise<DialogResponse | null> {
     const actor = await this.resolve.actorResolver(tgId);
-    const initiator = await this.dispatch(data, actor, session);
-    return this.#resolveDelegate(initiator, actor, session);
+    const initiator = await this.dispatch(data, tgId, actor, session);
+    return this.#resolveDelegate(initiator, tgId, actor, session);
   }
 
   // ── Обработка сообщений ──
@@ -195,12 +201,16 @@ export abstract class BotUiApp<
    */
   protected enterDialog(
     session: BotSession,
+    tgId: number,
     path: string,
     mode: 'switch' | 'reopen',
   ): void {
     const current = session.dialog;
     if (mode === 'switch' && current?.path === path) return;
     session.dialog = { path, seq: (current?.seq ?? 0) + 1 };
+    // Новая эпоха — вспомогательные данные прежнего диалога мертвы
+    // (только у текущего пользователя).
+    this.dialogCache.drop(tgId);
   }
 
   /**
@@ -213,6 +223,7 @@ export abstract class BotUiApp<
    */
   protected async dispatch(
     data: string,
+    tgId: number,
     actor: TActor,
     session: BotSession,
   ): Promise<DialogResponse> {
@@ -226,7 +237,7 @@ export abstract class BotUiApp<
       return rb.screen(mdRaw('⚠️ Неизвестная команда'));
     }
 
-    this.enterDialog(session, `${ctrlName}/${storyName}`, 'switch');
+    this.enterDialog(session, tgId, `${ctrlName}/${storyName}`, 'switch');
 
     const rest = data.slice(ctrlName.length + 1);
     return controller.handleCallback(rest, actor, session);
@@ -242,6 +253,7 @@ export abstract class BotUiApp<
    */
   async #resolveDelegate(
     initiator: DialogResponse,
+    tgId: number,
     actor: TActor,
     session: BotSession,
   ): Promise<DialogResponse> {
@@ -250,7 +262,7 @@ export abstract class BotUiApp<
       return initiator;
     }
 
-    const target = await this.dispatch(delegatePath, actor, session);
+    const target = await this.dispatch(delegatePath, tgId, actor, session);
 
     const notify =
       initiator.notify && target.notify

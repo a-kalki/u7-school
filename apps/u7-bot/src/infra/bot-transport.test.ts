@@ -1373,7 +1373,7 @@ class InvUiApp extends BotUiApp {
     session: BotSession,
   ): Promise<DialogResponse | null> {
     if (update.command === 'start') {
-      this.enterDialog(session, this.menuPath, 'reopen');
+      this.enterDialog(session, tgId, this.menuPath, 'reopen');
       return { screen: this.#menuScreen };
     }
     return super.handleCommand(update, tgId, session);

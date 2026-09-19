@@ -8,6 +8,7 @@ import { serializeError } from '#shared/serialize-error';
 import { UiController } from '../ui-controller';
 import type { BotUiAppResolve } from './app-types';
 import type { BotUiStory } from './bot-ui-story';
+import type { DialogCache } from './dialog-cache';
 import * as rb from './response-builders';
 import type {
   BotSession,
@@ -51,13 +52,23 @@ export abstract class BotController<
   /** Родитель (BotUiApp) */
   protected proactiveSender!: ProactiveSender;
 
-  override init(resolve: TResolve, proactiveSender?: ProactiveSender): void {
+  /** Системный эпохальный кеш стори (доставляется BotUiApp при init) */
+  protected dialogCache!: DialogCache;
+
+  override init(
+    resolve: TResolve,
+    proactiveSender?: ProactiveSender,
+    dialogCache?: DialogCache,
+  ): void {
     this.appApi = resolve.appApi;
     if (proactiveSender) {
       this.proactiveSender = proactiveSender;
     }
+    if (dialogCache) {
+      this.dialogCache = dialogCache;
+    }
     for (const story of this.stories) {
-      story.init(resolve, this);
+      story.init(resolve, this, dialogCache);
     }
   }
 

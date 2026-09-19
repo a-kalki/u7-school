@@ -4,6 +4,7 @@ import type {
   BotSession,
   CommandReaction,
   CommandUpdate,
+  DialogCache,
   ProactiveSender,
 } from '@u7-scl/core/ui';
 import { BotUiStory } from '@u7-scl/core/ui';
@@ -36,9 +37,10 @@ export abstract class U7BotUiStory extends BotUiStory<
   override init(
     resolve: U7BotUiAppResolve,
     controller?: ProactiveSender & { name?: string },
+    dialogCache?: DialogCache,
   ): void {
     this.#controllerName = controller?.name;
-    super.init(resolve, controller);
+    super.init(resolve, controller, dialogCache);
   }
 
   /** Полный путь диалога этой стори: `controller/story`. */

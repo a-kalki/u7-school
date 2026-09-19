@@ -1,5 +1,9 @@
 import type { User } from '@u7-scl/app/domain';
-import { BotController, type ProactiveSender } from '@u7-scl/core/ui';
+import {
+  BotController,
+  type DialogCache,
+  type ProactiveSender,
+} from '@u7-scl/core/ui';
 import { APP_CODES } from '../shared/app-codes';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { U7BotUiStory } from './u7-bot-ui-story';
@@ -43,7 +47,8 @@ export abstract class U7BotController extends BotController<
   override init(
     resolve: U7BotUiAppResolve,
     proactiveSender?: ProactiveSender,
+    dialogCache?: DialogCache,
   ): void {
-    super.init(resolve, proactiveSender);
+    super.init(resolve, proactiveSender, dialogCache);
   }
 }

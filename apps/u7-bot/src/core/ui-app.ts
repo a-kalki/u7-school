@@ -93,7 +93,7 @@ export class U7BotUiApp extends BotUiApp<
     if (update.command === 'cancel') {
       // Глобальный сброс диалога — всегда: сброс активной делает
       // стори в pipe, меню — уровень приложения.
-      this.enterDialog(session, this.menuPath, 'reopen');
+      this.enterDialog(session, tgId, this.menuPath, 'reopen');
       if (!response) {
         const actor = await this.resolve.actorResolver(tgId);
         const menu = await this.#shortMenuScreen(actor);
@@ -166,7 +166,7 @@ export class U7BotUiApp extends BotUiApp<
     );
 
     const actor = await this.resolve.actorResolver(tgId);
-    this.enterDialog(session, this.menuPath, 'reopen');
+    this.enterDialog(session, tgId, this.menuPath, 'reopen');
     const welcome = await this.#welcomeScreen(actor);
     return screen(welcome.text, welcome.keyboard);
   }
@@ -185,18 +185,19 @@ export class U7BotUiApp extends BotUiApp<
    */
   protected override async dispatch(
     data: string,
+    tgId: number,
     actor: User,
     session: BotSession,
   ): Promise<DialogResponse> {
     if (data === APP_CODES.mainMenu) {
-      this.enterDialog(session, this.menuPath, 'switch');
+      this.enterDialog(session, tgId, this.menuPath, 'switch');
       const menu = await this.#shortMenuScreen(actor);
       return screen(menu.text, menu.keyboard);
     }
     if (data === APP_CODES.help) {
       return notify(await this.#commonHelpScreen(actor));
     }
-    return super.dispatch(data, actor, session);
+    return super.dispatch(data, tgId, actor, session);
   }
 
   // ── Сбор главного меню (menuButtons) ──
