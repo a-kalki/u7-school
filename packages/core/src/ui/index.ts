@@ -2,6 +2,7 @@ export * from './bot/app-types';
 export * from './bot/bot-controller';
 export * from './bot/bot-session-repo';
 export * from './bot/bot-ui-story';
+export * from './bot/page-nav';
 export { assertDialogResponseMarkdownSafe } from './bot/response-assert';
 export * from './bot/response-builders';
 export * from './bot/types';
