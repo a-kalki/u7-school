@@ -66,4 +66,5 @@
       исправлен дубликат updated_at в metadata.json трека
 - [x] Task: Создать summary.md трека (включая исследование UUID-сжатия и
       решение о системном кеше DialogCache) — summary.md создан
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) —
+      владелец подтвердил (включая фикс фикстурных шагов 712ba8df)
