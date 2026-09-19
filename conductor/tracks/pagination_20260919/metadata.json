@@ -3,7 +3,6 @@
   "type": "feature",
   "status": "new",
   "created_at": "2026-09-19T07:30:28Z",
-  "updated_at": "2026-09-19T07:30:28Z",
   "updated_at": "2026-09-19T08:05:00Z",
   "description": "Универсальный пагинатор: ядро Paginator в core/ui/pagination (транспорт-независимое), бот-наследник BotPaginator и системный кеш DialogCache (эпоха диалога, физический сброс в enterDialog) в core/ui/bot; перенос всех существующих обрезок #truncate на пагинатор (streams S03 — дерево программы, courses S00 — уровни каталога 0–4). Адресация номером страницы в callback (UUID-сжатие позиционно-независимо). Готовит пагинатор для трека peer-review-ui (S07)."
 }
