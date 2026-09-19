@@ -7,6 +7,7 @@ export * from './bot/response-builders';
 export * from './bot/types';
 export * from './bot/ui-app';
 export * from './event-subscription';
+export * from './pagination/paginator';
 export * from './types';
 export * from './ui-app';
 export * from './ui-controller';
