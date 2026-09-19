@@ -6,14 +6,14 @@
 
 ## Фаза 1. Пагинатор (core)
 
-- [ ] Task: Ядро `Paginator` — `packages/core/src/ui/pagination/` (ФР-1):
+- [x] Task: Ядро `Paginator` — `packages/core/src/ui/pagination/` (ФР-1):
       объект без состояния; `paginate(blocks, opts) → Paged` (целые блоки,
       курсоры, isEmpty/isSingle/oversized, measure, separator) и `page(paged, n)`
       с clamp; без импортов bot/домена/MarkdownV2
-    - [ ] Red: юнит-тесты (целые блоки, малый лимит, одна страница, пустой
+    - [x] Red: юнит-тесты (целые блоки, малый лимит, одна страница, пустой
           список, oversized-блок, кастомная measure, курсоры prevStart/nextStart,
-          clamp номера страницы, isSingle/isEmpty)
-    - [ ] Green: реализация
+          clamp номера страницы, isSingle/isEmpty) — 20b3547
+    - [x] Green: реализация — 20b3547
 - [ ] Task: Бот-наследник `BotPaginator` — `packages/core/src/ui/bot/page-nav.ts`
       (ФР-2): `botLimit(headerLength)` (4096 − шапка − резерв), `navRows(page, cb)`
       — один ряд `‹ Пред`/`След ›` только при соседних страницах, `indicator(page)`
