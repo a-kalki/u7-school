@@ -12,15 +12,15 @@ const TEXT = 'Крепкий напарник по паре, всё получа
 
 function makeReview() {
   return {
-    state: {
-      uuid: '10000000-0000-4000-8000-000000000001',
-      campaignId: CAMPAIGN_ID,
-      scopeId: '11111111-1111-4111-8111-111111111111',
-      authorId: ALICE,
-      recipientId: MENTOR,
-      text: TEXT,
-      createdAt: '2026-09-20T10:00',
-    },
+    uuid: '10000000-0000-4000-8000-000000000001',
+    campaignId: CAMPAIGN_ID,
+    scopeId: '11111111-1111-4111-8111-111111111111',
+    authorId: ALICE,
+    authorRole: 'student',
+    recipientId: MENTOR,
+    recipientRole: 'mentor',
+    text: TEXT,
+    createdAt: '2026-09-20T10:00',
   } as unknown as Review;
 }
 
