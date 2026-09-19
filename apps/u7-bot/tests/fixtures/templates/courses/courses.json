@@ -76,5 +76,19 @@
     ],
     "status": "published",
     "createdAt": "2026-06-01T00:00"
+  },
+  {
+    "authorId": "44444444-4444-4444-4444-444444444444",
+    "status": "published",
+    "createdAt": "2026-06-01T00:00",
+    "uuid": "f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1",
+    "title": "Длинный курс (пагинация)",
+    "description": "Курс с длинным модулем для проверки пагинации каталога.",
+    "phases": [
+      {
+        "title": "Полный трек",
+        "moduleIds": ["f2f2f2f2-f2f2-f2f2-f2f2-f2f2f2f2f2f2"]
+      }
+    ]
   }
 ]
