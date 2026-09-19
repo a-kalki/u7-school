@@ -60,8 +60,10 @@
 
 ## Фаза 3. Финал
 
-- [ ] Task: Полный прогон `bun run check`, триаж по workflow; `grep truncate`
-      по сторям — пусто
+- [x] Task: Полный прогон `bun run check`, триаж по workflow; `grep truncate`
+      по сторям — пусто —
+      полный check зелёный (2359 тестов), truncate в src пуст; попутно
+      исправлен дубликат updated_at в metadata.json трека
 - [ ] Task: Создать summary.md трека (включая исследование UUID-сжатия и
       решение о системном кеше DialogCache)
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
