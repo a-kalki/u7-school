@@ -21,14 +21,15 @@
     - [x] Red: тесты (ряд кнопок, коды с номером страницы — числовой сегмент,
           лимит 64 байта не нарушается, индикатор) — 7d92c8b
     - [x] Green: реализация — 7d92c8b
-- [ ] Task: Системный кеш `DialogCache` — `packages/core/src/ui/bot/dialog-cache.ts`
+- [x] Task: Системный кеш `DialogCache` — `packages/core/src/ui/bot/dialog-cache.ts`
       (ФР-3): set/get по (tgId, key) с эпохой path+seq (miss при чужой);
       инстанс в `BotUiApp`, каскад init в стори (как proactiveSender);
       физический drop(tgId) в `enterDialog` при переходе в новую эпоху
       (сигнатура + tgId, обновить 3 вызова в apps/u7-bot)
-    - [ ] Red: тесты (hit/miss по эпохе, drop при смене диалога через
+    - [x] Red: тесты (hit/miss по эпохе, drop при смене диалога через
           enterDialog — только текущий пользователь, доставка каскадом в стори)
-    - [ ] Green: реализация
+          — e5fa1b5
+    - [x] Green: реализация — e5fa1b5
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
 ## Фаза 2. Перенос обрезок (streams S03, courses S00)
