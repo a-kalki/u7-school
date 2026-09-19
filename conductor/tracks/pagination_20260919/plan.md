@@ -48,9 +48,12 @@
       `#truncate` удалён, тот же паттерн
     - [x] Red: стори-тест длинного уровня — 30cc936
     - [x] Green: реализация — 30cc936
-- [ ] Task: fixtures + E2E (ФР-6/ФР-7): сид длинной программой курса (>4000
+- [x] Task: fixtures + E2E (ФР-6/ФР-7): сид длинной программой курса (>4000
       символов) для `dev:fixtures`; e2e минимум три страницы — полный цикл
       листания (S03 + уровень каталога), edit на месте, `assertBotResponseValid`
+    - [x] фикстуры: поток e6e6 + курс f1f1/модуль f2f2 — ad38d70
+    - [x] e2e: полный цикл (вперёд до конца и назад), edit на месте,
+          assertDialogResponseMarkdownSafe на каждом ответе — ad38d70
 - [ ] Task: ✅-пометки ui-spec (streams S03, courses S00) — ФР-8
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
