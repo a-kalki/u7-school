@@ -8,8 +8,8 @@
 
 ---
 
-- [~] **Track: Пагинация UI — универсальный пагинатор** — ядро `Paginator` в core `ui/pagination` (транспорт-независимое: блоки + лимит → страницы из целых элементов с курсорами), бот-наследник `BotPaginator` и системный кеш `DialogCache` (сброс при смене диалога) в core `ui/bot`; адресация номером страницы в callback (UUID-сжатие позиционно-независимо); перенос всех существующих обрезок `#truncate` на пагинатор (streams S03 дерево программы, courses S00 уровни каталога 0–4); e2e ≥3 страницы + fixtures для dev:fixtures. Идёт раньше трека peer-review-ui
-*Link: [./tracks/pagination_20260919/](./tracks/pagination_20260919/)*
+- [x] **Track: Пагинация UI — универсальный пагинатор** — ядро `Paginator` в core `ui/pagination` (транспорт-независимое: блоки + лимит → страницы из целых элементов с курсорами), бот-наследник `BotPaginator` и системный кеш `DialogCache` (сброс при смене диалога) в core `ui/bot`; адресация номером страницы в callback (UUID-сжатие позиционно-независимо); перенос всех существующих обрезок `#truncate` на пагинатор (streams S03 дерево программы, courses S00 уровни каталога 0–4); e2e ≥3 страницы + fixtures для dev:fixtures. Идёт раньше трека peer-review-ui. Завершён, итоги — в [summary](./archive/pagination_20260919/summary.md)
+*Link: [./archive/pagination_20260919/](./archive/pagination_20260919/)*
 
 ---
 

@@ -94,5 +94,5 @@ peer-review-ui (S07 — просмотр отзывов).
 
 ## Потребители
 
-Трек [peer-review-ui_20260916](../peer-review-ui_20260916/index.md) (S07 —
+Трек [peer-review-ui_20260916](../../tracks/peer-review-ui_20260916/index.md) (S07 —
 просмотр отзывов) строится на готовом `BotPaginator` + `DialogCache`.

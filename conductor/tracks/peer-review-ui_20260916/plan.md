@@ -2,7 +2,7 @@
 
 > Спецификация: [spec.md](./spec.md). Тексты и экраны — [ui-spec.md](../../../apps/u7-bot/src/controllers/peer-review/ui-spec.md).
 > **Предусловия:** завершён трек [peer-review-campaign_20260918](../../archive/peer-review-campaign_20260918/plan.md);
-> пагинатор готов треком [pagination_20260919](../pagination_20260919/plan.md)
+> пагинатор готов треком [pagination_20260919](../archive/pagination_20260919/plan.md)
 > (Фаза 1 старого плана — хелпер пагинации — перенесена туда).
 
 ## Фаза 1. Контроллер и стори кампании (S03–S06)
