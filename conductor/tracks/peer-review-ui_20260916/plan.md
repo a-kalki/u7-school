@@ -1,6 +1,9 @@
 # План: UI отзывов (peer-review)
 
 > Спецификация: [spec.md](./spec.md). Тексты и экраны — [ui-spec.md](../../../apps/u7-bot/src/controllers/peer-review/ui-spec.md).
+> **⛔ Приостановлен** до завершения трека [peer-review-outcomes_20260920](../peer-review-outcomes_20260920/spec.md)
+> (домен-выравнивание + предусловия; ЭТА спека и план будут обновлены его Фазой 7 под
+> решения 2026-09-20 — не начинать реализацию раньше). ui-spec.md уже обновлён 2026-09-20.
 > **Предусловия:** завершён трек [peer-review-campaign_20260918](../../archive/peer-review-campaign_20260918/plan.md);
 > пагинатор готов треком [pagination_20260919](../archive/pagination_20260919/plan.md)
 > (Фаза 1 старого плана — хелпер пагинации — перенесена туда).
