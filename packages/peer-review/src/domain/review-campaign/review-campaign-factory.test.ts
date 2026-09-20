@@ -175,7 +175,19 @@ describe('ReviewCampaignFactory.restore', () => {
       context: 'stream_fate',
       scopeId: UUIDS.scope,
       subjectId: UUIDS.subject,
+      mentorId: UUIDS.mentor,
+      subjectOutcome: 'completed_passed',
     });
     expect(ar.hasEvents()).toBe(false); // flush — единожды
+  });
+
+  test('событие создания несёт исход судьбы субъекта (ФР-5)', () => {
+    const ar = ReviewCampaignFactory.createStudentCampaign(
+      createInput({ subjectOutcome: 'never_started' }),
+    );
+
+    const [event] = ar.flushEvents();
+    expect(event!.payload.subjectOutcome).toBe('never_started');
+    expect(event!.payload.mentorId).toBe(UUIDS.mentor);
   });
 });

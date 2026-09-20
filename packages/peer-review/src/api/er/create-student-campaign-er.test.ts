@@ -201,6 +201,20 @@ describe('CreateStudentCampaignEr — создание кампании', () => 
     expect(saved[0]!.payload.subjectOutcome).toBe('dropped');
   });
 
+  test('abandoned-событие, субъект никогда не начинал → never_started', async () => {
+    // Субъект в составе потока: abandoned + neverStarted
+    const members = makeMembers();
+    members.students = members.students.map((s) =>
+      s.userId === SUBJECT ? student(SUBJECT, 'abandoned', true) : s,
+    );
+    const { er, saved } = makeEr({ members });
+
+    await er.handle(abandonedEvent());
+
+    expect(saved[0]!.participants).toEqual([]);
+    expect(saved[0]!.payload.subjectOutcome).toBe('never_started');
+  });
+
   test('публикация события агрегата student-campaign.created', async () => {
     const { er, saved, published } = makeEr();
 
@@ -216,6 +230,9 @@ describe('CreateStudentCampaignEr — создание кампании', () => 
     expect(event.payload.context).toBe('stream_fate');
     expect(event.payload.scopeId).toBe(SCOPE);
     expect(event.payload.subjectId).toBe(SUBJECT);
+    // Полные данные для приглашений UI (ФР-5)
+    expect(event.payload.mentorId).toBe(MENTOR);
+    expect(event.payload.subjectOutcome).toBe('completed_passed');
   });
 });
 

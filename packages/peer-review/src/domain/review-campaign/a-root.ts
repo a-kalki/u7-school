@@ -133,6 +133,8 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
         context: this._state.context,
         scopeId: this._state.scopeId,
         subjectId: this._state.subjectId,
+        mentorId: this._state.payload.mentorId,
+        subjectOutcome: this._state.payload.subjectOutcome,
       },
     });
   }
