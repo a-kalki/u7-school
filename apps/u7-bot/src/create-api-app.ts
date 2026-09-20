@@ -18,7 +18,6 @@ import {
 } from '@u7-scl/course/infra';
 import {
   PeerReviewApiModule,
-  PeerReviewInProcFacade,
   ReviewCampaignJsonRepo,
   ReviewJsonRepo,
 } from '@u7-scl/peer-review';
@@ -54,7 +53,6 @@ export interface ApiAppBundle {
   streamModule: StreamApiModule;
   courseModule: CourseApiModule;
   wishModule: WishApiModule;
-  peerReviewFacade: PeerReviewInProcFacade;
 }
 
 /**
@@ -174,8 +172,6 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     eventBus: appResolver.eventBus,
   });
 
-  const peerReviewFacade = new PeerReviewInProcFacade(peerReviewModule);
-
   // ══ ApiApp: модули ══
   const apiApp = new ApiApp<U7BotAppMeta>([
     userModule,
@@ -204,6 +200,5 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     streamModule,
     courseModule,
     wishModule,
-    peerReviewFacade,
   };
 }

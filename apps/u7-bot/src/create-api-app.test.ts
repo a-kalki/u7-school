@@ -45,7 +45,6 @@ describe('create-api-app (smoke: сборка с модулем peer-review)', (
 
     const module = bundle.apiApp.getModule('peer-review');
     expect(module).toBeDefined();
-    expect(bundle.peerReviewFacade).toBeDefined();
   });
 
   test('init(): подписка ER проходит, query-UC модуля отвечает', async () => {
