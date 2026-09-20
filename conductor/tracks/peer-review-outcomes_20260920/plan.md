@@ -32,7 +32,7 @@
       abandoned/…) + neverStarted вместо outcomeCategory — b948be8
     - [x] Red: тесты фасада (различает «прошёл»/«не прошёл», neverStarted) — b948be8
     - [x] Green: реализация — b948be8
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md) — пройдена (подтверждение владельца, 2026-09-21)
 
 ## Фаза 3. ER и событие
 
@@ -46,7 +46,7 @@
 - [x] Task: Событие student-campaign.created — payload + mentorId + subjectOutcome — edd739e8
     - [x] Red: тесты события — edd739e8
     - [x] Green: реализация — edd739e8
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) — пройдена (подтверждение владельца, 2026-09-21)
 
 ## Фаза 4. UC и данные
 
