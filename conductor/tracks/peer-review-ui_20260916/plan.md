@@ -36,7 +36,7 @@
 - [x] Task: Экран S02 — список живых кампаний с рендером по `myRole` (субъекту: M/K + дни; ментору: «отзыв о {Имя}» + дни; имя субъекта — batch-UC `get-users-by-ids`) через `get-my-campaigns`, выбор кампании → S03 — 5ac1df3
     - [x] Red: тесты
     - [x] Green: реализация
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md) — подтверждена владельцем 2026-09-21
 
 ## Фаза 3. Приглашения (S01)
 
