@@ -192,6 +192,15 @@ describe('ReviewCampaignAr: адресация (домен вместо UC)', ()
     });
   });
 
+  test('никогда — о себе: автора нет в его же списке адресатов', () => {
+    // субъект: адресаты — соученики + ментор, субъекта среди них нет
+    const subjectTargets = ar().reviewTargets(UUIDS.subject).targetIds;
+    expect(subjectTargets).not.toContain(UUIDS.subject);
+    // ментор: единственный адресат — субъект, не сам ментор
+    const mentorTargets = ar().reviewTargets(UUIDS.mentor).targetIds;
+    expect(mentorTargets).not.toContain(UUIDS.mentor);
+  });
+
   test.each([
     ['адресуемый соученик', UUIDS.alice],
     ['посторонний', UUIDS.stranger],
