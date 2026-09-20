@@ -82,8 +82,10 @@ Grammy (адаптер) → BotTransport (сессии, штампы, ренде
 - `handleMessage` — делегирует стори активного диалога (`dialog.path`);
   `null` — адресата нет.
 - `handleCommand` — pipe стори (активная первой), `pass/continue/stop`.
-- `U7BotController.menuButtons(actor)` — сбор кнопок главного меню от стори
-  с префиксацией и сортировкой по приоритету.
+- `U7BotController.menuButtons(actor): Promise<MenuButton[]>` — сбор кнопок
+  главного меню от стори (`Promise.all`, параллельно) с префиксацией и
+  сортировкой по приоритету; упавшая проверка видимости скрывает свою кнопку
+  (+ warn), меню в целом живо.
 
 ### 2.4. `BotUiStory` / `U7BotUiStory` (сценарий)
 

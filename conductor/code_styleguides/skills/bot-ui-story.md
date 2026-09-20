@@ -129,7 +129,7 @@ Wizard (пошаговый ввод) — конечный автомат на `a
 Также у стори:
 - `handleCommand(update, actor, session): Promise<CommandReaction>` — команды в pipe (ФР-4). Дефолт `U7BotUiStory`: `/cancel` при активном диалоге стори — сброс себя + `stop{notify}`; `/start` — исключение-сторож (обрабатывает uiApp); прочее — `pass`. Доменные команды (например, `/log_level`) — override.
 - `contextHelp(actor, session): Promise<MdText | null>` — контекстная справка активной стори для `/help`; `null` — общий справочник. Публичный мост uiApp → стори: спрашивается только активная стори.
-- `menuButtons(actor): MenuButton[]` — кнопка стори в главном меню (декларативные данные: `text`, `action`, `priority`, `description`); экран собирает uiApp.
+- `menuButtons(actor): Promise<MenuButton[]>` — кнопка стори в главном меню (декларативные данные: `text`, `action`, `priority`, `description`; видимость может быть асинхронной — например, фасад); экран собирает uiApp, упавшая проверка скрывает кнопку + warn-лог.
 
 ---
 

@@ -62,7 +62,7 @@ reset(): void                  // сброс временного состоян
 | `handleCallback(data, actor, session)` | Снимает префикс стори, делегирует в стори, префиксирует коды ответа |
 | `handleMessage(update, actor, session)` | Делегирует стори по `session.dialog.path`; `null` — стори отказалась |
 | `handleCommand(update, actor, session)` | Pipe команд стори (активная первой): `pass`/`continue{notice}`/`stop{response}` |
-| `menuButtons(actor)` (U7) | Сбор кнопок главного меню от стори, префиксация + сортировка по приоритету |
+| `menuButtons(actor): Promise<MenuButton[]>` (U7) | Сбор кнопок главного меню от стори (параллельно), префиксация + сортировка по приоритету; упавшая проверка скрывает свою кнопку + warn |
 
 Диспетчеризация callback: ищет стори по префиксу `${story.name}:`. Если не найдено —
 экран «⚠️ Неизвестная команда» + warn-лог. Все сигнатуры принимают `BotSession`.
