@@ -38,12 +38,12 @@
     - [x] Green: реализация
 - [x] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md) — подтверждена владельцем 2026-09-21
 
-## Фаза 3. Приглашения (S01)
+## Фаза 3. Приглашения (S01) [checkpoint: 19695dd]
 
-- [ ] Task: Подписка на `student-campaign.created` → два приглашения: субъекту (текст по `subjectOutcome` из события: 4-значная проекция) и ментору («дайте отзыв о студенте {Имя}»), механика `ProactiveSender.invite` (ФР-6), кнопка `💬 Отзывы` → S03 кампании
-    - [ ] Red: тесты подписки (адресация, тексты по ролям, одно приглашение каждому получателю)
-    - [ ] Green: реализация
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
+- [x] Task: Подписка на `student-campaign.created` → два приглашения: субъекту (текст по `subjectOutcome` из события: 4-значная проекция) и ментору («дайте отзыв о студенте {Имя}»), механика `ProactiveSender.invite` (ФР-6), кнопка `💬 Отзывы` → S03 кампании — 5452037
+    - [x] Red: тесты подписки (адресация, тексты по ролям, одно приглашение каждому получателю)
+    - [x] Green: реализация
+- [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) — подтверждена владельцем 2026-09-21 по автоматическому покрытию (живой прогон — Фазы 4/5); checkpoint 19695dd
 
 ## Фаза 4. Просмотр S07 и карточка потока
 
