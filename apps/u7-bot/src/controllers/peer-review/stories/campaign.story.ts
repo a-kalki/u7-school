@@ -160,6 +160,7 @@ export class CampaignStory extends U7BotUiStory {
       view.myRole,
       recipientRoleOf(recipientId, view.mentorId),
       name,
+      view.myOutcome,
     );
     const context: ReviewInputContext = { campaignId, recipientId };
     const kb = this.kb([
@@ -231,11 +232,22 @@ interface ReviewInputContext {
   recipientId: string;
 }
 
-/** Текст-подсказка S05 — по направлению «кто о ком» (ui-spec S05). */
+/** Исход автора отзыва — 4 значения (ФР-1); ментору исхода нет. */
+type AuthorOutcome =
+  | 'completed_passed'
+  | 'completed_not_passed'
+  | 'dropped'
+  | 'never_started';
+
+/**
+ * Текст-подсказка S05 — по направлению «кто о ком»; «о менторе» —
+ * ещё и по исходу автора (myOutcome, скрыт от пользователя; ui-spec S05).
+ */
 function reviewPrompt(
   myRole: 'subject' | 'mentor',
   recipientRole: 'student' | 'mentor',
   name: string,
+  myOutcome?: AuthorOutcome,
 ): MdText {
   if (recipientRole === 'student') {
     if (myRole === 'mentor') {
@@ -243,5 +255,15 @@ function reviewPrompt(
     }
     return md`Расскажите о ${name}\\. Как бы вы описали его профессиональные, командные и личностные качества? Не обязательно перечислять всё — пишите только то, что хотите написать, и пишите правду\\. Если считаете, что что\\-то стоит подтянуть, — напишите и об этом\\.`;
   }
-  return md`Поделитесь впечатлением о работе с ментором ${name}: что помогало учиться, что мешало, чего не хватило\\. Пишите правду — это поможет и ментору, и школе\\.`;
+  switch (myOutcome) {
+    case 'never_started':
+      return md`Почему так и не начали учёбу? Что не совпало с ожиданиями? Ваши впечатления о менторе и школе помогут тем, кто только выбирает\\.`;
+    case 'dropped':
+      return md`Почему забросили учёбу? Какие пожелания оставите школе и ментору? Что стоит ожидать людям, которые рассматривают возможность здесь учиться\\.`;
+    case 'completed_not_passed':
+      return md`Поделитесь впечатлением о работе с ментором ${name}: что помогало, что мешало, чего не хватило\\. Даже если итог не тот, на который рассчитывали, — ваша правда поможет и ментору, и школе\\.`;
+    // «завершил и прошел» и недоступный исход (защита от рассинхрона формы)
+    default:
+      return md`Поделитесь впечатлением о работе с ментором ${name}: что помогало учиться, что мешало, чего не хватило\\. Пишите правду — это поможет и ментору, и школе\\.`;
+  }
 }

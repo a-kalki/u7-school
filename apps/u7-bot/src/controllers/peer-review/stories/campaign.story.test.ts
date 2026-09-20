@@ -43,6 +43,11 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     failUc?: string,
     myReviewText?: string,
     failWindow?: boolean,
+    myOutcome?:
+      | 'completed_passed'
+      | 'completed_not_passed'
+      | 'dropped'
+      | 'never_started',
   ) {
     return {
       execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
@@ -67,6 +72,10 @@ describe('CampaignStory (S03 — список адресатов)', () => {
               campaignId: CAMPAIGN_ID,
               myRole,
               mentorId: MENTOR_ID,
+              // исход — только субъекту (у ментора исхода нет, ФР-6)
+              ...(myRole === 'subject' && {
+                myOutcome: myOutcome ?? 'completed_passed',
+              }),
               daysLeft: 5,
               recipients,
             };
@@ -278,6 +287,108 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     const text = String(response.screen?.text ?? '');
     expect(text).toContain('Поделитесь впечатлением о работе с ментором');
     expect(text).toContain('Пётр Петров');
+  });
+
+  // ── S05: подсказки «о менторе» — 4 варианта по исходу автора (myOutcome) ──
+
+  test('open: «завершил и прошел» → о менторе — текст про «помогало учиться»', async () => {
+    const appApi = makeAppApi(
+      [{ userId: MENTOR_ID, hasMyReview: false }],
+      'subject',
+      undefined,
+      undefined,
+      undefined,
+      'completed_passed',
+    );
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const response = await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${MENTOR_ID}`,
+      actor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    const text = String(response.screen?.text ?? '');
+    expect(text).toContain('что помогало учиться, что мешало');
+    expect(text).toContain('это поможет и ментору, и школе');
+    expect(text).not.toContain('Даже если итог');
+  });
+
+  test('open: «завершил и не прошел» → о менторе — текст с «итог не тот»', async () => {
+    const appApi = makeAppApi(
+      [{ userId: MENTOR_ID, hasMyReview: false }],
+      'subject',
+      undefined,
+      undefined,
+      undefined,
+      'completed_not_passed',
+    );
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const response = await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${MENTOR_ID}`,
+      actor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    const text = String(response.screen?.text ?? '');
+    expect(text).toContain('что помогало, что мешало, чего не хватило');
+    expect(text).toContain('Даже если итог не тот, на который рассчитывали');
+    expect(text).toContain('ваша правда поможет и ментору, и школе');
+  });
+
+  test('open: «не начал» → о менторе — текст «почему так и не начали»', async () => {
+    const appApi = makeAppApi(
+      [{ userId: MENTOR_ID, hasMyReview: false }],
+      'subject',
+      undefined,
+      undefined,
+      undefined,
+      'never_started',
+    );
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const response = await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${MENTOR_ID}`,
+      actor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    const text = String(response.screen?.text ?? '');
+    expect(text).toContain('Почему так и не начали учёбу');
+    expect(text).toContain('Что не совпало с ожиданиями');
+    expect(text).toContain('помогут тем, кто только выбирает');
+  });
+
+  test('open: «забросил» → о менторе — текст «почему забросили»', async () => {
+    const appApi = makeAppApi(
+      [{ userId: MENTOR_ID, hasMyReview: false }],
+      'subject',
+      undefined,
+      undefined,
+      undefined,
+      'dropped',
+    );
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const response = await story.handleCallback(
+      `open:${CAMPAIGN_ID}:${MENTOR_ID}`,
+      actor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    const text = String(response.screen?.text ?? '');
+    expect(text).toContain('Почему забросили учёбу');
+    expect(text).toContain('Какие пожелания оставите школе и ментору');
+    expect(text).toContain('рассматривают возможность здесь учиться');
   });
 
   test('ввод: короткий текст — переспрос-предупреждение без потери ввода', async () => {
