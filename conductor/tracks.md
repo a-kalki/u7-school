@@ -13,13 +13,13 @@
 
 ---
 
-- [~] **Track: UI отзывов (peer-review)** — экраны S01–S07 по утверждённой спеке, приглашения по событиям судьбы студента (субъекту и ментору, `student-campaign.created`), хаб «Мои отзывы» с рендером по `myRole`, кнопка карточки потока. Зависит от треков peer-review-campaign (спека обновлена под v4) и pagination (готовый пагинатор S07). **Приостановлен** до завершения трека peer-review-outcomes (домен-выравнивание и предусловия; ui-spec обновлён 2026-09-20)
+- [~] **Track: UI отзывов (peer-review)** — экраны S01–S07 по утверждённой спеке, приглашения по событиям судьбы студента (субъекту и ментору, `student-campaign.created`), хаб «Мои отзывы» с рендером по `myRole`, кнопка карточки потока. Зависит от треков peer-review-campaign (спека обновлена под v4), pagination (готовый пагинатор S07) и peer-review-outcomes (домен-выравнивание и предусловия — завершён; спека/план и ui-spec обновлены его Фазой 7). Разблокирован — готов к продолжению.
 *Link: [./tracks/peer-review-ui_20260916/](./tracks/peer-review-ui_20260916/)*
 
 ---
 
-- [~] **Track: Исходы и форма кампании peer-review (+предусловия UI)** — 4-значная проекция исходов (завершил и прошел / завершил и не прошел / забросил / не начал), форма кампании (`participants` — id адресуемых, `subjectOutcome`/`mentorId` в payload), `direction` в отзыве, read-API stream (статусы в getMembers), событие с полными данными, `myOutcome` в UC, async `menuButtons` (core), batch-UC `get-users-by-ids` (user), синхронизация трека peer-review-ui
-*Link: [./tracks/peer-review-outcomes_20260920/](./tracks/peer-review-outcomes_20260920/)*
+- [x] **Track: Исходы и форма кампании peer-review (+предусловия UI)** — 4-значная проекция исходов (завершил и прошел / завершил и не прошел / забросил / не начал), форма кампании (`participants` — id адресуемых, `subjectOutcome`/`mentorId` в payload), `direction` в отзыве, read-API stream (статусы в getMembers), событие с полными данными, `myOutcome` в UC, async `menuButtons` (core), batch-UC `get-users-by-ids` (user), синхронизация трека peer-review-ui. Завершён, итоги — в [summary](./archive/peer-review-outcomes_20260920/summary.md)
+*Link: [./archive/peer-review-outcomes_20260920/](./archive/peer-review-outcomes_20260920/)*
 
 ---
 
