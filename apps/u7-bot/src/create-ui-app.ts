@@ -84,6 +84,7 @@ export async function createUiApp(
     },
     appApi: apiApp,
     userFacade: bundle.userFacade,
+    peerReviewFacade: bundle.peerReviewFacade,
     botAdminUser,
   };
 

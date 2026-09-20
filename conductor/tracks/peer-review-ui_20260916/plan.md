@@ -30,7 +30,7 @@
 
 ## Фаза 2. Хаб «Мои отзывы» (S02) и меню
 
-- [ ] Task: `menuButtons` «💬 Отзывы» — видимость по фасаду `hasLiveCampaigns` (декларативно, без обработчиков; async-контракт `Promise<MenuButton[]>` уже в core — трек outcomes, Фаза 5)
+- [~] Task: `menuButtons` «💬 Отзывы» — видимость по фасаду `hasLiveCampaigns` (декларативно, без обработчиков; async-контракт `Promise<MenuButton[]>` уже в core — трек outcomes, Фаза 5)
     - [ ] Red: тесты (есть/нет живых кампаний)
     - [ ] Green: реализация
 - [ ] Task: Экран S02 — список живых кампаний с рендером по `myRole` (субъекту: M/K + дни; ментору: «отзыв о {Имя}» + дни; имя субъекта — batch-UC `get-users-by-ids`) через `get-my-campaigns`, выбор кампании → S03
