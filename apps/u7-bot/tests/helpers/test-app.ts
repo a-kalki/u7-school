@@ -14,6 +14,11 @@ import {
   ModuleJsonRepo,
   StepJsonRepo,
 } from '@u7-scl/course/infra';
+import {
+  PeerReviewApiModule,
+  ReviewCampaignJsonRepo,
+  ReviewJsonRepo,
+} from '@u7-scl/peer-review';
 import { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
 import type { QuestionnaireApiModuleResolver } from '@u7-scl/questionnaire/domain';
 import {
@@ -45,6 +50,10 @@ export interface TestApp {
   eventBus: InProcEventBus;
   /** Репозиторий желаний — для проверки статусов в тестах */
   wishRepo: WishJsonRepo;
+  /** Репозиторий кампаний peer-review — проверка создания кампаний ER */
+  reviewCampaignRepo: ReviewCampaignJsonRepo;
+  /** Репозиторий отзывов peer-review — проверка сохранённых отзывов UC */
+  reviewRepo: ReviewJsonRepo;
   /** Фасад пользователей (для получения тестовых акторов) */
   userFacade: UserInProcFacade;
   /** Фасад курсов */
@@ -151,6 +160,22 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
 
   const wishModule = new WishApiModule(wishResolver);
 
+  // ══ Peer-review: репозитории и модуль (зеркально create-api-app.ts) ══
+  // Общий eventBus — ER создания кампании подписан на события судьбы студента
+  // в module.init() ниже (apiApp.init).
+  const reviewCampaignRepo = new ReviewCampaignJsonRepo(
+    fixtures.peerReview.campaigns,
+  );
+  const reviewRepo = new ReviewJsonRepo(fixtures.peerReview.reviews);
+
+  const peerReviewModule = new PeerReviewApiModule({
+    reviewCampaignRepo,
+    reviewRepo,
+    streamFacade,
+    appResolver,
+    eventBus: appResolver.eventBus,
+  });
+
   // ══ ApiApp: все модули (состав как в боевом create-api-app.ts) ══
   const apiApp: U7BotApp = new ApiApp([
     userModule,
@@ -158,6 +183,7 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
     streamModule,
     courseModule,
     questionnaireModule,
+    peerReviewModule,
   ]);
 
   apiApp.init(new InProcJobScheduler({ logger }));
@@ -168,6 +194,8 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
     courseModule,
     eventBus: appResolver.eventBus,
     wishRepo,
+    reviewCampaignRepo,
+    reviewRepo,
     userFacade,
     courseFacade,
     fixtures,

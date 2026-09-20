@@ -21,6 +21,11 @@ export interface FixturePaths {
     steps: string;
     courses: string;
   };
+  /** Пути к файлам peer-review (кампании и отзывы, формат v4) */
+  peerReview: {
+    campaigns: string;
+    reviews: string;
+  };
 }
 
 /**
@@ -68,8 +73,13 @@ async function copyTemplates(tmpDir: string): Promise<FixturePaths> {
   const coursesTmp = path.join(tmpDir, 'courses');
   const coursesSrc = path.join(TEMPLATES_DIR, 'courses');
 
+  // Поддиректория peer-review
+  const peerReviewTmp = path.join(tmpDir, 'peer-review');
+  const peerReviewSrc = path.join(TEMPLATES_DIR, 'peer-review');
+
   await mkdir(tmpDir, { recursive: true });
   await mkdir(coursesTmp, { recursive: true });
+  await mkdir(peerReviewTmp, { recursive: true });
 
   // Копируем корневые файлы
   await copyFile(usersSrc, path.join(tmpDir, 'users.json'));
@@ -94,6 +104,16 @@ async function copyTemplates(tmpDir: string): Promise<FixturePaths> {
     path.join(coursesTmp, 'courses.json'),
   );
 
+  // Копируем файлы peer-review
+  await copyFile(
+    path.join(peerReviewSrc, 'campaigns.json'),
+    path.join(peerReviewTmp, 'campaigns.json'),
+  );
+  await copyFile(
+    path.join(peerReviewSrc, 'reviews.json'),
+    path.join(peerReviewTmp, 'reviews.json'),
+  );
+
   if (process.env.KEEP_FIXTURES === '1') {
     console.log(`[fixture-loader] Фикстуры скопированы в: ${tmpDir}`);
   }
@@ -108,6 +128,10 @@ async function copyTemplates(tmpDir: string): Promise<FixturePaths> {
       lessons: path.join(coursesTmp, 'lessons.json'),
       steps: path.join(coursesTmp, 'steps.json'),
       courses: path.join(coursesTmp, 'courses.json'),
+    },
+    peerReview: {
+      campaigns: path.join(peerReviewTmp, 'campaigns.json'),
+      reviews: path.join(peerReviewTmp, 'reviews.json'),
     },
   };
 }
