@@ -81,7 +81,8 @@
 - [x] Task: UC get-users-by-ids (uuid[], лимит ~100, дедуп, пропуск ненайденных) — 4b2c8e2
     - [x] Red: тесты (норм/пусто/лимит/дубли/частично не найдены) — 4b2c8e2
     - [x] Green: реализация — 4b2c8e2
-- [ ] Task: Conductor - User Manual Verification 'Фаза 6' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 6' (Protocol in workflow.md) —
+      пройдена (подтверждение владельца, 2026-09-21)
 
 ## Фаза 7. Синхронизация с UI-треком и чистота репозитория
 
