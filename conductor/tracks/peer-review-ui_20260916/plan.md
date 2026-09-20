@@ -60,4 +60,27 @@
 - [x] Task: Обновить ui-spec peer-review (✅-пометки) и ui-spec streams (кнопка S02); удалить `tactics-draft.md`; обновить §5 концепции при отклонениях — 7032d31d
 - [x] Task: Полный прогон `bun run check`, триаж по workflow — чисто: lint exit 0, tsc чисто, 2440 pass / 0 fail (красных нет — ни промежуточных состояний, ни регрессий)
 - [x] Task: Создать summary.md трека — f2f81258
-- [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md) — документационная часть (ui-spec, удаление tactics-draft, концепция §5) — владельцу на проверку; живой прогон отложен в Фазу 6 (e2e-покрытие, решение владельца 2026-09-21)
+
+## Фаза 6. Интеграционные и e2e-тесты (сквозное покрытие)
+
+> Решение владельца 2026-09-21: юнит-тесты сторей мокают `appApi`, сквозная склейка
+> (событие → ER → приглашение → клик → UC → экран) не покрыта. Инфраструктура
+> готова: `apps/u7-bot/tests/helpers/test-app.ts` (ApiApp на временных
+> JSON-репозиториях) + `test-bot-transport.ts` (мок grammy, SentMessage/клики) +
+> fixtures-заготовка `tests/fixtures/templates/peer-review/{campaigns,reviews}.json`
+> (формат v4: `participants`, `payload.subjectOutcome`/`mentorId`) — сейчас не
+> подключены. Образец подключения модуля — `src/create-api-app.ts` (репо +
+> `PeerReviewApiModule` + общий eventBus; ER подписка — в `module.init()`).
+
+- [ ] Task: Инфраструктура: подключить peer-review в `tests/helpers/test-app.ts` — `ReviewCampaignJsonRepo`/`ReviewJsonRepo` на фикстурах, `PeerReviewApiModule` (streamFacade, appResolver, общий eventBus — чтобы ER создания кампании и сторя приглашений работали на реальной шине), пути `peer-review/*` в `FixturePaths`/`copyTemplates`; при необходимости — PeerReviewController в тестовом боте транспорт-хелпера
+    - [ ] Red: smoke-тест — событие судьбы студента публикуется → кампания создаётся (проверка через репозиторий/UC), модуль зарегистрирован
+    - [ ] Green: подключение
+- [ ] Task: E2E «Судьба субъекта — написание» (по образцу `tests/e2e/inactivity.e2e.test.ts`): `student.completed` → кампания (адресация v4) → два приглашения (субъекту и ментору, тексты по `subjectOutcome`, полный код кнопки `💬 Отзывы`) → клик субъекту → S03 (шапка, дни, ✅ нет) → короткий текст — переспрос → корректный ввод → S06 (✅ появился) → перезапись S04 (текст заменён)
+    - [ ] Red → Green
+- [ ] Task: E2E «Хаб и меню»: `menuButtons` скрыта без кампаний, видна при живых; S02 — рендер по `myRole` (M/K субъекта, «отзыв о {Имя}» ментора), выбор кампании → S03; истёкшее окно (фикстура просроченной кампании) → заглушка «возможность закрыта»
+    - [ ] Red → Green
+- [ ] Task: E2E «Просмотр S07 из карточки потока»: кнопка `💬 Отзывы` в карточке — скрыта без отзывов, видна при наличии (по образцу `tests/streams/view-stream.integration.test.ts`); S07 — группировка по адресатам, роли из `direction`, лейбл `authorOutcome` у автора-студента, пагинация ≥ 3 страниц (edit на месте, DialogCache — тыки не перечитывают домен), `⬅️ Назад к потоку`
+    - [ ] Red → Green
+- [ ] Task: Полный прогон `bun run check` + триаж по workflow (гейт: зелёный скоуп трека); верификация Фазы 5 закрывается живым прогоном e2e (checkpoint фазы 5+6)
+- [ ] Task: Закрытие трека: дополнить summary.md (покрытие e2e, триаж), §5 концепции — при отклонениях, реестр tracks.md → `[x]`, синхронизация проектной документации (workflow conductor-implement), предложение Review/Archive/Delete/Skip
