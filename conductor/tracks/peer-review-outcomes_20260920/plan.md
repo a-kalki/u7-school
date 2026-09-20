@@ -78,9 +78,9 @@
 
 ## Фаза 6. User: batch-UC get-users-by-ids
 
-- [ ] Task: UC get-users-by-ids (uuid[], лимит ~100, дедуп, пропуск ненайденных)
-    - [ ] Red: тесты (норм/пусто/лимит/дубли/частично не найдены)
-    - [ ] Green: реализация
+- [x] Task: UC get-users-by-ids (uuid[], лимит ~100, дедуп, пропуск ненайденных) — 4b2c8e2
+    - [x] Red: тесты (норм/пусто/лимит/дубли/частично не найдены) — 4b2c8e2
+    - [x] Green: реализация — 4b2c8e2
 - [ ] Task: Conductor - User Manual Verification 'Фаза 6' (Protocol in workflow.md)
 
 ## Фаза 7. Синхронизация с UI-треком и чистота репозитория
