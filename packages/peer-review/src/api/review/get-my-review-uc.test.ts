@@ -16,12 +16,12 @@ function makeReview() {
     campaignId: CAMPAIGN_ID,
     scopeId: '11111111-1111-4111-8111-111111111111',
     authorId: ALICE,
-    authorRole: 'student',
+    direction: 'student_mentor',
+    authorOutcome: 'completed_passed',
     recipientId: MENTOR,
-    recipientRole: 'mentor',
     text: TEXT,
     createdAt: '2026-09-20T10:00',
-  } as unknown as Review;
+  } satisfies Review;
 }
 
 function makeResolve(existing?: Review) {
