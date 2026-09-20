@@ -59,7 +59,7 @@ function completedEvent(
   };
 }
 
-function abandonedEvent(neverStarted = false): StudentAbandonedEvent {
+function abandonedEvent(): StudentAbandonedEvent {
   return {
     eventId: crypto.randomUUID(),
     eventName: 'student.abandoned',
