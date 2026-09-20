@@ -174,6 +174,8 @@ export class ViewStreamStory extends U7BotUiStory {
       // счётчик студентов не критичен для карточки
     }
 
+    const hasReviews = await this.#streamHasReviews(streamId, actor);
+
     let mentorName = '';
     try {
       const mentor = await this.appApi.execute('get-user', {
@@ -207,9 +209,24 @@ export class ViewStreamStory extends U7BotUiStory {
       md`📚 Курс: Fullstack JS`,
     ]);
 
-    const keyboard = this.buildKeyboard(stream, actor);
+    const keyboard = this.buildKeyboard(stream, actor, { hasReviews });
 
     return this.screen(text, keyboard.rows.length > 0 ? keyboard : undefined);
+  }
+
+  /** Есть ли отзывы по потоку (S07): ошибки домена — карточку не ломают. */
+  async #streamHasReviews(streamId: string, actor: User): Promise<boolean> {
+    try {
+      const facts = await this.appApi.execute(
+        'list-scope-facts',
+        { scopeId: streamId },
+        actor,
+      );
+      return facts.hasReviews;
+    } catch {
+      // факты недоступны — кнопки отзывов не будет
+      return false;
+    }
   }
 
   protected async handleProgramView(
@@ -327,7 +344,11 @@ export class ViewStreamStory extends U7BotUiStory {
     );
   }
 
-  protected buildKeyboard(stream: Stream, actor: User): KeyboardDescription {
+  protected buildKeyboard(
+    stream: Stream,
+    actor: User,
+    opts?: { hasReviews?: boolean },
+  ): KeyboardDescription {
     const canEnroll = StreamPolicy.canEnroll(actor);
     const isOwnerMentor = StreamPolicy.canEdit(actor, stream);
     const rows: KbButton[][] = [];
@@ -343,13 +364,20 @@ export class ViewStreamStory extends U7BotUiStory {
       this.btn('📋 Детали', this.cbFor(this.storyName, 'details', stream.uuid)),
     ]);
 
-    // Кнопка «👥 Студенты» — свой обработчик
-    rows.push([
+    // Кнопка «👥 Студенты» + «💬 Отзывы» (при наличии отзывов — мост
+    // в S07 peer-review, трек peer-review-ui ФР-5)
+    const peopleRow: KbButton[] = [
       this.btn(
         '👥 Студенты',
         this.cbFor(this.storyName, 'students', stream.uuid),
       ),
-    ]);
+    ];
+    if (opts?.hasReviews) {
+      peopleRow.push(
+        this.btn('💬 Отзывы', Routes.peerReview.scopeReviews(stream.uuid)),
+      );
+    }
+    rows.push(peopleRow);
 
     // ── Гостевые кнопки ──
     if (!isOwnerMentor) {

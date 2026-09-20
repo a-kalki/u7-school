@@ -793,3 +793,99 @@ describe('ViewStreamStory — пагинация программы (S03)', () =
     expect(btns.some((t) => t === 'След ›')).toBe(false);
   });
 });
+
+describe('ViewStreamStory — кнопка «💬 Отзывы» в карточке потока (S02)', () => {
+  const rvSession: BotSession = {
+    dialog: { path: 'stream/view-stream', seq: 1 },
+  };
+  const rvActor = makeActor();
+
+  /** Мок карточки: единственная переменная — факты отзывов скоупа. */
+  function makeStoryWithFacts(
+    facts: { hasReviews: boolean; reviewsCount: number } | 'throw' | undefined,
+  ) {
+    const mockAppApi = {
+      execute: mock(async (name: string) => {
+        if (name === 'get-stream') return makeStream();
+        if (name === 'list-stream-students') return [];
+        if (name === 'get-user')
+          return { uuid: 'm1', name: 'Ментор Менторович', roles: [] };
+        if (name === 'list-scope-facts') {
+          if (facts === 'throw') throw new Error('домен недоступен');
+          return facts ?? { hasReviews: false, reviewsCount: 0 };
+        }
+        return undefined;
+      }),
+    };
+    const story = new ViewStreamStory();
+    story.init({ appApi: mockAppApi } as never);
+    return { story, mockAppApi };
+  }
+
+  test('есть отзывы → кнопка «💬 Отзывы» с мостом в S07 peer-review', async () => {
+    const { story } = makeStoryWithFacts({
+      hasReviews: true,
+      reviewsCount: 3,
+    });
+
+    const response = await story.handleCallback(
+      `view:${STREAM_ID}`,
+      rvActor,
+      rvSession,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    const btn = response.screen?.keyboard?.rows
+      .flat()
+      .find((b) => b.text === '💬 Отзывы');
+    expect(btn?.code).toBe(`peer-review:scope-reviews:view:${STREAM_ID}`);
+  });
+
+  test('нет отзывов → кнопки нет', async () => {
+    const { story } = makeStoryWithFacts({
+      hasReviews: false,
+      reviewsCount: 0,
+    });
+
+    const response = await story.handleCallback(
+      `view:${STREAM_ID}`,
+      rvActor,
+      rvSession,
+    );
+
+    const btnTexts =
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Отзывы'))).toBe(false);
+  });
+
+  test('факты недоступны (ошибка UC) → карточка живёт, кнопки нет', async () => {
+    const { story } = makeStoryWithFacts('throw');
+
+    const response = await story.handleCallback(
+      `view:${STREAM_ID}`,
+      rvActor,
+      rvSession,
+    );
+
+    expect(String(response.screen?.text)).toContain('JS Core');
+    const btnTexts =
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Отзывы'))).toBe(false);
+  });
+
+  test('видимость проверяется UC list-scope-facts с scopeId потока', async () => {
+    const { story, mockAppApi } = makeStoryWithFacts({
+      hasReviews: true,
+      reviewsCount: 1,
+    });
+
+    await story.handleCallback(`view:${STREAM_ID}`, rvActor, rvSession);
+
+    const call = (
+      mockAppApi.execute.mock.calls as unknown as Array<
+        [string, Record<string, unknown>]
+      >
+    ).find(([name]) => name === 'list-scope-facts');
+    expect(call?.[1]).toEqual({ scopeId: STREAM_ID });
+  });
+});
