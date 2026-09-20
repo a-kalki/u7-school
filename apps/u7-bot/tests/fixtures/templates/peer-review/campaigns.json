@@ -40,5 +40,18 @@
       "subjectOutcome": "completed_not_passed",
       "mentorId": "44444444-4444-4444-4444-444444444444"
     }
+  },
+  {
+    "uuid": "c4a44444-4444-4444-8444-444444444444",
+    "context": "stream_fate",
+    "scopeId": "e2e2e2e2-e2e2-e2e2-e2e2-e2e2e2e2e2e2",
+    "subjectId": "33333333-3333-3333-3333-333333333333",
+    "createdAt": "2025-12-25T10:00",
+    "expiresAt": "2026-01-01T10:00",
+    "participants": ["88888888-8888-4888-8888-888888888888"],
+    "payload": {
+      "subjectOutcome": "dropped",
+      "mentorId": "44444444-4444-4444-4444-444444444444"
+    }
   }
 ]
