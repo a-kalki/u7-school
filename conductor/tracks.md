@@ -18,7 +18,7 @@
 
 ---
 
-- [ ] **Track: Исходы и форма кампании peer-review (+предусловия UI)** — 4-значная проекция исходов (завершил и прошел / завершил и не прошел / забросил / не начал), форма кампании (`participants` — id адресуемых, `subjectOutcome`/`mentorId` в payload), `direction` в отзыве, read-API stream (статусы в getMembers), событие с полными данными, `myOutcome` в UC, async `menuButtons` (core), batch-UC `get-users-by-ids` (user), синхронизация трека peer-review-ui
+- [~] **Track: Исходы и форма кампании peer-review (+предусловия UI)** — 4-значная проекция исходов (завершил и прошел / завершил и не прошел / забросил / не начал), форма кампании (`participants` — id адресуемых, `subjectOutcome`/`mentorId` в payload), `direction` в отзыве, read-API stream (статусы в getMembers), событие с полными данными, `myOutcome` в UC, async `menuButtons` (core), batch-UC `get-users-by-ids` (user), синхронизация трека peer-review-ui
 *Link: [./tracks/peer-review-outcomes_20260920/](./tracks/peer-review-outcomes_20260920/)*
 
 ---
