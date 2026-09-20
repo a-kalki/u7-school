@@ -11,7 +11,7 @@
 > целевого состояния под новую форму и закоммитить. До Фазы 1
 > обратить внимание: часть правок будет перекрыта работой фаз 1–4.
 
-## Фаза 1. Домен peer-review: форма кампании и отзыв
+## Фаза 1. Домен peer-review: форма кампании и отзыв [checkpoint: ed13ac3]
 
 - [x] Task: Проекция исходов 4 значения + форма кампании: schema/entity/factory
       (participants — uuid[] в ядре; payload { subjectOutcome, mentorId };
@@ -24,7 +24,7 @@
 - [x] Task: ReviewPolicy / assertCanWrite / reviewTargets под новую форму — 5e071ac6
     - [x] Red: тесты адресации (субъект → participants + ментор; ментор → субъект; пустой список — только ментор) — e6a82a2 (базовые), 5e071ac6 (сам-себе)
     - [x] Green: реализация — e6a82a2 (policy удалён, адресация в агрегате)
-- [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md) — ed13ac3
 
 ## Фаза 2. Read-API stream
 
