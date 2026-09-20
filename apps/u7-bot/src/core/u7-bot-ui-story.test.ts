@@ -275,9 +275,14 @@ describe('U7BotUiStory.handleError', () => {
   });
 
   describe('наследник U7BotUiStory', () => {
-    test('menuButtons по умолчанию — пусто (стори не участвует в меню)', () => {
+    test('menuButtons по умолчанию — пусто (стори не участвует в меню)', async () => {
       const s = new TestStory();
-      expect(s.menuButtons(actor)).toEqual([]);
+      expect(await s.menuButtons(actor)).toEqual([]);
+    });
+
+    test('menuButtons — асинхронный контракт Promise<MenuButton[]> (ФР-7)', () => {
+      const s = new TestStory();
+      expect(s.menuButtons(actor)).toBeInstanceOf(Promise);
     });
 
     test('экран ошибки содержит кнопку «⬅️ Меню» с кодом из APP_CODES (§10.20)', () => {

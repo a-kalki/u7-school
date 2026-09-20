@@ -121,9 +121,9 @@ describe('CourseCatalogStory', () => {
 
   // ── Главное меню (декларативные menuButtons) ──
 
-  test('menuButtons возвращает кнопку главного меню (приоритет 10)', () => {
+  test('menuButtons возвращает кнопку главного меню (приоритет 10)', async () => {
     const story = new CourseCatalogStory();
-    const items = story.menuButtons(actor);
+    const items = await story.menuButtons(actor);
     expect(items).toHaveLength(1);
     const item = items[0];
     expect(item?.kind).toBe('callback');
@@ -134,9 +134,9 @@ describe('CourseCatalogStory', () => {
     }
   });
 
-  test('menuButtons содержит описание для help', () => {
+  test('menuButtons содержит описание для help', async () => {
     const story = new CourseCatalogStory();
-    const items = story.menuButtons(actor);
+    const items = await story.menuButtons(actor);
     expect(items[0]?.description).toContain('Программы курсов');
     expect(items[0]?.description).toContain('каталог');
   });

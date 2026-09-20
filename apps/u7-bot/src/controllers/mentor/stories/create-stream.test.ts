@@ -98,9 +98,9 @@ function ctxOf(response: DialogResponse): WizardCtx {
 }
 
 describe('CreateStreamStory (US-6) — контракт «Диалог и Экран»', () => {
-  test('menuButtons: пусто (создание только через подменю)', () => {
+  test('menuButtons: пусто (создание только через подменю)', async () => {
     const { story } = createStory();
-    expect(story.menuButtons(mentorActor)).toEqual([]);
+    expect(await story.menuButtons(mentorActor)).toEqual([]);
   });
 
   // ── Шаг 0: выбор модуля ──

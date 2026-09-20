@@ -29,7 +29,7 @@ export class SubmenuStory extends U7BotUiStory {
     return this.unknownCommand(action, actor, session);
   }
 
-  override menuButtons(actor: User): MenuButton[] {
+  override async menuButtons(actor: User): Promise<MenuButton[]> {
     if (this.#isMentor(actor)) {
       return [
         {

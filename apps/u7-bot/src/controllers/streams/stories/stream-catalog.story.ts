@@ -30,7 +30,7 @@ const LEGEND = md`\n\n🟡 — идёт набор   🔵 — идёт обуч�
 export class CatalogStory extends U7BotUiStory {
   readonly name = 'catalog';
 
-  override menuButtons(_actor: User): MenuButton[] {
+  override async menuButtons(_actor: User): Promise<MenuButton[]> {
     return [
       {
         kind: 'callback',

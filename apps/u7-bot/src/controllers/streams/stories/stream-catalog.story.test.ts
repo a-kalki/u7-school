@@ -29,9 +29,9 @@ describe('CatalogStory (S01)', () => {
     return { story, mockAppApi };
   }
 
-  test('menuButtons возвращает кнопку «📚 Потоки курсов» (приоритет 15)', () => {
+  test('menuButtons возвращает кнопку «📚 Потоки курсов» (приоритет 15)', async () => {
     const { story } = makeStory([]);
-    const buttons = story.menuButtons(guestActor);
+    const buttons = await story.menuButtons(guestActor);
     expect(buttons).toHaveLength(1);
     const button = buttons[0];
     expect(button?.kind).toBe('callback');

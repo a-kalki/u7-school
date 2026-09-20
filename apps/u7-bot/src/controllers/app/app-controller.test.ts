@@ -41,10 +41,10 @@ function makeCommand(
 }
 
 describe('AppController — menuButtons', () => {
-  test('две кнопки: Сообщество (url, 90) и Помощь (callback, 100) — по приоритету', () => {
+  test('две кнопки: Сообщество (url, 90) и Помощь (callback, 100) — по приоритету', async () => {
     const ctrl = makeCtrl();
 
-    const buttons = ctrl.menuButtons(actor);
+    const buttons = await ctrl.menuButtons(actor);
 
     expect(buttons).toHaveLength(2);
     expect(buttons[0]!.text).toBe('💬 Сообщество школы');
@@ -140,7 +140,7 @@ describe('AppController — handleCommand: прочее', () => {
     expect(reaction).toEqual({ reaction: 'pass' });
   });
 
-  test('кнопка сообщества в menuButtons — код url, описание для /help', () => {
+  test('кнопка сообщества в menuButtons — код url, описание для /help', async () => {
     const ctrl = makeCtrl();
     ctrl.init({
       appApi: {},
@@ -148,7 +148,7 @@ describe('AppController — handleCommand: прочее', () => {
       actorResolver: async () => actor,
     } as never);
 
-    const buttons: MenuButton[] = ctrl.menuButtons(actor);
+    const buttons: MenuButton[] = await ctrl.menuButtons(actor);
     const community = buttons.find((b) => b.text.includes('Сообщество'));
 
     expect(community?.description).toBeDefined();

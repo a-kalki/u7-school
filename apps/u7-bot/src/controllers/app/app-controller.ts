@@ -35,9 +35,9 @@ export class AppController extends U7BotController {
 
   // ── Главное меню (декларативные кнопки) ──
 
-  override menuButtons(actor: User): MenuButton[] {
+  override async menuButtons(actor: User): Promise<MenuButton[]> {
     return [
-      ...super.menuButtons(actor), // сообщество школы (CommunityStory, 90)
+      ...(await super.menuButtons(actor)), // сообщество школы (CommunityStory, 90)
       {
         kind: 'callback',
         text: '❓ Помощь',

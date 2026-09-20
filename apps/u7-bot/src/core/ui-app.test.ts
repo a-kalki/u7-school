@@ -18,6 +18,7 @@ import { AppController } from '../controllers/app/app-controller';
 import { APP_CODES } from '../shared/app-codes';
 import { U7BotController } from './u7-bot-controller';
 import { U7BotUiStory } from './u7-bot-ui-story';
+import type { MenuButton } from './u7-menu';
 import { U7BotUiApp } from './ui-app';
 
 const SCHOOL_URL = 'https://t.me/u7_school_group';
@@ -441,6 +442,81 @@ describe('U7BotUiApp — системные кнопки', () => {
     expect(String(response?.notify?.text)).toContain('Как со мной работать');
     expect(response?.screen).toBeUndefined();
     expect(session.dialog?.seq).toBe(3);
+  });
+});
+
+// ── сбор menuButtons: параллельный, отказоустойчивый (ФР-7 outcomes) ──
+
+/** Контроллер с настраиваемым menuButtons (эмуляция async-проверок). */
+class MenuController extends U7BotController {
+  readonly name: string;
+  readonly #impl: (actor: User) => Promise<MenuButton[]>;
+
+  constructor(name: string, impl: (actor: User) => Promise<MenuButton[]>) {
+    super();
+    this.name = name;
+    this.#impl = impl;
+  }
+
+  override menuButtons(actor: User): Promise<MenuButton[]> {
+    return this.#impl(actor);
+  }
+}
+
+/** Подкласс-экспонент protected-сбора меню. */
+class ExposedMenuUiApp extends U7BotUiApp {
+  collect(actor: User): Promise<MenuButton[]> {
+    return this.collectMenuButtons(actor);
+  }
+}
+
+describe('U7BotUiApp — сбор menuButtons', () => {
+  test('параллельный сбор контроллеров: обе проверки стартуют до резолва первой', async () => {
+    setGlobalLogger(makeLogger());
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let started = 0;
+    const gated = (name: string): MenuController =>
+      new MenuController(name, async () => {
+        started++;
+        await gate;
+        return [];
+      });
+
+    const uiApp = new ExposedMenuUiApp([
+      new AppController(SCHOOL_URL, []),
+      gated('first'),
+      gated('second'),
+    ]);
+
+    const pending = uiApp.collect(actor);
+    expect(started).toBe(2); // последовательный сбор не стартовал бы вторую
+    release();
+    expect(await pending).toEqual(
+      expect.arrayContaining([expect.objectContaining({ text: '❓ Помощь' })]),
+    );
+  });
+
+  test('упавший контроллер скрывает свои кнопки — меню остальных цело + warn', async () => {
+    const logger = makeLogger();
+    setGlobalLogger(logger);
+    const uiApp = new ExposedMenuUiApp([
+      new AppController(SCHOOL_URL, []),
+      new MenuController('boom', async () => {
+        throw new Error('фасад недоступен');
+      }),
+    ]);
+
+    const buttons = await uiApp.collect(actor);
+
+    // кнопки app-контроллера остались, упавший ничего не внёс
+    const texts = buttons.map((b) => b.text);
+    expect(texts).toContain('💬 Сообщество школы');
+    expect(texts).toContain('❓ Помощь');
+    expect(texts).toHaveLength(2);
+    expect(logger.warn).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -79,9 +79,9 @@ function flat(response: DialogResponse) {
 }
 
 describe('ViewStreamMentorStory (S02m-карточка) — контракт «Диалог и Экран»', () => {
-  test('menuButtons: пусто (вход только через «Мои потоки»)', () => {
+  test('menuButtons: пусто (вход только через «Мои потоки»)', async () => {
     const { story } = createStory();
-    expect(story.menuButtons(mentorActor)).toEqual([]);
+    expect(await story.menuButtons(mentorActor)).toEqual([]);
   });
 
   // ── view: карточка + lifecycle-клавиатура ──

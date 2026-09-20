@@ -52,9 +52,9 @@ function flat(response: DialogResponse) {
 describe('MyStreamsStory — контракт «Диалог и Экран»', () => {
   // ── menuButtons: своей кнопки в главном меню нет ──
 
-  test('menuButtons: пусто (вход только через подменю ментора)', () => {
+  test('menuButtons: пусто (вход только через подменю ментора)', async () => {
     const story = new MyStreamsStory();
-    expect(story.menuButtons(mentorActor())).toEqual([]);
+    expect(await story.menuButtons(mentorActor())).toEqual([]);
   });
 
   // ── list: дефолт (только enrollment + active) ──

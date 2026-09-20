@@ -12,9 +12,9 @@ describe('CommunityStory', () => {
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
-  test('menuButtons возвращает кнопку «Сообщество школы» с URL и описанием', () => {
+  test('menuButtons возвращает кнопку «Сообщество школы» с URL и описанием', async () => {
     const story = new CommunityStory('https://t.me/u7_school_group');
-    const buttons = story.menuButtons(actor);
+    const buttons = await story.menuButtons(actor);
     expect(buttons).toHaveLength(1);
     expect(buttons[0]!.text).toBe('💬 Сообщество школы');
     expect(buttons[0]!.kind).toBe('url');
@@ -25,7 +25,7 @@ describe('CommunityStory', () => {
     expect(buttons[0]!.description).toBeDefined();
   });
 
-  test('menuButtons возвращает кнопку для всех ролей', () => {
+  test('menuButtons возвращает кнопку для всех ролей', async () => {
     const story = new CommunityStory('https://t.me/u7_school_group');
     const roles = [
       Role.GUEST,
@@ -42,7 +42,7 @@ describe('CommunityStory', () => {
         roles: [role],
         createdAt: '2026-01-01T00:00:00.000Z',
       };
-      const buttons = story.menuButtons(user);
+      const buttons = await story.menuButtons(user);
       expect(buttons[0]!.text).toBe('💬 Сообщество школы');
     }
   });

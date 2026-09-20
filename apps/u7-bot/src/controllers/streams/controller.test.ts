@@ -55,11 +55,11 @@ describe('StreamsController (реестр)', () => {
     expect(stories.length).toBe(3);
   });
 
-  test('menuButtons агрегирует кнопки от stories с префиксом контроллера', () => {
+  test('menuButtons агрегирует кнопки от stories с префиксом контроллера', async () => {
     const controller = makeController();
     controller.init({ appApi: mockAppApi } as never);
 
-    const items = controller.menuButtons(guestActor);
+    const items = await controller.menuButtons(guestActor);
 
     expect(items.length).toBeGreaterThanOrEqual(1);
     const texts = items.map((i) => i.text);

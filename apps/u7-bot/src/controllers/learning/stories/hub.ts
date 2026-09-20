@@ -101,7 +101,7 @@ export class HubStory extends U7BotUiStory {
 
   // ── Главное меню (декларативные кнопки) ──
 
-  override menuButtons(actor: User): MenuButton[] {
+  override async menuButtons(actor: User): Promise<MenuButton[]> {
     if (UserPolicy.isStudent(actor)) {
       return [
         {

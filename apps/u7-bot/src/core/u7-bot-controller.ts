@@ -1,4 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
+import { getGlobalLogger, type Logger } from '@u7-scl/core/shared';
 import {
   BotController,
   type DialogCache,
@@ -29,19 +30,39 @@ export abstract class U7BotController extends BotController<
   }
 
   /**
-   * Кнопки главного меню контроллера: сбор от своих стори, callback-коды
-   * префиксуются именем контроллера, сортировка по приоритету.
-   * Декларативные данные — экран строит uiApp.
+   * Кнопки главного меню контроллера: ПАРАЛЛЕЛЬНЫЙ сбор от своих стори
+   * (`Promise.all` — проверки видимости могут звать фасады, ФР-7);
+   * упавшая стори скрывает только свои кнопки + warn (меню цело).
+   * Callback-коды префиксуются именем контроллера, сортировка по
+   * приоритету. Декларативные данные — экран строит uiApp.
    */
-  menuButtons(actor: User): MenuButton[] {
-    return this.stories
-      .flatMap((story) => story.menuButtons(actor))
+  async menuButtons(actor: User): Promise<MenuButton[]> {
+    const chunks = await Promise.all(
+      this.stories.map(async (story) => {
+        try {
+          return await story.menuButtons(actor);
+        } catch (err) {
+          this.#logger?.warn(
+            'menu',
+            'Стори упала в сборе menuButtons — её кнопки скрыты',
+            { error: String(err), story: story.dialogPath },
+          );
+          return [];
+        }
+      }),
+    );
+    return chunks
+      .flat()
       .map((button) =>
         button.kind === 'callback'
           ? { ...button, action: `${this.name}:${button.action}` }
           : button,
       )
       .sort((a, b) => a.priority - b.priority);
+  }
+
+  get #logger(): Logger | undefined {
+    return getGlobalLogger();
   }
 
   override init(

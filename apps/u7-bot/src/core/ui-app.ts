@@ -203,23 +203,29 @@ export class U7BotUiApp extends BotUiApp<
   // ── Сбор главного меню (menuButtons) ──
 
   /**
-   * Кнопки всех контроллеров, отсортированные по приоритету.
+   * Кнопки всех контроллеров: ПАРАЛЛЕЛЬНЫЙ сбор (`Promise.all`, ФР-7),
+   * сортировка по приоритету. Упавший контроллер скрывает свои кнопки
+   * + warn — страховка уровня uiApp (ошибки отдельных стори глотает
+   * сам контроллер).
    * protected (не private): тестовый стенд открывает сбор меню подклассом —
    * прод-API не расширяет.
    */
   protected async collectMenuButtons(actor: User): Promise<MenuButton[]> {
-    const items: MenuButton[] = [];
-    for (const controller of this.controllers.values()) {
-      try {
-        items.push(...controller.menuButtons(actor));
-      } catch (err) {
-        this.#logger?.warn('ui-app', 'Ошибка контроллера в сборе menuButtons', {
-          error: String(err),
-          controller: controller.name,
-        });
-      }
-    }
-    return items.sort((a, b) => a.priority - b.priority);
+    const chunks = await Promise.all(
+      [...this.controllers.values()].map(async (controller) => {
+        try {
+          return await controller.menuButtons(actor);
+        } catch (err) {
+          this.#logger?.warn(
+            'ui-app',
+            'Ошибка контроллера в сборе menuButtons — кнопки скрыты',
+            { error: String(err), controller: controller.name },
+          );
+          return [];
+        }
+      }),
+    );
+    return chunks.flat().sort((a, b) => a.priority - b.priority);
   }
 
   /** Общий справочник: инструкция + описания кнопок из menuButtons. */

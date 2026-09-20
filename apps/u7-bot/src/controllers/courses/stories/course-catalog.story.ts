@@ -36,7 +36,7 @@ export class CourseCatalogStory extends U7BotUiStory {
 
   // ── Главное меню (декларативные кнопки) ──
 
-  override menuButtons(_actor: User): MenuButton[] {
+  override async menuButtons(_actor: User): Promise<MenuButton[]> {
     return [
       {
         kind: 'callback',

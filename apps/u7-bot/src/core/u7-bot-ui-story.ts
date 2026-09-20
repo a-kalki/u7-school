@@ -93,8 +93,12 @@ export abstract class U7BotUiStory extends BotUiStory<
     return [[{ text: '⬅️ Меню', code: APP_CODES.mainMenu }]];
   }
 
-  /** Кнопки главного меню — декларативные данные. Дефолт — не участвует. */
-  menuButtons(_actor: User): MenuButton[] {
+  /**
+   * Кнопки главного меню — декларативные данные, контракт асинхронный:
+   * проверки видимости могут требовать фасадов (ФР-7). Дефолт — стори
+   * не участвует в меню.
+   */
+  async menuButtons(_actor: User): Promise<MenuButton[]> {
     return [];
   }
 

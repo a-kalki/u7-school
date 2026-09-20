@@ -227,7 +227,7 @@ describe('HubStory', () => {
 
   test('menuButtons — STUDENT видит «🎓 Моя учёба» (priority 20)', async () => {
     const { story } = makeStory();
-    const items = story.menuButtons(studentActor);
+    const items = await story.menuButtons(studentActor);
     const item = items.find((i) => i.text.includes('Моя учёба'));
     expect(item).toBeDefined();
     expect(item!.priority).toBe(20);
@@ -238,14 +238,14 @@ describe('HubStory', () => {
 
   test('menuButtons — GUEST не видит кнопку', async () => {
     const { story } = makeStory();
-    expect(story.menuButtons(guestActor)).toEqual([]);
+    expect(await story.menuButtons(guestActor)).toEqual([]);
   });
 
   test('menuButtons — описание содержит «Моя учёба»', async () => {
     const { story } = makeStory();
-    const item = story
-      .menuButtons(studentActor)
-      .find((i) => i.text.includes('Моя учёба'));
+    const item = (await story.menuButtons(studentActor)).find((i) =>
+      i.text.includes('Моя учёба'),
+    );
     expect(item?.description).toContain('Моя учёба');
   });
 

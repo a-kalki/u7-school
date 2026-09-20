@@ -18,7 +18,7 @@ export class CommunityStory extends U7BotUiStory {
     this.#groupUrl = groupUrl;
   }
 
-  override menuButtons(_actor: User): MenuButton[] {
+  override async menuButtons(_actor: User): Promise<MenuButton[]> {
     return [
       {
         kind: 'url',

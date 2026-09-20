@@ -27,9 +27,9 @@ function createStory(): SubmenuStory {
 describe('SubmenuStory (S02m) — контракт «Диалог и Экран»', () => {
   // ── menuButtons: вход в подменю из главного меню ──
 
-  test('menuButtons: MENTOR — кнопка «🛠️ Инструменты ментора» (priority 30)', () => {
+  test('menuButtons: MENTOR — кнопка «🛠️ Инструменты ментора» (priority 30)', async () => {
     const story = createStory();
-    const buttons = story.menuButtons(mentor);
+    const buttons = await story.menuButtons(mentor);
     expect(buttons).toHaveLength(1);
     const btn = buttons[0]!;
     expect(btn.kind).toBe('callback');
@@ -41,15 +41,15 @@ describe('SubmenuStory (S02m) — контракт «Диалог и Экран�
     }
   });
 
-  test('menuButtons: ADMIN видит кнопку', () => {
+  test('menuButtons: ADMIN видит кнопку', async () => {
     const story = createStory();
-    expect(story.menuButtons(actor([Role.ADMIN]))).toHaveLength(1);
+    expect(await story.menuButtons(actor([Role.ADMIN]))).toHaveLength(1);
   });
 
-  test('menuButtons: GUEST и STUDENT — нет кнопки', () => {
+  test('menuButtons: GUEST и STUDENT — нет кнопки', async () => {
     const story = createStory();
-    expect(story.menuButtons(actor([Role.GUEST]))).toEqual([]);
-    expect(story.menuButtons(actor([Role.STUDENT]))).toEqual([]);
+    expect(await story.menuButtons(actor([Role.GUEST]))).toEqual([]);
+    expect(await story.menuButtons(actor([Role.STUDENT]))).toEqual([]);
   });
 
   // ── handleCallback "start": экран подменю с точной клавиатурой ──

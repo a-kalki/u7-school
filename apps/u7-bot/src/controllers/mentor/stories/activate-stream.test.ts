@@ -25,9 +25,9 @@ function createStory() {
 }
 
 describe('ActivateStreamStory (US-7) — контракт «Диалог и Экран»', () => {
-  test('menuButtons: пусто (запуск только из карточки потока)', () => {
+  test('menuButtons: пусто (запуск только из карточки потока)', async () => {
     const { story } = createStory();
-    expect(story.menuButtons(actor)).toEqual([]);
+    expect(await story.menuButtons(actor)).toEqual([]);
   });
 
   test('activate: экран «Поток запущен» с точной кнопкой назад', async () => {

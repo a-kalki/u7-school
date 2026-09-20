@@ -174,9 +174,9 @@ function flat(response: DialogResponse) {
 }
 
 describe('MonitorStory (S07/S08) — контракт «Диалог и Экран»', () => {
-  test('menuButtons: пусто (вход из карточки потока)', () => {
+  test('menuButtons: пусто (вход из карточки потока)', async () => {
     const { story } = setupStory();
-    expect(story.menuButtons(mentorActor())).toEqual([]);
+    expect(await story.menuButtons(mentorActor())).toEqual([]);
   });
 
   // ═══ students: список (S07) ═══
