@@ -1,7 +1,7 @@
 # План: Исходы и форма кампании peer-review (+предусловия UI)
 
 > Спецификация: [spec.md](./spec.md). Готовит продолжение трека
-> [peer-review-ui_20260916](../peer-review-ui_20260916/plan.md) (экраны — по
+> [peer-review-ui_20260916](../../tracks/peer-review-ui_20260916/plan.md) (экраны — по
 > [ui-spec.md](../../../apps/u7-bot/src/controllers/peer-review/ui-spec.md)
 > от 2026-09-20).
 >
