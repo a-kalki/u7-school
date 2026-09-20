@@ -36,14 +36,16 @@
 
 ## Фаза 3. ER и событие
 
-- [ ] Task: ER create-student-campaign — фильтрация участников по событию
+- [x] Task: ER create-student-campaign — фильтрация участников по событию
       (completed → завершившиеся + учащиеся, без субъекта; abandoned → пусто),
-      проекция subjectOutcome из статуса
-    - [ ] Red: тесты ER (все исходы, состав списка, идемпотентность)
-    - [ ] Green: реализация
-- [ ] Task: Событие student-campaign.created — payload + mentorId + subjectOutcome
-    - [ ] Red: тесты события
-    - [ ] Green: реализация
+      проекция subjectOutcome из статуса — edd739e8
+      (реализация и бо́льшая часть тестов — e6a82a2/b948be83, дозакрыт тест
+      never_started)
+    - [x] Red: тесты ER (все исходы, состав списка, идемпотентность) — edd739e8
+    - [x] Green: реализация — e6a82a2, b948be83 (в рамках Фаз 1–2)
+- [x] Task: Событие student-campaign.created — payload + mentorId + subjectOutcome — edd739e8
+    - [x] Red: тесты события — edd739e8
+    - [x] Green: реализация — edd739e8
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
 
 ## Фаза 4. UC и данные
