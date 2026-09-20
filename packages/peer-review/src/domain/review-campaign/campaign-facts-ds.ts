@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 import type { Review } from '../review/entity';
+import type { StudentOutcome } from '../review-campaign/entity';
 import type { ReviewCampaignAr } from './a-root';
 
 /** Роль автора окна — субъект или его ментор (не роль участника кампании). */
@@ -42,6 +43,8 @@ export interface MyRecipientsView {
   myRole: AuthorRole;
   /** Ментор скоупа: UI отличает адресата-ментора для лейбла. */
   mentorId: string;
+  /** 4-значный исход автора-субъекта — выбор текстов S05; ментору исхода нет. */
+  myOutcome?: StudentOutcome;
   daysLeft: number;
   recipients: RecipientWithMyReview[];
 }

@@ -56,6 +56,8 @@ export class GetCampaignRecipientsUc extends U7UseCase<
       campaignId: command.campaignId,
       myRole,
       mentorId: ar.mentorId,
+      // 4-значный исход автора-субъекта — тексты-подсказки S05 (ФР-6)
+      ...(myRole === 'subject' ? { myOutcome: ar.subjectOutcome } : {}),
       daysLeft: ar.daysLeft(new Date()),
       recipients: CampaignFactsDs.recipientsWithMyReview(
         ar,

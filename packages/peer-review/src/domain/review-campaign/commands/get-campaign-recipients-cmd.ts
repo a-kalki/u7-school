@@ -3,6 +3,7 @@ import * as v from 'valibot';
 import type { PeerReviewUcErrors } from '../../../api/errors';
 import { uuidField } from '../../shared/schema';
 import { AuthorRoleSchema, type MyRecipientsView } from '../campaign-facts-ds';
+import { StudentOutcomeSchema } from '../entity';
 
 export const GetCampaignRecipientsCmdSchema = v.object({
   campaignId: uuidField('Некорректный формат UUID кампании'),
@@ -23,6 +24,8 @@ export const CampaignRecipientsSchema = v.object({
   campaignId: uuidField('Некорректный формат UUID кампании'),
   myRole: AuthorRoleSchema,
   mentorId: uuidField('Некорректный формат UUID ментора'),
+  /** Исход автора-субъекта для текстов S05; ментору исхода нет. */
+  myOutcome: v.optional(StudentOutcomeSchema),
   daysLeft: v.pipe(v.number(), v.integer(), v.minValue(0)),
   recipients: v.array(RecipientSchema),
 });

@@ -107,6 +107,40 @@ describe('GetCampaignRecipientsUc', () => {
     expect(res.recipients[0]!.userId).toBe(MENTOR);
   });
 
+  test('субъект: myOutcome — исход окна судьбы (выбор текстов S05)', async () => {
+    const campaign = makeCampaign();
+    const uc = new GetCampaignRecipientsUc();
+    uc.init(makeResolve(campaign, []));
+
+    const res = await uc.execute({ campaignId: CAMPAIGN_ID, authorId: ALICE });
+    expect(res.myOutcome).toBe('completed_passed');
+  });
+
+  test('субъект dropped: myOutcome = dropped — данные для текста «забросил»', async () => {
+    const dropped = ReviewCampaignFactory.createStudentCampaign({
+      scopeId: SCOPE,
+      subjectId: CAROL,
+      mentorId: MENTOR,
+      subjectOutcome: 'dropped',
+      participantIds: [],
+      now: NOW,
+    });
+    const uc = new GetCampaignRecipientsUc();
+    uc.init(makeResolve(dropped, []));
+
+    const res = await uc.execute({ campaignId: CAMPAIGN_ID, authorId: CAROL });
+    expect(res.myOutcome).toBe('dropped');
+  });
+
+  test('ментор: myOutcome отсутствует — ментору исхода нет', async () => {
+    const campaign = makeCampaign();
+    const uc = new GetCampaignRecipientsUc();
+    uc.init(makeResolve(campaign, []));
+
+    const res = await uc.execute({ campaignId: CAMPAIGN_ID, authorId: MENTOR });
+    expect(res).not.toHaveProperty('myOutcome');
+  });
+
   test('адресуемый соученик (не субъект/ментор) — доступ запрещён', async () => {
     const campaign = makeCampaign();
     const uc = new GetCampaignRecipientsUc();
