@@ -1,0 +1,8 @@
+{
+  "track_id": "peer-review-outcomes_20260920",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-09-20T17:46:37Z",
+  "updated_at": "2026-09-20T17:46:37Z",
+  "description": "Исходы и форма кампании peer-review: 4-значная проекция, subjectOutcome/mentorId в payload, direction отзыва, read-API stream, async menuButtons (core), get-users-by-ids (user) — предусловия продолжения трека UI отзывов"
+}
