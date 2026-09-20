@@ -57,7 +57,7 @@
 
 ## Фаза 5. Документация и финал
 
-- [ ] Task: Обновить ui-spec peer-review (✅-пометки) и ui-spec streams (кнопка S02); удалить `tactics-draft.md`; обновить §5 концепции при отклонениях
-- [ ] Task: Полный прогон `bun run check`, триаж по workflow
-- [ ] Task: Создать summary.md трека
+- [x] Task: Обновить ui-spec peer-review (✅-пометки) и ui-spec streams (кнопка S02); удалить `tactics-draft.md`; обновить §5 концепции при отклонениях — 7032d31d
+- [x] Task: Полный прогон `bun run check`, триаж по workflow — чисто: lint exit 0, tsc чисто, 2440 pass / 0 fail (красных нет — ни промежуточных состояний, ни регрессий)
+- [x] Task: Создать summary.md трека — f2f81258
 - [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md)
