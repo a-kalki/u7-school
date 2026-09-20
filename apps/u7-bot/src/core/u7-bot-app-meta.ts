@@ -3,10 +3,7 @@ import type { U7ApiApp } from '@u7-scl/app/domain';
 import type { AppMeta, AppResolver } from '@u7-scl/core/domain';
 import type { BotUiAppResolve } from '@u7-scl/core/ui';
 import type { CourseApiModuleMeta } from '@u7-scl/course/domain';
-import type {
-  PeerReviewApiModuleMeta,
-  PeerReviewFacade,
-} from '@u7-scl/peer-review/domain';
+import type { PeerReviewApiModuleMeta } from '@u7-scl/peer-review/domain';
 import type { QuestionnaireApiModuleMeta } from '@u7-scl/questionnaire/domain';
 import type { StreamApiModuleMeta } from '@u7-scl/stream';
 import type { UserApiModuleMeta, UserFacade } from '@u7-scl/user/domain';
@@ -21,8 +18,6 @@ import type { WishApiModuleMeta } from '@u7-scl/wish/domain';
 export interface U7BotUiAppResolve extends BotUiAppResolve<U7BotAppMeta, User> {
   /** фасад пользователей — идемпотентная гост-регистрация на /start */
   userFacade: UserFacade;
-  /** фасад peer-review — видимость «💬 Отзывы» (hasLiveCampaigns) и S07 */
-  peerReviewFacade: PeerReviewFacade;
   /** системный актор-бот (BOT_ADMIN_UUID, резолвится при старте) — регистрация гостя от его имени */
   botAdminUser: User;
 }

@@ -5,7 +5,6 @@ import {
   type BotSession,
   type DialogResponse,
 } from '@u7-scl/core/ui';
-import type { PeerReviewFacade } from '@u7-scl/peer-review/domain';
 import { Role } from '@u7-scl/user/domain';
 import { Routes } from '../../shared/routes';
 import { MyReviewsStory } from './my-reviews.story';
@@ -19,27 +18,31 @@ describe('MyReviewsStory — кнопка меню «💬 Отзывы» (S02)',
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
-  function makeStory(hasLive: boolean) {
-    const facade: PeerReviewFacade = {
-      hasLiveCampaigns: mock(
-        async (userId: string) => hasLive && userId === actor.uuid,
-      ),
-      hasReviews: mock(async () => false),
-      listScopeFacts: mock(async () => ({
-        hasReviews: false,
-        reviewsCount: 0,
-      })),
+  function makeStory(campaignCount: number) {
+    const appApi = {
+      execute: mock(async (ucName: string) => {
+        if (ucName === 'get-my-campaigns') {
+          return Array.from({ length: campaignCount }, (_, i) => ({
+            campaignId: `aaaaaaaa-0000-0000-0000-00000000000${i}`,
+            context: 'stream_fate',
+            scopeId: 'bbbbbbbb-0000-0000-0000-000000000001',
+            subjectId: actor.uuid,
+            myRole: 'subject',
+            expiresAt: '2026-09-26T00:00',
+            daysLeft: 5,
+            progress: { done: 0, total: 1 },
+          }));
+        }
+        throw new Error(`неизвестный UC: ${ucName}`);
+      }),
     };
     const story = new MyReviewsStory();
-    story.init({
-      appApi: { execute: mock(async () => []) },
-      peerReviewFacade: facade,
-    } as never);
-    return story;
+    story.init({ appApi } as never);
+    return { story, appApi };
   }
 
   test('есть живые кампании → одна кнопка «💬 Отзывы» с кодом my-reviews:hub', async () => {
-    const story = makeStory(true);
+    const { story } = makeStory(1);
 
     const buttons = await story.menuButtons(actor);
 
@@ -54,32 +57,24 @@ describe('MyReviewsStory — кнопка меню «💬 Отзывы» (S02)',
   });
 
   test('нет живых кампаний → кнопки нет (пустой список)', async () => {
-    const story = makeStory(false);
+    const { story } = makeStory(0);
 
     const buttons = await story.menuButtons(actor);
 
     expect(buttons).toEqual([]);
   });
 
-  test('проверка идёт по фасаду hasLiveCampaigns от id актора', async () => {
-    const facade: PeerReviewFacade = {
-      hasLiveCampaigns: mock(async () => true),
-      hasReviews: mock(async () => false),
-      listScopeFacts: mock(async () => ({
-        hasReviews: false,
-        reviewsCount: 0,
-      })),
-    };
-    const story = new MyReviewsStory();
-    story.init({
-      appApi: { execute: mock(async () => []) },
-      peerReviewFacade: facade,
-    } as never);
+  test('проверка — UC get-my-campaigns с onlyLives от id актора', async () => {
+    const { story, appApi } = makeStory(1);
 
     await story.menuButtons(actor);
 
-    expect(facade.hasLiveCampaigns).toHaveBeenCalledTimes(1);
-    expect(facade.hasLiveCampaigns).toHaveBeenCalledWith(actor.uuid);
+    expect(appApi.execute).toHaveBeenCalledTimes(1);
+    expect(appApi.execute).toHaveBeenCalledWith(
+      'get-my-campaigns',
+      { userId: actor.uuid, onlyLives: true },
+      actor,
+    );
   });
 });
 
@@ -176,18 +171,7 @@ describe('MyReviewsStory — экран S02 «Мои отзывы»', () => {
     cards: Card[],
     opts?: { missingSubject?: boolean },
   ) {
-    const facade: PeerReviewFacade = {
-      hasLiveCampaigns: mock(async () => cards.length > 0),
-      hasReviews: mock(async () => false),
-      listScopeFacts: mock(async () => ({
-        hasReviews: false,
-        reviewsCount: 0,
-      })),
-    };
-    story.init({
-      appApi: makeAppApi(cards, opts),
-      peerReviewFacade: facade,
-    } as never);
+    story.init({ appApi: makeAppApi(cards, opts) } as never);
     return story;
   }
 
@@ -217,12 +201,9 @@ describe('MyReviewsStory — экран S02 «Мои отзывы»', () => {
   });
 
   test('ментор: строка «отзыв о {Имя}», имя субъекта — batch-UC get-users-by-ids', async () => {
-    const story = initStory(new MyReviewsStory(), [mentorCard]);
-    const appApi = (
-      story as unknown as {
-        resolver: { appApi: ReturnType<typeof makeAppApi> };
-      }
-    ).resolver.appApi;
+    const appApi = makeAppApi([mentorCard]);
+    const story = new MyReviewsStory();
+    story.init({ appApi } as never);
 
     const response = await story.handleCallback('hub', actor, session);
     assertDialogResponseMarkdownSafe(response);

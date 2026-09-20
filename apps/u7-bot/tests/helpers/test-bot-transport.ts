@@ -177,8 +177,6 @@ export class TestBotTransport {
       eventBus?: InProcEventBus;
       /** Фасад пользователей — гост-регистрация на /start (см. ensureRegisteredGuest). */
       userFacade?: U7BotUiAppResolve['userFacade'];
-      /** Фасад peer-review — видимость «💬 Отзывы» (по умолчанию кампаний нет). */
-      peerReviewFacade?: U7BotUiAppResolve['peerReviewFacade'];
       /** Системный актор-бот: от его имени регистрируются гости. */
       botAdminUser?: User;
     } = {},
@@ -199,18 +197,6 @@ export class TestBotTransport {
             // заглушка сохраняет форму resolve, не пишя в хранилище.
             registerGuest: async () => undefined,
           } as unknown as U7BotUiAppResolve['userFacade']),
-        peerReviewFacade:
-          opts.peerReviewFacade ??
-          ({
-            // В e2e меню бот скрыт без живых кампаний; сценарии с кампаниями
-            // передают настоящий фасад (или мок) через opts.
-            hasLiveCampaigns: async () => false,
-            hasReviews: async () => false,
-            listScopeFacts: async () => ({
-              hasReviews: false,
-              reviewsCount: 0,
-            }),
-          } satisfies U7BotUiAppResolve['peerReviewFacade']),
         botAdminUser: opts.botAdminUser ?? {
           uuid: EMPTY_UUID,
           name: 'Бот-админ',

@@ -9,7 +9,7 @@ import { buttons } from '../../shared/buttons';
  * US: Хаб «Мои отзывы» (S02) — список живых кампаний автора.
  *
  * Вход: `hub` — кнопка главного меню «💬 Отзывы» (видна при наличии живых
- * кампаний — асинхронная проверка фасадом `hasLiveCampaigns`).
+ * кампаний — UC `get-my-campaigns` с `onlyLives`, асинхронная проверка).
  * Экран: нумерованная строка на кампанию с рендером по `myRole` (субъекту —
  * «одногруппники и ментор», ментору — «отзыв о {Имя}»; имя — batch-UC),
  * кнопка кампании — мост в стори campaign (S03 `list:<campaignId>`).
@@ -21,10 +21,12 @@ export class MyReviewsStory extends U7BotUiStory {
   // ── Главное меню (декларативная кнопка) ──
 
   override async menuButtons(actor: User): Promise<MenuButton[]> {
-    const hasLive = await this.resolver.peerReviewFacade.hasLiveCampaigns(
-      actor.uuid,
+    const cards = await this.appApi.execute(
+      'get-my-campaigns',
+      { userId: actor.uuid, onlyLives: true },
+      actor,
     );
-    if (!hasLive) return [];
+    if (cards.length === 0) return [];
     return [
       {
         kind: 'callback',
