@@ -2,12 +2,17 @@ import { describe, expect, test } from 'bun:test';
 import { PeerReviewController } from './controller';
 
 describe('PeerReviewController (реестр)', () => {
-  test('стори: invite (S01), my-reviews (S02), campaign (S03–S06)', () => {
+  test('стори: invite (S01), my-reviews (S02), campaign (S03–S06), scope-reviews (S07)', () => {
     const controller = new PeerReviewController();
 
     const names = controller.getStories().map((s) => s.name);
 
-    expect(names.sort()).toEqual(['campaign', 'invite', 'my-reviews']);
+    expect(names.sort()).toEqual([
+      'campaign',
+      'invite',
+      'my-reviews',
+      'scope-reviews',
+    ]);
   });
 
   test('подписка приглашений S01 доставляется через контроллер', () => {

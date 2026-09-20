@@ -58,5 +58,8 @@ export const Routes = {
     /** Кнопка приглашения S01 (invite-канал, полный код) → S03 кампании */
     campaignList: (campaignId: string) =>
       `peer-review:campaign:list:${campaignId}`,
+    /** Просмотр отзывов потока S07 (кнопка карточки потока streams S02) */
+    scopeReviews: (streamId: string) =>
+      `peer-review:scope-reviews:view:${streamId}`,
   },
 } as const;

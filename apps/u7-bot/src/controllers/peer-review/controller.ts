@@ -2,13 +2,15 @@ import { U7BotController } from '@u7-scl/bot/u7-bot-controller';
 import { CampaignStory } from './stories/campaign.story';
 import { InviteStory } from './stories/invite.story';
 import { MyReviewsStory } from './stories/my-reviews.story';
+import { ScopeReviewsStory } from './stories/scope-reviews.story';
 
 /**
  * Контроллер peer-review — «Отзывы» (S01–S07).
  *
  * Тонкий реестр — делегирует все действия в U7BotUiStory.
  * Содержит стори: invite (S01 — проактивные приглашения),
- * my-reviews (S02 — хаб), campaign (S03–S06 — кампания отзывов).
+ * my-reviews (S02 — хаб), campaign (S03–S06 — кампания отзывов),
+ * scope-reviews (S07 — постраничный просмотр отзывов потока).
  */
 export class PeerReviewController extends U7BotController {
   readonly name = 'peer-review';
@@ -17,5 +19,6 @@ export class PeerReviewController extends U7BotController {
     new MyReviewsStory(),
     new CampaignStory(),
     new InviteStory(),
+    new ScopeReviewsStory(),
   ];
 }
