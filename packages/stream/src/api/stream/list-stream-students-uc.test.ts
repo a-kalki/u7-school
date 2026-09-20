@@ -97,6 +97,37 @@ const baseResolve = (overrides: Record<string, unknown> = {}) =>
   }) as any;
 
 describe('ListStreamStudentsUc', () => {
+  test('вызов без актора — фасадный read-API для ER других модулей (peer-review)', async () => {
+    // StreamInProcFacade.getMembers зовёт UC без актора из ER создания
+    // кампании: системный read, гейт наличия пользователя не нужен
+    // (как у get-stream / which-courses-include-module).
+    // Свои студенты с валидными uuid: handle валидирует output по схеме.
+    const validStudent = {
+      uuid: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+      streamId,
+      userId: '77777777-7777-4777-8777-777777777777',
+      enrolledAt: isoNow(),
+      status: 'active' as const,
+      currentStepId: '11111111-1111-4111-8111-111111111111',
+      steps: [],
+      createdAt: isoNow(),
+    };
+    const resolve = baseResolve({
+      streamStudentRepo: {
+        getByStream: mock(() => Promise.resolve([validStudent])),
+        save: mock(() => Promise.resolve()),
+        getByUuid: mock(() => Promise.resolve(undefined)),
+        getByUser: mock(() => Promise.resolve([])),
+      },
+    });
+    const uc = new ListStreamStudentsUc();
+    uc.init(resolve);
+
+    const result = await uc.handle({ streamId }, undefined);
+    expect(result).toHaveLength(1);
+    expect(result[0]!.userId).toBe('77777777-7777-4777-8777-777777777777');
+  });
+
   test('ментор потока видит список студентов', async () => {
     const uc = new ListStreamStudentsUc();
     uc.init(baseResolve());

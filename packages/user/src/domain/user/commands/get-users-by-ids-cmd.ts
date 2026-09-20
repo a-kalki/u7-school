@@ -23,7 +23,8 @@ export interface GetUsersByIdsCmdMeta {
   input: GetUsersByIdsCmd;
   output: User[];
   errors: GetUsersByIdsCmdError;
-  requiresAuth: true;
+  /** Публичный read (как get-user / list-users) — системные проактивы. */
+  requiresAuth: false;
   type: 'query';
 }
 

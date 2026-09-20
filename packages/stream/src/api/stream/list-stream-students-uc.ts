@@ -16,7 +16,10 @@ export class ListStreamStudentsUc extends StreamUseCase<ListStreamStudentsCmdMet
     arLabel: 'Студент потока' as const,
   };
   protected readonly type = 'query' as const;
-  protected readonly requiresAuth = true as const;
+  /** Публичный read-API: фасад getMembers зовёт без актора из ER peer-review
+   * (как get-stream / which-courses-include-module). Гейт здесь проверял
+   * только наличие актора, а не роль — все входы бота уже акторы. */
+  protected readonly requiresAuth = false as const;
   protected readonly inputSchema = ListStreamStudentsCmdSchema;
   protected readonly outputSchema = v.array(StudentSchema);
 

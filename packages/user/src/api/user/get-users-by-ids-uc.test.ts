@@ -38,6 +38,18 @@ function setupUc() {
 }
 
 describe('GetUsersByIdsUc', () => {
+  test('вызов без актора — системные проактивы сторей (peer-review invite)', async () => {
+    // Приглашения кампаний резолвят профили получателей без пользовательского
+    // контекста; одиночный get-user и list-users уже публичны — batch согласован
+    const { getByUuids, uc } = setupUc();
+    const ivan = makeUser({ name: 'Иван' });
+    getByUuids.mockResolvedValueOnce([ivan]);
+
+    const result = await uc.handle({ userIds: [ivan.uuid] }, undefined);
+
+    expect(result).toEqual([ivan]);
+  });
+
   test('возвращает карточки всех запрошенных пользователей', async () => {
     const { getByUuids, uc } = setupUc();
     const actor = makeUser();
@@ -104,11 +116,11 @@ describe('GetUsersByIdsUc', () => {
     expect(warn).toHaveBeenCalledTimes(1);
   });
 
-  test('требует авторизацию', async () => {
+  test('публичный read: без актора — пустой список (не UNAUTHORIZED)', async () => {
     const { uc } = setupUc();
 
-    await expect(uc.handle({ userIds: [] })).rejects.toThrow(
-      'Требуется авторизация',
-    );
+    const result = await uc.handle({ userIds: [] }, undefined);
+
+    expect(result).toEqual([]);
   });
 });

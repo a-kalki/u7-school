@@ -24,7 +24,9 @@ export class GetUsersByIdsUc extends UserUseCase<GetUsersByIdsCmdMeta> {
     arLabel: UserAr.arLabel as 'Пользователь',
   };
   protected readonly type = 'query' as const;
-  protected readonly requiresAuth = true as const;
+  /** Публичный read (как get-user / list-users): системные проактивы
+   * (приглашения кампаний peer-review) резолвят профили без актора. */
+  protected readonly requiresAuth = false as const;
   protected readonly inputSchema = GetUsersByIdsCmdSchema;
   protected readonly outputSchema = v.array(UserSchema);
 

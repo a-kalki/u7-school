@@ -19,6 +19,7 @@ export interface ListStreamStudentsCmdMeta extends UcMeta {
   input: ListStreamStudentsCmd;
   output: v.InferOutput<typeof StudentSchema>[];
   errors: StreamUcErrors;
-  requiresAuth: true;
+  /** Публичный read-API: фасад getMembers зовёт без актора из ER peer-review. */
+  requiresAuth: false;
   type: 'query';
 }
