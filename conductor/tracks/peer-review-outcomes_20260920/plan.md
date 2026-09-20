@@ -64,7 +64,7 @@
 - [x] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md) —
       пройдена (подтверждение владельца, 2026-09-20)
 
-## Фаза 5. Core: асинхронные menuButtons
+## Фаза 5. Core: асинхронные menuButtons [checkpoint: 83a92f5]
 
 - [x] Task: Promise<MenuButton[]> в сигнатурах (U7BotUiStory, U7BotController,
       u7-menu), параллельный сбор в ui-app, политика ошибок (упавшая проверка
@@ -73,7 +73,8 @@
     - [x] Green: реализация — 29c82b6f
 - [x] Task: Обновить все реализации menuButtons (streams, learning, app,
       mentor, courses) и их тесты — 29c82b6f
-- [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md) —
+      пройдена (подтверждение владельца, 2026-09-21)
 
 ## Фаза 6. User: batch-UC get-users-by-ids
 
