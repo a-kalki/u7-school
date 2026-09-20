@@ -45,7 +45,7 @@
     - [x] Green: реализация
 - [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) — подтверждена владельцем 2026-09-21 по автоматическому покрытию (живой прогон — Фазы 4/5); checkpoint 19695dd
 
-## Фаза 4. Просмотр S07 и карточка потока
+## Фаза 4. Просмотр S07 и карточка потока [checkpoint: e53ebbf]
 
 - [x] Task: Стори просмотра S07 — `list-scope-reviews`, группировка по адресатам (роль — из `direction`, лейбл исхода — `authorOutcome` у автора-студента), пагинация готовым пагинатором трека pagination (`BotPaginator` + `DialogCache`, блок = отзыв, кнопки одним рядом), имена — batch-UC `get-users-by-ids` (готов, трек outcomes, Фаза 6), `⬅️ Назад к потоку` — d0892de
     - [x] Red: тесты (формат, статусы, страницы, кеш)
@@ -53,7 +53,7 @@
 - [x] Task: Кнопка `💬 Отзывы` в карточке потока (streams S02) — видимость по наличию отзывов (через `appApi`: UC `list-scope-facts`; фасад модуля удалён — клиентов не было, решение 2026-09-21), мост в стори просмотра — 90327c6
     - [x] Red: тесты (видимость, переход)
     - [x] Green: реализация
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md) — подтверждена владельцем 2026-09-21 по автоматическому покрытию (живой прогон — Фаза 5); checkpoint e53ebbf
 
 ## Фаза 5. Документация и финал
 
