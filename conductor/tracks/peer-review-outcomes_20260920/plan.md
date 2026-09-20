@@ -84,7 +84,7 @@
 - [x] Task: Conductor - User Manual Verification 'Фаза 6' (Protocol in workflow.md) —
       пройдена (подтверждение владельца, 2026-09-21)
 
-## Фаза 7. Синхронизация с UI-треком и чистота репозитория
+## Фаза 7. Синхронизация с UI-треком и чистота репозитория [checkpoint: 249de052]
 
 - [x] Task: Стори кампании бота — тексты S05 (4 варианта «о менторе»),
       использование myOutcome; довести висящие файлы Фазы 1 до целевого
@@ -105,4 +105,5 @@
 - [x] Task: Полный прогон bun run check, триаж по workflow
       (CI=true bun run check — exit 0: biome + tsc чисто, 2403 pass / 0 fail
       по 236 файлам; красных нет — промежуточных состояний и регрессов нет)
-- [ ] Task: Conductor - User Manual Verification 'Фаза 7' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 7' (Protocol in workflow.md) —
+      пройдена (подтверждение владельца, 2026-09-21)
