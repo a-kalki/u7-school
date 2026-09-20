@@ -48,7 +48,7 @@
     - [x] Green: реализация — edd739e8
 - [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) — пройдена (подтверждение владельца, 2026-09-21)
 
-## Фаза 4. UC и данные
+## Фаза 4. UC и данные [checkpoint: 4cb69c2]
 
 - [x] Task: get-campaign-recipients — вернуть myOutcome; удалить deliverables
     - [x] Red: тесты UC — ed9177d0
@@ -61,7 +61,8 @@
 - [x] Task: Фикстуры/dev-данные кампаний и отзывов — миграция под новую форму — 32a9b285
       (фикстур не существовало — созданы с нуля в новой форме + оживление окна
       при посеве; создано при выполнении, не пропускалось)
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md) —
+      пройдена (подтверждение владельца, 2026-09-20)
 
 ## Фаза 5. Core: асинхронные menuButtons
 
