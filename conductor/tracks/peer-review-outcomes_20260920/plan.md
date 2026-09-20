@@ -50,14 +50,15 @@
 
 ## Фаза 4. UC и данные
 
-- [ ] Task: get-campaign-recipients — вернуть myOutcome; удалить deliverables
-    - [ ] Red: тесты UC
-    - [ ] Green: реализация
-- [ ] Task: create-review / get-my-campaigns / list-scope-reviews /
+- [x] Task: get-campaign-recipients — вернуть myOutcome; удалить deliverables
+    - [x] Red: тесты UC — ed9177d0
+    - [x] Green: реализация — ed9177d0
+- [x] Task: create-review / get-my-campaigns / list-scope-reviews /
       get-my-review — адаптация под direction и новую форму
-    - [ ] Red: тесты
-    - [ ] Green: реализация
-- [ ] Task: Фикстуры/dev-данные кампаний и отзывов — миграция под новую форму
+    - [x] Red: тесты — e6a82a2/dd6b9e7 (Фазы 1–3), актуализация мока
+      get-my-review — 5ef19693
+    - [x] Green: реализация — e6a82a2/dd6b9e7 (Фазы 1–3)
+- [~] Task: Фикстуры/dev-данные кампаний и отзывов — миграция под новую форму
 - [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
 
 ## Фаза 5. Core: асинхронные menuButtons
