@@ -28,10 +28,10 @@
 
 ## Фаза 2. Read-API stream
 
-- [ ] Task: StreamFacade.getMembers — статус студента (advanced/not_advanced/
-      abandoned/…) + neverStarted вместо outcomeCategory
-    - [ ] Red: тесты фасада (различает «прошёл»/«не прошёл», neverStarted)
-    - [ ] Green: реализация
+- [x] Task: StreamFacade.getMembers — статус студента (advanced/not_advanced/
+      abandoned/…) + neverStarted вместо outcomeCategory — b948be8
+    - [x] Red: тесты фасада (различает «прошёл»/«не прошёл», neverStarted) — b948be8
+    - [x] Green: реализация — b948be8
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
 ## Фаза 3. ER и событие
