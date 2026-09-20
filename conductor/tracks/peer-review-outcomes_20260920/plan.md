@@ -13,17 +13,17 @@
 
 ## Фаза 1. Домен peer-review: форма кампании и отзыв
 
-- [ ] Task: Проекция исходов 4 значения + форма кампании: schema/entity/factory
+- [x] Task: Проекция исходов 4 значения + форма кампании: schema/entity/factory
       (participants — uuid[] в ядре; payload { subjectOutcome, mentorId };
-      context 'stream_fate'; удалить role/in_progress-исходы)
-    - [ ] Red: тесты схемы/фабрики (создание для всех 4 исходов субъекта, пустой participants)
-    - [ ] Green: реализация
-- [ ] Task: Review — direction + authorOutcome (4-значный); создание/перезапись
-    - [ ] Red: тесты (direction выводится из ролей, authorOutcome снапшот, невозможные пары)
-    - [ ] Green: реализация
-- [ ] Task: ReviewPolicy / assertCanWrite / reviewTargets под новую форму
-    - [ ] Red: тесты адресации (субъект → participants + ментор; ментор → субъект; пустой список — только ментор)
-    - [ ] Green: реализация
+      context 'stream_fate'; удалить role/in_progress-исходы) — e6a82a2
+    - [x] Red: тесты схемы/фабрики (создание для всех 4 исходов субъекта, пустой participants) — e6a82a2
+    - [x] Green: реализация — e6a82a2
+- [x] Task: Review — direction + authorOutcome (4-значный); создание/перезапись — dd6b9e7
+    - [x] Red: тесты (direction выводится из ролей, authorOutcome снапшот, невозможные пары) — e6a82a2 (схема/ар), dd6b9e7 (UC)
+    - [x] Green: реализация — e6a82a2
+- [x] Task: ReviewPolicy / assertCanWrite / reviewTargets под новую форму — 5e071ac6
+    - [x] Red: тесты адресации (субъект → participants + ментор; ментор → субъект; пустой список — только ментор) — e6a82a2 (базовые), 5e071ac6 (сам-себе)
+    - [x] Green: реализация — e6a82a2 (policy удалён, адресация в агрегате)
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
 ## Фаза 2. Read-API stream
