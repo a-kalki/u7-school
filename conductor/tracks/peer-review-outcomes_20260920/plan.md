@@ -95,8 +95,13 @@
 - [x] Task: Обновить conductor-документы: spec/plan трека peer-review-ui_20260916
       (новые знания: direction/subjectOutcome/async-меню/batch-имена), концепцию
       peer-review-system.md (§2/§5), ✅-пометки ui-spec — f5a664c
-- [ ] Task: Удалить временные файлы сессий (заметки, черновики — если
+- [x] Task: Удалить временные файлы сессий (заметки, черновики — если
       появлялись); убедиться, что они не попали в git (чистый `git status`
       по скоупу трека, незакоммиченных файлов нет)
-- [ ] Task: Полный прогон bun run check, триаж по workflow
+      (временных файлов сессии не появлялось: директория трека — только
+      index/spec/plan/metadata, дерево чистое; `tactics-draft.md` —
+      запланированное удаление в Фазе 5 трека peer-review-ui, ФР-6 его спеки)
+- [x] Task: Полный прогон bun run check, триаж по workflow
+      (CI=true bun run check — exit 0: biome + tsc чисто, 2403 pass / 0 fail
+      по 236 файлам; красных нет — промежуточных состояний и регрессов нет)
 - [ ] Task: Conductor - User Manual Verification 'Фаза 7' (Protocol in workflow.md)
