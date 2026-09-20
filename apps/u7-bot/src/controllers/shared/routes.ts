@@ -54,4 +54,9 @@ export const Routes = {
     inviteDecline: (questionnaireId: string) =>
       `questionnaire:invite:decline:${questionnaireId}`,
   },
+  peerReview: {
+    /** Кнопка приглашения S01 (invite-канал, полный код) → S03 кампании */
+    campaignList: (campaignId: string) =>
+      `peer-review:campaign:list:${campaignId}`,
+  },
 } as const;
