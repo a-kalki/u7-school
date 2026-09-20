@@ -91,6 +91,47 @@ describe('CreateReviewUc (ФР-7)', () => {
     });
   });
 
+  test('ментор пишет субъекту: direction mentor_student, authorOutcome не пишется', async () => {
+    const campaign = makeCampaign();
+    const { resolve, saved } = makeResolve(campaign);
+    const uc = new CreateReviewUc();
+    uc.init(resolve);
+
+    await uc.execute({
+      campaignId: CAMPAIGN_ID,
+      authorId: MENTOR,
+      recipientId: ALICE,
+      text: TEXT,
+    });
+
+    expect(saved).toHaveLength(1);
+    expect(saved[0]).toMatchObject({
+      authorId: MENTOR,
+      direction: 'mentor_student',
+      recipientId: ALICE,
+    });
+    expect(saved[0]).not.toHaveProperty('authorOutcome');
+  });
+
+  test('субъект пишет соученику: direction student_student + снапшот исхода', async () => {
+    const campaign = makeCampaign();
+    const { resolve, saved } = makeResolve(campaign);
+    const uc = new CreateReviewUc();
+    uc.init(resolve);
+
+    await uc.execute({
+      campaignId: CAMPAIGN_ID,
+      authorId: ALICE,
+      recipientId: BOB,
+      text: TEXT,
+    });
+
+    expect(saved[0]).toMatchObject({
+      direction: 'student_student',
+      authorOutcome: 'completed_passed',
+    });
+  });
+
   test('дубль пары: перезапись текста, uuid и createdAt сохраняются', async () => {
     const campaign = makeCampaign();
     const existing = {
@@ -120,6 +161,9 @@ describe('CreateReviewUc (ФР-7)', () => {
     expect(saved[0]!.uuid).toBe(existing.uuid);
     expect(saved[0]!.createdAt).toBe('2026-09-20T11:00');
     expect(saved[0]!.text).toBe(TEXT);
+    // перезапись не меняет направление и снапшот исхода автора
+    expect(saved[0]!.direction).toBe('student_mentor');
+    expect(saved[0]!.authorOutcome).toBe('completed_passed');
   });
 
   test('истёкшее окно — REVIEW_WINDOW_CLOSED', async () => {
