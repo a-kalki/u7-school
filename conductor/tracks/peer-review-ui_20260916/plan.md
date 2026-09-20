@@ -33,9 +33,9 @@
 - [x] Task: `menuButtons` «💬 Отзывы» — видимость по фасаду `hasLiveCampaigns` (декларативно, без обработчиков; async-контракт `Promise<MenuButton[]>` уже в core — трек outcomes, Фаза 5) — f55c805
     - [x] Red: тесты (есть/нет живых кампаний)
     - [x] Green: реализация
-- [~] Task: Экран S02 — список живых кампаний с рендером по `myRole` (субъекту: M/K + дни; ментору: «отзыв о {Имя}» + дни; имя субъекта — batch-UC `get-users-by-ids`) через `get-my-campaigns`, выбор кампании → S03
-    - [ ] Red: тесты
-    - [ ] Green: реализация
+- [x] Task: Экран S02 — список живых кампаний с рендером по `myRole` (субъекту: M/K + дни; ментору: «отзыв о {Имя}» + дни; имя субъекта — batch-UC `get-users-by-ids`) через `get-my-campaigns`, выбор кампании → S03 — 5ac1df3
+    - [x] Red: тесты
+    - [x] Green: реализация
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
 ## Фаза 3. Приглашения (S01)
