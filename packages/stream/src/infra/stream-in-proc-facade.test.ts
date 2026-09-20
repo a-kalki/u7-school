@@ -1,7 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { AppException } from '@u7-scl/core/domain';
 import type { StreamApiModule } from '#api/module';
-import { StudentOutcomeCategory } from '#domain/status';
 import type { Student } from '#domain/student/entity';
 import { StreamInProcFacade } from './stream-in-proc-facade';
 
@@ -75,7 +74,7 @@ function makeApi(
 }
 
 describe('StreamInProcFacade.getMembers', () => {
-  test('факты участников: категории исходов и признак «не начал» (read-API)', async () => {
+  test('статусы участников: «прошёл»/«не прошёл» различаются, учёба и признак «не начал» (read-API, ФР-2)', async () => {
     const facade = new StreamInProcFacade(
       makeApi(makeStream(), [
         makeStudent(
@@ -86,11 +85,26 @@ describe('StreamInProcFacade.getMembers', () => {
         makeStudent(
           'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
           '33333333-3333-4333-8333-333333333333',
-          'abandoned',
+          'not_advanced',
         ),
         makeStudent(
           'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
           '44444444-4444-4444-8444-444444444444',
+          'enrolled',
+        ),
+        makeStudent(
+          'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+          '55555555-5555-4555-8555-555555555555',
+          'active',
+        ),
+        makeStudent(
+          'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+          '88888888-8888-4888-8888-888888888888',
+          'abandoned',
+        ),
+        makeStudent(
+          'ffffffff-ffff-4fff-8fff-ffffffffffff',
+          '99999999-9999-4999-8999-999999999999',
           'abandoned',
           1,
         ),
@@ -103,17 +117,32 @@ describe('StreamInProcFacade.getMembers', () => {
     expect(members?.students).toEqual([
       {
         userId: '22222222-2222-4222-8222-222222222222',
-        outcomeCategory: StudentOutcomeCategory.COMPLETED,
+        status: 'advanced',
         neverStarted: false,
       },
       {
         userId: '33333333-3333-4333-8333-333333333333',
-        outcomeCategory: StudentOutcomeCategory.ABANDONED,
-        neverStarted: true,
+        status: 'not_advanced',
+        neverStarted: false,
       },
       {
         userId: '44444444-4444-4444-8444-444444444444',
-        outcomeCategory: StudentOutcomeCategory.ABANDONED,
+        status: 'enrolled',
+        neverStarted: false,
+      },
+      {
+        userId: '55555555-5555-4555-8555-555555555555',
+        status: 'active',
+        neverStarted: false,
+      },
+      {
+        userId: '88888888-8888-4888-8888-888888888888',
+        status: 'abandoned',
+        neverStarted: true,
+      },
+      {
+        userId: '99999999-9999-4999-8999-999999999999',
+        status: 'abandoned',
         neverStarted: false,
       },
     ]);

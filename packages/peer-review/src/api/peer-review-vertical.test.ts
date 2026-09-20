@@ -9,7 +9,6 @@ import type {
   StreamMembers,
   StudentCompletedEvent,
 } from '@u7-scl/stream/domain';
-import { StudentOutcomeCategory } from '@u7-scl/stream/domain';
 import type { PeerReviewApiModuleResolver } from '#domain/module';
 import { ReviewCampaignJsonRepo } from '../infra/db/review-campaign-json-repo';
 import { ReviewJsonRepo } from '../infra/db/review-json-repo';
@@ -53,12 +52,12 @@ function members(): StreamMembers {
     students: [
       {
         userId: SUBJECT,
-        outcomeCategory: StudentOutcomeCategory.COMPLETED,
+        status: 'advanced',
         neverStarted: false,
       },
       {
         userId: PEER,
-        outcomeCategory: StudentOutcomeCategory.IN_PROGRESS,
+        status: 'active',
         neverStarted: false,
       },
     ],

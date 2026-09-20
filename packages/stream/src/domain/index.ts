@@ -3,7 +3,7 @@ export type { ContentSnapshot } from '@u7-scl/course/domain';
 export { ContentSnapshotSchema } from '@u7-scl/course/domain';
 export type {
   StreamFacade,
-  StreamMemberOutcome,
+  StreamMember,
   StreamMembers,
 } from './facade';
 export * from './module';

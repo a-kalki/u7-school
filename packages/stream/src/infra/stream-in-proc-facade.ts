@@ -43,14 +43,11 @@ export class StreamInProcFacade implements StreamFacade {
 
     return {
       mentorId: stream.mentorId,
-      students: students.map((s) => {
-        const ar = new StudentAr(s);
-        return {
-          userId: s.userId,
-          outcomeCategory: ar.outcomeCategory(),
-          neverStarted: ar.neverStarted(),
-        };
-      }),
+      students: students.map((s) => ({
+        userId: s.userId,
+        status: s.status,
+        neverStarted: new StudentAr(s).neverStarted(),
+      })),
     };
   }
 }

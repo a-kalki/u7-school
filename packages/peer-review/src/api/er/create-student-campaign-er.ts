@@ -1,13 +1,10 @@
 import type { ErMeta } from '@u7-scl/core/api';
 import { EventReaction } from '@u7-scl/core/api';
 import type {
+  StreamMember,
+  StreamMembers,
   StudentAbandonedEvent,
   StudentCompletedEvent,
-} from '@u7-scl/stream/domain';
-import {
-  type StreamMemberOutcome,
-  type StreamMembers,
-  StudentOutcomeCategory,
 } from '@u7-scl/stream/domain';
 import type { PeerReviewApiModuleResolver } from '#domain/module';
 import type { StudentOutcome } from '#domain/review-campaign/entity';
@@ -78,8 +75,9 @@ export class CreateStudentCampaignEr extends EventReaction<
   }
 
   /**
-   * Адресуемые соученики (ФР-2): «завершил» → завершившиеся и ещё
-   * учащиеся (без субъекта); «забросил»/«не начал» → пустой список.
+   * Адресуемые соученики (ФР-2): «завершил» → завершившиеся
+   * (advanced/not_advanced) и ещё учащиеся (active/enrolled), без субъекта;
+   * «забросил»/«не начал» → пустой список.
    */
   #participantIds(
     event: StudentCompletedEvent | StudentAbandonedEvent,
@@ -88,12 +86,7 @@ export class CreateStudentCampaignEr extends EventReaction<
   ): string[] {
     if (event.eventName === 'student.abandoned') return [];
     return members.students
-      .filter(
-        (s) =>
-          s.userId !== subjectId &&
-          (s.outcomeCategory === StudentOutcomeCategory.COMPLETED ||
-            s.outcomeCategory === StudentOutcomeCategory.IN_PROGRESS),
-      )
+      .filter((s) => s.userId !== subjectId && s.status !== 'abandoned')
       .map((s) => s.userId);
   }
 
@@ -103,7 +96,7 @@ export class CreateStudentCampaignEr extends EventReaction<
    */
   #subjectOutcome(
     event: StudentCompletedEvent | StudentAbandonedEvent,
-    subject: StreamMemberOutcome | undefined,
+    subject: StreamMember | undefined,
   ): StudentOutcome {
     if (event.eventName === 'student.completed') {
       return event.payload.outcome === 'advanced'

@@ -1,12 +1,9 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type {
+  StreamMember,
+  StreamMembers,
   StudentAbandonedEvent,
   StudentCompletedEvent,
-} from '@u7-scl/stream/domain';
-import {
-  type StreamMemberOutcome,
-  type StreamMembers,
-  StudentOutcomeCategory,
 } from '@u7-scl/stream/domain';
 import type { PeerReviewApiModuleResolver } from '#domain/module';
 import type { ReviewCampaign } from '#domain/review-campaign/entity';
@@ -23,22 +20,22 @@ const CLASSMATE_NEVER = '88888888-8888-4888-8888-888888888888';
 
 function student(
   userId: string,
-  outcomeCategory: StreamMemberOutcome['outcomeCategory'],
+  status: StreamMember['status'],
   neverStarted = false,
-): StreamMemberOutcome {
-  return { userId, outcomeCategory, neverStarted };
+): StreamMember {
+  return { userId, status, neverStarted };
 }
 
-/** Состав потока: субъект + соученики всех категорий + ментор. */
+/** Состав потока: субъект + соученики всех статусов + ментор. */
 function makeMembers(): StreamMembers {
   return {
     mentorId: MENTOR,
     students: [
-      student(SUBJECT, StudentOutcomeCategory.COMPLETED),
-      student(CLASSMATE_LIVE, StudentOutcomeCategory.IN_PROGRESS),
-      student(CLASSMATE_DONE, StudentOutcomeCategory.COMPLETED),
-      student(CLASSMATE_DROP, StudentOutcomeCategory.ABANDONED),
-      student(CLASSMATE_NEVER, StudentOutcomeCategory.ABANDONED, true),
+      student(SUBJECT, 'advanced'),
+      student(CLASSMATE_LIVE, 'active'),
+      student(CLASSMATE_DONE, 'not_advanced'),
+      student(CLASSMATE_DROP, 'abandoned'),
+      student(CLASSMATE_NEVER, 'abandoned', true),
     ],
   };
 }
