@@ -92,9 +92,9 @@
       серия S04–S06, 5ef19693; в Фазе 7 досводка не требовалась)
     - [x] Red: тесты стори — 79b89aac
     - [x] Green: реализация — 79b89aac
-- [ ] Task: Обновить conductor-документы: spec/plan трека peer-review-ui_20260916
+- [x] Task: Обновить conductor-документы: spec/plan трека peer-review-ui_20260916
       (новые знания: direction/subjectOutcome/async-меню/batch-имена), концепцию
-      peer-review-system.md (§2/§5), ✅-пометки ui-spec
+      peer-review-system.md (§2/§5), ✅-пометки ui-spec — f5a664c
 - [ ] Task: Удалить временные файлы сессий (заметки, черновики — если
       появлялись); убедиться, что они не попали в git (чистый `git status`
       по скоупу трека, незакоммиченных файлов нет)
