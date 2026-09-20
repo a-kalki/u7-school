@@ -10,10 +10,7 @@ import {
   StudentOutcomeCategory,
 } from '@u7-scl/stream/domain';
 import type { PeerReviewApiModuleResolver } from '#domain/module';
-import type {
-  CampaignParticipant,
-  ParticipantOutcome,
-} from '#domain/review-campaign/entity';
+import type { StudentOutcome } from '#domain/review-campaign/entity';
 import { ReviewCampaignFactory } from '#domain/review-campaign/review-campaign-factory';
 
 /**
@@ -62,10 +59,15 @@ export class CreateStudentCampaignEr extends EventReaction<
       return;
     }
 
+    const subject = members.students.find((s) => s.userId === subjectId);
+    const subjectOutcome = this.#subjectOutcome(event, subject);
+
     const ar = ReviewCampaignFactory.createStudentCampaign({
       scopeId,
       subjectId,
-      participants: this.#participants(members),
+      mentorId: members.mentorId,
+      subjectOutcome,
+      participantIds: this.#participantIds(event, members, subjectId),
       now: new Date(),
     });
 
@@ -75,35 +77,39 @@ export class CreateStudentCampaignEr extends EventReaction<
     }
   }
 
-  /** Снапшот участников: студенты с проекциями исходов + ментор. */
-  #participants(members: StreamMembers): CampaignParticipant[] {
-    const students = members.students.map((s) => ({
-      userId: s.userId,
-      role: 'student' as const,
-      outcome: this.#projectOutcome(s),
-    }));
-    return [...students, { userId: members.mentorId, role: 'mentor' as const }];
+  /**
+   * Адресуемые соученики (ФР-2): «завершил» → завершившиеся и ещё
+   * учащиеся (без субъекта); «забросил»/«не начал» → пустой список.
+   */
+  #participantIds(
+    event: StudentCompletedEvent | StudentAbandonedEvent,
+    members: StreamMembers,
+    subjectId: string,
+  ): string[] {
+    if (event.eventName === 'student.abandoned') return [];
+    return members.students
+      .filter(
+        (s) =>
+          s.userId !== subjectId &&
+          (s.outcomeCategory === StudentOutcomeCategory.COMPLETED ||
+            s.outcomeCategory === StudentOutcomeCategory.IN_PROGRESS),
+      )
+      .map((s) => s.userId);
   }
 
   /**
-   * Проекция исхода студента в исход кампании (4 значения):
-   * завершил → completed; ещё учится → in_progress;
-   * забросил начав → dropped; забросил не начав → never_started.
+   * Проекция исхода субъекта (ФР-1): завершил и прошел / завершил и
+   * не прошел — из события; забросил / не начал — по neverStarted.
    */
-  #projectOutcome(member: StreamMemberOutcome): ParticipantOutcome {
-    switch (member.outcomeCategory) {
-      case StudentOutcomeCategory.COMPLETED:
-        return 'completed';
-      case StudentOutcomeCategory.IN_PROGRESS:
-        return 'in_progress';
-      case StudentOutcomeCategory.ABANDONED:
-        return member.neverStarted ? 'never_started' : 'dropped';
-      default: {
-        const unknown: never = member.outcomeCategory;
-        throw new Error(
-          `Неизвестная категория исхода студента: ${String(unknown)}`,
-        );
-      }
+  #subjectOutcome(
+    event: StudentCompletedEvent | StudentAbandonedEvent,
+    subject: StreamMemberOutcome | undefined,
+  ): StudentOutcome {
+    if (event.eventName === 'student.completed') {
+      return event.payload.outcome === 'advanced'
+        ? 'completed_passed'
+        : 'completed_not_passed';
     }
+    return subject?.neverStarted ? 'never_started' : 'dropped';
   }
 }

@@ -2,10 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type {
-  CampaignParticipant,
-  ReviewCampaign,
-} from '#domain/review-campaign/entity';
+import type { ReviewCampaign } from '#domain/review-campaign/entity';
 import { ReviewCampaignJsonRepo } from './review-campaign-json-repo';
 
 /** Даты-границы, независимые от момента запуска тестов. */
@@ -21,34 +18,26 @@ const UUIDS = [
   '66666666-6666-4666-8666-6666666666b1',
 ] as const;
 
-/** Валидная кампания stream_ended с минимальным составом участников. */
+/** Валидная кампания stream_fate с минимальным составом адресуемых. */
 function makeCampaign(input: {
   uuid: string;
   scopeId: string;
   subjectId: string;
   expiresAt?: string;
-  mentorId?: string;
+  mentorId: string;
 }): ReviewCampaign {
-  const participants: CampaignParticipant[] = [
-    {
-      userId: input.subjectId,
-      role: 'student',
-      outcome: 'completed',
-    },
-  ];
-  if (input.mentorId) {
-    participants.push({ userId: input.mentorId, role: 'mentor' });
-  }
-
   return {
     uuid: input.uuid,
-    context: 'stream_ended',
+    context: 'stream_fate',
     scopeId: input.scopeId,
     subjectId: input.subjectId,
     createdAt: '2026-06-01T00:00',
     expiresAt: input.expiresAt ?? FUTURE,
-    participants,
-    payload: {},
+    participants: [],
+    payload: {
+      subjectOutcome: 'completed_passed',
+      mentorId: input.mentorId,
+    },
   };
 }
 
@@ -84,6 +73,7 @@ describe('ReviewCampaignJsonRepo', () => {
       uuid: UUIDS[0],
       scopeId: UUIDS[4],
       subjectId: UUIDS[1],
+      mentorId: UUIDS[3],
     });
 
     await repo.save(campaign);
@@ -105,6 +95,7 @@ describe('ReviewCampaignJsonRepo', () => {
         uuid: UUIDS[0],
         scopeId: UUIDS[4],
         subjectId: UUIDS[1],
+        mentorId: UUIDS[3],
       }),
     );
 
@@ -112,6 +103,7 @@ describe('ReviewCampaignJsonRepo', () => {
       uuid: UUIDS[2],
       scopeId: UUIDS[4],
       subjectId: UUIDS[1],
+      mentorId: UUIDS[3],
     });
 
     expect(repo.save(duplicate)).rejects.toThrow();
@@ -123,6 +115,7 @@ describe('ReviewCampaignJsonRepo', () => {
       uuid: UUIDS[0],
       scopeId: UUIDS[4],
       subjectId: UUIDS[1],
+      mentorId: UUIDS[3],
     });
     await repo.save(campaign);
 
@@ -139,6 +132,7 @@ describe('ReviewCampaignJsonRepo', () => {
         uuid: UUIDS[0],
         scopeId: UUIDS[4],
         subjectId: UUIDS[1],
+        mentorId: UUIDS[3],
       }),
     );
     // Истёкшее окно того же субъекта — не попадает
@@ -148,6 +142,7 @@ describe('ReviewCampaignJsonRepo', () => {
         scopeId: UUIDS[5],
         subjectId: UUIDS[1],
         expiresAt: PAST,
+        mentorId: UUIDS[3],
       }),
     );
     // Активное окно, где пользователь только ментор — не попадает
@@ -191,6 +186,7 @@ describe('ReviewCampaignJsonRepo', () => {
         uuid: UUIDS[3],
         scopeId: UUIDS[4],
         subjectId: UUIDS[3],
+        mentorId: UUIDS[5],
       }),
     );
 

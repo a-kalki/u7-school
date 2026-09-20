@@ -13,10 +13,9 @@ function review(uuid: string, overrides: Partial<Review>): Review {
     scopeId: SCOPE,
     campaignId: '11111111-1111-4111-8111-111111111111',
     authorId: ALICE,
-    authorRole: 'student',
-    authorOutcome: 'completed',
+    direction: 'student_mentor',
+    authorOutcome: 'completed_passed',
     recipientId: MENTOR,
-    recipientRole: 'mentor',
     text: 'Текст отзыва достаточной длины.',
     createdAt: '2026-09-20T11:00',
     ...overrides,
@@ -29,14 +28,13 @@ describe('ScopeReviewsDs: группировка отзывов скоупа', (
       review('aaaaaaaa-aaaa-4aaa-8aaa-000000000001', { recipientId: MENTOR }),
       review('aaaaaaaa-aaaa-4aaa-8aaa-000000000002', {
         recipientId: BOB,
-        recipientRole: 'student',
+        direction: 'student_student',
         createdAt: '2026-09-20T12:00',
       }),
       review('aaaaaaaa-aaaa-4aaa-8aaa-000000000003', {
         recipientId: BOB,
-        recipientRole: 'student',
+        direction: 'mentor_student',
         authorId: MENTOR,
-        authorRole: 'mentor',
         authorOutcome: undefined,
         createdAt: '2026-09-20T10:00',
       }),
@@ -48,7 +46,6 @@ describe('ScopeReviewsDs: группировка отзывов скоупа', (
     // самый ранний отзыв (10:00) — про BOB
     expect(groups.map((g) => g.recipientId)).toEqual([BOB, MENTOR]);
     const bobGroup = groups[0]!;
-    expect(bobGroup.recipientRole).toBe('student');
     expect(bobGroup.reviews.map((r) => r.createdAt)).toEqual([
       '2026-09-20T10:00',
       '2026-09-20T12:00',
@@ -57,7 +54,7 @@ describe('ScopeReviewsDs: группировка отзывов скоупа', (
     expect(bobGroup.reviews[0]).toEqual({
       reviewId: 'aaaaaaaa-aaaa-4aaa-8aaa-000000000003',
       authorId: MENTOR,
-      authorRole: 'mentor',
+      direction: 'mentor_student',
       text: 'Текст отзыва достаточной длины.',
       createdAt: '2026-09-20T10:00',
     });

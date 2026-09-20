@@ -73,10 +73,7 @@ export class ReviewCampaignJsonRepo implements ReviewCampaignRepo {
     const now = new Date();
     const all = await this.#repo.readAll();
     return all.filter(
-      (c) =>
-        c.participants.some(
-          (p) => p.userId === userId && p.role === 'mentor',
-        ) && !isExpired(c, now),
+      (c) => c.payload.mentorId === userId && !isExpired(c, now),
     );
   }
 

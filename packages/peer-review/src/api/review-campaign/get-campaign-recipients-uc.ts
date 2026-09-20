@@ -50,12 +50,12 @@ export class GetCampaignRecipientsUc extends U7UseCase<
       command.campaignId,
       command.authorId,
     );
-    const { myRole } = ar.authorshipOf(command.authorId);
+    const { myRole } = ar.reviewTargets(command.authorId);
 
     return {
       campaignId: command.campaignId,
       myRole,
-      myOutcome: ar.findParticipant(command.authorId)?.outcome,
+      mentorId: ar.mentorId,
       daysLeft: ar.daysLeft(new Date()),
       recipients: CampaignFactsDs.recipientsWithMyReview(
         ar,

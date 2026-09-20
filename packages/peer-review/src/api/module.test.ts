@@ -94,7 +94,7 @@ describe('PeerReviewApiModule (ФР-6)', () => {
     // ER асинхронен (подписка шины) — ждём микротаск
     await new Promise((r) => setTimeout(r, 0));
     expect(saved).toHaveLength(1);
-    expect(saved[0]!.context).toBe('stream_ended');
+    expect(saved[0]!.context).toBe('stream_fate');
     expect(saved[0]!.scopeId).toBe(SCOPE);
     expect(saved[0]!.subjectId).toBe(SUBJECT);
   });

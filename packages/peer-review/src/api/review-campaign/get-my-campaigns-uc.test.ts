@@ -14,18 +14,18 @@ const BOB = '24444444-4444-4444-8444-444444444444';
 const MENTOR = '33333333-3333-4333-8333-333333333333';
 const NOW = new Date('2026-09-20T10:00');
 
-const COMPLETED = {
-  userId: ALICE,
-  role: 'student' as const,
-  outcome: 'completed' as const,
-};
-const MENTOR_P = { userId: MENTOR, role: 'mentor' as const };
-
-function makeCampaign(subject = COMPLETED, scopeId = SCOPE, now = NOW) {
+function makeCampaign(
+  subjectId = ALICE,
+  scopeId = SCOPE,
+  now = NOW,
+  participantIds: string[] = [BOB],
+) {
   return ReviewCampaignFactory.createStudentCampaign({
     scopeId,
-    subjectId: subject.userId,
-    participants: [subject, MENTOR_P],
+    subjectId,
+    mentorId: MENTOR,
+    subjectOutcome: 'completed_passed',
+    participantIds,
     now,
   });
 }
@@ -39,10 +39,9 @@ function makeReviews(
     scopeId: SCOPE,
     campaignId,
     authorId,
-    authorRole: 'student' as const,
-    authorOutcome: 'completed' as const,
+    direction: 'student_student' as const,
+    authorOutcome: 'completed_passed' as const,
     recipientId,
-    recipientRole: 'student' as const,
     text: 'Хороший напарник по паре, всё получалось.',
     createdAt: '2026-09-20T11:00',
   }));
@@ -114,11 +113,9 @@ describe('GetMyCampaignsUc (ФР-7)', () => {
     const campaign = ReviewCampaignFactory.createStudentCampaign({
       scopeId: SCOPE,
       subjectId: ALICE,
-      participants: [
-        { userId: ALICE, role: 'student', outcome: 'completed' },
-        { userId: BOB, role: 'student', outcome: 'in_progress' },
-        MENTOR_P,
-      ],
+      mentorId: MENTOR,
+      subjectOutcome: 'completed_passed',
+      participantIds: [BOB],
       now: NOW,
     });
     const reviews = makeReviews(campaign.state.uuid, [
@@ -130,18 +127,14 @@ describe('GetMyCampaignsUc (ФР-7)', () => {
     uc.init(makeResolve([{ ar: campaign, myRole: 'subject' }], reviews));
 
     const res = await uc.execute({ userId: ALICE });
-    // K — адресаты политики: субъект completed → ментор + соученик in_progress;
+    // K — адресаты политики: соученик + ментор;
     // M — из трёх отзывов два написаны от ALICE
     expect(res[0]!.progress).toEqual({ done: 2, total: 2 });
   });
 
   test('onlyLives отсекает истекшие окна', async () => {
     const live = makeCampaign();
-    const expired = makeCampaign(
-      COMPLETED,
-      SCOPE,
-      new Date('2026-09-01T10:00'),
-    );
+    const expired = makeCampaign(ALICE, SCOPE, new Date('2026-09-01T10:00'));
     const uc = new GetMyCampaignsUc();
     uc.init(
       makeResolve(
@@ -164,7 +157,7 @@ describe('GetMyCampaignsUc (ФР-7)', () => {
 
   test('filter: по scopeId и по context', async () => {
     const inScope = makeCampaign();
-    const otherScope = makeCampaign(COMPLETED, SCOPE2);
+    const otherScope = makeCampaign(ALICE, SCOPE2);
     const uc = new GetMyCampaignsUc();
     uc.init(
       makeResolve(
@@ -185,7 +178,7 @@ describe('GetMyCampaignsUc (ФР-7)', () => {
 
     const byContext = await uc.execute({
       userId: ALICE,
-      filter: { context: 'stream_ended' },
+      filter: { context: 'stream_fate' },
     });
     expect(byContext).toHaveLength(2);
   });

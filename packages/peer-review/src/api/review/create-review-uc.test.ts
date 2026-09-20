@@ -21,12 +21,9 @@ function makeCampaign(now = NOW) {
   return ReviewCampaignFactory.createStudentCampaign({
     scopeId: SCOPE,
     subjectId: ALICE,
-    participants: [
-      { userId: ALICE, role: 'student', outcome: 'completed' },
-      { userId: BOB, role: 'student', outcome: 'in_progress' },
-      { userId: CAROL, role: 'student', outcome: 'dropped' },
-      { userId: MENTOR, role: 'mentor' },
-    ],
+    mentorId: MENTOR,
+    subjectOutcome: 'completed_passed',
+    participantIds: [BOB],
     now,
   });
 }
@@ -88,10 +85,9 @@ describe('CreateReviewUc (ФР-7)', () => {
       scopeId: SCOPE,
       campaignId: CAMPAIGN_ID,
       authorId: ALICE,
-      authorRole: 'student',
-      authorOutcome: 'completed',
+      direction: 'student_mentor',
+      authorOutcome: 'completed_passed',
       recipientId: MENTOR,
-      recipientRole: 'mentor',
     });
   });
 
@@ -102,10 +98,9 @@ describe('CreateReviewUc (ФР-7)', () => {
       scopeId: SCOPE,
       campaignId: CAMPAIGN_ID,
       authorId: ALICE,
-      authorRole: 'student' as const,
-      authorOutcome: 'completed' as const,
+      direction: 'student_mentor' as const,
+      authorOutcome: 'completed_passed' as const,
       recipientId: MENTOR,
-      recipientRole: 'mentor' as const,
       text: 'Прежний текст отзыва, довольно длинный.',
       createdAt: '2026-09-20T11:00',
     } satisfies Review;
@@ -146,7 +141,7 @@ describe('CreateReviewUc (ФР-7)', () => {
     }
   });
 
-  test('адресат вне политики (dropped-соученик) — RECIPIENT_NOT_ALLOWED', async () => {
+  test('адресат вне политики (не в списке адресуемых) — RECIPIENT_NOT_ALLOWED', async () => {
     const campaign = makeCampaign();
     const { resolve } = makeResolve(campaign);
     const uc = new CreateReviewUc();

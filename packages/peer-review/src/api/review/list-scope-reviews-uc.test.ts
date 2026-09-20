@@ -18,9 +18,8 @@ function review(
     uuid,
     scopeId: SCOPE,
     campaignId: '3aaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-    authorRole: 'student',
-    authorOutcome: 'completed',
-    recipientRole: 'student',
+    direction: 'student_student',
+    authorOutcome: 'completed_passed',
     text: 'Текст отзыва достаточной длины.',
     createdAt: '2026-09-20T11:00',
     ...overrides,
@@ -56,18 +55,18 @@ describe('ListScopeReviewsUc (ФР-7)', () => {
     const reviews = [
       review('aaaaaaaa-aaaa-4aaa-8aaa-000000000001', {
         authorId: ALICE,
+        direction: 'student_mentor',
         recipientId: MENTOR,
-        recipientRole: 'mentor',
       }),
       review('aaaaaaaa-aaaa-4aaa-8aaa-000000000002', {
         authorId: MENTOR,
-        authorRole: 'mentor',
+        direction: 'mentor_student',
         authorOutcome: undefined,
         recipientId: ALICE,
       }),
       review('aaaaaaaa-aaaa-4aaa-8aaa-000000000003', {
         authorId: BOB,
-        authorOutcome: 'in_progress',
+        authorOutcome: 'dropped',
         recipientId: ALICE,
       }),
     ];
@@ -79,20 +78,19 @@ describe('ListScopeReviewsUc (ФР-7)', () => {
 
     const byRecipient = new Map(res.recipients.map((g) => [g.recipientId, g]));
     const aboutAlice = byRecipient.get(ALICE)!;
-    expect(aboutAlice.recipientRole).toBe('student');
     expect(aboutAlice.reviews).toHaveLength(2);
     expect(aboutAlice.reviews[0]).toMatchObject({
       reviewId: 'aaaaaaaa-aaaa-4aaa-8aaa-000000000002',
       authorId: MENTOR,
-      authorRole: 'mentor',
+      direction: 'mentor_student',
     });
     expect(aboutAlice.reviews[0]).not.toHaveProperty('authorOutcome');
 
     const aboutMentor = byRecipient.get(MENTOR)!;
-    expect(aboutMentor.recipientRole).toBe('mentor');
     expect(aboutMentor.reviews[0]).toMatchObject({
       authorId: ALICE,
-      authorOutcome: 'completed',
+      direction: 'student_mentor',
+      authorOutcome: 'completed_passed',
     });
   });
 
@@ -105,7 +103,7 @@ describe('ListScopeReviewsUc (ФР-7)', () => {
       }),
       review('aaaaaaaa-aaaa-4aaa-8aaa-000000000001', {
         authorId: MENTOR,
-        authorRole: 'mentor',
+        direction: 'mentor_student',
         authorOutcome: undefined,
         recipientId: ALICE,
         createdAt: '2026-09-20T10:00',

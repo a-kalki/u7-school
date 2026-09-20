@@ -13,17 +13,13 @@ const MENTOR = '55555555-5555-4555-8555-555555555555';
 function ar(): ReviewCampaignAr {
   const state: ReviewCampaign = {
     uuid: '11111111-1111-4111-8111-111111111111',
-    context: 'stream_ended',
+    context: 'stream_fate',
     scopeId: SCOPE,
     subjectId: SUBJECT,
     createdAt: '2026-09-20T10:00',
     expiresAt: '2026-09-27T10:00',
-    participants: [
-      { userId: SUBJECT, role: 'student', outcome: 'completed' },
-      { userId: BOB, role: 'student', outcome: 'in_progress' },
-      { userId: MENTOR, role: 'mentor' },
-    ],
-    payload: {},
+    participants: [BOB],
+    payload: { subjectOutcome: 'completed_passed', mentorId: MENTOR },
   };
   return new ReviewCampaignAr(state);
 }
@@ -34,10 +30,9 @@ function review(uuid: number, recipientId: string): Review {
     scopeId: SCOPE,
     campaignId: '11111111-1111-4111-8111-111111111111',
     authorId: SUBJECT,
-    authorRole: 'student',
-    authorOutcome: 'completed',
+    direction: 'student_mentor',
+    authorOutcome: 'completed_passed',
     recipientId,
-    recipientRole: 'mentor',
     text: 'Текст отзыва достаточной длины.',
     createdAt: '2026-09-20T11:00',
   };
@@ -52,7 +47,7 @@ describe('CampaignFactsDs (два агрегата: кампания + отзы�
       {
         ...review(3, BOB),
         authorId: BOB,
-        authorOutcome: 'in_progress' as const,
+        direction: 'student_student' as const,
       },
     ];
     const facts = CampaignFactsDs.myCampaignFacts(
@@ -77,13 +72,8 @@ describe('CampaignFactsDs (два агрегата: кампания + отзы�
       myReviews,
     );
     expect(res).toEqual([
-      {
-        userId: BOB,
-        role: 'student',
-        outcome: 'in_progress',
-        hasMyReview: false,
-      },
-      { userId: MENTOR, role: 'mentor', hasMyReview: true },
+      { userId: BOB, hasMyReview: false },
+      { userId: MENTOR, hasMyReview: true },
     ]);
   });
 });

@@ -34,10 +34,9 @@ function makeReview(input: {
     scopeId: input.scopeId,
     campaignId: input.campaignId,
     authorId: input.authorId,
-    authorRole: 'student',
-    authorOutcome: 'completed',
+    direction: 'student_student',
+    authorOutcome: 'completed_passed',
     recipientId: input.recipientId,
-    recipientRole: 'student',
     text: input.text ?? 'Хороший, вдумчивый соученик',
     createdAt: '2026-06-01T00:00',
   };

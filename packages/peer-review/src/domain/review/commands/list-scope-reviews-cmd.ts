@@ -1,10 +1,8 @@
 import type { UcMeta } from '@u7-scl/core/api';
 import * as v from 'valibot';
-import {
-  CampaignRoleSchema,
-  ParticipantOutcomeSchema,
-} from '../../review-campaign/entity';
+import { StudentOutcomeSchema } from '../../review-campaign/entity';
 import { isoMinuteField, uuidField } from '../../shared/schema';
+import { ReviewDirectionSchema } from '../entity';
 import type { ScopeReviewsProjection } from '../scope-reviews-ds';
 
 export const ListScopeReviewsCmdSchema = v.object({
@@ -19,8 +17,8 @@ export type ListScopeReviewsCmd = v.InferOutput<
 export const ReviewSnapshotSchema = v.object({
   reviewId: uuidField('Некорректный формат UUID отзыва'),
   authorId: uuidField('Некорректный формат UUID автора'),
-  authorRole: CampaignRoleSchema,
-  authorOutcome: v.optional(ParticipantOutcomeSchema),
+  direction: ReviewDirectionSchema,
+  authorOutcome: v.optional(StudentOutcomeSchema),
   text: v.string(),
   createdAt: isoMinuteField('Некорректный формат даты'),
 });
@@ -31,7 +29,6 @@ export const ScopeReviewsSchema = v.object({
   recipients: v.array(
     v.object({
       recipientId: uuidField('Некорректный формат UUID адресата'),
-      recipientRole: CampaignRoleSchema,
       reviews: v.array(ReviewSnapshotSchema),
     }),
   ),

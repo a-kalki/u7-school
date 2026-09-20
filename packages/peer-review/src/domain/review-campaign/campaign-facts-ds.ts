@@ -1,7 +1,6 @@
 import * as v from 'valibot';
 import type { Review } from '../review/entity';
 import type { ReviewCampaignAr } from './a-root';
-import type { CampaignParticipant } from './entity';
 
 /** Роль автора окна — субъект или его ментор (не роль участника кампании). */
 export const AuthorRoleSchema = v.picklist(['subject', 'mentor']);
@@ -15,9 +14,9 @@ export interface CampaignProgress {
   total: number;
 }
 
-/** Факты «моей кампании» — общие для списка и деталки (ФР-7). */
+/** Факты «моей кампании» — общие для списка и деталки. */
 export interface MyCampaignFacts {
-  myRole: 'subject' | 'mentor';
+  myRole: AuthorRole;
   daysLeft: number;
   progress: CampaignProgress;
 }
@@ -25,23 +24,24 @@ export interface MyCampaignFacts {
 /** Карточка «моей кампании» — тип данных для UI и внешних модулей. */
 export interface MyCampaignCard extends MyCampaignFacts {
   campaignId: string;
-  context: 'stream_ended';
+  context: 'stream_fate';
   scopeId: string;
   subjectId: string;
   expiresAt: string;
 }
 
 /** Адресат с признаком «мой отзыв уже есть» — тип данных для UI. */
-export type RecipientWithMyReview = CampaignParticipant & {
+export interface RecipientWithMyReview {
+  userId: string;
   hasMyReview: boolean;
-};
+}
 
-/** Адресаты окна автора — тип данных для UI (деталка кампании, ФР-7). */
+/** Адресаты окна автора — тип данных для UI (деталка кампании). */
 export interface MyRecipientsView {
   campaignId: string;
   myRole: AuthorRole;
-  /** Исход автора-студента (у ментора отсутствует) — выбор текста-подсказки S05. */
-  myOutcome?: CampaignParticipant['outcome'];
+  /** Ментор скоупа: UI отличает адресата-ментора для лейбла. */
+  mentorId: string;
   daysLeft: number;
   recipients: RecipientWithMyReview[];
 }
@@ -52,33 +52,33 @@ export interface MyRecipientsView {
  * а не метод AR; вычисления домена, не UC.
  */
 export const CampaignFactsDs = {
-  /** Роль автора, остаток дней и прогресс M/K по его кампании. */
+  /** Факты «моей кампании»: роль автора, остаток дней, прогресс M/K. */
   myCampaignFacts(
     ar: ReviewCampaignAr,
     userId: string,
     campaignReviews: readonly Review[],
     now: Date,
   ): MyCampaignFacts {
-    const { myRole, recipients } = ar.authorshipOf(userId);
+    const { myRole, targetIds } = ar.reviewTargets(userId);
     const done = campaignReviews.filter((r) => r.authorId === userId).length;
     return {
       myRole,
       daysLeft: ar.daysLeft(now),
-      progress: { done, total: recipients.length },
+      progress: { done, total: targetIds.length },
     };
   },
 
-  /** Адресаты автора окна с признаком «мой отзыв уже есть». */
+  /** Адресаты автора с признаком «уже писал». */
   recipientsWithMyReview(
     ar: ReviewCampaignAr,
     userId: string,
     myReviews: readonly Review[],
   ): RecipientWithMyReview[] {
-    const { recipients } = ar.authorshipOf(userId);
+    const { targetIds } = ar.reviewTargets(userId);
     const written = new Set(myReviews.map((r) => r.recipientId));
-    return recipients.map((r) => ({
-      ...r,
-      hasMyReview: written.has(r.userId),
+    return targetIds.map((userId2) => ({
+      userId: userId2,
+      hasMyReview: written.has(userId2),
     }));
   },
 };

@@ -48,7 +48,7 @@ export class CreateReviewUc extends U7UseCase<
     }
     const ar = ReviewCampaignFactory.restore(state);
     ar.ensureLive(new Date());
-    const { author, recipient } = ar.assertCanWrite(
+    const { direction, authorOutcome } = ar.assertCanWrite(
       command.authorId,
       command.recipientId,
     );
@@ -63,8 +63,10 @@ export class CreateReviewUc extends U7UseCase<
       : ReviewAr.create({
           campaignId: command.campaignId,
           scopeId: ar.scopeId,
-          author,
-          recipient,
+          authorId: command.authorId,
+          direction,
+          ...(authorOutcome !== undefined ? { authorOutcome } : {}),
+          recipientId: command.recipientId,
           text: command.text,
           now: new Date(),
         });

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { REVIEW_WINDOW_DAYS } from './constants';
-import type { CampaignParticipant } from './entity';
+import type { StudentOutcome } from './entity';
 import { ReviewCampaignFactory } from './review-campaign-factory';
 
 const UUIDS = {
@@ -9,46 +9,72 @@ const UUIDS = {
   alice: '33333333-3333-4333-8333-333333333333',
   bob: '44444444-4444-4444-8444-444444444444',
   mentor: '55555555-5555-4555-8555-555555555555',
-  /** Не входит в снапшот участников — для проверки инварианта субъекта. */
+  /** Не входит в адресуемых — для негативных проверок. */
   absent: '88888888-8888-4888-8888-888888888888',
 };
 
 /** 2026-09-20T10:00 UTC */
 const NOW = new Date('2026-09-20T10:00Z');
 
-/** Снапшот окружения субъекта: субъект завершает поток. */
-function participants(): CampaignParticipant[] {
-  return [
-    { userId: UUIDS.subject, role: 'student', outcome: 'completed' },
-    { userId: UUIDS.alice, role: 'student', outcome: 'in_progress' },
-    { userId: UUIDS.bob, role: 'student', outcome: 'dropped' },
-    { userId: UUIDS.mentor, role: 'mentor' },
-  ];
-}
-
 function createInput(
   overrides: Partial<{
     scopeId: string;
     subjectId: string;
-    participants: CampaignParticipant[];
+    mentorId: string;
+    subjectOutcome: StudentOutcome;
+    participantIds: string[];
     now: Date;
   }> = {},
 ) {
   return {
     scopeId: UUIDS.scope,
     subjectId: UUIDS.subject,
-    participants: participants(),
+    mentorId: UUIDS.mentor,
+    subjectOutcome: 'completed_passed' as StudentOutcome,
+    participantIds: [UUIDS.alice, UUIDS.bob],
     now: NOW,
     ...overrides,
   };
 }
 
 describe('ReviewCampaignFactory.createStudentCampaign', () => {
-  test('контекст stream_ended, скоуп и субъект кампании (ФР-2/ФР-3)', () => {
+  test('контекст stream_fate, скоуп и субъект кампании', () => {
     const ar = ReviewCampaignFactory.createStudentCampaign(createInput());
-    expect(ar.context).toBe('stream_ended');
+    expect(ar.context).toBe('stream_fate');
     expect(ar.scopeId).toBe(UUIDS.scope);
     expect(ar.subjectId).toBe(UUIDS.subject);
+  });
+
+  test.each([
+    'completed_passed',
+    'completed_not_passed',
+    'dropped',
+    'never_started',
+  ] as const)(
+    'исход субъекта %s проходит в payload (создание для всех 4 исходов)',
+    (subjectOutcome) => {
+      const ar = ReviewCampaignFactory.createStudentCampaign(
+        createInput({ subjectOutcome }),
+      );
+      expect(ar.state.payload.subjectOutcome).toBe(subjectOutcome);
+    },
+  );
+
+  test('payload: mentorId — второй автор окна', () => {
+    const ar = ReviewCampaignFactory.createStudentCampaign(createInput());
+    expect(ar.state.payload.mentorId).toBe(UUIDS.mentor);
+  });
+
+  test('participants — только id адресуемых соучеников, порядок сохранён', () => {
+    const ar = ReviewCampaignFactory.createStudentCampaign(createInput());
+    expect(ar.state.participants).toEqual([UUIDS.alice, UUIDS.bob]);
+  });
+
+  test('пустой participants — валиден (окно для «забросил»/«не начал»)', () => {
+    const ar = ReviewCampaignFactory.createStudentCampaign(
+      createInput({ subjectOutcome: 'dropped', participantIds: [] }),
+    );
+    expect(ar.state.participants).toEqual([]);
   });
 
   test('createdAt — из переданного момента (минутная точность)', () => {
@@ -56,8 +82,8 @@ describe('ReviewCampaignFactory.createStudentCampaign', () => {
     expect(ar.state.createdAt).toBe('2026-09-20T10:00');
   });
 
-  test(`expiresAt = createdAt + ${REVIEW_WINDOW_DAYS.streamEnded} дней (из константы окна)`, () => {
-    expect(REVIEW_WINDOW_DAYS.streamEnded).toBe(7);
+  test(`expiresAt = createdAt + ${REVIEW_WINDOW_DAYS.streamFate} дней (из константы окна)`, () => {
+    expect(REVIEW_WINDOW_DAYS.streamFate).toBe(7);
     const ar = ReviewCampaignFactory.createStudentCampaign(createInput());
     expect(ar.state.expiresAt).toBe('2026-09-27T10:00');
   });
@@ -65,12 +91,7 @@ describe('ReviewCampaignFactory.createStudentCampaign', () => {
   test('окно сразу согласовано с агрегатом: жива, daysLeft = окну', () => {
     const ar = ReviewCampaignFactory.createStudentCampaign(createInput());
     expect(ar.isExpired(NOW)).toBe(false);
-    expect(ar.daysLeft(NOW)).toBe(REVIEW_WINDOW_DAYS.streamEnded);
-  });
-
-  test('участники — снапшот без изменения порядка (вкл. in_progress)', () => {
-    const ar = ReviewCampaignFactory.createStudentCampaign(createInput());
-    expect(ar.participants).toEqual(participants());
+    expect(ar.daysLeft(NOW)).toBe(REVIEW_WINDOW_DAYS.streamFate);
   });
 
   test('uuid кампании генерируется', () => {
@@ -79,45 +100,37 @@ describe('ReviewCampaignFactory.createStudentCampaign', () => {
     expect(a.state.uuid).not.toBe(b.state.uuid);
   });
 
-  test('субъект отсутствует в participants — фабрика отклоняет (инвариант)', () => {
+  test('субъект среди participants — фабрика отклоняет (не адресует сам себе)', () => {
     expect(() =>
       ReviewCampaignFactory.createStudentCampaign(
-        createInput({ subjectId: UUIDS.absent }),
+        createInput({ participantIds: [UUIDS.alice, UUIDS.subject] }),
       ),
     ).toThrow();
   });
 
-  test('субъект с неконечным исходом (in_progress) — фабрика отклоняет', () => {
-    const live: CampaignParticipant[] = [
-      { userId: UUIDS.subject, role: 'student', outcome: 'in_progress' },
-      { userId: UUIDS.mentor, role: 'mentor' },
-    ];
+  test('ментор среди participants — фабрика отклоняет (ментор — в payload)', () => {
     expect(() =>
       ReviewCampaignFactory.createStudentCampaign(
-        createInput({ participants: live }),
+        createInput({ participantIds: [UUIDS.mentor] }),
       ),
     ).toThrow();
   });
 
-  test('студент без исхода — фабрика отклоняет (инвариант агрегата)', () => {
-    const broken: CampaignParticipant[] = [
-      { userId: UUIDS.subject, role: 'student', outcome: 'completed' },
-      { userId: UUIDS.alice, role: 'student' },
-    ];
+  test('дубль id среди participants — фабрика отклоняет', () => {
     expect(() =>
       ReviewCampaignFactory.createStudentCampaign(
-        createInput({ participants: broken }),
+        createInput({ participantIds: [UUIDS.alice, UUIDS.alice] }),
       ),
     ).toThrow();
   });
 });
 
 describe('ReviewCampaignFactory.restore', () => {
-  test('восстанавливает кампанию stream_ended по дискриминанту', () => {
+  test('восстанавливает кампанию stream_fate по дискриминанту', () => {
     const created = ReviewCampaignFactory.createStudentCampaign(createInput());
     const restored = ReviewCampaignFactory.restore(created.state);
     expect(restored.state).toEqual(created.state);
-    expect(restored.context).toBe('stream_ended');
+    expect(restored.context).toBe('stream_fate');
   });
 
   test('updatedAt в состоянии не вырезается при restore (штамп базового Aggregate)', () => {
@@ -133,8 +146,7 @@ describe('ReviewCampaignFactory.restore', () => {
     const created = ReviewCampaignFactory.createStudentCampaign(createInput());
     const restored = ReviewCampaignFactory.restore(created.state);
     const almost = new Date(
-      NOW.getTime() +
-        (REVIEW_WINDOW_DAYS.streamEnded - 1) * 24 * 60 * 60 * 1000,
+      NOW.getTime() + (REVIEW_WINDOW_DAYS.streamFate - 1) * 24 * 60 * 60 * 1000,
     );
     expect(restored.isExpired(almost)).toBe(false);
     expect(restored.ensureLive(almost)).toBeUndefined();
@@ -149,7 +161,7 @@ describe('ReviewCampaignFactory.restore', () => {
     expect(() => ReviewCampaignFactory.restore(corrupted)).toThrow();
   });
 
-  test('кампания создаётся с событием student-campaign.created (ФР-5)', () => {
+  test('кампания создаётся с событием student-campaign.created', () => {
     const ar = ReviewCampaignFactory.createStudentCampaign(createInput());
 
     expect(ar.hasEvents()).toBe(true);
@@ -160,7 +172,7 @@ describe('ReviewCampaignFactory.restore', () => {
     expect(event!.aggregateId).toBe(ar.state.uuid);
     expect(event!.payload).toEqual({
       campaignId: ar.state.uuid,
-      context: 'stream_ended',
+      context: 'stream_fate',
       scopeId: UUIDS.scope,
       subjectId: UUIDS.subject,
     });

@@ -20,12 +20,9 @@ function makeCampaign() {
   return ReviewCampaignFactory.createStudentCampaign({
     scopeId: SCOPE,
     subjectId: ALICE,
-    participants: [
-      { userId: ALICE, role: 'student', outcome: 'completed' },
-      { userId: BOB, role: 'student', outcome: 'in_progress' },
-      { userId: CAROL, role: 'student', outcome: 'dropped' },
-      { userId: MENTOR, role: 'mentor' },
-    ],
+    mentorId: MENTOR,
+    subjectOutcome: 'completed_passed',
+    participantIds: [BOB],
     now: NOW,
   });
 }
@@ -48,10 +45,9 @@ function makeResolve(
               scopeId: SCOPE,
               campaignId: campaign?.state.uuid ?? CAMPAIGN_ID,
               authorId,
-              authorRole: 'student' as const,
-              authorOutcome: 'completed' as const,
+              direction: 'student_mentor' as const,
+              authorOutcome: 'completed_passed' as const,
               recipientId: r,
-              recipientRole: 'student' as const,
               text: 'Достаточно длинный текст отзыва.',
               createdAt: '2026-09-20T11:00',
             })),
@@ -70,7 +66,7 @@ function makeResolve(
 }
 
 describe('GetCampaignRecipientsUc', () => {
-  test('субъект completed: ментор + соученик in_progress, ✅-признак', async () => {
+  test('субъект: соученик + ментор, ✅-признак', async () => {
     const campaign = makeCampaign();
     const uc = new GetCampaignRecipientsUc();
     uc.init(makeResolve(campaign, [[ALICE, MENTOR]]));
@@ -78,19 +74,10 @@ describe('GetCampaignRecipientsUc', () => {
     const res = await uc.execute({ campaignId: CAMPAIGN_ID, authorId: ALICE });
     expect(res.myRole).toBe('subject');
     expect(res.daysLeft).toBeGreaterThan(0);
-    expect(res.recipients).toHaveLength(2);
-    const byId = new Map(res.recipients.map((r) => [r.userId, r]));
-    expect(byId.get(MENTOR)).toMatchObject({
-      role: 'mentor',
-      hasMyReview: true,
-    });
-    expect(byId.get(MENTOR)).not.toHaveProperty('outcome');
-    expect(byId.get(BOB)).toMatchObject({
-      role: 'student',
-      outcome: 'in_progress',
-      hasMyReview: false,
-    });
-    expect(byId.has(CAROL)).toBe(false);
+    expect(res.recipients).toEqual([
+      { userId: BOB, hasMyReview: false },
+      { userId: MENTOR, hasMyReview: true },
+    ]);
   });
 
   test('ментор: единственный адресат — субъект окна', async () => {
@@ -100,22 +87,16 @@ describe('GetCampaignRecipientsUc', () => {
 
     const res = await uc.execute({ campaignId: CAMPAIGN_ID, authorId: MENTOR });
     expect(res.myRole).toBe('mentor');
-    expect(res.recipients).toHaveLength(1);
-    expect(res.recipients[0]).toMatchObject({
-      userId: ALICE,
-      role: 'student',
-      outcome: 'completed',
-    });
+    expect(res.recipients).toEqual([{ userId: ALICE, hasMyReview: false }]);
   });
 
-  test('субъект dropped: только ментор', async () => {
+  test('субъект dropped (пустой participants): только ментор', async () => {
     const dropped = ReviewCampaignFactory.createStudentCampaign({
       scopeId: SCOPE,
       subjectId: CAROL,
-      participants: [
-        { userId: CAROL, role: 'student', outcome: 'dropped' },
-        { userId: MENTOR, role: 'mentor' },
-      ],
+      mentorId: MENTOR,
+      subjectOutcome: 'dropped',
+      participantIds: [],
       now: NOW,
     });
     const uc = new GetCampaignRecipientsUc();
@@ -126,7 +107,7 @@ describe('GetCampaignRecipientsUc', () => {
     expect(res.recipients[0]!.userId).toBe(MENTOR);
   });
 
-  test('соученик не субъект и не ментор — доступ запрещён', async () => {
+  test('адресуемый соученик (не субъект/ментор) — доступ запрещён', async () => {
     const campaign = makeCampaign();
     const uc = new GetCampaignRecipientsUc();
     uc.init(makeResolve(campaign, []));
@@ -142,7 +123,7 @@ describe('GetCampaignRecipientsUc', () => {
     }
   });
 
-  test('посторонний пользователь (не в снапшоте кампании) — доступ запрещён', async () => {
+  test('посторонний пользователь — доступ запрещён', async () => {
     const campaign = makeCampaign();
     const uc = new GetCampaignRecipientsUc();
     uc.init(makeResolve(campaign, []));

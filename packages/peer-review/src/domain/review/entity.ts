@@ -1,9 +1,6 @@
 import type { ArMeta } from '@u7-scl/core/domain';
 import * as v from 'valibot';
-import {
-  CampaignRoleSchema,
-  ParticipantOutcomeSchema,
-} from '../review-campaign/entity';
+import { StudentOutcomeSchema } from '../review-campaign/entity';
 import { isoMinuteField, uuidField } from '../shared/schema';
 
 /** Минимальная длина текста отзыва (символов). */
@@ -19,6 +16,18 @@ export const ReviewTextSchema = v.pipe(
   v.maxLength(REVIEW_TEXT_MAX_LENGTH, 'Отзыв слишком длинный'),
 );
 
+/**
+ * Направление отзыва «кто о ком» (ФР-4): студент о студенте,
+ * студент о менторе, ментор о студенте. Невозможная пара
+ * «ментор о менторе» исключена типом.
+ */
+export const ReviewDirectionSchema = v.picklist(
+  ['student_student', 'student_mentor', 'mentor_student'],
+  'Недопустимое направление отзыва',
+);
+
+export type ReviewDirection = v.InferOutput<typeof ReviewDirectionSchema>;
+
 /** Схема сущности текстового отзыва. */
 export const ReviewSchema = v.object({
   uuid: uuidField('Некорректный формат UUID отзыва'),
@@ -26,10 +35,10 @@ export const ReviewSchema = v.object({
   scopeId: uuidField('scopeId отзыва должен быть UUID'),
   campaignId: uuidField('campaignId отзыва должен быть UUID'),
   authorId: uuidField('authorId отзыва должен быть UUID'),
-  authorRole: CampaignRoleSchema,
-  authorOutcome: v.optional(ParticipantOutcomeSchema),
+  direction: ReviewDirectionSchema,
+  /** Снапшот исхода автора-студента (4-значный); ментору исхода нет. */
+  authorOutcome: v.optional(StudentOutcomeSchema),
   recipientId: uuidField('recipientId отзыва должен быть UUID'),
-  recipientRole: CampaignRoleSchema,
   text: ReviewTextSchema,
   createdAt: isoMinuteField('Некорректный формат даты создания'),
   updatedAt: v.optional(isoMinuteField('Некорректный формат даты обновления')),

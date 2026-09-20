@@ -1,15 +1,12 @@
-import type {
-  CampaignRole,
-  ParticipantOutcome,
-} from '../review-campaign/entity';
-import type { Review } from './entity';
+import type { StudentOutcome } from '../review-campaign/entity';
+import type { Review, ReviewDirection } from './entity';
 
-/** Снимок отзыва для рендера — снапшоты ролей/исходов из самого отзыва. */
+/** Снимок отзыва для рендера: направление и снапшот исхода автора. */
 export interface ReviewSnapshotDto {
   reviewId: string;
   authorId: string;
-  authorRole: CampaignRole;
-  authorOutcome?: ParticipantOutcome;
+  direction: ReviewDirection;
+  authorOutcome?: StudentOutcome;
   text: string;
   createdAt: string;
 }
@@ -17,7 +14,6 @@ export interface ReviewSnapshotDto {
 /** Группа отзывов об одном адресате. */
 export interface RecipientReviewsGroup {
   recipientId: string;
-  recipientRole: CampaignRole;
   reviews: ReviewSnapshotDto[];
 }
 
@@ -47,7 +43,6 @@ export const ScopeReviewsDs = {
       if (!group) {
         group = {
           recipientId: r.recipientId,
-          recipientRole: r.recipientRole,
           reviews: [],
         };
         groups.set(r.recipientId, group);
@@ -55,7 +50,7 @@ export const ScopeReviewsDs = {
       group.reviews.push({
         reviewId: r.uuid,
         authorId: r.authorId,
-        authorRole: r.authorRole,
+        direction: r.direction,
         ...(r.authorOutcome ? { authorOutcome: r.authorOutcome } : {}),
         text: r.text,
         createdAt: r.createdAt,

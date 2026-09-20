@@ -28,10 +28,9 @@ const review = (n: number): Review => ({
   scopeId: SCOPE,
   campaignId: '3aaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   authorId: '22222222-2222-4222-8222-222222222222',
-  authorRole: 'student',
-  authorOutcome: 'completed',
+  direction: 'student_mentor',
+  authorOutcome: 'completed_passed',
   recipientId: '33333333-3333-4333-8333-333333333333',
-  recipientRole: 'mentor',
   text: 'Текст отзыва достаточной длины.',
   createdAt: '2026-09-20T11:00',
 });

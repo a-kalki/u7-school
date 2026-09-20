@@ -34,15 +34,12 @@ describe('CampaignStory (S03 — список адресатов)', () => {
 
   interface RecipientView {
     userId: string;
-    role: 'student' | 'mentor';
-    outcome?: 'completed' | 'dropped' | 'never_started';
     hasMyReview: boolean;
   }
 
   function makeAppApi(
     recipients: RecipientView[],
     myRole: 'subject' | 'mentor' = 'subject',
-    myOutcome?: RecipientView['outcome'],
     failUc?: string,
     myReviewText?: string,
     failWindow?: boolean,
@@ -69,7 +66,7 @@ describe('CampaignStory (S03 — список адресатов)', () => {
             return {
               campaignId: CAMPAIGN_ID,
               myRole,
-              myOutcome,
+              mentorId: MENTOR_ID,
               daysLeft: 5,
               recipients,
             };
@@ -77,7 +74,7 @@ describe('CampaignStory (S03 — список адресатов)', () => {
             return [
               {
                 campaignId: CAMPAIGN_ID,
-                context: 'stream_ended',
+                context: 'stream_fate',
                 scopeId: STREAM_ID,
                 subjectId: actor.uuid,
                 myRole,
@@ -121,13 +118,8 @@ describe('CampaignStory (S03 — список адресатов)', () => {
 
   test('list: заголовок — поток, вопрос, остаток дней; главное меню последним рядом', async () => {
     const appApi = makeAppApi([
-      { userId: MENTOR_ID, role: 'mentor', hasMyReview: false },
-      {
-        userId: PEER_ID,
-        role: 'student',
-        outcome: 'completed',
-        hasMyReview: true,
-      },
+      { userId: MENTOR_ID, hasMyReview: false },
+      { userId: PEER_ID, hasMyReview: true },
     ]);
     const story = new CampaignStory();
     initStory(story, appApi);
@@ -153,13 +145,8 @@ describe('CampaignStory (S03 — список адресатов)', () => {
 
   test('list: роли в кнопках — «Ментор:»/«Студент:», ✅ только у отозванных', async () => {
     const appApi = makeAppApi([
-      { userId: MENTOR_ID, role: 'mentor', hasMyReview: false },
-      {
-        userId: PEER_ID,
-        role: 'student',
-        outcome: 'completed',
-        hasMyReview: true,
-      },
+      { userId: MENTOR_ID, hasMyReview: false },
+      { userId: PEER_ID, hasMyReview: true },
     ]);
     const story = new CampaignStory();
     initStory(story, appApi);
@@ -178,14 +165,7 @@ describe('CampaignStory (S03 — список адресатов)', () => {
   });
 
   test('list: код кнопки адресата — open с campaignId и userId адресата', async () => {
-    const appApi = makeAppApi([
-      {
-        userId: PEER_ID,
-        role: 'student',
-        outcome: 'completed',
-        hasMyReview: false,
-      },
-    ]);
+    const appApi = makeAppApi([{ userId: PEER_ID, hasMyReview: false }]);
     const story = new CampaignStory();
     initStory(story, appApi);
 
@@ -200,9 +180,7 @@ describe('CampaignStory (S03 — список адресатов)', () => {
   });
 
   test('list: UC-вызовы — адресаты (authorId = я), поток по scopeId моей карточки, имена адресатов', async () => {
-    const appApi = makeAppApi([
-      { userId: MENTOR_ID, role: 'mentor', hasMyReview: false },
-    ]);
+    const appApi = makeAppApi([{ userId: MENTOR_ID, hasMyReview: false }]);
     const story = new CampaignStory();
     initStory(story, appApi);
 
@@ -223,14 +201,7 @@ describe('CampaignStory (S03 — список адресатов)', () => {
 
   test('list: автор-ментор — адресаты-студенты, менторских кнопок нет', async () => {
     const appApi = makeAppApi(
-      [
-        {
-          userId: PEER_ID,
-          role: 'student',
-          outcome: 'completed',
-          hasMyReview: false,
-        },
-      ],
+      [{ userId: PEER_ID, hasMyReview: false }],
       'mentor',
     );
     const story = new CampaignStory();
@@ -252,14 +223,7 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     ({ type: 'message', text, telegramId: actor.telegramId }) as const;
 
   test('open: студент → о студенте — подсказка, awaitInput, кнопка Пропустить', async () => {
-    const appApi = makeAppApi([
-      {
-        userId: PEER_ID,
-        role: 'student',
-        outcome: 'completed',
-        hasMyReview: false,
-      },
-    ]);
+    const appApi = makeAppApi([{ userId: PEER_ID, hasMyReview: false }]);
     const story = new CampaignStory();
     initStory(story, appApi);
 
@@ -283,16 +247,8 @@ describe('CampaignStory (S03 — список адресатов)', () => {
 
   test('open: ментор → о студенте — своя подсказка', async () => {
     const appApi = makeAppApi(
-      [
-        {
-          userId: PEER_ID,
-          role: 'student',
-          outcome: 'completed',
-          hasMyReview: false,
-        },
-      ],
+      [{ userId: PEER_ID, hasMyReview: false }],
       'mentor',
-      undefined,
     );
     const story = new CampaignStory();
     initStory(story, appApi);
@@ -308,12 +264,8 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     );
   });
 
-  test('open: исход «завершил» → о менторе — своя подсказка', async () => {
-    const appApi = makeAppApi(
-      [{ userId: MENTOR_ID, role: 'mentor', hasMyReview: false }],
-      'subject',
-      'completed',
-    );
+  test('open: адресат-ментор → о менторе — своя подсказка', async () => {
+    const appApi = makeAppApi([{ userId: MENTOR_ID, hasMyReview: false }]);
     const story = new CampaignStory();
     initStory(story, appApi);
 
@@ -328,55 +280,8 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     expect(text).toContain('Пётр Петров');
   });
 
-  test('open: исход «не начал» → о менторе — своя подсказка', async () => {
-    const appApi = makeAppApi(
-      [{ userId: MENTOR_ID, role: 'mentor', hasMyReview: false }],
-      'subject',
-      'never_started',
-    );
-    const story = new CampaignStory();
-    initStory(story, appApi);
-
-    const response = await story.handleCallback(
-      `open:${CAMPAIGN_ID}:${MENTOR_ID}`,
-      actor,
-      session,
-    );
-
-    expect(String(response.screen?.text ?? '')).toContain(
-      'Почему так и не начали учёбу',
-    );
-  });
-
-  test('open: исход «забросил» → о менторе — своя подсказка', async () => {
-    const appApi = makeAppApi(
-      [{ userId: MENTOR_ID, role: 'mentor', hasMyReview: false }],
-      'subject',
-      'dropped',
-    );
-    const story = new CampaignStory();
-    initStory(story, appApi);
-
-    const response = await story.handleCallback(
-      `open:${CAMPAIGN_ID}:${MENTOR_ID}`,
-      actor,
-      session,
-    );
-
-    expect(String(response.screen?.text ?? '')).toContain(
-      'Почему забросили учёбу',
-    );
-  });
-
   test('ввод: короткий текст — переспрос-предупреждение без потери ввода', async () => {
-    const appApi = makeAppApi([
-      {
-        userId: PEER_ID,
-        role: 'student',
-        outcome: 'completed',
-        hasMyReview: false,
-      },
-    ]);
+    const appApi = makeAppApi([{ userId: PEER_ID, hasMyReview: false }]);
     const story = new CampaignStory();
     initStory(story, appApi);
     await story.handleCallback(
@@ -407,14 +312,7 @@ describe('CampaignStory (S03 — список адресатов)', () => {
   });
 
   test('ввод: длинный текст (>3500) — просьба сократить', async () => {
-    const appApi = makeAppApi([
-      {
-        userId: PEER_ID,
-        role: 'student',
-        outcome: 'completed',
-        hasMyReview: false,
-      },
-    ]);
+    const appApi = makeAppApi([{ userId: PEER_ID, hasMyReview: false }]);
     const story = new CampaignStory();
     initStory(story, appApi);
     await story.handleCallback(
@@ -445,12 +343,7 @@ describe('CampaignStory (S03 — список адресатов)', () => {
 
   test('ввод: валидный текст — create-review, экран «сохранён», ✅ у адресата', async () => {
     const recipients: RecipientView[] = [
-      {
-        userId: PEER_ID,
-        role: 'student',
-        outcome: 'completed',
-        hasMyReview: false,
-      },
+      { userId: PEER_ID, hasMyReview: false },
     ];
     const appApi = makeAppApi(recipients);
     const story = new CampaignStory();
@@ -505,16 +398,8 @@ describe('CampaignStory (S03 — список адресатов)', () => {
 
   test('ввод: ошибка сохранения — реплика об ошибке, экран «сохранён» не показан', async () => {
     const appApi = makeAppApi(
-      [
-        {
-          userId: PEER_ID,
-          role: 'student',
-          outcome: 'completed',
-          hasMyReview: false,
-        },
-      ],
+      [{ userId: PEER_ID, hasMyReview: false }],
       'subject',
-      'completed',
       'create-review',
     );
     const story = new CampaignStory();
@@ -540,16 +425,8 @@ describe('CampaignStory (S03 — список адресатов)', () => {
 
   test('ввод: окно истекло — экран-заглушка, не реплика', async () => {
     const appApi = makeAppApi(
-      [
-        {
-          userId: PEER_ID,
-          role: 'student',
-          outcome: 'completed',
-          hasMyReview: false,
-        },
-      ],
+      [{ userId: PEER_ID, hasMyReview: false }],
       'subject',
-      'completed',
       undefined,
       undefined,
       true,
@@ -579,16 +456,8 @@ describe('CampaignStory (S03 — список адресатов)', () => {
 
   test('open: ✅-адресат — экран перезаписи с текущим текстом, кнопка Назад', async () => {
     const appApi = makeAppApi(
-      [
-        {
-          userId: PEER_ID,
-          role: 'student',
-          outcome: 'completed',
-          hasMyReview: true,
-        },
-      ],
+      [{ userId: PEER_ID, hasMyReview: true }],
       'subject',
-      'completed',
       undefined,
       'старый отзыв',
     );
@@ -616,16 +485,8 @@ describe('CampaignStory (S03 — список адресатов)', () => {
 
   test('open: ✅-адресат — ввод заменяет текст (create-review перезапись)', async () => {
     const appApi = makeAppApi(
-      [
-        {
-          userId: PEER_ID,
-          role: 'student',
-          outcome: 'completed',
-          hasMyReview: true,
-        },
-      ],
+      [{ userId: PEER_ID, hasMyReview: true }],
       'subject',
-      'completed',
       undefined,
       'старый отзыв',
     );
@@ -668,14 +529,7 @@ describe('CampaignStory (S03 — список адресатов)', () => {
   });
 
   test('open: ✅-адресат, отзыв уже не найден — обычный ввод S05', async () => {
-    const appApi = makeAppApi([
-      {
-        userId: PEER_ID,
-        role: 'student',
-        outcome: 'completed',
-        hasMyReview: true,
-      },
-    ]);
+    const appApi = makeAppApi([{ userId: PEER_ID, hasMyReview: true }]);
     const story = new CampaignStory();
     initStory(story, appApi);
 
@@ -689,14 +543,7 @@ describe('CampaignStory (S03 — список адресатов)', () => {
   });
 
   test('skip: возврат в список адресатов без сохранения', async () => {
-    const appApi = makeAppApi([
-      {
-        userId: PEER_ID,
-        role: 'student',
-        outcome: 'completed',
-        hasMyReview: false,
-      },
-    ]);
+    const appApi = makeAppApi([{ userId: PEER_ID, hasMyReview: false }]);
     const story = new CampaignStory();
     initStory(story, appApi);
 

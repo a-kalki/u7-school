@@ -138,11 +138,13 @@ describe('Вертикаль peer-review: student.completed → ER → камп�
       resolve.reviewCampaignRepo.findBySubject(SCOPE, SUBJECT),
     );
     expect(campaign).toBeDefined();
-    expect(campaign?.context).toBe('stream_ended');
-    // Снапшот: субъект (completed) + соученик (in_progress) + ментор
-    expect(campaign?.participants).toHaveLength(3);
-    const subject = campaign?.participants.find((p) => p.userId === SUBJECT);
-    expect(subject?.outcome).toBe('completed');
+    expect(campaign?.context).toBe('stream_fate');
+    // Форма: participants — только id адресуемых (ещё учащийся соученик)
+    expect(campaign?.participants).toEqual([PEER]);
+    expect(campaign?.payload).toEqual({
+      subjectOutcome: 'completed_passed',
+      mentorId: MENTOR,
+    });
     // Событие агрегата опубликовано на шине
     expect(createdEvents).toHaveLength(1);
 
@@ -210,8 +212,13 @@ describe('Вертикаль peer-review: student.completed → ER → камп�
       scopeReviews.recipients.map((r) => [r.recipientId, r]),
     );
     expect(byRecipient.get(PEER)?.reviews).toHaveLength(1);
+    expect(byRecipient.get(PEER)?.reviews[0]?.direction).toBe(
+      'student_student',
+    );
     expect(byRecipient.get(SUBJECT)?.reviews).toHaveLength(1);
-    expect(byRecipient.get(SUBJECT)?.recipientRole).toBe('student');
+    expect(byRecipient.get(SUBJECT)?.reviews[0]?.direction).toBe(
+      'mentor_student',
+    );
   });
 
   test('идемпотентность вертикали: повтор события не создаёт вторую кампанию', async () => {

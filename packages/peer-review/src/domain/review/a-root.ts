@@ -1,6 +1,6 @@
 import { Aggregate, errValidation, throwError } from '@u7-scl/core/domain';
-import type { CampaignParticipant } from '../review-campaign/entity';
-import type { ReviewArMeta } from './entity';
+import type { StudentOutcome } from '../review-campaign/entity';
+import type { ReviewArMeta, ReviewDirection } from './entity';
 import {
   REVIEW_TEXT_MAX_LENGTH,
   REVIEW_TEXT_MIN_LENGTH,
@@ -17,30 +17,32 @@ export class ReviewAr extends Aggregate<ReviewArMeta> {
     super(state, ReviewSchema);
   }
 
-  /** Создать отзыв: снапшоты ролей/исхода автора — данные кампании. */
+  /** Создать отзыв: направление и снапшот исхода автора — данные кампании. */
   static create(params: {
     campaignId: string;
     /** Скоуп кампании — денормализация для выборок по скоупу (ФР-9). */
     scopeId: string;
-    /** Автор — участник кампании (снапшот роли и исхода) */
-    author: CampaignParticipant;
-    recipient: { userId: string; role: 'student' | 'mentor' };
+    authorId: string;
+    /** «Кто о ком» — вычислено кампанией (assertCanWrite). */
+    direction: ReviewDirection;
+    /** Снапшот исхода автора-студента; ментору исхода нет. */
+    authorOutcome?: StudentOutcome;
+    recipientId: string;
     text: string;
     now: Date;
   }): ReviewAr {
-    const { author, recipient } = params;
-
     ReviewAr.#validateText(params.text);
 
     const state: ReviewArMeta['state'] = {
       uuid: crypto.randomUUID(),
       scopeId: params.scopeId,
       campaignId: params.campaignId,
-      authorId: author.userId,
-      authorRole: author.role,
-      authorOutcome: author.outcome,
-      recipientId: recipient.userId,
-      recipientRole: recipient.role,
+      authorId: params.authorId,
+      direction: params.direction,
+      ...(params.authorOutcome !== undefined
+        ? { authorOutcome: params.authorOutcome }
+        : {}),
+      recipientId: params.recipientId,
       text: params.text,
       createdAt: params.now.toISOString().slice(0, 16),
     };

@@ -3,7 +3,6 @@ import * as v from 'valibot';
 import type { PeerReviewUcErrors } from '../../../api/errors';
 import { uuidField } from '../../shared/schema';
 import { AuthorRoleSchema, type MyRecipientsView } from '../campaign-facts-ds';
-import { CampaignRoleSchema, ParticipantOutcomeSchema } from '../entity';
 
 export const GetCampaignRecipientsCmdSchema = v.object({
   campaignId: uuidField('Некорректный формат UUID кампании'),
@@ -14,18 +13,16 @@ export type GetCampaignRecipientsCmd = v.InferOutput<
   typeof GetCampaignRecipientsCmdSchema
 >;
 
-/** Адресат отзыва: участник кампании + ✅ «мой отзыв есть». */
+/** Адресат отзыва: id + ✅ «мой отзыв есть». */
 export const RecipientSchema = v.object({
   userId: uuidField('Некорректный формат UUID адресата'),
-  role: CampaignRoleSchema,
-  outcome: v.optional(ParticipantOutcomeSchema),
   hasMyReview: v.boolean(),
 });
 
 export const CampaignRecipientsSchema = v.object({
   campaignId: uuidField('Некорректный формат UUID кампании'),
   myRole: AuthorRoleSchema,
-  myOutcome: v.optional(ParticipantOutcomeSchema),
+  mentorId: uuidField('Некорректный формат UUID ментора'),
   daysLeft: v.pipe(v.number(), v.integer(), v.minValue(0)),
   recipients: v.array(RecipientSchema),
 });

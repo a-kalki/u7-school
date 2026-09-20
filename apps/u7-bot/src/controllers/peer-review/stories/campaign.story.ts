@@ -120,7 +120,7 @@ export class CampaignStory extends U7BotUiStory {
 
     const rows = view.recipients.map((r) => [
       this.btn(
-        `${r.hasMyReview ? '✅ ' : ''}${recipientLabel(r.role)}: ${names.get(r.userId) ?? ''}`,
+        `${r.hasMyReview ? '✅ ' : ''}${recipientLabel(recipientRoleOf(r.userId, view.mentorId))}: ${names.get(r.userId) ?? ''}`,
         this.cb('open', campaignId, r.userId),
       ),
     ]);
@@ -158,8 +158,7 @@ export class CampaignStory extends U7BotUiStory {
       (await this.#namesOf([recipientId], actor)).get(recipientId) ?? '';
     const prompt = reviewPrompt(
       view.myRole,
-      view.myOutcome,
-      recipient.role,
+      recipientRoleOf(recipientId, view.mentorId),
       name,
     );
     const context: ReviewInputContext = { campaignId, recipientId };
@@ -214,6 +213,14 @@ function recipientLabel(role: 'student' | 'mentor'): string {
   return role === 'mentor' ? 'Ментор' : 'Студент';
 }
 
+/** Роль адресата — по составу кампании: ментор известен из payload (S03). */
+function recipientRoleOf(
+  recipientId: string,
+  mentorId: string,
+): 'student' | 'mentor' {
+  return recipientId === mentorId ? 'mentor' : 'student';
+}
+
 /** Границы длины отзыва (спека S05). */
 const REVIEW_MIN_CHARS = 10;
 const REVIEW_MAX_CHARS = 3500;
@@ -224,12 +231,9 @@ interface ReviewInputContext {
   recipientId: string;
 }
 
-type AuthorOutcome = 'completed' | 'in_progress' | 'dropped' | 'never_started';
-
-/** Текст-подсказка S05 — по направлению и исходу автора (ui-spec S05). */
+/** Текст-подсказка S05 — по направлению «кто о ком» (ui-spec S05). */
 function reviewPrompt(
   myRole: 'subject' | 'mentor',
-  myOutcome: AuthorOutcome | undefined,
   recipientRole: 'student' | 'mentor',
   name: string,
 ): MdText {
@@ -239,12 +243,5 @@ function reviewPrompt(
     }
     return md`Расскажите о ${name}\\. Как бы вы описали его профессиональные, командные и личностные качества? Не обязательно перечислять всё — пишите только то, что хотите написать, и пишите правду\\. Если считаете, что что\\-то стоит подтянуть, — напишите и об этом\\.`;
   }
-  if (myOutcome === 'never_started') {
-    return md`Почему так и не начали учёбу? Что не совпало с ожиданиями? Ваши впечатления о менторе и школе помогут тем, кто только выбирает\\.`;
-  }
-  if (myOutcome === 'dropped') {
-    return md`Почему забросили учёбу? Какие пожелания оставите школе и ментору? Что стоит ожидать людям, которые рассматривают возможность здесь учиться\\.`;
-  }
-  // «завершил» и учившийся на момент закрытия потока (in_progress)
   return md`Поделитесь впечатлением о работе с ментором ${name}: что помогало учиться, что мешало, чего не хватило\\. Пишите правду — это поможет и ментору, и школе\\.`;
 }

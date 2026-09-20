@@ -9,16 +9,17 @@ import {
   StudentOutcomeCategory,
 } from '@u7-scl/stream/domain';
 import type { PeerReviewApiModuleResolver } from '#domain/module';
-import type {
-  CampaignParticipant,
-  ReviewCampaign,
-} from '#domain/review-campaign/entity';
+import type { ReviewCampaign } from '#domain/review-campaign/entity';
 import type { ReviewCampaignRepo } from '#domain/review-campaign/repo';
 import { CreateStudentCampaignEr } from './create-student-campaign-er';
 
 const SCOPE = '11111111-1111-4111-8111-111111111111';
 const SUBJECT = '77777777-7777-4777-8777-777777777777';
 const MENTOR = '66666666-6666-4666-8666-666666666666';
+const CLASSMATE_LIVE = '22222222-2222-4222-8222-222222222222';
+const CLASSMATE_DONE = '33333333-3333-4333-8333-333333333333';
+const CLASSMATE_DROP = '44444444-4444-4444-8444-444444444444';
+const CLASSMATE_NEVER = '88888888-8888-4888-8888-888888888888';
 
 function student(
   userId: string,
@@ -34,24 +35,17 @@ function makeMembers(): StreamMembers {
     mentorId: MENTOR,
     students: [
       student(SUBJECT, StudentOutcomeCategory.COMPLETED),
-      student(
-        '22222222-2222-4222-8222-222222222222',
-        StudentOutcomeCategory.IN_PROGRESS,
-      ),
-      student(
-        '33333333-3333-4333-8333-333333333333',
-        StudentOutcomeCategory.ABANDONED,
-      ),
-      student(
-        '44444444-4444-4444-8444-444444444444',
-        StudentOutcomeCategory.ABANDONED,
-        true,
-      ),
+      student(CLASSMATE_LIVE, StudentOutcomeCategory.IN_PROGRESS),
+      student(CLASSMATE_DONE, StudentOutcomeCategory.COMPLETED),
+      student(CLASSMATE_DROP, StudentOutcomeCategory.ABANDONED),
+      student(CLASSMATE_NEVER, StudentOutcomeCategory.ABANDONED, true),
     ],
   };
 }
 
-function completedEvent(): StudentCompletedEvent {
+function completedEvent(
+  outcome: 'advanced' | 'not_advanced' = 'advanced',
+): StudentCompletedEvent {
   return {
     eventId: crypto.randomUUID(),
     eventName: 'student.completed',
@@ -63,12 +57,12 @@ function completedEvent(): StudentCompletedEvent {
       userId: SUBJECT,
       streamId: SCOPE,
       moduleId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
-      outcome: 'advanced',
+      outcome,
     },
   };
 }
 
-function abandonedEvent(): StudentAbandonedEvent {
+function abandonedEvent(neverStarted = false): StudentAbandonedEvent {
   return {
     eventId: crypto.randomUUID(),
     eventName: 'student.abandoned',
@@ -88,13 +82,13 @@ function abandonedEvent(): StudentAbandonedEvent {
 function existingCampaign(): ReviewCampaign {
   return {
     uuid: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
-    context: 'stream_ended',
+    context: 'stream_fate',
     scopeId: SCOPE,
     subjectId: SUBJECT,
     createdAt: '2026-09-20T10:00',
     expiresAt: '2026-09-27T10:00',
     participants: [],
-    payload: {},
+    payload: { subjectOutcome: 'dropped', mentorId: MENTOR },
   };
 }
 
@@ -146,7 +140,7 @@ function makeEr(overrides: ResolveOverrides = {}) {
   return { er, saved, published, warns };
 }
 
-describe('CreateStudentCampaignEr (ФР-6) — подписка', () => {
+describe('CreateStudentCampaignEr — подписка', () => {
   test('ER подписан на student.completed и student.abandoned', () => {
     const { er } = makeEr();
     expect([...er.getEventNames()].sort()).toEqual([
@@ -156,14 +150,14 @@ describe('CreateStudentCampaignEr (ФР-6) — подписка', () => {
   });
 });
 
-describe('CreateStudentCampaignEr (ФР-6) — создание кампании', () => {
-  test('student.completed → кампания stream_ended с ключом (scopeId, subjectId)', async () => {
+describe('CreateStudentCampaignEr — создание кампании', () => {
+  test('student.completed → кампания stream_fate с ключом (scopeId, subjectId)', async () => {
     const { er, saved } = makeEr();
 
     await er.handle(completedEvent());
 
     expect(saved).toHaveLength(1);
-    expect(saved[0]!.context).toBe('stream_ended');
+    expect(saved[0]!.context).toBe('stream_fate');
     expect(saved[0]!.scopeId).toBe(SCOPE);
     expect(saved[0]!.subjectId).toBe(SUBJECT);
   });
@@ -177,39 +171,37 @@ describe('CreateStudentCampaignEr (ФР-6) — создание кампании
     expect(saved[0]!.subjectId).toBe(SUBJECT);
   });
 
-  test('снапшот участников: 4-значные исходы, субъект терминален, ментор без исхода', async () => {
+  test('payload: mentorId из состава, subjectOutcome — 4-значная проекция', async () => {
+    const { er, saved } = makeEr();
+
+    await er.handle(completedEvent('advanced'));
+    expect(saved[0]!.payload).toEqual({
+      subjectOutcome: 'completed_passed',
+      mentorId: MENTOR,
+    });
+
+    const second = makeEr();
+    await second.er.handle(completedEvent('not_advanced'));
+    expect(second.saved[0]!.payload.subjectOutcome).toBe(
+      'completed_not_passed',
+    );
+  });
+
+  test('состав participants: «завершил» → завершившиеся и ещё учащиеся, без субъекта', async () => {
     const { er, saved } = makeEr();
 
     await er.handle(completedEvent());
 
-    const participants = saved[0]!.participants as CampaignParticipant[];
-    expect(participants).toHaveLength(5);
+    expect(saved[0]!.participants).toEqual([CLASSMATE_LIVE, CLASSMATE_DONE]);
+  });
 
-    const byUser = new Map(participants.map((p) => [p.userId, p]));
-    expect(byUser.get(SUBJECT)).toEqual({
-      userId: SUBJECT,
-      role: 'student',
-      outcome: 'completed',
-    });
-    expect(byUser.get('22222222-2222-4222-8222-222222222222')).toEqual({
-      userId: '22222222-2222-4222-8222-222222222222',
-      role: 'student',
-      outcome: 'in_progress',
-    });
-    expect(byUser.get('33333333-3333-4333-8333-333333333333')).toEqual({
-      userId: '33333333-3333-4333-8333-333333333333',
-      role: 'student',
-      outcome: 'dropped',
-    });
-    expect(byUser.get('44444444-4444-4444-8444-444444444444')).toEqual({
-      userId: '44444444-4444-4444-8444-444444444444',
-      role: 'student',
-      outcome: 'never_started',
-    });
-    expect(byUser.get(MENTOR)).toEqual({
-      userId: MENTOR,
-      role: 'mentor',
-    });
+  test('«забросил»/«не начал» → пустой participants (адресат только ментор)', async () => {
+    const { er, saved } = makeEr();
+
+    await er.handle(abandonedEvent());
+
+    expect(saved[0]!.participants).toEqual([]);
+    expect(saved[0]!.payload.subjectOutcome).toBe('dropped');
   });
 
   test('публикация события агрегата student-campaign.created', async () => {
@@ -224,13 +216,13 @@ describe('CreateStudentCampaignEr (ФР-6) — создание кампании
     };
     expect(event.eventName).toBe('student-campaign.created');
     expect(event.payload.campaignId).toBe(saved[0]!.uuid);
-    expect(event.payload.context).toBe('stream_ended');
+    expect(event.payload.context).toBe('stream_fate');
     expect(event.payload.scopeId).toBe(SCOPE);
     expect(event.payload.subjectId).toBe(SUBJECT);
   });
 });
 
-describe('CreateStudentCampaignEr (ФР-6) — идемпотентность и деградация', () => {
+describe('CreateStudentCampaignEr — идемпотентность и деградация', () => {
   test('повтор события субъекта — дубль не создаётся', async () => {
     const { er, saved, published } = makeEr({ existing: existingCampaign() });
 

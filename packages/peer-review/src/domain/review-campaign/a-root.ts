@@ -5,11 +5,11 @@ import {
   throwError,
 } from '@u7-scl/core/domain';
 import { isoNow } from '@u7-scl/core/shared';
-import { ReviewPolicy } from '../review/policy';
+import type { ReviewDirection } from '../review/entity';
 import type {
-  CampaignParticipant,
   ReviewCampaign,
   ReviewCampaignArMeta,
+  StudentOutcome,
 } from './entity';
 import { ReviewCampaignSchema } from './entity';
 import type {
@@ -21,14 +21,17 @@ import type {
 /** Миллисекунд в сутках — для расчёта остатка окна. */
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+/** Роль автора окна судьбы: субъект или его ментор. */
+export type WindowAuthorRole = 'subject' | 'mentor';
+
 /** Агрегат ReviewCampaign — кампания сбора отзывов. */
 export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
   static readonly arName = 'ReviewCampaign';
   static readonly arLabel = 'Кампания отзывов';
 
   /**
-   * Поля, которые safeUpdate не перезаписывает никогда: каркас и окно
-   * выставляются только при создании (фабрикой), участники — снапшот.
+   * Поля, которые safeUpdate не перезаписывает никогда: каркас, окно
+   * и адресуемые выставляются только при создании (фабрикой).
    */
   protected override readonly safeAttrs: Array<keyof ReviewCampaign> = [
     'uuid',
@@ -46,64 +49,40 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
   }
 
   /**
-   * Инварианты снапшота участников:
-   * - студент обязан иметь исход-проекцию, ментор — обязан не иметь
-   *   (роль «ментор» — отдельная роль, не исход);
-   * - userId участников уникальны (человек представлен в кампании один раз);
-   * - субъект окна (ФР-2) присутствует среди участников: студент с
-   *   ТЕРМИНАЛЬНЫМ исходом (completed | dropped | never_started, не
-   *   in_progress) — его событие открыло окно судьбы.
+   * Инварианты адресации окна судьбы (ФР-3):
+   * - id участников уникальны (человек адресуем один раз);
+   * - субъект не адресует отзыв сам себе — его нет в participants;
+   * - ментор — в payload, не соученик: его нет в participants.
    */
   protected override checkInvariant(): void {
     const seen = new Set<string>();
-    for (const p of this._state.participants) {
-      if (p.role === 'student' && p.outcome === undefined) {
+    for (const userId of this._state.participants) {
+      if (seen.has(userId)) {
         this.throwInvariant(
-          { campaignId: this._state.uuid, userId: p.userId },
-          'Студент-участник кампании обязан иметь исход-проекцию (completed | in_progress | dropped | never_started)',
-        );
-      }
-      if (p.role === 'mentor' && p.outcome !== undefined) {
-        this.throwInvariant(
-          { campaignId: this._state.uuid, userId: p.userId },
-          'У ментора-участника кампании не может быть исхода (роль, не исход)',
-        );
-      }
-      if (seen.has(p.userId)) {
-        this.throwInvariant(
-          { campaignId: this._state.uuid, userId: p.userId },
+          { campaignId: this._state.uuid, userId },
           'Дубль userId среди участников кампании',
         );
       }
-      seen.add(p.userId);
+      seen.add(userId);
     }
 
-    const subject = this._state.participants.find(
-      (p) => p.userId === this._state.subjectId,
-    );
-    if (!subject) {
+    if (seen.has(this._state.subjectId)) {
       this.throwInvariant(
         { campaignId: this._state.uuid, userId: this._state.subjectId },
-        'Субъект кампании обязан присутствовать среди участников',
+        'Субъект кампании не может быть в списке адресуемых',
       );
     }
-    if (subject.role !== 'student') {
+    if (seen.has(this._state.payload.mentorId)) {
       this.throwInvariant(
-        { campaignId: this._state.uuid, userId: subject.userId },
-        'Субъект кампании обязан быть студентом (окно открывает событие студента)',
-      );
-    }
-    if (subject.outcome === undefined || subject.outcome === 'in_progress') {
-      this.throwInvariant(
-        { campaignId: this._state.uuid, userId: subject.userId },
-        'Исход субъекта кампании обязан быть терминальным (completed | dropped | never_started)',
+        { campaignId: this._state.uuid, userId: this._state.payload.mentorId },
+        'Ментор кампании — в payload, не в списке адресуемых',
       );
     }
   }
 
   // ── Чтение: каркас ──
 
-  /** uuid скоупа кампании (для stream_ended — streamId). */
+  /** uuid скоупа кампании (для stream_fate — streamId). */
   get scopeId(): string {
     return this._state.scopeId;
   }
@@ -121,6 +100,16 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
   /** Контекст кампании (дискриминант payload). */
   get context(): ReviewCampaign['context'] {
     return this._state.context;
+  }
+
+  /** Исход судьбы субъекта — 4-значная проекция (payload). */
+  get subjectOutcome(): StudentOutcome {
+    return this._state.payload.subjectOutcome;
+  }
+
+  /** uuid ментора скоупа — второй автор окна (payload). */
+  get mentorId(): string {
+    return this._state.payload.mentorId;
   }
 
   /** Дата закрытия окна — вычислена при создании и сохранена. */
@@ -148,18 +137,16 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
     });
   }
 
-  // ── Чтение: участники ──
+  // ── Чтение: адресуемые ──
 
-  /** Снапшот участников (клон только для чтения). */
-  get participants(): CampaignParticipant[] {
+  /** id адресуемых соучеников (клон только для чтения). */
+  get participants(): string[] {
     return structuredClone(this._state.participants);
   }
 
-  /** Участник по userId (или undefined). */
-  findParticipant(userId: string): CampaignParticipant | undefined {
-    return structuredClone(
-      this._state.participants.find((p) => p.userId === userId),
-    );
+  /** Является ли userId адресуемым соучеником. */
+  hasParticipant(userId: string): boolean {
+    return this._state.participants.includes(userId);
   }
 
   // ── Чтение: окно жизни ──
@@ -179,71 +166,54 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
     return Math.max(1, Math.ceil(msLeft / DAY_MS));
   }
 
-  // ── Чтение: авторство (домен вместо UC) ──
+  // ── Чтение: авторство и адресация (домен вместо UC) ──
 
   /**
-   * Роль автора окна и его адресаты по политике.
-   * Автор обязан быть субъектом окна или ментором; соученик пишет
-   * только в собственном окне — доступ запрещён.
+   * Роль автора окна и его адресаты (ФР-3):
+   * субъект → соученики (participants) + ментор (пустой список —
+   * только ментор); ментор → только субъект. Соученик пишет в
+   * собственном окне — доступ запрещён.
    */
-  authorshipOf(userId: string): {
-    myRole: 'subject' | 'mentor';
-    recipients: CampaignParticipant[];
+  reviewTargets(userId: string): {
+    myRole: WindowAuthorRole;
+    targetIds: string[];
   } {
-    const author = this.authorOf(userId);
-    const myRole =
-      author.userId === this._state.subjectId ? 'subject' : 'mentor';
+    const myRole = this.authorRoleOf(userId);
+    if (myRole === 'mentor') {
+      return { myRole, targetIds: [this._state.subjectId] };
+    }
     return {
       myRole,
-      recipients: ReviewPolicy.recipientsOf(
-        author,
-        this.participants,
-        this._state.subjectId,
-      ),
+      targetIds: [...this._state.participants, this._state.payload.mentorId],
     };
   }
 
-  /** Автор окна; посторонний и соученик — не авторы (доступ запрещён). */
-  private authorOf(userId: string): CampaignParticipant {
-    const author = this._state.participants.find((p) => p.userId === userId);
-    if (
-      !author ||
-      (author.userId !== this._state.subjectId && author.role !== 'mentor')
-    ) {
-      throwError(
-        errAccessDenied<PeerReviewNotParticipantUcError>(
-          'PEER_REVIEW_NOT_PARTICIPANT',
-          'Автор не субъект окна и не ментор этой кампании',
-          {},
-        ),
-      );
-    }
-    return author;
+  /** Роль автора окна; посторонний — не автор (доступ запрещён). */
+  private authorRoleOf(userId: string): WindowAuthorRole {
+    if (this._state.subjectId === userId) return 'subject';
+    if (this._state.payload.mentorId === userId) return 'mentor';
+    throwError(
+      errAccessDenied<PeerReviewNotParticipantUcError>(
+        'PEER_REVIEW_NOT_PARTICIPANT',
+        'Автор не субъект окна и не ментор этой кампании',
+        {},
+      ),
+    );
   }
 
   /**
-   * Проверить право написать отзыв адресату; вернуть снапшоты
-   * автора и адресата (для создания отзыва).
+   * Проверить право написать отзыв адресату; вернуть данные создания
+   * отзыва: direction «кто о ком» и снапшот исхода автора-студента.
    * Ошибки домена: автор не субъект/ментор, адресат вне политики
    * (включая запрет «о себе» и неучастника кампании).
    */
   assertCanWrite(
     authorId: string,
     recipientId: string,
-  ): { author: CampaignParticipant; recipient: CampaignParticipant } {
-    const author = this.authorOf(authorId);
-    const recipient = this._state.participants.find(
-      (p) => p.userId === recipientId,
-    );
-    if (
-      !recipient ||
-      !ReviewPolicy.canReview(
-        author,
-        recipient,
-        this._state.participants,
-        this._state.subjectId,
-      )
-    ) {
+  ): { direction: ReviewDirection; authorOutcome: StudentOutcome | undefined } {
+    const myRole = this.authorRoleOf(authorId);
+    const { targetIds } = this.reviewTargetsFor(myRole);
+    if (!targetIds.includes(recipientId)) {
       throwError(
         errConflict<RecipientNotAllowedUcError>(
           'PEER_REVIEW_RECIPIENT_NOT_ALLOWED',
@@ -252,7 +222,29 @@ export class ReviewCampaignAr extends Aggregate<ReviewCampaignArMeta> {
         ),
       );
     }
-    return { author, recipient: structuredClone(recipient) };
+
+    const recipientIsMentor = recipientId === this._state.payload.mentorId;
+    const direction: ReviewDirection =
+      myRole === 'mentor'
+        ? 'mentor_student'
+        : recipientIsMentor
+          ? 'student_mentor'
+          : 'student_student';
+
+    return {
+      direction,
+      authorOutcome: myRole === 'subject' ? this.subjectOutcome : undefined,
+    };
+  }
+
+  /** Адресаты по роли автора (без проверки доступа). */
+  private reviewTargetsFor(myRole: WindowAuthorRole): {
+    targetIds: string[];
+  } {
+    if (myRole === 'mentor') return { targetIds: [this._state.subjectId] };
+    return {
+      targetIds: [...this._state.participants, this._state.payload.mentorId],
+    };
   }
 
   /**

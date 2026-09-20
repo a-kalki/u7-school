@@ -3,6 +3,7 @@ import * as v from 'valibot';
 import {
   REVIEW_TEXT_MAX_LENGTH,
   REVIEW_TEXT_MIN_LENGTH,
+  ReviewDirectionSchema,
   ReviewSchema,
 } from './entity';
 
@@ -20,15 +21,34 @@ function review(overrides: Record<string, unknown> = {}) {
     scopeId: UUIDS.scope,
     campaignId: UUIDS.campaign,
     authorId: UUIDS.author,
-    authorRole: 'student',
-    authorOutcome: 'completed',
+    direction: 'student_student',
+    authorOutcome: 'completed_passed',
     recipientId: UUIDS.recipient,
-    recipientRole: 'student',
     text: 'Ровный текст отзыва достаточной длины.',
     createdAt: '2026-09-20T12:00',
     ...overrides,
   };
 }
+
+describe('ReviewDirectionSchema', () => {
+  test('принимает три направления «кто о ком»', () => {
+    expect(v.safeParse(ReviewDirectionSchema, 'student_student').success).toBe(
+      true,
+    );
+    expect(v.safeParse(ReviewDirectionSchema, 'student_mentor').success).toBe(
+      true,
+    );
+    expect(v.safeParse(ReviewDirectionSchema, 'mentor_student').success).toBe(
+      true,
+    );
+  });
+
+  test('невозможная пара mentor_mentor исключена типом', () => {
+    expect(v.safeParse(ReviewDirectionSchema, 'mentor_mentor').success).toBe(
+      false,
+    );
+  });
+});
 
 describe('ReviewSchema', () => {
   test('валидный отзыв студента', () => {
@@ -39,26 +59,34 @@ describe('ReviewSchema', () => {
   test('валидный отзыв ментора (authorOutcome отсутствует)', () => {
     const result = v.safeParse(
       ReviewSchema,
-      review({ authorRole: 'mentor', authorOutcome: undefined }),
+      review({ direction: 'mentor_student', authorOutcome: undefined }),
     );
     expect(result.success).toBe(true);
   });
 
-  test('снапшоты кампании обязательны: campaignId, роли', () => {
+  test('снапшоты кампании обязательны: campaignId, direction', () => {
     expect(v.safeParse(ReviewSchema, review({ campaignId: 'x' })).success).toBe(
       false,
     );
     expect(
-      v.safeParse(ReviewSchema, review({ authorRole: 'admin' })).success,
+      v.safeParse(ReviewSchema, review({ direction: 'student_teacher' }))
+        .success,
     ).toBe(false);
     expect(
-      v.safeParse(ReviewSchema, review({ recipientRole: 'curator' })).success,
+      v.safeParse(ReviewSchema, { ...review(), direction: undefined }).success,
     ).toBe(false);
   });
 
-  test('authorOutcome — только проекции модуля', () => {
+  test('authorOutcome — только 4-значные проекции', () => {
     expect(
       v.safeParse(ReviewSchema, review({ authorOutcome: 'advanced' })).success,
+    ).toBe(false);
+    expect(
+      v.safeParse(ReviewSchema, review({ authorOutcome: 'in_progress' }))
+        .success,
+    ).toBe(false);
+    expect(
+      v.safeParse(ReviewSchema, review({ authorOutcome: 'completed' })).success,
     ).toBe(false);
   });
 

@@ -1,6 +1,6 @@
 import { ReviewCampaignAr } from './a-root';
 import { REVIEW_WINDOW_DAYS } from './constants';
-import type { CampaignParticipant, ReviewCampaign } from './entity';
+import type { ReviewCampaign, StudentOutcome } from './entity';
 
 /** Миллисекунд в сутках. */
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -12,12 +12,16 @@ function isoMinute(date: Date): string {
 
 /** Вход фабрики студенческой кампании — окно судьбы студента (ФР-3). */
 export interface CreateStudentCampaignInput {
-  /** uuid скоупа (для stream_ended — streamId). */
+  /** uuid скоупа (для stream_fate — streamId). */
   scopeId: string;
   /** uuid студента, чьё событие открыло окно. */
   subjectId: string;
-  /** Снапшот окружения субъекта на момент события. */
-  participants: CampaignParticipant[];
+  /** uuid ментора скоупа — второй автор окна (payload). */
+  mentorId: string;
+  /** Исход судьбы субъекта — 4-значная проекция (payload). */
+  subjectOutcome: StudentOutcome;
+  /** id адресуемых соучеников — без субъекта и ментора (ФР-2/ФР-3). */
+  participantIds: string[];
   /** Момент создания (берётся вызывающим, UC/ER). */
   now: Date;
 }
@@ -27,24 +31,31 @@ export interface CreateStudentCampaignInput {
  */
 export const ReviewCampaignFactory = {
   /**
-   * Создать студенческую кампанию контекста stream_ended (ФР-3):
-   * окно 7 дней от now, инварианты субъекта проверяет агрегат.
+   * Создать студенческую кампанию контекста stream_fate (ФР-3):
+   * окно 7 дней от now, инварианты адресации проверяет агрегат.
    */
   createStudentCampaign(input: CreateStudentCampaignInput): ReviewCampaignAr {
-    const { scopeId, subjectId, participants, now } = input;
+    const {
+      scopeId,
+      subjectId,
+      mentorId,
+      subjectOutcome,
+      participantIds,
+      now,
+    } = input;
     const expiresAt = new Date(
-      now.getTime() + REVIEW_WINDOW_DAYS.streamEnded * DAY_MS,
+      now.getTime() + REVIEW_WINDOW_DAYS.streamFate * DAY_MS,
     );
 
     const state: ReviewCampaign = {
       uuid: crypto.randomUUID(),
-      context: 'stream_ended',
+      context: 'stream_fate',
       scopeId,
       subjectId,
       createdAt: isoMinute(now),
       expiresAt: isoMinute(expiresAt),
-      participants: structuredClone(participants),
-      payload: {},
+      participants: [...participantIds],
+      payload: { subjectOutcome, mentorId },
     };
 
     const ar = new ReviewCampaignAr(state);
@@ -57,7 +68,7 @@ export const ReviewCampaignFactory = {
    */
   restore(state: ReviewCampaign): ReviewCampaignAr {
     switch (state.context) {
-      case 'stream_ended':
+      case 'stream_fate':
         return new ReviewCampaignAr(structuredClone(state));
       default:
         return new ReviewCampaignAr(structuredClone(state));

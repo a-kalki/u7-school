@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { AppException } from '@u7-scl/core/domain';
 import { ReviewCampaignAr } from './a-root';
-import type { CampaignParticipant, ReviewCampaign } from './entity';
+import type { ReviewCampaign } from './entity';
 
 const UUIDS = {
   campaign: '11111111-1111-4111-8111-111111111111',
@@ -10,32 +10,24 @@ const UUIDS = {
   alice: '33333333-3333-4333-8333-333333333333',
   bob: '44444444-4444-4444-8444-444444444444',
   mentor: '55555555-5555-4555-8555-555555555555',
+  stranger: '29999999-9999-4999-8999-999999999999',
 };
 
 const T0 = new Date('2026-09-20T10:00');
 const T7 = new Date('2026-09-27T10:00');
-
-function participants(): CampaignParticipant[] {
-  return [
-    { userId: UUIDS.subject, role: 'student', outcome: 'completed' },
-    { userId: UUIDS.alice, role: 'student', outcome: 'never_started' },
-    { userId: UUIDS.bob, role: 'student', outcome: 'in_progress' },
-    { userId: UUIDS.mentor, role: 'mentor' },
-  ];
-}
 
 function campaignState(
   overrides: Partial<ReviewCampaign> = {},
 ): ReviewCampaign {
   const base: ReviewCampaign = {
     uuid: UUIDS.campaign,
-    context: 'stream_ended',
+    context: 'stream_fate',
     scopeId: UUIDS.scope,
     subjectId: UUIDS.subject,
     createdAt: T0.toISOString().slice(0, 16),
     expiresAt: T7.toISOString().slice(0, 16),
-    participants: participants(),
-    payload: {},
+    participants: [UUIDS.alice, UUIDS.bob],
+    payload: { subjectOutcome: 'completed_passed', mentorId: UUIDS.mentor },
   };
   return { ...base, ...overrides };
 }
@@ -106,29 +98,28 @@ describe('ReviewCampaignAr: ensureLive', () => {
   });
 });
 
-describe('ReviewCampaignAr: доступ к участникам и каркасу', () => {
-  test('participants — снапшот на чтение', () => {
-    expect(ar().participants).toEqual(participants());
+describe('ReviewCampaignAr: доступ к адресуемым и каркасу', () => {
+  test('participants — снапшот id на чтение', () => {
+    expect(ar().participants).toEqual([UUIDS.alice, UUIDS.bob]);
   });
 
-  test('findParticipant находит по userId', () => {
-    const found = ar().findParticipant(UUIDS.bob);
-    expect(found?.role).toBe('student');
-    expect(found?.outcome).toBe('in_progress');
-  });
-
-  test('findParticipant неизвестного — undefined', () => {
-    expect(ar().findParticipant('99999999-9999-4999-8999-999999999999')).toBe(
-      undefined,
-    );
+  test('hasParticipant распознаёт адресуемого', () => {
+    expect(ar().hasParticipant(UUIDS.alice)).toBe(true);
+    expect(ar().hasParticipant(UUIDS.stranger)).toBe(false);
   });
 
   test('геттеры каркаса: scopeId, context, subjectId, expiresAt', () => {
     const campaign = ar();
     expect(campaign.scopeId).toBe(UUIDS.scope);
-    expect(campaign.context).toBe('stream_ended');
+    expect(campaign.context).toBe('stream_fate');
     expect(campaign.subjectId).toBe(UUIDS.subject);
     expect(campaign.expiresAt).toBe(T7.toISOString().slice(0, 16));
+  });
+
+  test('payload читается через предметные геттеры', () => {
+    const campaign = ar();
+    expect(campaign.subjectOutcome).toBe('completed_passed');
+    expect(campaign.mentorId).toBe(UUIDS.mentor);
   });
 
   test('isSubject распознаёт субъекта окна', () => {
@@ -137,35 +128,38 @@ describe('ReviewCampaignAr: доступ к участникам и каркас
   });
 });
 
-describe('ReviewCampaignAr: инварианты участников', () => {
-  test('студент без исхода — нарушение инварианта', () => {
+describe('ReviewCampaignAr: инварианты адресации', () => {
+  test('дубль id среди участников — нарушение инварианта', () => {
     const broken = campaignState({
-      participants: [
-        { userId: UUIDS.subject, role: 'student', outcome: 'completed' },
-        { userId: UUIDS.alice, role: 'student' },
-      ],
+      participants: [UUIDS.alice, UUIDS.alice],
     });
     expect(() => new ReviewCampaignAr(broken)).toThrow();
   });
 
-  test('ментор с исходом — нарушение инварианта (роль, не исход)', () => {
+  test('субъект в participants — нарушение инварианта (не о себе)', () => {
     const broken = campaignState({
-      participants: [
-        { userId: UUIDS.subject, role: 'student', outcome: 'completed' },
-        { userId: UUIDS.mentor, role: 'mentor', outcome: 'completed' },
-      ],
+      participants: [UUIDS.subject, UUIDS.alice],
     });
     expect(() => new ReviewCampaignAr(broken)).toThrow();
   });
 
-  test('дубль userId среди участников — нарушение инварианта', () => {
+  test('ментор в participants — нарушение инварианта (ментор — в payload)', () => {
     const broken = campaignState({
-      participants: [
-        { userId: UUIDS.subject, role: 'student', outcome: 'completed' },
-        { userId: UUIDS.subject, role: 'mentor' },
-      ],
+      participants: [UUIDS.mentor],
     });
     expect(() => new ReviewCampaignAr(broken)).toThrow();
+  });
+
+  test('пустой participants — валиден (адресат только ментор)', () => {
+    expect(
+      () =>
+        new ReviewCampaignAr(
+          campaignState({
+            participants: [],
+            payload: { subjectOutcome: 'dropped', mentorId: UUIDS.mentor },
+          }),
+        ),
+    ).not.toThrow();
   });
 
   test('валидное состояние — конструируется без ошибок', () => {
@@ -173,70 +167,39 @@ describe('ReviewCampaignAr: инварианты участников', () => {
   });
 });
 
-describe('ReviewCampaignAr: инварианты субъекта (ФР-2)', () => {
-  test('субъект отсутствует в participants — нарушение инварианта', () => {
-    const broken = campaignState({
-      subjectId: UUIDS.bob,
-      participants: [
-        { userId: UUIDS.subject, role: 'student', outcome: 'completed' },
-        { userId: UUIDS.mentor, role: 'mentor' },
-      ],
-    });
-    expect(() => new ReviewCampaignAr(broken)).toThrow();
-  });
-
-  test('субъект с неконечным исходом (in_progress) — нарушение инварианта', () => {
-    const broken = campaignState({
-      participants: [
-        { userId: UUIDS.subject, role: 'student', outcome: 'in_progress' },
-        { userId: UUIDS.mentor, role: 'mentor' },
-      ],
-    });
-    expect(() => new ReviewCampaignAr(broken)).toThrow();
-  });
-
-  test('субъект без исхода — нарушение инварианта (терминальность)', () => {
-    const broken = campaignState({
-      participants: [
-        { userId: UUIDS.subject, role: 'student' },
-        { userId: UUIDS.mentor, role: 'mentor' },
-      ],
-    });
-    expect(() => new ReviewCampaignAr(broken)).toThrow();
-  });
-
-  test('субъект-ментор — нарушение инварианта (субъект обязан быть студентом)', () => {
-    const broken = campaignState({
-      participants: [
-        { userId: UUIDS.subject, role: 'mentor' },
-        { userId: UUIDS.alice, role: 'student', outcome: 'completed' },
-      ],
-    });
-    expect(() => new ReviewCampaignAr(broken)).toThrow();
-  });
-});
-
-describe('ReviewCampaignAr: авторство (домен вместо UC)', () => {
-  test('authorshipOf субъекта completed — роль subject, адресаты соученик in_progress + ментор', () => {
-    const { myRole, recipients } = ar().authorshipOf(UUIDS.subject);
+describe('ReviewCampaignAr: адресация (домен вместо UC)', () => {
+  test('reviewTargets субъекта — соученики + ментор (порядок сохранён)', () => {
+    const { myRole, targetIds } = ar().reviewTargets(UUIDS.subject);
     expect(myRole).toBe('subject');
-    expect(recipients.map((p) => p.userId)).toEqual([UUIDS.bob, UUIDS.mentor]);
+    expect(targetIds).toEqual([UUIDS.alice, UUIDS.bob, UUIDS.mentor]);
   });
 
-  test('authorshipOf ментора — роль mentor, единственный адресат субъект', () => {
-    const { myRole, recipients } = ar().authorshipOf(UUIDS.mentor);
-    expect(myRole).toBe('mentor');
-    expect(recipients.map((p) => p.userId)).toEqual([UUIDS.subject]);
+  test('reviewTargets субъекта при пустом participants — только ментор', () => {
+    const empty = ar({
+      participants: [],
+      payload: { subjectOutcome: 'never_started', mentorId: UUIDS.mentor },
+    });
+    expect(empty.reviewTargets(UUIDS.subject)).toEqual({
+      myRole: 'subject',
+      targetIds: [UUIDS.mentor],
+    });
+  });
+
+  test('reviewTargets ментора — единственный адресат субъект', () => {
+    expect(ar().reviewTargets(UUIDS.mentor)).toEqual({
+      myRole: 'mentor',
+      targetIds: [UUIDS.subject],
+    });
   });
 
   test.each([
-    ['соученик-студент', UUIDS.alice],
-    ['посторонний', '29999999-9999-4999-8999-999999999999'],
+    ['адресуемый соученик', UUIDS.alice],
+    ['посторонний', UUIDS.stranger],
   ])(
-    'authorshipOf: %s — access-denied PEER_REVIEW_NOT_PARTICIPANT',
+    'reviewTargets: %s — access-denied PEER_REVIEW_NOT_PARTICIPANT',
     (_label, userId) => {
       try {
-        ar().authorshipOf(userId);
+        ar().reviewTargets(userId);
         expect.unreachable('должен бросить ошибку доступа');
       } catch (e) {
         expect(e).toBeInstanceOf(AppException);
@@ -246,22 +209,41 @@ describe('ReviewCampaignAr: авторство (домен вместо UC)', ()
       }
     },
   );
+});
 
-  test('assertCanWrite: субъект пишет ментору — возвращает снапшоты автора и адресата', () => {
-    const { author, recipient } = ar().assertCanWrite(
+describe('ReviewCampaignAr: assertCanWrite', () => {
+  test('субъект пишет ментору — direction student_mentor + снапшот исхода', () => {
+    const { direction, authorOutcome } = ar().assertCanWrite(
       UUIDS.subject,
       UUIDS.mentor,
     );
-    expect(recipient).toEqual({ userId: UUIDS.mentor, role: 'mentor' });
-    expect(author.userId).toBe(UUIDS.subject);
+    expect(direction).toBe('student_mentor');
+    expect(authorOutcome).toBe('completed_passed');
+  });
+
+  test('субъект пишет соученику — direction student_student', () => {
+    const { direction, authorOutcome } = ar().assertCanWrite(
+      UUIDS.subject,
+      UUIDS.bob,
+    );
+    expect(direction).toBe('student_student');
+    expect(authorOutcome).toBe('completed_passed');
+  });
+
+  test('ментор пишет субъекту — direction mentor_student, исхода автора нет', () => {
+    const { direction, authorOutcome } = ar().assertCanWrite(
+      UUIDS.mentor,
+      UUIDS.subject,
+    );
+    expect(direction).toBe('mentor_student');
+    expect(authorOutcome).toBeUndefined();
   });
 
   test.each([
     ['о себе', UUIDS.subject],
-    ['dropped-соученик', UUIDS.alice],
-    ['посторонний адресат', '29999999-9999-4999-8999-999999999999'],
+    ['посторонний адресат', UUIDS.stranger],
   ])(
-    'assertCanWrite: %s — conflict PEER_REVIEW_RECIPIENT_NOT_ALLOWED',
+    'assertCanWrite: субъект → %s — conflict PEER_REVIEW_RECIPIENT_NOT_ALLOWED',
     (_label, recipientId) => {
       try {
         ar().assertCanWrite(UUIDS.subject, recipientId);
@@ -274,6 +256,16 @@ describe('ReviewCampaignAr: авторство (домен вместо UC)', ()
       }
     },
   );
+
+  test('assertCanWrite: ментор пишет соученику — конфликт адресата', () => {
+    try {
+      ar().assertCanWrite(UUIDS.mentor, UUIDS.alice);
+      expect.unreachable('должен бросить конфликт адресата');
+    } catch (e) {
+      const error = (e as AppException).error;
+      expect(error.name).toBe('PEER_REVIEW_RECIPIENT_NOT_ALLOWED');
+    }
+  });
 
   test('assertCanWrite: соученик-автор (не субъект/ментор) — access-denied', () => {
     try {
