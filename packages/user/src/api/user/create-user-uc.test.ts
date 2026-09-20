@@ -14,6 +14,7 @@ function setupUc() {
   const getByUuid = mock(
     async (_uuid: string): Promise<User | undefined> => undefined,
   );
+  const getByUuids = mock(async (_uuids: string[]): Promise<User[]> => []);
   const getByTelegramId = mock(
     async (_id: number): Promise<User | undefined> => undefined,
   );
@@ -26,6 +27,7 @@ function setupUc() {
   const repo: UserRepo = {
     save,
     getByUuid,
+    getByUuids,
     getByTelegramId,
     getAll,
     isTelegramIdTaken,

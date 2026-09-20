@@ -8,6 +8,7 @@ import { ListUsersUc } from './list-users-uc';
 function setupUc() {
   const save = mock(async (): Promise<void> => {});
   const getByUuid = mock(async (): Promise<User | undefined> => undefined);
+  const getByUuids = mock(async (_uuids: string[]): Promise<User[]> => []);
   const getByTelegramId = mock(
     async (): Promise<User | undefined> => undefined,
   );
@@ -18,6 +19,7 @@ function setupUc() {
   const repo: UserRepo = {
     save,
     getByUuid,
+    getByUuids,
     getByTelegramId,
     getAll,
     isTelegramIdTaken,

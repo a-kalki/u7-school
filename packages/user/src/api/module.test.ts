@@ -128,6 +128,43 @@ describe('UserApiModule + UserJsonRepo', () => {
     await Bun.$`rm -f ${jsonFile}`;
   });
 
+  test('user.get-users-by-ids: возвращает карточки пачкой', async () => {
+    const jsonFile = '/tmp/user-module-test-7.json';
+    await Bun.$`rm -f ${jsonFile}`;
+
+    const repo = new UserJsonRepo(jsonFile, NO_SEED);
+    const ivan: User = {
+      uuid: '550e8400-e29b-41d4-a716-446655440000',
+      name: 'Иван',
+      telegramId: 1,
+      roles: [Role.STUDENT],
+      createdAt: '2026-05-01T12:00',
+    };
+    await repo.save(ivan);
+
+    const mod = new UserApiModule({
+      userRepo: repo,
+      appResolver,
+      eventBus: appResolver.eventBus,
+    });
+
+    const actor: User = {
+      uuid: crypto.randomUUID(),
+      name: 'Актор',
+      telegramId: 2,
+      roles: [Role.STUDENT],
+      createdAt: '2026-05-01T12:00',
+    };
+    const result = await mod.execute(
+      'get-users-by-ids',
+      { userIds: [ivan.uuid] },
+      actor,
+    );
+    expect((result as User[]).map((u) => u.name)).toEqual(['Иван']);
+
+    await Bun.$`rm -f ${jsonFile}`;
+  });
+
   test('неизвестная команда — ошибка', async () => {
     const jsonFile = '/tmp/user-module-test-6.json';
     await Bun.$`rm -f ${jsonFile}`;

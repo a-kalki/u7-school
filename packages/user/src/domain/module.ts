@@ -3,6 +3,7 @@ import type { AddRoleToUserCmdMeta } from './user/commands/add-role-to-user-cmd'
 import type { CreateUserCmdMeta } from './user/commands/create-user-cmd';
 import type { GetUserByTelegramIdCmdMeta } from './user/commands/get-user-by-telegram-id-cmd';
 import type { GetUserCmdMeta } from './user/commands/get-user-cmd';
+import type { GetUsersByIdsCmdMeta } from './user/commands/get-users-by-ids-cmd';
 import type { ListUsersCmdMeta } from './user/commands/list-users-cmd';
 import type { NotifyUserCmdMeta } from './user/commands/notify-user-cmd';
 import type { RegisterGuestCmdMeta } from './user/commands/register-guest-cmd';
@@ -14,6 +15,7 @@ export type UserUcMetas =
   | CreateUserCmdMeta
   | GetUserByTelegramIdCmdMeta
   | GetUserCmdMeta
+  | GetUsersByIdsCmdMeta
   | ListUsersCmdMeta
   | NotifyUserCmdMeta
   | RegisterGuestCmdMeta

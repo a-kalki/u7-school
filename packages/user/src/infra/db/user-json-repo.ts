@@ -86,6 +86,13 @@ export class UserJsonRepo implements UserRepo {
     return all.find((u) => u.uuid === uuid);
   }
 
+  async getByUuids(uuids: string[]): Promise<User[]> {
+    await this.#ensureInit();
+    const all = await this.#repo.readAll();
+    const wanted = new Set(uuids);
+    return all.filter((u) => wanted.has(u.uuid));
+  }
+
   async getByTelegramId(telegramId: number): Promise<User | undefined> {
     await this.#ensureInit();
     const all = await this.#repo.readAll();

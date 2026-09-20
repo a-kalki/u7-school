@@ -138,6 +138,29 @@ describe('UserJsonRepo', () => {
     });
   });
 
+  describe('getByUuids', () => {
+    test('возвращает запрошенных пользователей одним запросом', async () => {
+      await saveUsers(repo, [user1, user2, user3]);
+
+      const result = await repo.getByUuids([user1.uuid, user3.uuid]);
+      expect(result).toHaveLength(2);
+      expect(result).toEqual(expect.arrayContaining([user1, user3]));
+    });
+
+    test('пропускает несуществующие идентификаторы', async () => {
+      await saveUsers(repo, [user1]);
+
+      const result = await repo.getByUuids([user1.uuid, 'non-existent-uuid']);
+      expect(result).toEqual([user1]);
+    });
+
+    test('пустой список — пустой результат', async () => {
+      await saveUsers(repo, [user1]);
+
+      expect(await repo.getByUuids([])).toEqual([]);
+    });
+  });
+
   describe('getByTelegramId', () => {
     test('возвращает пользователя по существующему telegramId', async () => {
       await repo.save(user1);

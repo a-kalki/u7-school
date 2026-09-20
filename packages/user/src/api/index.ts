@@ -4,6 +4,7 @@ export { AddRoleToUserUc } from './user/add-role-to-user-uc';
 export { CreateUserUc } from './user/create-user-uc';
 export { GetUserByTelegramIdUc } from './user/get-user-by-telegram-id-uc';
 export { GetUserUc } from './user/get-user-uc';
+export { GetUsersByIdsUc } from './user/get-users-by-ids-uc';
 export { ListUsersUc } from './user/list-users-uc';
 export { RegisterGuestUc } from './user/register-guest-uc';
 export { RemoveRoleToUserUc } from './user/remove-role-to-user-uc';

@@ -32,6 +32,11 @@ export type {
   GetUserCmdMeta,
 } from './user/commands/get-user-cmd';
 export { GetUserCmdSchema } from './user/commands/get-user-cmd';
+export {
+  GET_USERS_BY_IDS_MAX,
+  type GetUsersByIdsCmd,
+  GetUsersByIdsCmdSchema,
+} from './user/commands/get-users-by-ids-cmd';
 export type {
   ListUsersCmd,
   ListUsersCmdError,

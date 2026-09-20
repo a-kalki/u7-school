@@ -5,6 +5,7 @@ import { AddRoleToUserUc } from './user/add-role-to-user-uc';
 import { CreateUserUc } from './user/create-user-uc';
 import { GetUserByTelegramIdUc } from './user/get-user-by-telegram-id-uc';
 import { GetUserUc } from './user/get-user-uc';
+import { GetUsersByIdsUc } from './user/get-users-by-ids-uc';
 import { ListUsersUc } from './user/list-users-uc';
 import { NotifyUserUc } from './user/notify-user-uc';
 import { RegisterGuestUc } from './user/register-guest-uc';
@@ -18,6 +19,7 @@ export class UserApiModule extends U7ApiModule<
   readonly useCases = [
     new CreateUserUc(),
     new GetUserUc(),
+    new GetUsersByIdsUc(),
     new ListUsersUc(),
     new GetUserByTelegramIdUc(),
     new RegisterGuestUc(),
