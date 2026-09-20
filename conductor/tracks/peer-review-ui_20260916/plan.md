@@ -1,7 +1,7 @@
 # План: UI отзывов (peer-review)
 
 > Спецификация: [spec.md](./spec.md). Тексты и экраны — [ui-spec.md](../../../apps/u7-bot/src/controllers/peer-review/ui-spec.md).
-> **Готов к продолжению:** трек-предусловие [peer-review-outcomes_20260920](../peer-review-outcomes_20260920/plan.md)
+> **Готов к продолжению:** трек-предусловие [peer-review-outcomes_20260920](../../archive/peer-review-outcomes_20260920/plan.md)
 > завершён (домен-выравнивание под решения 2026-09-20: `direction`, 4-значная проекция
 > `subjectOutcome`/`myOutcome`/`authorOutcome`, async-`menuButtons` в core, batch-UC
 > `get-users-by-ids`); план обновлён его Фазой 7.

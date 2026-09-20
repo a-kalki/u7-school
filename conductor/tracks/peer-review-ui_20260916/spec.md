@@ -1,7 +1,7 @@
 # Спецификация: UI отзывов (peer-review)
 
 > Трек 2 из двух. **Готов к продолжению:** трек-предусловие
-> [peer-review-outcomes_20260920](../peer-review-outcomes_20260920/spec.md) завершён
+> [peer-review-outcomes_20260920](../../archive/peer-review-outcomes_20260920/spec.md) завершён
 > (домен-выравнивание под решения 2026-09-20: 4-значная проекция, `direction`,
 > форма кампании с `subjectOutcome`/`mentorId`; async-`menuButtons` в core;
 > batch-UC `get-users-by-ids`); эта спека и план обновлены его Фазой 7.
