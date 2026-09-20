@@ -73,10 +73,10 @@
 > подключены. Образец подключения модуля — `src/create-api-app.ts` (репо +
 > `PeerReviewApiModule` + общий eventBus; ER подписка — в `module.init()`).
 
-- [ ] Task: Инфраструктура: подключить peer-review в `tests/helpers/test-app.ts` — `ReviewCampaignJsonRepo`/`ReviewJsonRepo` на фикстурах, `PeerReviewApiModule` (streamFacade, appResolver, общий eventBus — чтобы ER создания кампании и сторя приглашений работали на реальной шине), пути `peer-review/*` в `FixturePaths`/`copyTemplates`; при необходимости — PeerReviewController в тестовом боте транспорт-хелпера
-    - [ ] Red: smoke-тест — событие судьбы студента публикуется → кампания создаётся (проверка через репозиторий/UC), модуль зарегистрирован
-    - [ ] Green: подключение
-- [ ] Task: E2E «Судьба субъекта — написание» (по образцу `tests/e2e/inactivity.e2e.test.ts`): `student.completed` → кампания (адресация v4) → два приглашения (субъекту и ментору, тексты по `subjectOutcome`, полный код кнопки `💬 Отзывы`) → клик субъекту → S03 (шапка, дни, ✅ нет) → короткий текст — переспрос → корректный ввод → S06 (✅ появился) → перезапись S04 (текст заменён)
+- [x] Task: Инфраструктура: подключить peer-review в `tests/helpers/test-app.ts` — `ReviewCampaignJsonRepo`/`ReviewJsonRepo` на фикстурах, `PeerReviewApiModule` (streamFacade, appResolver, общий eventBus — чтобы ER создания кампании и сторя приглашений работали на реальной шине), пути `peer-review/*` в `FixturePaths`/`copyTemplates`; при необходимости — PeerReviewController в тестовом боте транспорт-хелпера
+    - [x] Red: smoke-тест — событие судьбы студента публикуется → кампания создаётся (проверка через репозиторий/UC), модуль зарегистрирован
+    - [x] Green: подключение — 71f1c456 (попутно вскрыт и закрыт сквозной дефект read-API: `list-stream-students`/`get-users-by-ids` без актора из ER/проактивов падали UNAUTHORIZED — фикс 06ad3d18)
+- [~] Task: E2E «Судьба субъекта — написание» (по образцу `tests/e2e/inactivity.e2e.test.ts`): `student.completed` → кампания (адресация v4) → два приглашения (субъекту и ментору, тексты по `subjectOutcome`, полный код кнопки `💬 Отзывы`) → клик субъекту → S03 (шапка, дни, ✅ нет) → короткий текст — переспрос → корректный ввод → S06 (✅ появился) → перезапись S04 (текст заменён)
     - [ ] Red → Green
 - [ ] Task: E2E «Хаб и меню»: `menuButtons` скрыта без кампаний, видна при живых; S02 — рендер по `myRole` (M/K субъекта, «отзыв о {Имя}» ментора), выбор кампании → S03; истёкшее окно (фикстура просроченной кампании) → заглушка «возможность закрыта»
     - [ ] Red → Green
