@@ -63,9 +63,10 @@
 import { safeConvert } from '../packages/core/src/shared/markdown.ts';
 import { createApp, NUR_UUID, resolveActor } from './_app-factory';
 
-const BOT_TOKEN = '8781337572:AAGWv3f924aZisUW3z47n8BPDusyfKAjIWg';
-const DEFAULT_CHAT_ID = '-1003960918937'; // группа потока
-const MENTOR_CHAT_ID = '773084180'; // личка ментора
+// Токен и группа — из окружения (.env.production), чтобы не хардкодить секреты
+const BOT_TOKEN = process.env.BOT_TOKEN ?? '';
+const DEFAULT_CHAT_ID = process.env.SCHOOL_GROUP_ID ?? ''; // группа потока
+const MENTOR_CHAT_ID = process.env.MENTOR_CHAT_ID ?? '773084180'; // личка ментора
 
 // ─── Типы данных API ───
 
@@ -252,6 +253,8 @@ async function sendStep(
   }
 
   const ok = await sendToTelegram(BOT_TOKEN, chatId, text);
+  // Лёгкая пауза, чтобы не упереться в flood-лимит Telegram (~1 msg/sec на чат)
+  await new Promise((r) => setTimeout(r, 400));
   if (!ok) {
     // Fallback: без MarkdownV2
     const plain = [

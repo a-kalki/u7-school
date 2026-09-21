@@ -1,14 +1,16 @@
 /**
- * update-stream-snapshot — обновляет contentSnapshot у потоков указанного модуля.
+ * update-stream-snapshot — обновляет contentSnapshot у ПОТОКА (точечно).
+ *
+ * ⚠️ История: раньше скрипт принимал moduleId и обновлял ВСЕ потоки модуля —
+ * это затирало снапшот активных потоков. Теперь параметр — streamId:
+ * обновляется ровно один выбранный поток.
  *
  * Использование:
- *   bun run scripts/update-stream-snapshot.ts
+ *   bun run scripts/update-stream-snapshot.ts              # интерактивный выбор потока
+ *   bun run scripts/update-stream-snapshot.ts <streamId>   # конкретный поток
  *
- * Скрипт выводит список активных потоков, пользователь выбирает номер —
- * и снапшот выбранного потока обновляется из актуальных данных модуля.
- *
- * Можно также указать moduleId явно:
- *   bun run scripts/update-stream-snapshot.ts e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa
+ * Снапшот строится из актуальных данных модуля потока (get-module-snapshot):
+ * только published-проекты и published-уроки.
  */
 
 import { createApp } from './_app-factory';
@@ -29,63 +31,71 @@ async function main() {
   const streamsFile = Bun.file(STREAMS_FILE);
   const streams: Array<Record<string, unknown>> = await streamsFile.json();
 
-  const activeStreams: StreamInfo[] = [];
+  const allStreams: StreamInfo[] = [];
   for (let i = 0; i < streams.length; i++) {
     const s = streams[i];
-    if (s?.status !== 'active') continue;
+    if (!s || s.uuid === undefined) continue;
     const snap = s.contentSnapshot as Array<{ lessons: unknown[] }> | undefined;
-    activeStreams.push({
+    allStreams.push({
       index: i,
       uuid: s.uuid as string,
-      title: s.title as string,
+      title: (s.title as string) ?? '(без названия)',
       moduleId: s.moduleId as string,
-      status: s.status as string,
+      status: (s.status as string) ?? '?',
       projectCount: snap?.length ?? 0,
     });
   }
 
-  if (activeStreams.length === 0) {
-    console.log('Нет активных потоков.');
+  if (allStreams.length === 0) {
+    console.log('Потоки не найдены.');
     return;
   }
 
   // ── Выбор потока ────────────────────────────────
-  let moduleId: string;
-
   const explicitId = process.argv[2];
+  let selected: StreamInfo | undefined;
+
   if (explicitId) {
-    moduleId = explicitId;
+    selected = allStreams.find((s) => s.uuid === explicitId);
+    if (!selected) {
+      console.error(`❌ Поток с uuid=${explicitId} не найден.`);
+      console.log('Доступные потоки:');
+      for (const s of allStreams) {
+        console.log(`   ${s.uuid}  ${s.title} (${s.status}, ${s.projectCount} проектов)`);
+      }
+      process.exit(1);
+    }
   } else {
-    console.log('Активные потоки:\n');
-    for (const s of activeStreams) {
+    console.log('Потоки:\n');
+    for (const s of allStreams) {
       console.log(
-        `  [${s.index + 1}] ${s.title}  (${s.projectCount} проектов)  ${s.uuid}`,
+        `  [${s.index + 1}] ${s.title}  (${s.status}, ${s.projectCount} проектов)  ${s.uuid}`,
       );
     }
-
     console.log();
     const input = prompt('Выбери номер потока (или Enter — выйти):');
     if (!input?.trim()) {
       console.log('Выход.');
       return;
     }
-
     const choice = Number.parseInt(input.trim(), 10);
-    const selected = activeStreams.find((s) => s.index + 1 === choice);
+    selected = allStreams.find((s) => s.index + 1 === choice);
     if (!selected) {
-      console.log(`Нет потока с номером ${choice}.`);
-      return;
+      console.error(`Нет потока с номером ${choice}.`);
+      process.exit(1);
     }
-
-    moduleId = selected.moduleId;
   }
 
   // ── Получение свежего снапшота ──────────────────
   console.log(`\n📦 Поднимаю приложение...`);
   const app = createApp(true);
 
-  console.log(`🔍 Получаю снапшот модуля ${moduleId}...`);
-  const newSnapshot = await app.execute('get-module-snapshot', { moduleId });
+  console.log(
+    `🔍 Получаю снапшот модуля ${selected.moduleId} (поток «${selected.title}»)...`,
+  );
+  const newSnapshot = await app.execute('get-module-snapshot', {
+    moduleId: selected.moduleId,
+  });
 
   const projectCount = newSnapshot.length;
   const lessonCount = newSnapshot.reduce((sum, p) => sum + p.lessons.length, 0);
@@ -100,37 +110,26 @@ async function main() {
     console.log(`     • ${p.projectTitle} (${p.lessons.length} уроков)`);
   }
 
-  // ── Обновление потоков ──────────────────────────
-  let updatedCount = 0;
-  for (const stream of streams) {
-    if (stream.moduleId !== moduleId) continue;
+  // ── Обновление ТОЛЬКО выбранного потока ─────────
+  const oldSnapshot = streams[selected.index].contentSnapshot as Array<{
+    projectTitle: string;
+  }>;
+  const oldCount = Array.isArray(oldSnapshot) ? oldSnapshot.length : 0;
+  const oldTitles = Array.isArray(oldSnapshot)
+    ? oldSnapshot.map((p) => p.projectTitle).join(', ')
+    : '—';
 
-    const oldSnapshot = stream.contentSnapshot as Array<{
-      projectTitle: string;
-    }>;
-    const oldCount = Array.isArray(oldSnapshot) ? oldSnapshot.length : 0;
-    const oldTitles = Array.isArray(oldSnapshot)
-      ? oldSnapshot.map((p) => p.projectTitle).join(', ')
-      : '—';
+  console.log(`\n🔄 Поток «${selected.title}» (${selected.uuid}):`);
+  console.log(`   Было:  ${oldCount} проектов — ${oldTitles}`);
+  console.log(`   Стало: ${projectCount} проектов`);
 
-    console.log(`\n🔄 Поток «${stream.title}» (${stream.uuid}):`);
-    console.log(`   Было:  ${oldCount} проектов — ${oldTitles}`);
-    console.log(`   Стало: ${projectCount} проектов`);
-
-    stream.contentSnapshot = newSnapshot;
-    updatedCount++;
-  }
-
-  if (updatedCount === 0) {
-    console.log(`\n⚠️  Нет потоков с moduleId=${moduleId}.`);
-    return;
-  }
+  streams[selected.index].contentSnapshot = newSnapshot;
 
   // ── Сохранение ──────────────────────────────────
   console.log(`\n💾 Записываю ${STREAMS_FILE}...`);
   await Bun.write(STREAMS_FILE, JSON.stringify(streams, null, 2));
 
-  console.log(`✅ Готово! Обновлено потоков: ${updatedCount}`);
+  console.log(`✅ Готово! Обновлён поток: ${selected.title}`);
 }
 
 main().catch((err) => {
