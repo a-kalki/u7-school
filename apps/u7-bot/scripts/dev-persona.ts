@@ -112,26 +112,27 @@ export class DevPersonaSwitch {
   }
 
   /**
-   * Обёртка BotApi: sendMessage фикстурным персонам уходит в dev-чат.
+   * Обёртка BotApi: любой вызов с chat_id фикстурной персоны уходит в
+   * dev-чат. Первый аргумент всех адресных методов Bot API (sendMessage,
+   * editMessageText, sendPhoto, deleteMessage, ...) — chat_id, поэтому
+   * универсальная проверка покрывает их все: иначе edit* вызовы по tgId
+   * персоны падают с «400: chat not found».
    * Прочие вызовы (группы, реальные пользователи) — без изменений.
    */
   wrapApi(api: Api): Api {
     const redirects = this.redirects;
     return new Proxy(api, {
       get(target, prop) {
-        if (prop === 'sendMessage') {
-          const send = target.sendMessage.bind(target);
-          return (chatId: number | string, text: string, other?: object) =>
-            send(
-              typeof chatId === 'number'
-                ? (redirects.get(chatId) ?? chatId)
-                : chatId,
-              text,
-              other,
-            );
-        }
-        const value = Reflect.get(target, prop, target);
-        return typeof value === 'function' ? value.bind(target) : value;
+        const value: unknown = Reflect.get(target, prop, target);
+        if (typeof value !== 'function') return value;
+        const fn = (value as (...a: unknown[]) => unknown).bind(target);
+        return (...args: unknown[]) => {
+          const [first, ...rest] = args;
+          if (typeof first === 'number' && redirects.has(first)) {
+            return fn(redirects.get(first), ...rest);
+          }
+          return fn(...args);
+        };
       },
     });
   }

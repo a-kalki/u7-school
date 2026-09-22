@@ -66,10 +66,15 @@ describe('DevPersonaSwitch', () => {
   test('wrapApi: sendMessage персонам уходит в dev-чат, прочие — как есть', async () => {
     const sw = new DevPersonaSwitch(DEV_TG);
     const sent: Array<{ chatId: number | string; text: string }> = [];
+    const edited: number[] = [];
     const api = {
       sendMessage: async (chatId: number | string, text: string) => {
         sent.push({ chatId, text });
         return { message_id: 1 };
+      },
+      editMessageText: async (chatId: number | string) => {
+        edited.push(chatId as number);
+        return true;
       },
     } as unknown as Api;
 
@@ -78,6 +83,8 @@ describe('DevPersonaSwitch', () => {
     await wrapped.sendMessage(1003, 'приглашение Андрею'); // персона
     await wrapped.sendMessage(777_777, 'реальному юзеру'); // не персона
     await wrapped.sendMessage('-100123', 'в группу'); // группа (строка)
+    await wrapped.editMessageText(1004, 5, 'обновлённый экран'); // персона
+    await wrapped.editMessageText(777_777, 6, 'обновлённый экран'); // не персона
 
     expect(sent.map((s) => s.chatId)).toEqual([
       DEV_TG,
@@ -85,6 +92,7 @@ describe('DevPersonaSwitch', () => {
       777_777,
       '-100123',
     ]);
+    expect(edited).toEqual([DEV_TG, 777_777]);
   });
 
   test('редирект покрывает всех персон (белый список)', () => {
