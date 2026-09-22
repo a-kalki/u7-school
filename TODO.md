@@ -159,6 +159,11 @@
   - `chat_member` left → `removeRoleFromUser(uuid, SUBSCRIBER, user.uuid)` → `canRemoveRole` разрешает снимать себе только `STUDENT` → `ACCESS_DENIED`.
   Решение: выдавать/снимать `SUBSCRIBER` от системного актора (`BOT_ADMIN_UUID`) или расширить `UserPolicy` (системный/ADMIN актор управляет `SUBSCRIBER`). `UserPolicy.isSubscriber()` объявлен, но в бизнес-логике пока не используется.
 
+## Stream: зачисление в активный поток
+
+- **Проблема:** зачисление в **уже активный** поток даёт нерабочее состояние студента. `EnrollStudentUc` (`packages/stream/src/api/student/enroll-student-uc.ts`) создаёт запись в статусе `enrolled` с пустым `steps[]` (только `currentStepId`). Выдача первого шага и перевод `enrolled → active` выполняются только в `activate-stream-uc` (`packages/stream/src/api/stream/activate-stream-uc.ts`) — а тот срабатывает один раз при запуске потока (`StreamAr.activate()` разрешён лишь из статуса `enrollment`). Через каталог бота (`view-stream.story.ts`) — та же дыра: он просто вызывает `enroll-student`. Итог: `step-view` показывает студенту шаг по `currentStepId`, но `StudentAr.completeStep()` отклоняет завершение («шаг не был выдан студенту») — студент видит урок, но не может его пройти. Обнаружено при зачислении Рахима в «Алгоритмика - 7» (2026-09-22): состояние исправлено вручную (`activate()` + `issueStep()` по образцу шага 4 `activate-stream-uc`).
+- **Решение:** в `EnrollStudentUc` после создания записи проверять статус потока: если `active` — сразу `StudentAr.activate()` + `issueStep(firstStepId)` (ровно та же логика, что в `activate-stream-uc` для студентов). Альтернатива — перенести ветку в домен (`StudentAr.enroll()` принимает статус потока) и покрыть тестами оба сценария: зачисление в поток в статусе `enrollment` → как сейчас (шаг выдаёт активация), зачисление в `active` → сразу `active` + выданный первый шаг.
+
 ## Wish и проактивные уведомления (после трека wish-module_20260828)
 - Событие `wish.fulfilled` + уведомления на его основе (студент узнаёт, что желание реализовано). Сейчас событие не публикуется.
 - Миграция `FillStory` на `notify()` (уведомления без кнопок, заголовок 🔔).
