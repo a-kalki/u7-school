@@ -1,5 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import type { StudentCompletedEvent } from '@u7-scl/stream/domain';
+import type {
+  StudentAbandonedEvent,
+  StudentCompletedEvent,
+} from '@u7-scl/stream/domain';
 import { createTestApp, type TestApp } from '@u7-scl/test-helpers/test-app';
 import {
   createTestBotTransport,
@@ -27,6 +30,10 @@ const SUBJECT_TG = 1007; // «Марина» — субъект новой ка�
 const SUBJECT_USER_ID = '77777777-7777-4777-8777-777777777777';
 const MENTOR_TG = 1004; // «Ментор» — ментор потока и адресат
 const MENTOR_USER_ID = '44444444-4444-4444-4444-444444444444';
+// «Олег» — соученик субъекта; тест 3: субъект «забросил»
+// (у Андрея 333 уже есть фикстурная кампания c1a11111 — идемпотентность ER)
+const DROPPED_TG = 1008;
+const DROPPED_USER_ID = '88888888-8888-4888-8888-888888888888';
 
 const GOOD_TEXT = 'Ментор спокойно разбирал мои ошибки и не давал застрять.';
 const GOOD_TEXT_2 = 'Вторая правка: ментор был внимателен к деталям.';
@@ -239,5 +246,123 @@ describe('E2E peer-review: судьба субъекта — написание'
     );
     expect(my.found).toBe(true);
     expect(my.text).toBe(GOOD_TEXT_2);
+  });
+
+  // Продолжение кампании из предыдущего теста (stateful-сценарий):
+  // отзыв ментору уже сохранён — 1/3, ✅ у ментора.
+  test('несколько адресатов: одногруппник — выбор из списка, метрики 1/3 → 2/3', async () => {
+    // ── Хаб: карточка кампании с прогрессом 1/3 ──
+    const hub = await transport.handleCallback(
+      transport.makeBotContext(SUBJECT_TG, {
+        callbackData: pressedCode(transport, SUBJECT_TG, '↩️ Мои отзывы'),
+      }),
+    );
+    expect(String(hub.screen?.text)).toContain('💬 *Мои отзывы*');
+    expect(String(hub.screen?.text)).toContain('Метрики: 1/3');
+    expect(String(hub.screen?.text)).toContain('Ты завершил обучение');
+
+    // ── Карточка кампании → S03: ✅ у ментора, одногруппники без ✅ ──
+    const s03 = await transport.handleCallback(
+      transport.makeBotContext(SUBJECT_TG, {
+        callbackData: pressedCode(transport, SUBJECT_TG, 'Поток «'),
+      }),
+    );
+    expect(String(s03.screen?.text)).toContain('Написано отзывов: 1 из 3');
+    expect(s03.screen?.keyboard?.rows.flat().map((b) => b.text)).toEqual([
+      'Одногруппник — Андрей',
+      'Одногруппник — Олег',
+      '✅Ментор — Ментор',
+      '↩️ Мои отзывы',
+    ]);
+
+    // ── Одногруппник → S05: подсказка с именем адресата ──
+    const s05 = await transport.handleCallback(
+      transport.makeBotContext(SUBJECT_TG, {
+        callbackData: pressedCode(transport, SUBJECT_TG, 'Андрей'),
+      }),
+    );
+    const s05Text = String(s05.screen?.text);
+    expect(s05Text).toContain('`Отзыв для {Имя}:`');
+    expect(s05Text).toContain('расскажи, как Андрей');
+    expect(s05Text).toContain('`Как с ним работать:`');
+    expect(s05.awaitInput).toBeDefined();
+
+    // ── Ввод → инфо + S03: 2/3, ✅ у Андрея и у ментора ──
+    const s06 = await transport.handleMessage(
+      transport.makeBotContext(SUBJECT_TG, {
+        text: 'Андрей задавал точные вопросы на созвонах и помогал команде не буксовать.',
+      }),
+    );
+    expect(String(s06.notify?.text ?? '')).toContain(
+      '✅ Отзыв о Андрей сохранён',
+    );
+    expect(String(s06.screen?.text)).toContain('Написано отзывов: 2 из 3');
+    expect(s06.screen?.keyboard?.rows.flat().map((b) => b.text)).toEqual([
+      '✅Одногруппник — Андрей',
+      'Одногруппник — Олег',
+      '✅Ментор — Ментор',
+      '↩️ Мои отзывы',
+    ]);
+  });
+
+  // Живое окно «забросил»: адресат только ментор — автопровал
+  // в экран ввода, минуя список (правило «выбор без выбора»).
+  test('dropped: автопровал единственного адресата → ввод → сохранение → хаб', async () => {
+    // ── 1. Событие: Андрей забросил учёбу ──
+    app.eventBus.publish({
+      eventId: crypto.randomUUID(),
+      eventName: 'student.abandoned',
+      occurredAt: '2026-09-22T12:00',
+      aggregateName: 'Student',
+      aggregateId: 'f2f2f2f2-f2f2-f2f2-f2f2-f2f2f2f2f2f2',
+      payload: {
+        studentId: 'f2f2f2f2-f2f2-f2f2-f2f2-f2f2f2f2f2f2',
+        userId: DROPPED_USER_ID,
+        streamId: STREAM_ID,
+        who: 'self',
+        cause: 'voluntary',
+      },
+    } satisfies StudentAbandonedEvent);
+
+    // ── 2. Приглашение с мягким текстом судьбы ──
+    await waitUntil(() =>
+      transport.api.sentMessages.some(
+        (m) => m.telegramId === DROPPED_TG && m.text.includes('покинул'),
+      ),
+    );
+    const invite = transport.api.sentMessages.find(
+      (m) => m.telegramId === DROPPED_TG && m.text.includes('покинул'),
+    )!;
+    expect(invite.text).toContain('Ты покинул обучение');
+    expect(invite.text).toContain('поделись впечатлениями о менторе');
+
+    // ── 3. Клик приглашения → сразу S05 (список не показывается) ──
+    const btn = invite.keyboard?.rows.flat()[0]!;
+    const s05 = await transport.handleCallback(
+      transport.makeBotContext(DROPPED_TG, { callbackData: btn.code }),
+    );
+    const s05Text = String(s05.screen?.text);
+    expect(s05Text).toContain('✍️ *Отзыв — поток «');
+    // Подсказка пары «забросил → о менторе»
+    expect(s05Text).toContain('`Отзыв для ментора:`');
+    expect(s05Text).toContain('почему забросил');
+    expect(s05Text).toContain('`Следует ожидать от курса:`');
+    expect(s05.awaitInput).toBeDefined();
+    // «Назад» при единственном адресате — в хаб
+    expect(s05.screen?.keyboard?.rows.flat()[0]?.text).toBe('↩️ Мои отзывы');
+
+    // ── 4. Ввод → инфо + возврат в хаб (родитель единственного адресата) ──
+    const done = await transport.handleMessage(
+      transport.makeBotContext(DROPPED_TG, {
+        text: 'Ментор быстро отвечал на вопросы, но мне не хватило времени на учёбу.',
+      }),
+    );
+    expect(String(done.notify?.text ?? '')).toContain(
+      '✅ Отзыв о Ментор сохранён',
+    );
+    const hubText = String(done.screen?.text);
+    expect(hubText).toContain('💬 *Мои отзывы*');
+    expect(hubText).toContain('Ты покинул обучение');
+    expect(hubText).toContain('Метрики: 1/1');
   });
 });

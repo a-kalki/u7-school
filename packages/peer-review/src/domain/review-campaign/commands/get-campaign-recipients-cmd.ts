@@ -3,7 +3,7 @@ import * as v from 'valibot';
 import type { PeerReviewUcErrors } from '../../../api/errors';
 import { uuidField } from '../../shared/schema';
 import { AuthorRoleSchema, type MyRecipientsView } from '../campaign-facts-ds';
-import { StudentOutcomeSchema } from '../entity';
+import { CampaignContextSchema, StudentOutcomeSchema } from '../entity';
 
 export const GetCampaignRecipientsCmdSchema = v.object({
   campaignId: uuidField('Некорректный формат UUID кампании'),
@@ -22,6 +22,8 @@ export const RecipientSchema = v.object({
 
 export const CampaignRecipientsSchema = v.object({
   campaignId: uuidField('Некорректный формат UUID кампании'),
+  /** Вид кампании — UI выбирает профиль текстов по нему. */
+  context: CampaignContextSchema,
   myRole: AuthorRoleSchema,
   mentorId: uuidField('Некорректный формат UUID ментора'),
   /** Исход субъекта окна — выбор текстов S03/S05 (у автора-субъекта — его исход). */

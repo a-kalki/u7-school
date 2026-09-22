@@ -54,6 +54,7 @@ export class GetCampaignRecipientsUc extends U7UseCase<
 
     return {
       campaignId: command.campaignId,
+      context: ar.context,
       myRole,
       mentorId: ar.mentorId,
       // Исход субъекта окна — тексты S03/S05 по парам «роль-судьба»

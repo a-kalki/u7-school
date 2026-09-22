@@ -5,6 +5,7 @@ import { type MdText, md, mdJoin } from '@u7-scl/core/shared';
 import type { BotSession, BotUpdate, DialogResponse } from '@u7-scl/core/ui';
 import type { MyRecipientsView } from '@u7-scl/peer-review/domain';
 import { buttons } from '../../shared/buttons';
+import { campaignProfileOf } from './campaign-profiles';
 import type { MyReviewsStory } from './my-reviews.story';
 
 /**
@@ -163,10 +164,12 @@ export class CampaignStory extends U7BotUiStory {
     const subjectName = (await this.#namesOf([card.subjectId], actor)).get(
       card.subjectId,
     );
+    // Тексты вида кампании (судьба потока; будущие виды — свои профили)
+    const profile = campaignProfileOf(view.context);
 
     const rows = view.recipients.map((r) => [
       this.btn(
-        `${r.hasMyReview ? '✅' : ''}${recipientLabel(recipientRoleOf(r.userId, view.mentorId), view.myRole)} — ${names.get(r.userId) ?? ''}`,
+        `${r.hasMyReview ? '✅' : ''}${profile.recipientLabel(recipientRoleOf(r.userId, view.mentorId), view.myRole)} — ${names.get(r.userId) ?? ''}`,
         this.cb('open', campaignId, r.userId),
       ),
     ]);
@@ -174,9 +177,9 @@ export class CampaignStory extends U7BotUiStory {
 
     return this.screen(
       mdJoin([
-        md`✍️ *Отзывы — поток «${stream.title}»*`,
+        profile.listHeader(stream.title),
         md``,
-        ...campaignIntro(view.myRole, view.subjectOutcome, subjectName),
+        ...profile.listIntro(view.myRole, view.subjectOutcome, subjectName),
         md``,
         ...progressBlock(
           card.progress.done,
@@ -211,14 +214,15 @@ export class CampaignStory extends U7BotUiStory {
     const name =
       (await this.#namesOf([recipientId], actor)).get(recipientId) ?? '';
     const title = await this.#streamTitleOf(campaignId, actor);
-    // Шапка-ориентир: при провале из списка/хаба понятно, о каком потоке речь
-    const header = md`✍️ *Отзыв — поток «${title}»*`;
-    const prompt = reviewPrompt(
-      view.myRole,
-      recipientRoleOf(recipientId, view.mentorId),
+    // Тексты вида кампании: шапка-ориентир и подсказка
+    const profile = campaignProfileOf(view.context);
+    const header = profile.askHeader(title);
+    const prompt = profile.askPrompt({
+      myRole: view.myRole,
+      recipientRole: recipientRoleOf(recipientId, view.mentorId),
       name,
-      view.subjectOutcome,
-    );
+      subjectOutcome: view.subjectOutcome,
+    });
     const context: ReviewInputContext = { campaignId, recipientId };
     // Назад — к родителю: список (>1 адресата) или хаб (единственный)
     const kb = this.kb([
@@ -350,26 +354,6 @@ function singleTargetOf(view: MyRecipientsView) {
   return view.recipients.length === 1 ? view.recipients[0] : undefined;
 }
 
-/**
- * Подпись роли адресата в кнопке S03 — взгляд автора: субъекту соученик —
- * «Одногруппник», ментору адресат — «Студент» (ui-spec 2026-09-22).
- */
-function recipientLabel(
-  role: 'student' | 'mentor',
-  myRole: 'subject' | 'mentor',
-): string {
-  if (role === 'mentor') return 'Ментор';
-  return myRole === 'subject' ? 'Одногруппник' : 'Студент';
-}
-
-/** Роль адресата — по составу кампании: ментор известен из payload (S03). */
-function recipientRoleOf(
-  recipientId: string,
-  mentorId: string,
-): 'student' | 'mentor' {
-  return recipientId === mentorId ? 'mentor' : 'student';
-}
-
 /** 📊 Прогресс — развёрнутые метрики S03 (каждая — своей строкой). */
 function progressBlock(
   done: number,
@@ -383,53 +367,12 @@ function progressBlock(
   ];
 }
 
-/**
- * Вводный абзац S03 — по паре «роль-судьба» (ui-spec 2026-09-22):
- * приглашение → кому и зачем полезен твой отзыв. Принципы «как писать»
- * здесь не дублируются — они встречают у ввода (S05/S04).
- */
-function campaignIntro(
-  myRole: 'subject' | 'mentor',
-  subjectOutcome: AuthorOutcome,
-  subjectName: string | undefined,
-): MdText[] {
-  const name = subjectName ?? 'студент';
-  if (myRole === 'mentor') {
-    if (
-      subjectOutcome === 'completed_passed' ||
-      subjectOutcome === 'completed_not_passed'
-    ) {
-      return [
-        md`Ты был ментором этого потока\\. Выдай отзыв о подопечном — ${name}: как он проявлялся в учёбе, что удалось, что стоит подтянуть\\.`,
-        md``,
-        md`Отзыв станет частью его цифрового профиля: следующие менторы и работодатели увидят, с чем он справляется\\.`,
-      ];
-    }
-    return [
-      md`Ты был ментором этого потока\\. Подопечный ${name} покинул обучение — поделись наблюдениями: что удавалось, что можно было сделать иначе\\.`,
-      md``,
-      md`Школе это поможет лучше поддерживать студентов, а ${name} — вернуться, когда будет готов\\.`,
-    ];
-  }
-  switch (subjectOutcome) {
-    case 'dropped':
-      return [
-        md`Ты покинул обучение в этом потоке\\. Ментору и школе будет полезно понять, что помогало, а что мешало\\. Честный отзыв — лучший вклад в школу: тем, кто только выбирает обучение, он подскажет, чего от него ожидать\\.`,
-      ];
-    case 'never_started':
-      return [
-        md`Ты записался на поток, но не начал обучение\\. Расскажи, что тебя остановило: школа это учтёт и уберёт барьеры, а тем, кто раздумывает начинать, твой отзыв поможет принять решение с открытыми глазами\\.`,
-      ];
-    // «завершил и прошёл» / «завершил и не прошёл» — текст один
-    default:
-      return [
-        md`Ты завершил обучение в этом потоке\\. Расскажи о совместной учёбе: что запомнилось, что было полезно, что можно улучшить\\. Пиши кому хочешь и сколько хочешь\\.`,
-        md``,
-        md`Отзыв одногруппникам поможет увидеть, что у них хорошо получается, а что стоит подтянуть\\. Если кто\\-то помог, с кем\\-то было приятно сотрудничать — или наоборот, опыт был неприятным, — всё это полезно и им, и тем, кто будет с ними работать\\.`,
-        md``,
-        md`Отзыв ментору поможет понять, что у него получается, а что нет\\. А потенциальным студентам — понять, подходит ли им этот ментор\\.`,
-      ];
-  }
+/** Роль адресата — по составу кампании: ментор известен из payload (S03). */
+function recipientRoleOf(
+  recipientId: string,
+  mentorId: string,
+): 'student' | 'mentor' {
+  return recipientId === mentorId ? 'mentor' : 'student';
 }
 
 /** Границы длины отзыва (спека S05). */
@@ -442,76 +385,8 @@ interface ReviewInputContext {
   recipientId: string;
 }
 
-/** Исход субъекта окна — 4 значения (ФР-1); он же исход автора-субъекта. */
-type AuthorOutcome =
-  | 'completed_passed'
-  | 'completed_not_passed'
-  | 'dropped'
-  | 'never_started';
-
 /** Принципы полезного отзыва — общий блок экранов ввода (S05/S04). */
 const PRINCIPLES_BLOCK: MdText = md`Будь честен, пиши правду\\. Характеризуй навыки, а не людей: лучше описать конкретную ситуацию и свои ощущения, чем повесить ярлык\\. Такой отзыв приносит пользу\\.`;
-
-/**
- * Текст-подсказка S05 — по направлению «кто о ком»; «о менторе» — ещё и
- * по исходу автора. Рекомендация двух частей с готовыми первыми строками
- * (моноширинные вставки; ui-spec 2026-09-22): префиксы не обязательны —
- * это опора, а не форма. Плейсхолдер {Имя} пользователь заменяет сам.
- */
-function reviewPrompt(
-  myRole: 'subject' | 'mentor',
-  recipientRole: 'student' | 'mentor',
-  name: string,
-  subjectOutcome: AuthorOutcome,
-): MdText {
-  const lead = md`Предлагаем разделить отзыв на две части\\.`;
-  if (recipientRole === 'student') {
-    if (myRole === 'mentor') {
-      return mdJoin([
-        lead,
-        md``,
-        md`Сначала — \`Отзыв для {Имя}:\` \\(вместо \\{Имя\\} — ${name}\\) как студент проявлялся в учёбе: сильные стороны, чего удалось достичь за поток\\.`,
-        md``,
-        md`Затем с новой строки — \`Рекомендация по развитию:\` что стоит подтянуть и в каком направлении расти\\.`,
-      ]);
-    }
-    return mdJoin([
-      lead,
-      md``,
-      md`Сначала — \`Отзыв для {Имя}:\` \\(вместо \\{Имя\\} — ${name}\\) расскажи, как ${name} проявил\\(а\\) себя в учёбе — профессиональные, командные и личностные качества\\. Не обязательно перечислять всё — пиши то, что считаешь важным, и правду\\.`,
-      md``,
-      md`Затем с новой строки — \`Как с ним работать:\` короткую рекомендацию тем, кто будет учиться или работать рядом\\.`,
-    ]);
-  }
-  switch (subjectOutcome) {
-    case 'dropped':
-      return mdJoin([
-        lead,
-        md``,
-        md`Сначала — \`Отзыв для ментора:\` почему забросил\\(а\\) учёбу, что помогало, что мешало, какие пожелания школе и ментору\\.`,
-        md``,
-        md`Затем с новой строки — \`Следует ожидать от курса:\` твою рекомендацию тем, кто хочет выбрать это обучение\\.`,
-      ]);
-    case 'never_started':
-      return mdJoin([
-        lead,
-        md``,
-        md`Сначала — \`Что остановило:\` почему так и не начал\\(а\\) учёбу, что не совпало с ожиданиями\\.`,
-        md``,
-        md`Затем с новой строки — \`Моя рекомендация:\` что стоит знать школе и тем, кто выбирает обучение\\.`,
-      ]);
-    // «завершил и прошёл» / «завершил и не прошёл» — текст один
-    // (и защита от рассинхрона формы)
-    default:
-      return mdJoin([
-        lead,
-        md``,
-        md`Сначала — \`Отзыв для ментора:\` что помогало учиться, что мешало, чего не хватило\\.`,
-        md``,
-        md`Затем с новой строки — \`Моя рекомендация студентам:\` кому и почему подойдёт этот ментор\\.`,
-      ]);
-  }
-}
 
 /**
  * S05i: справка «Как писать отзыв» — инфо-сообщение без кнопок

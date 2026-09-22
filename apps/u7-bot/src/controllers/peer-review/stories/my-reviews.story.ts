@@ -3,8 +3,8 @@ import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { MenuButton } from '@u7-scl/bot/u7-menu';
 import { type MdText, md, mdJoin } from '@u7-scl/core/shared';
 import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
-import type { MyCampaignCard } from '@u7-scl/peer-review/domain';
 import { buttons } from '../../shared/buttons';
+import { campaignProfileOf } from './campaign-profiles';
 
 /**
  * US: Хаб «Мои отзывы» (S02) — список живых кампаний автора.
@@ -88,26 +88,30 @@ export class MyReviewsStory extends U7BotUiStory {
     for (const [i, card] of cards.entries()) {
       const title = titles.get(card.scopeId) ?? '';
       const subjectName = names.get(card.subjectId);
-      const invite = miniCardText(card, subjectName);
+      // Тексты вида кампании (судьба потока; будущие виды — свои профили)
+      const profile = campaignProfileOf(card.context);
       const metrics = `Метрики: ${card.progress.done}/${card.progress.total} (${card.daysLeft} дн.)`;
       blocks.push(
         mdJoin([
           i > 0 ? separator : md``,
-          md`${i + 1}\\. *Поток «${title}»*`,
-          md`${invite}`,
+          md`${i + 1}\\. *${profile.hubCardTitle(title)}*`,
+          md`${profile.hubCardText(card, subjectName)}`,
           md`${metrics}`,
         ]),
       );
     }
 
-    const rows = cards.map((card, i) => [
-      this.btn(
-        card.myRole === 'mentor'
-          ? `${i + 1}. Отзыв об ${names.get(card.subjectId) ?? 'студенте'}`
-          : `${i + 1}. Поток «${titles.get(card.scopeId) ?? ''}»`,
-        this.cbFor('campaign', 'list', card.campaignId),
-      ),
-    ]);
+    const rows = cards.map((card, i) => {
+      const profile = campaignProfileOf(card.context);
+      return [
+        this.btn(
+          card.myRole === 'mentor'
+            ? profile.hubMentorBtn(i + 1, names.get(card.subjectId))
+            : profile.hubSubjectBtn(i + 1, titles.get(card.scopeId) ?? ''),
+          this.cbFor('campaign', 'list', card.campaignId),
+        ),
+      ];
+    });
     rows.push([buttons.mainMenu()]);
 
     return this.screen(mdJoin([header, md``, ...blocks]), this.kb(rows));
@@ -143,31 +147,5 @@ export class MyReviewsStory extends U7BotUiStory {
       names.set(user.uuid, user.name);
     }
     return names;
-  }
-}
-
-/**
- * Текст мини-карточки S02 — по паре «роль-судьба» (ui-spec 2026-09-22,
- * нейтральные формулировки, passed/not_passed не различаются).
- */
-function miniCardText(
-  card: MyCampaignCard,
-  subjectName: string | undefined,
-): string {
-  const name = subjectName ?? 'студент';
-  if (card.myRole === 'mentor') {
-    return card.subjectOutcome === 'completed_passed' ||
-      card.subjectOutcome === 'completed_not_passed'
-      ? `Ты был ментором этого потока. Твой подопечный ${name} завершил обучение — выдай ему отзыв: как проявлялся, что удалось, что стоит подтянуть.`
-      : `Ты был ментором этого потока. Твой подопечный ${name} покинул обучение — поделись наблюдениями: что можно было сделать иначе.`;
-  }
-  switch (card.subjectOutcome) {
-    case 'dropped':
-      return 'Ты покинул обучение. Оставь отзыв ментору — что помогало, что мешало: школа учтёт это, а желающие пройти обучение смогут лучше понимать, что их ожидает.';
-    case 'never_started':
-      return 'Ты записался, но не начал обучение. Расскажи, что остановило твоё обучение: это будет полезно школе, ментору и тем, кто хочет начать обучение в нашей школе.';
-    // «завершил и прошёл» / «завершил и не прошёл» — текст один
-    default:
-      return 'Ты завершил обучение. Поделись впечатлениями об учёбе — это помогает участникам расти, а также станет частью цифрового профиля студента и ментора.';
   }
 }
