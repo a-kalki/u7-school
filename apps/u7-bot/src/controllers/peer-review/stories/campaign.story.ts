@@ -102,20 +102,37 @@ export class CampaignStory extends U7BotUiStory {
           context.recipientId,
         ) ?? '';
       // Инфо-сообщение о результате: новое сохранение или перезапись
+      const verb = before.found ? 'обновлён' : 'отправлен';
       const notice = before.found
         ? md`✏️ Отзыв о ${name} обновлён\\.`
         : md`✅ Отзыв о ${name} сохранён\\.`;
-      return this.#afterSaveResponse(saved.campaignId, actor, notice);
+      return this.#afterSaveResponse(
+        saved.campaignId,
+        actor,
+        notice,
+        await this.#saveFinalize(saved.campaignId, name, verb, actor),
+      );
     } catch (err) {
-      // Окно истекло пока писали — экран-заглушка (спека: возможности нет)
+      // Окно истекло пока писали — экран-заглушка (спека: возможности нет).
+      // Финализация закрывает экран ввода, заглушка — новым сообщением
+      // (после текста пользователя всё актуальное — внизу чата)
       if (
         err instanceof AppException &&
         err.error.name === 'REVIEW_WINDOW_CLOSED'
       ) {
-        return this.screen(
-          md`⌛ Возможность написать отзыв уже закрыта\\.`,
-          this.kb([[this.#hubBtn()]]),
-        );
+        const name =
+          (await this.#namesOf([context.recipientId], actor)).get(
+            context.recipientId,
+          ) ?? '';
+        return {
+          finalize: {
+            text: md`⌛ Окно закрылось — отзыв о ${name} не отправлен\\.`,
+          },
+          ...this.screen(
+            md`⌛ Возможность написать отзыв уже закрыта\\.`,
+            this.kb([[this.#hubBtn()]]),
+          ),
+        };
       }
       // Прочие ошибки домена (чужой адресат и т.п.) — реплика поверх
       return this.errorNotify(err);
@@ -275,15 +292,34 @@ export class CampaignStory extends U7BotUiStory {
   }
 
   /**
+   * Финализация экрана ввода после сохранения — закрытие старого
+   * сообщения (транспорт снимает клавиатуру, новый экран уходит новым
+   * сообщением — актуальное всегда внизу чата).
+   */
+  async #saveFinalize(
+    campaignId: string,
+    name: string,
+    verb: 'отправлен' | 'обновлён',
+    actor: User,
+  ): Promise<{ text: MdText }> {
+    const title = await this.#streamTitleOf(campaignId, actor);
+    return {
+      text: md`✍️ *Отзыв — поток «${title}»* — отзыв о ${name} ${verb}\\.`,
+    };
+  }
+
+  /**
    * Экран после сохранения — «откуда пришли в отзыв, туда и вернулись»:
    * несколько адресатов → список кампании S03 (обновлённые ✅ и метрики),
    * единственный → хаб S02 (список у такой кампании не показывается).
-   * Инфо-сообщение о результате уходит первым, поверх нового экрана.
+   * Инфо-сообщение о результате уходит первым, поверх нового экрана;
+   * финализация закрывает экран ввода на его месте.
    */
   async #afterSaveResponse(
     campaignId: string,
     actor: User,
     notice: MdText,
+    finalize: { text: MdText },
   ): Promise<DialogResponse> {
     const view = await this.appApi.execute(
       'get-campaign-recipients',
@@ -294,7 +330,7 @@ export class CampaignStory extends U7BotUiStory {
       view.recipients.length > 1 || !this.hub
         ? await this.#showRecipients(campaignId, actor)
         : await this.hub.showHub(actor);
-    return { ...parent, notify: { text: notice } };
+    return { ...parent, notify: { text: notice }, finalize };
   }
 
   /** Кнопка «↩️ Мои отзывы» — родитель списка кампании. */

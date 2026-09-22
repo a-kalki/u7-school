@@ -606,6 +606,10 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     expect(String(response.notify?.text ?? '')).toContain(
       '✅ Отзыв о Борис сохранён',
     );
+    // финализация закрывает экран ввода (новый экран — новым сообщением)
+    expect(String(response.finalize?.text ?? '')).toContain(
+      'отзыв о Борис отправлен',
+    );
     // экран-родитель: список кампании (несколько адресатов), без строки «сохранён»
     const screenText = String(response.screen?.text ?? '');
     expect(screenText).toContain('О ком расскажешь');
@@ -648,6 +652,10 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     assertDialogResponseMarkdownSafe(response);
 
     expect(String(response.notify?.text ?? '')).toContain('сохранён');
+    // финализация закрывает экран ввода (новый экран — новым сообщением)
+    expect(String(response.finalize?.text ?? '')).toContain(
+      'отзыв о Борис отправлен',
+    );
     // родитель при единственном адресате — хаб, а не список (его нет)
     const screenText = String(response.screen?.text ?? '');
     expect(screenText).toContain('Мои отзывы');

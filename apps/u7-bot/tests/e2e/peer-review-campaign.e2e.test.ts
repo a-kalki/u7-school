@@ -193,6 +193,14 @@ describe('E2E peer-review: судьба субъекта — написание'
     );
     // экран-родитель: список кампании (несколько адресатов)
     expect(String(s06.screen?.text)).toContain('О ком расскажешь?');
+    // Финализация: старый экран ввода закрыт edit'ом (без клавиатуры),
+    // новый экран и инфо — отдельными сообщениями внизу чата:
+    // после текста пользователя всё актуальное видно без прокрутки
+    const lastEdit = transport.api.editedMessages.at(-1);
+    expect(lastEdit?.text).toContain('отзыв о Ментор отправлен');
+    expect(lastEdit?.keyboard).toBeUndefined();
+    const lastSent = transport.api.sentMessages.at(-1);
+    expect(lastSent?.text).toContain('О ком расскажешь?');
     expect(String(s06.screen?.text)).not.toContain('сохранён');
     const s06buttons = s06.screen?.keyboard?.rows.flat() ?? [];
     expect(s06buttons.map((b) => b.text)).toEqual([
