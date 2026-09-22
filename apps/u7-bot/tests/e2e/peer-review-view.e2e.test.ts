@@ -30,7 +30,7 @@ const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
 const GUEST_TG = 1001; // «Гость» — читатель карточки потока
 const STREAM_WITH_REVIEWS = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1'; // JS Core — Поток 2
 const STREAM_NO_REVIEWS = 'e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e5'; // Алгоритмика — Поток 1
-const SUBJECT_TG = 1007; // «Студент Advanced» — субъект кампании контура B
+const SUBJECT_TG = 1007; // «Марина» — субъект кампании контура B
 const SUBJECT_USER_ID = '77777777-7777-4777-8777-777777777777';
 const MENTOR_TG = 1004;
 const MENTOR_USER_ID = '44444444-4444-4444-4444-444444444444';
@@ -183,14 +183,14 @@ describe('E2E peer-review: S07 из карточки потока — конте
     // direction, лейбл authorOutcome у автора-студента
     expect(text).toContain('👤 Ментор');
     expect(text).toContain('«Ментор давал понятную обратную связь');
-    expect(text).toContain('— Студент');
+    expect(text).toContain('— Андрей');
     expect(text).toContain('студент · завершил и прошел');
     // Группа адресата-студента: автор-ментор — БЕЗ лейбла исхода
-    expect(text).toContain('👤 Студент');
+    expect(text).toContain('👤 Андрей');
     expect(text).toContain('«Студент дисциплинированно');
     expect(text).toContain('— Ментор');
     // student_student: обе роли «студент»
-    expect(text).toContain('👤 Студент Advanced');
+    expect(text).toContain('👤 Марина');
     expect(text).toContain('«Работать в паре');
     // Кнопка возврата в карточку потока
     expect(

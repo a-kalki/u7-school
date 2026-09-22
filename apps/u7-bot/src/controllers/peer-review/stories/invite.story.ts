@@ -74,7 +74,7 @@ export class InviteStory extends U7BotUiStory {
 
     if (mentor?.telegramId !== undefined) {
       await this.proactiveSender.invite(mentor.telegramId, {
-        text: this.#mentorText(streamTitle, subject?.name),
+        text: this.#mentorText(streamTitle, subject?.name, subjectOutcome),
         keyboard: this.#campaignKeyboard(campaignId),
       });
     }
@@ -88,25 +88,32 @@ export class InviteStory extends U7BotUiStory {
   }
 
   /**
-   * Текст субъекту — по исходу из события (исход пользователю не виден):
-   * «завершил» → об одногруппниках и менторе, «забросил»/«не начал» →
-   * о менторе и учёбе (ui-spec S01).
+   * Текст субъекту — судьба проговаривается мягко первой строкой
+   * (ui-spec S01, 2026-09-22): «завершил» → об одногруппниках и менторе,
+   * «забросил»/«не начал» — о менторе и учёбе (тексты различаются).
    */
   #subjectText(streamTitle: string, outcome: StudentOutcome): MdText {
     const body =
-      outcome === 'dropped' || outcome === 'never_started'
-        ? md`Поделитесь впечатлениями о менторе и учёбе — это поможет школе и тем, кто только выбирает, учиться ли\\. Пишите только правду\\.`
-        : md`Поделитесь впечатлениями об одногруппниках и менторе — это часть цифрового профиля каждого\\. Пишите только правду\\.`;
+      outcome === 'dropped'
+        ? md`Ты покинул обучение — поделись впечатлениями о менторе и учёбе: это поможет школе и тем, кто только выбирает, учиться ли\\. Пиши только правду\\.`
+        : outcome === 'never_started'
+          ? md`Ты записался, но так и не начал обучение — расскажи, что остановило: это поможет школе и будущим студентам\\. Пиши только правду\\.`
+          : md`Ты завершил обучение — поделись впечатлениями об одногруппниках и менторе: это часть цифрового профиля каждого\\. Пиши только правду\\.`;
     return mdJoin([this.#header(streamTitle), md``, body]);
   }
 
-  /** Текст ментору — с именем субъекта (не найден — «студента»). */
-  #mentorText(streamTitle: string, subjectName: string | undefined): MdText {
-    return mdJoin([
-      this.#header(streamTitle),
-      md``,
-      md`Выдайте свой отзыв для ${subjectName ?? 'студента'}: как он проявлялся в учёбе, что удалось, что стоит подтянуть\\. Пишите только правду\\.`,
-    ]);
+  /** Текст ментору — по судьбе подопечного (не найден — «студента»). */
+  #mentorText(
+    streamTitle: string,
+    subjectName: string | undefined,
+    outcome: StudentOutcome,
+  ): MdText {
+    const name = subjectName ?? 'студент';
+    const body =
+      outcome === 'dropped' || outcome === 'never_started'
+        ? md`Твой подопечный ${name} покинул обучение — поделись наблюдениями: что удавалось, что можно было сделать иначе\\. Пиши только правду\\.`
+        : md`Твой подопечный ${name} завершил обучение — выдай ему отзыв: как он проявлялся в учёбе, что удалось, что стоит подтянуть\\. Пиши только правду\\.`;
+    return mdJoin([this.#header(streamTitle), md``, body]);
   }
 
   /** Заголовок приглашения (жирный — стиль invite-канала). */

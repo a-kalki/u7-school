@@ -18,13 +18,13 @@ import { PeerReviewController } from '../../src/controllers/peer-review/controll
  *   3) student-campaign.created → два приглашения (субъекту и ментору)
  *      с полным кодом кнопки `💬 Отзывы`.
  *
- * Субъект — «Студент Advanced» (uuid 777…): его исхода нет в фикстурах
+ * Субъект — «Марина» (uuid 777…): его исхода нет в фикстурах
  * кампаний (кампании фикстур — субъекты 333…/444…/888…), поэтому
  * событие судьбы создаёт НОВУЮ кампанию, а не упирается в идемпотентность ER.
  */
 
 const STREAM_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1'; // JS Core — Поток 2
-const SUBJECT_TG = 1007; // «Студент Advanced»
+const SUBJECT_TG = 1007; // «Марина»
 const SUBJECT_USER_ID = '77777777-7777-4777-8777-777777777777';
 const MENTOR_TG = 1004; // «Ментор» — ментор потока e1e1e1e1
 
@@ -138,7 +138,8 @@ describe('E2E peer-review: инфраструктура стенда (smoke)', (
       (m) => m.telegramId === SUBJECT_TG,
     );
     expect(subjectMsg?.text).toContain('🏁 *Отзывы по потоку');
-    // Текст субъекту по исходу completed_passed — про одногруппников и ментора
+    // Текст субъекту: судьба мягко + про одногруппников и ментора
+    expect(subjectMsg?.text).toContain('Ты завершил обучение');
     expect(subjectMsg?.text).toContain('об одногруппниках и менторе');
     const subjectBtn = subjectMsg?.keyboard?.rows.flat()[0];
     expect(subjectBtn?.text).toBe('💬 Отзывы');
@@ -148,7 +149,9 @@ describe('E2E peer-review: инфраструктура стенда (smoke)', (
       (m) => m.telegramId === MENTOR_TG,
     );
     // Ментору — с именем субъекта
-    expect(mentorMsg?.text).toContain('отзыв для Студент Advanced');
+    expect(mentorMsg?.text).toContain(
+      'Твой подопечный Марина завершил обучение',
+    );
     expect(mentorMsg?.keyboard?.rows.flat()[0]?.text).toBe('💬 Отзывы');
   });
 });

@@ -74,6 +74,8 @@ export class GetMyCampaignsUc extends U7UseCase<
         scopeId: ar.scopeId,
         subjectId: ar.subjectId,
         expiresAt: ar.expiresAt,
+        // Исход субъекта — тексты мини-карточек S02 по парам «роль-судьба»
+        subjectOutcome: ar.subjectOutcome,
         ...facts,
       });
     }

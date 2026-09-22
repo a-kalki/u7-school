@@ -149,7 +149,7 @@ describe('InviteStory — приглашения по созданию камп�
     expect(new Set(invites.map((i) => i.telegramId)).size).toBe(2);
   });
 
-  test('субъект «completed_passed»: «об одногруппниках и менторе», заголовок с потоком', async () => {
+  test('субъект «completed_passed»: судьба первой строкой, «об одногруппниках и менторе»', async () => {
     const { story, invites } = setupStory();
 
     await campaignCreatedHandler(story)(
@@ -161,7 +161,7 @@ describe('InviteStory — приглашения по созданию камп�
     const text = String(toSubject.payload.text);
     expect(text).toContain('Отзывы по потоку «JavaScript Основы — Поток 1»');
     expect(text).toContain(
-      'Поделитесь впечатлениями об одногруппниках и менторе — это часть цифрового профиля каждого\\. Пишите только правду\\.',
+      'Ты завершил обучение — поделись впечатлениями об одногруппниках и менторе: это часть цифрового профиля каждого\\. Пиши только правду\\.',
     );
   });
 
@@ -175,11 +175,12 @@ describe('InviteStory — приглашения по созданию камп�
     const text = String(
       invites.find((i) => i.telegramId === SUBJECT_TG)!.payload.text,
     );
+    expect(text).toContain('Ты завершил обучение');
     expect(text).toContain('об одногруппниках и менторе');
-    expect(text).not.toContain('о менторе и учёбе');
+    expect(text).not.toContain('Ты покинул обучение');
   });
 
-  test('субъект «dropped»: «о менторе и учёбе»', async () => {
+  test('субъект «dropped»: «покинул обучение», отзыв ментору и школе', async () => {
     const { story, invites } = setupStory();
 
     await campaignCreatedHandler(story)(
@@ -190,12 +191,12 @@ describe('InviteStory — приглашения по созданию камп�
       invites.find((i) => i.telegramId === SUBJECT_TG)!.payload.text,
     );
     expect(text).toContain(
-      'Поделитесь впечатлениями о менторе и учёбе — это поможет школе и тем, кто только выбирает, учиться ли\\. Пишите только правду\\.',
+      'Ты покинул обучение — поделись впечатлениями о менторе и учёбе: это поможет школе и тем, кто только выбирает, учиться ли\\. Пиши только правду\\.',
     );
     expect(text).not.toContain('об одногруппниках');
   });
 
-  test('субъект «never_started»: «о менторе и учёбе»', async () => {
+  test('субъект «never_started»: «что остановило» — свой текст', async () => {
     const { story, invites } = setupStory();
 
     await campaignCreatedHandler(story)(
@@ -205,11 +206,12 @@ describe('InviteStory — приглашения по созданию камп�
     const text = String(
       invites.find((i) => i.telegramId === SUBJECT_TG)!.payload.text,
     );
-    expect(text).toContain('о менторе и учёбе');
+    expect(text).toContain('Ты записался, но так и не начал обучение');
+    expect(text).toContain('что остановило');
     expect(text).not.toContain('об одногруппниках');
   });
 
-  test('ментор: «Выдайте свой отзыв для {Имя}» — с именем субъекта', async () => {
+  test('ментор: «подопечный завершил — выдай отзыв» — с именем субъекта', async () => {
     const { story, invites } = setupStory();
 
     await campaignCreatedHandler(story)(makeCreatedEvent());
@@ -219,8 +221,22 @@ describe('InviteStory — приглашения по созданию камп�
     const text = String(toMentor.payload.text);
     expect(text).toContain('Отзывы по потоку «JavaScript Основы — Поток 1»');
     expect(text).toContain(
-      'Выдайте свой отзыв для Борис: как он проявлялся в учёбе, что удалось, что стоит подтянуть\\. Пишите только правду\\.',
+      'Твой подопечный Борис завершил обучение — выдай ему отзыв: как он проявлялся в учёбе, что удалось, что стоит подтянуть\\. Пиши только правду\\.',
     );
+  });
+
+  test('ментор (подопечный выбыл): «покинул обучение — поделись наблюдениями»', async () => {
+    const { story, invites } = setupStory();
+
+    await campaignCreatedHandler(story)(
+      makeCreatedEvent({ subjectOutcome: 'dropped' }),
+    );
+
+    const text = String(
+      invites.find((i) => i.telegramId === MENTOR_TG)!.payload.text,
+    );
+    expect(text).toContain('Твой подопечный Борис покинул обучение');
+    expect(text).toContain('что можно было сделать иначе');
   });
 
   test('кнопка «💬 Отзывы» у обоих — полный код в S03 кампании', async () => {
@@ -286,7 +302,7 @@ describe('InviteStory — приглашения по созданию камп�
     const text = String(
       invites.find((i) => i.telegramId === MENTOR_TG)!.payload.text,
     );
-    expect(text).toContain('Выдайте свой отзыв для студента:');
+    expect(text).toContain('Твой подопечный студент завершил обучение');
   });
 
   test('поток недоступен → приглашения не отправляются, ошибки нет', async () => {

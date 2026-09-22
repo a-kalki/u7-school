@@ -29,7 +29,7 @@ import { PeerReviewController } from '../../src/controllers/peer-review/controll
 const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
 const STREAM_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1'; // «JS Core — Поток 2»
 const STREAM_TITLE = 'JS Core — Поток 2';
-const SUBJECT_TG = 1007; // «Студент Advanced» — субъект новой кампании
+const SUBJECT_TG = 1007; // «Марина» — субъект новой кампании
 const SUBJECT_USER_ID = '77777777-7777-4777-8777-777777777777';
 const MENTOR_TG = 1004; // «Ментор» — ментор потока
 const NO_CAMPAIGNS_TG = 1002; // «Кандидат» — кампаний нет
@@ -114,22 +114,23 @@ describe('E2E peer-review: хаб «Мои отзывы» и меню', () => {
     const hubText = String(hubResp.screen?.text);
     expect(hubText).toContain('💬 *Мои отзывы*');
     // myRole=subject: «одногруппники и ментор», окно свежей кампании — 7 дн
-    expect(hubText).toContain(
-      `1\\. Поток «${STREAM_TITLE}» — одногруппники и ментор\\. Осталось 7 дн`,
-    );
+    expect(hubText).toContain(`1\\. Поток «${STREAM_TITLE}»`);
+    expect(hubText).toContain('Ты завершил обучение');
+    expect(hubText).toContain('Метрики: 0/3 \\(7 дн\\.\\)');
     const hubBtn = hubResp.screen?.keyboard?.rows
       .flat()
-      .find((b) => b.text.includes('🏁 Поток'));
-    // Прогресс M/K: 0 написанных из 3 адресатов (2 соучастника + ментор)
-    expect(hubBtn?.text).toBe(`🏁 Поток «${STREAM_TITLE}» · 0/3 · 7 дн.`);
+      .find((b) => b.text.includes('1. Поток'));
+    // Кнопка с номером карточки, без метрик
+    expect(hubBtn?.text).toBe(`1. Поток «${STREAM_TITLE}»`);
 
     // Выбор кампании — мост в S03
     const s03 = await transport.handleCallback(
       transport.makeBotContext(SUBJECT_TG, {
-        callbackData: pressedCode(transport, SUBJECT_TG, '🏁 Поток'),
+        callbackData: pressedCode(transport, SUBJECT_TG, '1. Поток'),
       }),
     );
-    expect(String(s03.screen?.text)).toContain('О ком хотите рассказать?');
+    expect(String(s03.screen?.text)).toContain('О ком расскажешь?');
+    expect(String(s03.screen?.text)).toContain('Написано отзывов: 0 из 3');
     expect(String(s03.screen?.text)).toContain(STREAM_TITLE);
   });
 
@@ -143,12 +144,12 @@ describe('E2E peer-review: хаб «Мои отзывы» и меню', () => {
     );
     const hubText = String(hubResp.screen?.text);
     expect(hubText).toContain('💬 *Мои отзывы*');
-    // Карточка ментора в новой кампании — «отзыв о Студент Advanced»
-    expect(hubText).toContain('отзыв о Студент Advanced');
+    // Карточка ментора в новой кампании: «подопечный завершил» + кнопка с номером
+    expect(hubText).toContain('Твой подопечный Марина завершил обучение');
     expect(
       hubResp.screen?.keyboard?.rows
         .flat()
-        .some((b) => b.text.includes('отзыв о Студент Advanced')),
+        .some((b) => /\d\. Отзыв об Марина/.test(b.text)),
     ).toBe(true);
   });
 
@@ -179,12 +180,12 @@ describe('E2E peer-review: хаб «Мои отзывы» и меню', () => {
     );
     await transport.handleCallback(
       transport.makeBotContext(SUBJECT_TG, {
-        callbackData: pressedCode(transport, SUBJECT_TG, '🏁 Поток'),
+        callbackData: pressedCode(transport, SUBJECT_TG, '1. Поток'),
       }),
     );
     const s05 = await transport.handleCallback(
       transport.makeBotContext(SUBJECT_TG, {
-        callbackData: pressedCode(transport, SUBJECT_TG, 'Ментор: Ментор'),
+        callbackData: pressedCode(transport, SUBJECT_TG, 'Ментор — Ментор'),
       }),
     );
     expect(s05.awaitInput).toBeDefined();

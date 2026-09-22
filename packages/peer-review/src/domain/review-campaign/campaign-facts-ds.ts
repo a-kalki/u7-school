@@ -29,6 +29,8 @@ export interface MyCampaignCard extends MyCampaignFacts {
   scopeId: string;
   subjectId: string;
   expiresAt: string;
+  /** Исход субъекта окна — выбор текстов S02 по парам «роль-судьба». */
+  subjectOutcome: StudentOutcome;
 }
 
 /** Адресат с признаком «мой отзыв уже есть» — тип данных для UI. */
@@ -43,8 +45,9 @@ export interface MyRecipientsView {
   myRole: AuthorRole;
   /** Ментор скоупа: UI отличает адресата-ментора для лейбла. */
   mentorId: string;
-  /** 4-значный исход автора-субъекта — выбор текстов S05; ментору исхода нет. */
-  myOutcome?: StudentOutcome;
+  /** Исход субъекта окна — выбор текстов S03/S05 по парам «роль-судьба»
+   * (для автора-субъекта это и есть его исход). */
+  subjectOutcome: StudentOutcome;
   daysLeft: number;
   recipients: RecipientWithMyReview[];
 }

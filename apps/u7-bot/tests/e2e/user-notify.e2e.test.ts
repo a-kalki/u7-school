@@ -36,7 +36,7 @@ const LAST_MODULE = 'a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1'; // Алгоритм�
 
 const MENTOR_TG = 1004;
 const WISHER_TG = 1002; // «Кандидат» (SUBSCRIBER)
-const STUDENT_ADV_TG = 1007; // «Студент Advanced» (прошёл a0a0a0a0)
+const STUDENT_ADV_TG = 1007; // «Марина» (прошла a0a0a0a0)
 const STUDENT_ACTIVE_TG = 1003; // «Студент» (active на e1e1e1e1, a0a0a0a0)
 
 /** Ждёт появления проактивного сообщения адресату (poll sentMessages). */

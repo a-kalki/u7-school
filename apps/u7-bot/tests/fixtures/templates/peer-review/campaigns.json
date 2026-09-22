@@ -25,7 +25,7 @@
     "participants": [],
     "payload": {
       "subjectOutcome": "dropped",
-      "mentorId": "ae00f3f6-1392-4b98-b178-41c27e794b7f"
+      "mentorId": "44444444-4444-4444-4444-444444444444"
     }
   },
   {
@@ -48,7 +48,7 @@
     "subjectId": "33333333-3333-3333-3333-333333333333",
     "createdAt": "2025-12-25T10:00",
     "expiresAt": "2026-01-01T10:00",
-    "participants": ["88888888-8888-4888-8888-888888888888"],
+    "participants": [],
     "payload": {
       "subjectOutcome": "dropped",
       "mentorId": "44444444-4444-4444-4444-444444444444"

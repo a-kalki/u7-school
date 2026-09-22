@@ -23,7 +23,7 @@ import { PeerReviewController } from '../../src/controllers/peer-review/controll
 
 const STREAM_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1'; // «JS Core — Поток 2»
 const STREAM_TITLE = 'JS Core — Поток 2';
-const SUBJECT_TG = 1007; // «Студент Advanced» — субъект новой кампании
+const SUBJECT_TG = 1007; // «Марина» — субъект новой кампании
 const SUBJECT_USER_ID = '77777777-7777-4777-8777-777777777777';
 const MENTOR_TG = 1004; // «Ментор» — ментор потока и адресат
 const MENTOR_USER_ID = '44444444-4444-4444-4444-444444444444';
@@ -84,14 +84,16 @@ describe('E2E peer-review: судьба субъекта — написание'
       (m) => m.telegramId === SUBJECT_TG,
     );
     expect(subjectInvite?.text).toContain(STREAM_TITLE);
-    // Исход completed_passed скрыт, текст — про одногруппников и ментора
+    // Судьба проговаривается мягко, текст — про одногруппников и ментора
+    expect(subjectInvite?.text).toContain('Ты завершил обучение');
     expect(subjectInvite?.text).toContain('об одногруппниках и менторе');
-    expect(subjectInvite?.text).not.toContain('завершил');
 
     const mentorInvite = transport.api.sentMessages.find(
       (m) => m.telegramId === MENTOR_TG,
     );
-    expect(mentorInvite?.text).toContain('отзыв для Студент Advanced');
+    expect(mentorInvite?.text).toContain(
+      'Твой подопечный Марина завершил обучение — выдай ему отзыв',
+    );
 
     // Полный код кнопки в обоих приглашениях
     const subjectBtn = subjectInvite?.keyboard?.rows.flat()[0];
@@ -108,28 +110,40 @@ describe('E2E peer-review: судьба субъекта — написание'
       transport.makeBotContext(SUBJECT_TG, { callbackData: subjectBtn!.code }),
     );
     expect(String(s03.screen?.text)).toContain(STREAM_TITLE);
-    expect(String(s03.screen?.text)).toContain('О ком хотите рассказать?');
-    // Окно свежесозданной кампании — 7 дней
-    expect(String(s03.screen?.text)).toContain('Возможность открыта ещё 7 дн');
+    expect(String(s03.screen?.text)).toContain('О ком расскажешь?');
+    expect(String(s03.screen?.text)).toContain(
+      'Ты завершил обучение в этом потоке',
+    );
+    // Развёрнутые метрики: окно свежесозданной кампании — 7 дней
+    expect(String(s03.screen?.text)).toContain('Написано отзывов: 0 из 3');
+    expect(String(s03.screen?.text)).toContain('Осталось времени: 7 дн');
     const s03buttons = s03.screen?.keyboard?.rows.flat() ?? [];
     // Адресация v4: соученики (333, 888) + ментор, ✅ ещё нет
     expect(s03buttons.map((b) => b.text)).toEqual([
-      'Студент: Студент',
-      'Студент: Студент NotAdvanced',
-      'Ментор: Ментор',
+      'Одногруппник — Андрей',
+      'Одногруппник — Олег',
+      'Ментор — Ментор',
       '↩️ Главное меню',
     ]);
 
     // ── 4. Выбор ментора → S05 (подсказка по исходу автора) ──
     // Код кнопки — отштампованный транспорт-рендер последнего экрана
-    const mentorBtnCode = pressedCode(transport, SUBJECT_TG, 'Ментор: Ментор');
+    const mentorBtnCode = pressedCode(transport, SUBJECT_TG, 'Ментор — Ментор');
     const s05 = await transport.handleCallback(
       transport.makeBotContext(SUBJECT_TG, { callbackData: mentorBtnCode }),
     );
     expect(String(s05.screen?.text)).toContain(
-      'Поделитесь впечатлением о работе с ментором Ментор',
+      'Начни со строки "Отзыв для ментора:"',
     );
     expect(String(s05.screen?.text)).toContain('что помогало учиться');
+    expect(String(s05.screen?.text)).toContain('Моя рекомендация студентам:');
+    // Принципы — общий блок экранов ввода + кнопка справки
+    expect(String(s05.screen?.text)).toContain('Характеризуй навыки');
+    const howBtn = s05.screen?.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes('Как писать отзыв'));
+    expect(howBtn?.code).toStartWith('peer-review:campaign:how:');
+
     expect(s05.awaitInput).toBeDefined();
 
     // ── 5. Короткий текст — переспрос, контекст не теряется ──
@@ -152,9 +166,9 @@ describe('E2E peer-review: судьба субъекта — написание'
     expect(String(s06.screen?.text)).toContain('О ком ещё рассказать?');
     const s06buttons = s06.screen?.keyboard?.rows.flat() ?? [];
     expect(s06buttons.map((b) => b.text)).toEqual([
-      'Студент: Студент',
-      'Студент: Студент NotAdvanced',
-      '✅ Ментор: Ментор',
+      'Одногруппник — Андрей',
+      'Одногруппник — Олег',
+      '✅Ментор — Ментор',
       '↩️ Главное меню',
     ]);
 
@@ -162,14 +176,15 @@ describe('E2E peer-review: судьба субъекта — написание'
     const rewriteBtnCode = pressedCode(
       transport,
       SUBJECT_TG,
-      '✅ Ментор: Ментор',
+      '✅Ментор — Ментор',
     );
     const s04 = await transport.handleCallback(
       transport.makeBotContext(SUBJECT_TG, {
         callbackData: rewriteBtnCode,
       }),
     );
-    expect(String(s04.screen?.text)).toContain('Вы уже писали о Ментор');
+    expect(String(s04.screen?.text)).toContain('Ты уже писал');
+    expect(String(s04.screen?.text)).toContain('о Ментор');
     expect(String(s04.screen?.text)).toContain(
       '«Ментор спокойно разбирал мои ошибки и не давал застрять',
     );

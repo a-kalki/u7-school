@@ -3,6 +3,7 @@ import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { MenuButton } from '@u7-scl/bot/u7-menu';
 import { type MdText, md, mdJoin } from '@u7-scl/core/shared';
 import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
+import type { MyCampaignCard } from '@u7-scl/peer-review/domain';
 import { buttons } from '../../shared/buttons';
 
 /**
@@ -10,9 +11,10 @@ import { buttons } from '../../shared/buttons';
  *
  * Вход: `hub` — кнопка главного меню «💬 Отзывы» (видна при наличии живых
  * кампаний — UC `get-my-campaigns` с `onlyLives`, асинхронная проверка).
- * Экран: нумерованная строка на кампанию с рендером по `myRole` (субъекту —
- * «одногруппники и ментор», ментору — «отзыв о {Имя}»; имя — batch-UC),
- * кнопка кампании — мост в стори campaign (S03 `list:<campaignId>`).
+ * Экран (ui-spec 2026-09-22): абстрактное интро «что это за место» →
+ * нумерованные мини-карточки кампаний (контекст судьбы по паре
+ * «роль-судьба» + краткие метрики `M/K (N дн.)`) → кнопки внизу с номером
+ * карточки (в Telegram кнопку нельзя приклеить к тексту — номер даёт связь).
  * Из приглашения (S01) пользователь попадает сразу в S03, минуя этот экран.
  */
 export class MyReviewsStory extends U7BotUiStory {
@@ -33,7 +35,7 @@ export class MyReviewsStory extends U7BotUiStory {
         text: '💬 Отзывы',
         action: this.cb('hub'),
         priority: 25,
-        description: '💬 Отзывы — о ком можно рассказать после потока',
+        description: '💬 Отзывы — расскажи об учёбе участникам потока',
       },
     ];
   }
@@ -51,7 +53,7 @@ export class MyReviewsStory extends U7BotUiStory {
     return this.unknownCommand(action, actor, session);
   }
 
-  /** S02: список живых кампаний — тело с расшифровкой «о ком», кнопки-карточки. */
+  /** S02: интро + нумерованные мини-карточки + кнопки с номерами. */
   async #showHub(actor: User): Promise<DialogResponse> {
     const cards = await this.appApi.execute(
       'get-my-campaigns',
@@ -75,23 +77,40 @@ export class MyReviewsStory extends U7BotUiStory {
       .map((c) => c.subjectId);
     const names = await this.#namesOf(subjectIds, actor);
 
-    const lines = cards.map((card, i) =>
-      card.myRole === 'mentor'
-        ? md`${i + 1}\\. Поток «${titles.get(card.scopeId) ?? ''}» — ${reviewOf(names.get(card.subjectId))}\\. Осталось ${card.daysLeft} дн\\.`
-        : md`${i + 1}\\. Поток «${titles.get(card.scopeId) ?? ''}» — одногруппники и ментор\\. Осталось ${card.daysLeft} дн\\.`,
-    );
-    const rows = cards.map((card) => [
+    const header: MdText = mdJoin([
+      md`💬 *Мои отзывы*`,
+      md``,
+      md`Здесь ты можешь оставить отзывы участникам своих потоков и мероприятий\\. Это помогает людям расти, а школе — делать обучение лучше\\.`,
+    ]);
+    const separator = md`──────────────`;
+
+    const blocks: MdText[] = [];
+    for (const [i, card] of cards.entries()) {
+      const title = titles.get(card.scopeId) ?? '';
+      const subjectName = names.get(card.subjectId);
+      const invite = miniCardText(card, subjectName);
+      const metrics = `Метрики: ${card.progress.done}/${card.progress.total} (${card.daysLeft} дн.)`;
+      blocks.push(
+        mdJoin([
+          i > 0 ? separator : md``,
+          md`${i + 1}\\. Поток «${title}»`,
+          md`${invite}`,
+          md`${metrics}`,
+        ]),
+      );
+    }
+
+    const rows = cards.map((card, i) => [
       this.btn(
         card.myRole === 'mentor'
-          ? `🏁 Поток «${titles.get(card.scopeId) ?? ''}» · ${reviewOf(names.get(card.subjectId))} · ${card.daysLeft} дн.`
-          : `🏁 Поток «${titles.get(card.scopeId) ?? ''}» · ${card.progress.done}/${card.progress.total} · ${card.daysLeft} дн.`,
+          ? `${i + 1}. Отзыв об ${names.get(card.subjectId) ?? 'студенте'}`
+          : `${i + 1}. Поток «${titles.get(card.scopeId) ?? ''}»`,
         this.cbFor('campaign', 'list', card.campaignId),
       ),
     ]);
     rows.push([buttons.mainMenu()]);
 
-    const header: MdText = md`💬 *Мои отзывы* — о ком можно рассказать:`;
-    return this.screen(mdJoin([header, md``, ...lines]), this.kb(rows));
+    return this.screen(mdJoin([header, md``, ...blocks]), this.kb(rows));
   }
 
   /** Названия потоков по scopeId карточек. */
@@ -127,7 +146,28 @@ export class MyReviewsStory extends U7BotUiStory {
   }
 }
 
-/** Подпись «о ком» менторской карточки; имя не найдено — «о студенте». */
-function reviewOf(name: string | undefined): string {
-  return name ? `отзыв о ${name}` : 'отзыв о студенте';
+/**
+ * Текст мини-карточки S02 — по паре «роль-судьба» (ui-spec 2026-09-22,
+ * нейтральные формулировки, passed/not_passed не различаются).
+ */
+function miniCardText(
+  card: MyCampaignCard,
+  subjectName: string | undefined,
+): string {
+  const name = subjectName ?? 'студент';
+  if (card.myRole === 'mentor') {
+    return card.subjectOutcome === 'completed_passed' ||
+      card.subjectOutcome === 'completed_not_passed'
+      ? `Ты был ментором этого потока. Твой подопечный ${name} завершил обучение — выдай ему отзыв: как проявлялся, что удалось, что стоит подтянуть.`
+      : `Ты был ментором этого потока. Твой подопечный ${name} покинул обучение — поделись наблюдениями: что можно было сделать иначе.`;
+  }
+  switch (card.subjectOutcome) {
+    case 'dropped':
+      return 'Ты покинул обучение. Оставь отзыв ментору — что помогало, что мешало: школа учтёт это, а желающие пройти обучение смогут лучше понимать, что их ожидает.';
+    case 'never_started':
+      return 'Ты записался, но не начал обучение. Расскажи, что остановило твоё обучение: это будет полезно школе, ментору и тем, кто хочет начать обучение в нашей школе.';
+    // «завершил и прошёл» / «завершил и не прошёл» — текст один
+    default:
+      return 'Ты завершил обучение. Поделись впечатлениями об учёбе — это помогает участникам расти, а также станет частью цифрового профиля студента и ментора.';
+  }
 }

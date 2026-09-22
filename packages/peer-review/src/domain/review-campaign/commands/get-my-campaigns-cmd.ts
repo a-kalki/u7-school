@@ -3,7 +3,7 @@ import * as v from 'valibot';
 import type { PeerReviewUcErrors } from '../../../api/errors';
 import { isoMinuteField, uuidField } from '../../shared/schema';
 import { AuthorRoleSchema, type MyCampaignCard } from '../campaign-facts-ds';
-import { CampaignContextSchema } from '../entity';
+import { CampaignContextSchema, StudentOutcomeSchema } from '../entity';
 
 export const GetMyCampaignsCmdSchema = v.object({
   userId: uuidField('Некорректный формат UUID пользователя'),
@@ -26,6 +26,8 @@ export const MyCampaignSchema = v.object({
   subjectId: uuidField('Некорректный формат UUID субъекта'),
   myRole: AuthorRoleSchema,
   expiresAt: isoMinuteField('Некорректный формат даты'),
+  /** Исход субъекта — тексты S02 по парам «роль-судьба». */
+  subjectOutcome: StudentOutcomeSchema,
   daysLeft: v.pipe(v.number(), v.integer(), v.minValue(0)),
   progress: v.object({
     done: v.pipe(v.number(), v.integer(), v.minValue(0)),

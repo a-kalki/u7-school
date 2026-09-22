@@ -28,6 +28,7 @@ describe('MyReviewsStory — кнопка меню «💬 Отзывы» (S02)',
             scopeId: 'bbbbbbbb-0000-0000-0000-000000000001',
             subjectId: actor.uuid,
             myRole: 'subject',
+            subjectOutcome: 'completed_passed',
             expiresAt: '2026-09-26T00:00',
             daysLeft: 5,
             progress: { done: 0, total: 1 },
@@ -52,7 +53,7 @@ describe('MyReviewsStory — кнопка меню «💬 Отзывы» (S02)',
       text: '💬 Отзывы',
       action: 'my-reviews:hub',
       priority: 25,
-      description: '💬 Отзывы — о ком можно рассказать после потока',
+      description: '💬 Отзывы — расскажи об учёбе участникам потока',
     });
   });
 
@@ -78,7 +79,7 @@ describe('MyReviewsStory — кнопка меню «💬 Отзывы» (S02)',
   });
 });
 
-describe('MyReviewsStory — экран S02 «Мои отзывы»', () => {
+describe('MyReviewsStory — экран S02 «Мои отзывы» (мини-карточки)', () => {
   const CAMPAIGN_1 = 'aaaaaaaa-0000-0000-0000-000000000001';
   const CAMPAIGN_2 = 'aaaaaaaa-0000-0000-0000-000000000002';
   const STREAM_1 = 'bbbbbbbb-0000-0000-0000-000000000001';
@@ -102,6 +103,11 @@ describe('MyReviewsStory — экран S02 «Мои отзывы»', () => {
     scopeId: string;
     subjectId: string;
     myRole: 'subject' | 'mentor';
+    subjectOutcome:
+      | 'completed_passed'
+      | 'completed_not_passed'
+      | 'dropped'
+      | 'never_started';
     daysLeft: number;
     progress: { done: number; total: number };
   }
@@ -111,6 +117,7 @@ describe('MyReviewsStory — экран S02 «Мои отзывы»', () => {
     scopeId: STREAM_1,
     subjectId: actor.uuid,
     myRole: 'subject',
+    subjectOutcome: 'completed_passed',
     daysLeft: 5,
     progress: { done: 1, total: 4 },
   };
@@ -119,6 +126,7 @@ describe('MyReviewsStory — экран S02 «Мои отзывы»', () => {
     scopeId: STREAM_2,
     subjectId: SUBJECT_ID,
     myRole: 'mentor',
+    subjectOutcome: 'completed_passed',
     daysLeft: 3,
     progress: { done: 0, total: 1 },
   };
@@ -132,16 +140,7 @@ describe('MyReviewsStory — экран S02 «Мои отзывы»', () => {
       execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
         switch (ucName) {
           case 'get-my-campaigns':
-            return cards.map((c) => ({
-              campaignId: c.campaignId,
-              context: 'stream_fate',
-              scopeId: c.scopeId,
-              subjectId: c.subjectId,
-              myRole: c.myRole,
-              expiresAt: '2026-09-26T00:00',
-              daysLeft: c.daysLeft,
-              progress: c.progress,
-            }));
+            return cards.map((c) => ({ ...c, context: 'stream_fate' }));
           case 'get-stream':
             return {
               uuid: attrs.streamId,
@@ -183,24 +182,47 @@ describe('MyReviewsStory — экран S02 «Мои отзывы»', () => {
     );
   }
 
-  test('субъект: строка «одногруппники и ментор», кнопка с M/K и днями; код — мост campaign:list', async () => {
+  test('интро + мини-карточка субъекта «завершил»: текст пары «роль-судьба», метрики, кнопка с номером', async () => {
     const story = initStory(new MyReviewsStory(), [subjectCard]);
 
     const response = await story.handleCallback('hub', actor, session);
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text ?? '');
 
-    expect(text).toContain('Мои отзывы');
-    expect(text).toContain(
-      '1\\. Поток «Первый поток» — одногруппники и ментор\\. Осталось 5 дн\\.',
-    );
+    // Абстрактное интро «что это за место»
+    expect(text).toContain('Здесь ты можешь оставить отзывы');
+    expect(text).toContain('1\\. Поток «Первый поток»');
+    expect(text).toContain('Ты завершил обучение\\. Поделись впечатлениями');
+    expect(text).toContain('Метрики: 1/4 \\(5 дн\\.\\)');
 
-    const btn = findBtn(response, 'Первый поток');
-    expect(btn?.text).toBe('🏁 Поток «Первый поток» · 1/4 · 5 дн.');
+    const btn = findBtn(response, '1. Поток');
+    expect(btn?.text).toBe('1. Поток «Первый поток»');
     expect(btn?.code).toBe(`campaign:list:${CAMPAIGN_1}`);
   });
 
-  test('ментор: строка «отзыв о {Имя}», имя субъекта — batch-UC get-users-by-ids', async () => {
+  test('мини-карточки субъектов «забросил»/«не начал» — свои тексты', async () => {
+    const dropped: Card = {
+      ...subjectCard,
+      subjectOutcome: 'dropped',
+    };
+    const neverStarted: Card = {
+      ...subjectCard,
+      campaignId: CAMPAIGN_2,
+      scopeId: STREAM_2,
+      subjectOutcome: 'never_started',
+    };
+    const story = initStory(new MyReviewsStory(), [dropped, neverStarted]);
+
+    const response = await story.handleCallback('hub', actor, session);
+    const text = String(response.screen?.text ?? '');
+
+    expect(text).toContain('Ты покинул обучение\\. Оставь отзыв ментору');
+    expect(text).toContain('Ты записался, но не начал обучение');
+    // Карточки разделяются линией
+    expect(text).toContain('──────────────');
+  });
+
+  test('ментор «подопечный завершил»: имя субъекта batch-UC, кнопка «N. Отзыв об {Имя}»', async () => {
     const appApi = makeAppApi([mentorCard]);
     const story = new MyReviewsStory();
     story.init({ appApi } as never);
@@ -209,12 +231,12 @@ describe('MyReviewsStory — экран S02 «Мои отзывы»', () => {
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text ?? '');
 
-    expect(text).toContain(
-      '1\\. Поток «Второй поток» — отзыв о Борис\\. Осталось 3 дн\\.',
-    );
+    expect(text).toContain('Твой подопечный Борис завершил обучение');
+    expect(text).toContain('Метрики: 0/1 \\(3 дн\\.\\)');
 
-    const btn = findBtn(response, 'Второй поток');
-    expect(btn?.text).toBe('🏁 Поток «Второй поток» · отзыв о Борис · 3 дн.');
+    const btn = findBtn(response, '1. Отзыв');
+    expect(btn?.text).toBe('1. Отзыв об Борис');
+    expect(btn?.code).toBe(`campaign:list:${CAMPAIGN_2}`);
 
     const calls = (
       appApi.execute.mock.calls as unknown as Array<
@@ -227,7 +249,18 @@ describe('MyReviewsStory — экран S02 «Мои отзывы»', () => {
     ]);
   });
 
-  test('несколько кампаний: нумерация 1. 2., главное меню последним рядом', async () => {
+  test('ментор «подопечный выбыл»: текст пары «роль-судьба»', async () => {
+    const story = initStory(new MyReviewsStory(), [
+      { ...mentorCard, subjectOutcome: 'dropped' },
+    ]);
+
+    const response = await story.handleCallback('hub', actor, session);
+    const text = String(response.screen?.text ?? '');
+
+    expect(text).toContain('Твой подопечный Борис покинул обучение');
+  });
+
+  test('несколько кампаний: нумерация карточек и кнопок, главное меню последним рядом', async () => {
     const story = initStory(new MyReviewsStory(), [subjectCard, mentorCard]);
 
     const response = await story.handleCallback('hub', actor, session);
@@ -238,6 +271,8 @@ describe('MyReviewsStory — экран S02 «Мои отзывы»', () => {
 
     const rows = response.screen?.keyboard?.rows ?? [];
     expect(rows.length).toBe(3); // две кампании + меню
+    expect(rows[0]?.[0]?.text).toBe('1. Поток «Первый поток»');
+    expect(rows[1]?.[0]?.text).toBe('2. Отзыв об Борис');
     expect(rows.at(-1)?.[0]?.code).toBe(Routes.app.mainMenu);
   });
 
@@ -252,7 +287,7 @@ describe('MyReviewsStory — экран S02 «Мои отзывы»', () => {
     expect(last?.code).toBe(Routes.app.mainMenu);
   });
 
-  test('имя субъекта не найдено (batch пуст) — запасной лейбл «отзыв о студенте»', async () => {
+  test('имя субъекта не найдено (batch пуст) — запасной «студент»', async () => {
     const story = initStory(new MyReviewsStory(), [mentorCard], {
       missingSubject: true,
     });
@@ -260,10 +295,8 @@ describe('MyReviewsStory — экран S02 «Мои отзывы»', () => {
     const response = await story.handleCallback('hub', actor, session);
     const text = String(response.screen?.text ?? '');
 
-    expect(text).toContain('— отзыв о студенте\\. Осталось 3 дн\\.');
-    const btn = findBtn(response, 'Второй поток');
-    expect(btn?.text).toBe(
-      '🏁 Поток «Второй поток» · отзыв о студенте · 3 дн.',
-    );
+    expect(text).toContain('Твой подопечный студент завершил обучение');
+    const btn = findBtn(response, '1. Отзыв');
+    expect(btn?.text).toBe('1. Отзыв об студенте');
   });
 });

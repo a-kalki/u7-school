@@ -72,10 +72,8 @@ describe('CampaignStory (S03 — список адресатов)', () => {
               campaignId: CAMPAIGN_ID,
               myRole,
               mentorId: MENTOR_ID,
-              // исход — только субъекту (у ментора исхода нет, ФР-6)
-              ...(myRole === 'subject' && {
-                myOutcome: myOutcome ?? 'completed_passed',
-              }),
+              // исход субъекта — тексты S03/S05 по парам «роль-судьба»
+              subjectOutcome: myOutcome ?? 'completed_passed',
               daysLeft: 5,
               recipients,
             };
@@ -141,9 +139,15 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text ?? '');
 
-    expect(text).toContain('✍️ Поток «Поток S»');
-    expect(text).toContain('О ком хотите рассказать');
-    expect(text).toContain('ещё 5 дн');
+    expect(text).toContain('Отзывы — поток «Поток S»');
+    // вводный абзац по паре «роль-судьба» (субъект, завершил)
+    expect(text).toContain('Ты завершил обучение в этом потоке');
+    expect(text).toContain('Отзыв одногруппникам поможет увидеть');
+    expect(text).toContain('Отзыв ментору поможет понять');
+    // развёрнутые метрики
+    expect(text).toContain('Написано отзывов: 1 из 2');
+    expect(text).toContain('Осталось времени: 5 дн');
+    expect(text).toContain('О ком расскажешь');
 
     const rows = response.screen?.keyboard?.rows ?? [];
     const last = rows.at(-1)?.[0];
@@ -167,10 +171,10 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     );
 
     const mentorBtn = findBtn(response, 'Пётр Петров');
-    expect(mentorBtn?.text).toBe('Ментор: Пётр Петров');
+    expect(mentorBtn?.text).toBe('Ментор — Пётр Петров');
     const peerBtn = findBtn(response, 'Борис');
-    expect(peerBtn?.text).toBe('✅ Студент: Борис');
-    expect(findBtn(response, '✅ Ментор')).toBeNull();
+    expect(peerBtn?.text).toBe('✅Одногруппник — Борис');
+    expect(findBtn(response, '✅Ментор')).toBeNull();
   });
 
   test('list: код кнопки адресата — open с campaignId и userId адресата', async () => {
@@ -222,8 +226,8 @@ describe('CampaignStory (S03 — список адресатов)', () => {
       session,
     );
 
-    expect(findBtn(response, 'Студент: Борис')).not.toBeNull();
-    expect(findBtn(response, 'Ментор:')).toBeNull();
+    expect(findBtn(response, 'Студент — Борис')).not.toBeNull();
+    expect(findBtn(response, 'Ментор —')).toBeNull();
   });
 
   // ── S05: ввод отзыва ──
@@ -244,8 +248,13 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text ?? '');
 
-    expect(text).toContain('Расскажите о Борис');
+    expect(text).toContain('Начни со строки "Отзыв для Борис:"');
     expect(text).toContain('профессиональные');
+    expect(text).toContain('Как с ним работать:');
+    // принципы — общий блок экранов ввода
+    expect(text).toContain('Характеризуй навыки, а не людей');
+    // кнопка справки — рядом с Пропустить
+    expect(findBtn(response, 'Как писать отзыв')).not.toBeNull();
     expect(response.awaitInput?.context).toEqual({
       campaignId: CAMPAIGN_ID,
       recipientId: PEER_ID,
@@ -269,7 +278,10 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     );
 
     expect(String(response.screen?.text ?? '')).toContain(
-      'Расскажите о студенте Борис',
+      'Начни со строки "Отзыв для Борис:"',
+    );
+    expect(String(response.screen?.text ?? '')).toContain(
+      'Рекомендация по развитию:',
     );
   });
 
@@ -285,11 +297,33 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     );
 
     const text = String(response.screen?.text ?? '');
-    expect(text).toContain('Поделитесь впечатлением о работе с ментором');
-    expect(text).toContain('Пётр Петров');
+    expect(text).toContain('Начни со строки "Отзыв для ментора:"');
   });
 
-  // ── S05: подсказки «о менторе» — 4 варианта по исходу автора (myOutcome) ──
+  test('how: справка «Как писать отзыв» — экран без awaitInput, кнопка возврата к вводу', async () => {
+    const appApi = makeAppApi([{ userId: MENTOR_ID, hasMyReview: false }]);
+    const story = new CampaignStory();
+    initStory(story, appApi);
+
+    const response = await story.handleCallback(
+      `how:${CAMPAIGN_ID}:${MENTOR_ID}`,
+      actor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text ?? '');
+
+    expect(text).toContain('Как писать отзыв');
+    expect(text).toContain('Пиши о навыках и фактах');
+    expect(text).toContain('Ярлык и переход на личности');
+    expect(text).toContain('Как превратить ярлык в полезный отзыв');
+    // справка не сбрасывает ввод: экран без нового awaitInput
+    expect(response.awaitInput).toBeUndefined();
+    const back = findBtn(response, 'К вводу');
+    expect(back?.code).toBe(`campaign:open:${CAMPAIGN_ID}:${MENTOR_ID}`);
+  });
+
+  // ── S05: подсказки «о менторе» — варианты по исходу автора (subjectOutcome) ──
 
   test('open: «завершил и прошел» → о менторе — текст про «помогало учиться»', async () => {
     const appApi = makeAppApi(
@@ -312,11 +346,11 @@ describe('CampaignStory (S03 — список адресатов)', () => {
 
     const text = String(response.screen?.text ?? '');
     expect(text).toContain('что помогало учиться, что мешало');
-    expect(text).toContain('это поможет и ментору, и школе');
+    expect(text).toContain('Моя рекомендация студентам:');
     expect(text).not.toContain('Даже если итог');
   });
 
-  test('open: «завершил и не прошел» → о менторе — текст с «итог не тот»', async () => {
+  test('open: «завершил и не прошел» → тот же текст, что и «прошел» (passed/not_passed — один)', async () => {
     const appApi = makeAppApi(
       [{ userId: MENTOR_ID, hasMyReview: false }],
       'subject',
@@ -336,9 +370,8 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     assertDialogResponseMarkdownSafe(response);
 
     const text = String(response.screen?.text ?? '');
-    expect(text).toContain('что помогало, что мешало, чего не хватило');
-    expect(text).toContain('Даже если итог не тот, на который рассчитывали');
-    expect(text).toContain('ваша правда поможет и ментору, и школе');
+    expect(text).toContain('что помогало учиться, что мешало');
+    expect(text).toContain('Моя рекомендация студентам:');
   });
 
   test('open: «не начал» → о менторе — текст «почему так и не начали»', async () => {
@@ -361,9 +394,10 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     assertDialogResponseMarkdownSafe(response);
 
     const text = String(response.screen?.text ?? '');
-    expect(text).toContain('Почему так и не начали учёбу');
-    expect(text).toContain('Что не совпало с ожиданиями');
-    expect(text).toContain('помогут тем, кто только выбирает');
+    expect(text).toContain('Начни со строки "Что остановило:"');
+    expect(text).toContain('что не совпало с ожиданиями');
+    expect(text).toContain('Моя рекомендация:');
+    expect(text).toContain('тем, кто выбирает обучение');
   });
 
   test('open: «забросил» → о менторе — текст «почему забросили»', async () => {
@@ -386,9 +420,9 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     assertDialogResponseMarkdownSafe(response);
 
     const text = String(response.screen?.text ?? '');
-    expect(text).toContain('Почему забросили учёбу');
-    expect(text).toContain('Какие пожелания оставите школе и ментору');
-    expect(text).toContain('рассматривают возможность здесь учиться');
+    expect(text).toContain('почему забросил');
+    expect(text).toContain('какие пожелания школе и ментору');
+    expect(text).toContain('Следует ожидать от курса:');
   });
 
   test('ввод: короткий текст — переспрос-предупреждение без потери ввода', async () => {
@@ -488,7 +522,7 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     const screenText = String(response.screen?.text ?? '');
     expect(screenText).toContain('Отзыв о Борис сохранён');
     expect(screenText).toContain('О ком ещё рассказать');
-    const btn = findBtn(response, 'Студент: Борис');
+    const btn = findBtn(response, 'Одногруппник — Борис');
     expect(btn?.text.startsWith('✅')).toBe(true);
 
     const calls = (
@@ -583,9 +617,13 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text ?? '');
 
-    expect(text).toContain('✏️ Вы уже писали о Борис');
+    expect(text).toContain('✏️ Ты уже писал');
+    expect(text).toContain('о Борис');
     expect(text).toContain('старый отзыв');
-    expect(text).toContain('Отправьте новый текст');
+    expect(text).toContain('Отправь новый текст');
+    // принципы — и на экране перезаписи
+    expect(text).toContain('Характеризуй навыки, а не людей');
+    expect(findBtn(response, 'Как писать отзыв')).not.toBeNull();
     expect(response.awaitInput?.context).toEqual({
       campaignId: CAMPAIGN_ID,
       recipientId: PEER_ID,
@@ -650,7 +688,9 @@ describe('CampaignStory (S03 — список адресатов)', () => {
       session,
     );
 
-    expect(String(response.screen?.text ?? '')).toContain('Расскажите о Борис');
+    expect(String(response.screen?.text ?? '')).toContain(
+      'Начни со строки "Отзыв для Борис:"',
+    );
   });
 
   test('skip: возврат в список адресатов без сохранения', async () => {
@@ -664,8 +704,6 @@ describe('CampaignStory (S03 — список адресатов)', () => {
       session,
     );
 
-    expect(String(response.screen?.text ?? '')).toContain(
-      'О ком хотите рассказать',
-    );
+    expect(String(response.screen?.text ?? '')).toContain('О ком расскажешь');
   });
 });

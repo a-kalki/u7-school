@@ -24,8 +24,8 @@ export const CampaignRecipientsSchema = v.object({
   campaignId: uuidField('Некорректный формат UUID кампании'),
   myRole: AuthorRoleSchema,
   mentorId: uuidField('Некорректный формат UUID ментора'),
-  /** Исход автора-субъекта для текстов S05; ментору исхода нет. */
-  myOutcome: v.optional(StudentOutcomeSchema),
+  /** Исход субъекта окна — выбор текстов S03/S05 (у автора-субъекта — его исход). */
+  subjectOutcome: StudentOutcomeSchema,
   daysLeft: v.pipe(v.number(), v.integer(), v.minValue(0)),
   recipients: v.array(RecipientSchema),
 });
