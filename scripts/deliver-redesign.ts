@@ -47,55 +47,60 @@ interface ParsedLesson {
 /** Извлечь «Время:» → первое число минут (поддерживает «~40 мин», «90–120 мин») */
 function parseMinutes(text: string): number | undefined {
   const m = text.match(/~?\s*(\d+)/);
-  return m ? Number.parseInt(m[1], 10) : undefined;
+  return m?.[1] ? Number.parseInt(m[1], 10) : undefined;
 }
 
 function parseLessonMd(dir: string, md: string): ParsedLesson {
   // Заголовок урока: первая строка `# ...`
   const titleMatch = md.match(/^# (.+)$/m);
-  if (!titleMatch) throw new Error(`${dir}: не найден заголовок «# …»`);
+  if (!titleMatch?.[1]) throw new Error(`${dir}: не найден заголовок «# …»`);
   const title = titleMatch[1].trim();
 
   // Время: строка `**Время:** ~40 мин`
   const timeMatch = md.match(/\*\*Время:\*\*(.+)/);
-  const estimatedMinutes = timeMatch ? parseMinutes(timeMatch[1]) : undefined;
+  const estimatedMinutes = timeMatch?.[1]
+    ? parseMinutes(timeMatch[1])
+    : undefined;
 
   // Краткое содержание: абзац после `**Краткое содержание:**` до пустой строки/следующего блока
   let additional = '';
   const addMatch = md.match(
     /\*\*Краткое содержание:\*\*\s*\n+([\s\S]*?)(?:\n\s*\n|\n\*\*|$)/,
   );
-  if (addMatch) {
+  if (addMatch?.[1]) {
     additional = addMatch[1].replace(/\s+/g, ' ').trim();
   }
   if (!additional) {
-    console.warn(`⚠️  ${dir}: пустое «Краткое содержание» — additional не задан`);
+    console.warn(
+      `⚠️  ${dir}: пустое «Краткое содержание» — additional не задан`,
+    );
   }
 
   // Шаги: `#### Шаг N. Название` + тело до следующего шага/конца
   const steps: ParsedStep[] = [];
   const stepRegex = /^#### Шаг (\d+)\. (.+)$/gm;
-  const marks: Array<{ headerStart: number; bodyStart: number; num: number; name: string }> = [];
-  let m: RegExpExecArray | null;
-  while ((m = stepRegex.exec(md)) !== null) {
-    marks.push({
-      headerStart: m.index,
-      bodyStart: m.index + m[0].length,
-      num: Number(m[1]),
-      name: m[2].trim(),
-    });
-  }
+  const marks = [...md.matchAll(stepRegex)].map((m) => ({
+    headerStart: m.index,
+    bodyStart: m.index + m[0].length,
+    num: Number(m[1]),
+    name: (m[2] ?? '').trim(),
+  }));
   for (let i = 0; i < marks.length; i++) {
-    const bodyStart = marks[i].bodyStart;
+    const mark = marks[i];
+    if (!mark) continue;
+    const bodyStart = mark.bodyStart;
     const bodyEnd =
-      i + 1 < marks.length ? marks[i + 1].headerStart : md.length;
+      i + 1 < marks.length
+        ? (marks[i + 1]?.headerStart ?? md.length)
+        : md.length;
     let body = md.slice(bodyStart, bodyEnd);
     // Убрать хвостовые разделители `---` и лишние пустые строки
     body = body.replace(/\n---\s*$/g, '').trim();
-    if (!body) console.warn(`⚠️  ${dir}: пустое тело шага ${marks[i].num}`);
-    steps.push({ description: marks[i].name, content: body });
+    if (!body) console.warn(`⚠️  ${dir}: пустое тело шага ${mark.num}`);
+    steps.push({ description: mark.name, content: body });
   }
-  if (steps.length === 0) throw new Error(`${dir}: не найдено шагов (#### Шаг N.)`);
+  if (steps.length === 0)
+    throw new Error(`${dir}: не найдено шагов (#### Шаг N.)`);
 
   return { dir, title, additional, estimatedMinutes, steps };
 }
@@ -146,8 +151,12 @@ async function publish(manifest: Manifest): Promise<void> {
 
   const modulesFile = `${COURSES_DIR}/modules.json`;
   const modules = await Bun.file(modulesFile).json();
-  const module = modules.find((m: { title: string }) => m.title === MODULE_TITLE);
-  const project = module.projects.find((p: { uuid: string }) => p.uuid === manifest.projectUuid);
+  const module = modules.find(
+    (m: { title: string }) => m.title === MODULE_TITLE,
+  );
+  const project = module.projects.find(
+    (p: { uuid: string }) => p.uuid === manifest.projectUuid,
+  );
   project.status = 'published';
   await Bun.write(modulesFile, JSON.stringify(modules, null, 2));
 
@@ -159,7 +168,9 @@ async function publish(manifest: Manifest): Promise<void> {
 async function archiveOldProjects(): Promise<void> {
   const modulesFile = `${COURSES_DIR}/modules.json`;
   const modules = await Bun.file(modulesFile).json();
-  const module = modules.find((m: { title: string }) => m.title === MODULE_TITLE);
+  const module = modules.find(
+    (m: { title: string }) => m.title === MODULE_TITLE,
+  );
   let count = 0;
   for (const p of module.projects) {
     // Архивируем всё, кроме новых проектов (их uuid — в манифестах data/backup)
@@ -205,12 +216,15 @@ async function main() {
     return;
   }
   if (!dir) {
-    console.error('Использование: deliver-redesign.ts <dir> [--apply] | --archive-old');
+    console.error(
+      'Использование: deliver-redesign.ts <dir> [--apply] | --archive-old',
+    );
     process.exit(1);
   }
 
   const metaFile = Bun.file(`${dir}/project.json`);
-  if (!(await metaFile.exists())) throw new Error(`Не найден ${dir}/project.json`);
+  if (!(await metaFile.exists()))
+    throw new Error(`Не найден ${dir}/project.json`);
   const meta = await metaFile.json();
 
   // Парсинг уроков (порядок уроков — числовой по номеру в имени папки pN-lM-…)
@@ -254,12 +268,16 @@ async function main() {
   const app = createApp(true);
 
   const modules = await app.execute('list-modules', {});
-  const algoritms = modules.find((m: { title: string }) => m.title === MODULE_TITLE);
+  const algoritms = modules.find(
+    (m: { title: string }) => m.title === MODULE_TITLE,
+  );
   if (!algoritms) throw new Error(`Модуль «${MODULE_TITLE}» не найден`);
 
   const modulesFile = `${COURSES_DIR}/modules.json`;
   const modulesRaw = await Bun.file(modulesFile).json();
-  const moduleRaw = modulesRaw.find((m: { title: string }) => m.title === MODULE_TITLE);
+  const moduleRaw = modulesRaw.find(
+    (m: { title: string }) => m.title === MODULE_TITLE,
+  );
   let projectUuid = moduleRaw.projects.find(
     (p: { title: string; status: string }) => p.title === meta.title,
   )?.uuid;
@@ -271,7 +289,9 @@ async function main() {
       { moduleId: algoritms.uuid, ...meta },
       NUR_UUID,
     );
-    projectUuid = project.projects[project.projects.length - 1].uuid;
+    const lastProject = project.projects[project.projects.length - 1];
+    if (!lastProject) throw new Error('add-project не вернул проект');
+    projectUuid = lastProject.uuid;
     console.log(`📦 Проект создан: ${projectUuid} «${meta.title}»`);
   }
 

@@ -61,7 +61,9 @@ async function main() {
       console.error(`❌ Поток с uuid=${explicitId} не найден.`);
       console.log('Доступные потоки:');
       for (const s of allStreams) {
-        console.log(`   ${s.uuid}  ${s.title} (${s.status}, ${s.projectCount} проектов)`);
+        console.log(
+          `   ${s.uuid}  ${s.title} (${s.status}, ${s.projectCount} проектов)`,
+        );
       }
       process.exit(1);
     }
@@ -86,15 +88,18 @@ async function main() {
     }
   }
 
+  const stream = selected;
+  if (!stream) throw new Error('Поток не выбран');
+
   // ── Получение свежего снапшота ──────────────────
   console.log(`\n📦 Поднимаю приложение...`);
   const app = createApp(true);
 
   console.log(
-    `🔍 Получаю снапшот модуля ${selected.moduleId} (поток «${selected.title}»)...`,
+    `🔍 Получаю снапшот модуля ${stream.moduleId} (поток «${stream.title}»)...`,
   );
   const newSnapshot = await app.execute('get-module-snapshot', {
-    moduleId: selected.moduleId,
+    moduleId: stream.moduleId,
   });
 
   const projectCount = newSnapshot.length;
@@ -111,7 +116,10 @@ async function main() {
   }
 
   // ── Обновление ТОЛЬКО выбранного потока ─────────
-  const oldSnapshot = streams[selected.index].contentSnapshot as Array<{
+  const oldStream = streams[stream.index];
+  if (!oldStream)
+    throw new Error(`Поток ${stream.uuid} не найден в ${STREAMS_FILE}`);
+  const oldSnapshot = oldStream.contentSnapshot as Array<{
     projectTitle: string;
   }>;
   const oldCount = Array.isArray(oldSnapshot) ? oldSnapshot.length : 0;
@@ -119,11 +127,11 @@ async function main() {
     ? oldSnapshot.map((p) => p.projectTitle).join(', ')
     : '—';
 
-  console.log(`\n🔄 Поток «${selected.title}» (${selected.uuid}):`);
+  console.log(`\n🔄 Поток «${stream.title}» (${stream.uuid}):`);
   console.log(`   Было:  ${oldCount} проектов — ${oldTitles}`);
   console.log(`   Стало: ${projectCount} проектов`);
 
-  streams[selected.index].contentSnapshot = newSnapshot;
+  oldStream.contentSnapshot = newSnapshot;
 
   // ── Сохранение ──────────────────────────────────
   console.log(`\n💾 Записываю ${STREAMS_FILE}...`);
