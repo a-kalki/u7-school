@@ -46,10 +46,12 @@ const botSessionRepo = new JsonBotSessionRepo(
 // «Театр одного актёра»: все роли фикстурного мира — один человек.
 // Подмена — до UiApp (from.id персоны), редирект исходящих — обёрткой
 // BotApi: проактивы персонам приходят в dev-чат. Вкл. только при
-// DEV_TELEGRAM_ID (env локальной разработки).
-const devSwitch = config.devTelegramId
-  ? new DevPersonaSwitch(config.devTelegramId)
-  : null;
+// DEV_TELEGRAM_ID из .env локальной разработки; в production guard
+// выключает подмену, даже если переменная утекла в прод-env.
+const devSwitch =
+  config.devTelegramId && process.env.NODE_ENV !== 'production'
+    ? new DevPersonaSwitch(config.devTelegramId)
+    : null;
 
 const transport = new BotTransport(
   uiBundle.uiApp,
