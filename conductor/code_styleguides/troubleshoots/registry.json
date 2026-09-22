@@ -123,10 +123,32 @@
       ],
       "file": "pi-tsubstitution-edit.md",
       "created_at": "2026-07-08",
-      "shown": 1,
+      "shown": 2,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": "2026-09-14",
+      "last_shown_at": "2026-09-22",
+      "last_used_at": null
+    },
+    "telegram-editmessagetext-dev-persona-chat-not-found": {
+      "tags": [
+        "telegram",
+        "dev-persona",
+        "editmessage",
+        "chat-not-found",
+        "redirect"
+      ],
+      "description": "editMessageText по tgId dev-персоны падает «chat not found» — wrapApi редиректил только sendMessage",
+      "symptoms": [
+        "chat not found",
+        "ошибка telegram api (editmessagetext)",
+        "bad request: chat not found"
+      ],
+      "file": "telegram-editmessagetext-dev-persona-chat-not-found.md",
+      "created_at": "2026-09-22",
+      "shown": 0,
+      "opened": 0,
+      "helped": 0,
+      "last_shown_at": null,
       "last_used_at": null
     },
     "telegram-editmessagetext-keyboard-not-removed": {
@@ -141,10 +163,10 @@
       ],
       "file": "telegram-editmessagetext-keyboard-not-removed.md",
       "created_at": "2026-09-21",
-      "shown": 0,
+      "shown": 1,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": null,
+      "last_shown_at": "2026-09-22",
       "last_used_at": null
     },
     "testbot-api-log-chronology": {
