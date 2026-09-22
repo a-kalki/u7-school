@@ -17,7 +17,7 @@ export abstract class U7BotController extends BotController<
   User,
   U7BotUiAppResolve
 > {
-  protected declare readonly stories: U7BotUiStory[];
+  declare protected readonly stories: U7BotUiStory[];
 
   /** Кнопка выхода на экранах ошибок: «⬅️ Меню» (системный код приложения). */
   protected override errorExitRows(): { text: string; code: string }[][] {

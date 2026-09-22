@@ -60,6 +60,21 @@ main() {
   echo "▶ Бэкап данных (before-deploy)"
   bash scripts/backup.sh before-deploy
 
+  # ── 1.5. Защита: в HEAD/main не должно быть коммитов вне тега ──
+  # Иначе checkout молча выкинет их содержимое из рабочего каталога
+  # (например, контентную доставку, закоммиченную на сервере).
+  for ref in HEAD main; do
+    git rev-parse -q --verify "${ref}" >/dev/null 2>&1 || continue
+    lost="$(git rev-list --count "${tag}..${ref}")"
+    if [ "${lost}" -gt 0 ]; then
+      echo "❌ В '${ref}' ${lost} коммит(ов), которых нет в ${tag}:"
+      git log --oneline "${tag}..${ref}" | head -10
+      echo "   Деплой отбросил бы их содержимое из рабочего каталога."
+      echo "   Запушь их → release.sh с ними → деплой нового тега."
+      exit 1
+    fi
+  done
+
   # ── 2. Checkout тега ──
   echo "▶ git checkout ${tag}"
   git checkout --quiet "$tag"

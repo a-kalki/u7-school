@@ -943,69 +943,75 @@ describe('CourseCatalogStory', () => {
       expect(response.notify).toBeUndefined();
     });
 
-    test.each([
-      'expressed',
-      'confirmed',
-    ] as const)('apply конфликт %s: W04 с кнопкой отмены и меню', async (status) => {
-      const { errConflict, AppException } = await import('@u7-scl/core/domain');
-      const error = new AppException(
-        errConflict('WISH_ALREADY_EXISTS', 'Желание уже выражено', {
-          userId: actor.uuid,
-          courseId,
-          status,
-        }),
-      );
-      const appApi = makeApplyApi(undefined, error);
-      const story = new CourseCatalogStory();
-      initStory(story, appApi as never);
+    test.each(['expressed', 'confirmed'] as const)(
+      'apply конфликт %s: W04 с кнопкой отмены и меню',
+      async (status) => {
+        const { errConflict, AppException } = await import(
+          '@u7-scl/core/domain'
+        );
+        const error = new AppException(
+          errConflict('WISH_ALREADY_EXISTS', 'Желание уже выражено', {
+            userId: actor.uuid,
+            courseId,
+            status,
+          }),
+        );
+        const appApi = makeApplyApi(undefined, error);
+        const story = new CourseCatalogStory();
+        initStory(story, appApi as never);
 
-      const response = await story.handleCallback(
-        `apply:${courseId}`,
-        actor,
-        session,
-      );
-      assertDialogResponseMarkdownSafe(response);
+        const response = await story.handleCallback(
+          `apply:${courseId}`,
+          actor,
+          session,
+        );
+        assertDialogResponseMarkdownSafe(response);
 
-      const text = String(response.screen?.text ?? '');
-      expect(text).not.toContain('⚠️');
-      const rows = response.screen?.keyboard?.rows ?? [];
-      const flat = rows.flat();
-      expect(flat.some((b) => b.text.includes('Отменить желание'))).toBe(true);
-      expect(
-        flat.some((b) => b.code === `course-catalog:cancel:${courseId}`),
-      ).toBe(true);
-      expect(flat.some((b) => b.code === Routes.app.mainMenu)).toBe(true);
-    });
+        const text = String(response.screen?.text ?? '');
+        expect(text).not.toContain('⚠️');
+        const rows = response.screen?.keyboard?.rows ?? [];
+        const flat = rows.flat();
+        expect(flat.some((b) => b.text.includes('Отменить желание'))).toBe(
+          true,
+        );
+        expect(
+          flat.some((b) => b.code === `course-catalog:cancel:${courseId}`),
+        ).toBe(true);
+        expect(flat.some((b) => b.code === Routes.app.mainMenu)).toBe(true);
+      },
+    );
 
-    test.each([
-      'expressed',
-      'confirmed',
-    ] as const)('apply конфликт %s: текст ветвится', async (status) => {
-      const { errConflict, AppException } = await import('@u7-scl/core/domain');
-      const error = new AppException(
-        errConflict('WISH_ALREADY_EXISTS', 'Желание уже выражено', {
-          userId: actor.uuid,
-          courseId,
-          status,
-        }),
-      );
-      const appApi = makeApplyApi(undefined, error);
-      const story = new CourseCatalogStory();
-      initStory(story, appApi as never);
+    test.each(['expressed', 'confirmed'] as const)(
+      'apply конфликт %s: текст ветвится',
+      async (status) => {
+        const { errConflict, AppException } = await import(
+          '@u7-scl/core/domain'
+        );
+        const error = new AppException(
+          errConflict('WISH_ALREADY_EXISTS', 'Желание уже выражено', {
+            userId: actor.uuid,
+            courseId,
+            status,
+          }),
+        );
+        const appApi = makeApplyApi(undefined, error);
+        const story = new CourseCatalogStory();
+        initStory(story, appApi as never);
 
-      const response = await story.handleCallback(
-        `apply:${courseId}`,
-        actor,
-        session,
-      );
+        const response = await story.handleCallback(
+          `apply:${courseId}`,
+          actor,
+          session,
+        );
 
-      const text = String(response.screen?.text ?? '');
-      if (status === 'confirmed') {
-        expect(text).toContain('обучаешься');
-      } else {
-        expect(text).toContain('выразил желание');
-      }
-    });
+        const text = String(response.screen?.text ?? '');
+        if (status === 'confirmed') {
+          expect(text).toContain('обучаешься');
+        } else {
+          expect(text).toContain('выразил желание');
+        }
+      },
+    );
 
     test('apply конфликт pending: W04 — продолжить анкету', async () => {
       const { errConflict, AppException } = await import('@u7-scl/core/domain');

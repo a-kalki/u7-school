@@ -458,17 +458,20 @@ describe('BotUiStory — errorNotify (ФР-5)', () => {
       new AppException(errBadRequest('ERR', 'Плохой запрос _[1]', undefined)),
       'Плохой',
     ],
-  ])('%s → warn-реплика с текстом ошибки, без экрана', (_kind, error, snippet) => {
-    const story = new TestStory();
+  ])(
+    '%s → warn-реплика с текстом ошибки, без экрана',
+    (_kind, error, snippet) => {
+      const story = new TestStory();
 
-    const response = story.callErrorNotify(error);
+      const response = story.callErrorNotify(error);
 
-    expect(response.screen).toBeUndefined();
-    expect(response.notify?.kind).toBe('warn');
-    const text = String(response.notify?.text);
-    expect(text).toContain(snippet);
-    expect(() => assertMarkdownV2Safe(text)).not.toThrow();
-  });
+      expect(response.screen).toBeUndefined();
+      expect(response.notify?.kind).toBe('warn');
+      const text = String(response.notify?.text);
+      expect(text).toContain(snippet);
+      expect(() => assertMarkdownV2Safe(text)).not.toThrow();
+    },
+  );
 
   test('internal → общее сообщение, доменные данные не утекают, error-лог', () => {
     const errors: unknown[] = [];

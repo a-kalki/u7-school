@@ -11,7 +11,7 @@ export class CourseJsonRepo implements CourseRepo {
   readonly #repo: JsonFileRepo<Course>;
 
   constructor(filePath = 'data/courses/courses.json') {
-    this.#repo = new JsonFileRepo(CourseSchema, filePath);
+    this.#repo = new JsonFileRepo<Course>(CourseSchema, filePath);
   }
 
   async save(course: Course): Promise<void> {

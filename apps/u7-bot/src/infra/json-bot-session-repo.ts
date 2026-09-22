@@ -80,8 +80,14 @@ export class JsonBotSessionRepo implements BotSessionRepo {
    * @param shortIdsFilePath — путь к JSON-файлу shortId-маппинга
    */
   constructor(sessionsFilePath: string, shortIdsFilePath: string) {
-    this.#sessions = new JsonFileRepo(SessionRecordSchema, sessionsFilePath);
-    this.#shortIds = new JsonFileRepo(ShortIdRecordSchema, shortIdsFilePath);
+    this.#sessions = new JsonFileRepo<SessionRecord>(
+      SessionRecordSchema,
+      sessionsFilePath,
+    );
+    this.#shortIds = new JsonFileRepo<ShortIdRecord>(
+      ShortIdRecordSchema,
+      shortIdsFilePath,
+    );
   }
 
   async loadAll(): Promise<ReadonlyMap<number, BotSession>> {

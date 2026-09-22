@@ -11,7 +11,7 @@ export class ModuleJsonRepo implements ModuleRepo {
   readonly #repo: JsonFileRepo<Module>;
 
   constructor(filePath = 'data/courses/modules.json') {
-    this.#repo = new JsonFileRepo(ModuleSchema, filePath);
+    this.#repo = new JsonFileRepo<Module>(ModuleSchema, filePath);
   }
 
   async save(module: Module): Promise<void> {

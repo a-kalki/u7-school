@@ -44,7 +44,7 @@ export class U7BotUiApp extends BotUiApp<
   User,
   U7BotUiAppResolve
 > {
-  protected declare readonly controllers: Map<string, U7BotController>;
+  declare protected readonly controllers: Map<string, U7BotController>;
 
   /** Диалог меню после /start (сущностной стори нет — якорь для seq/штампов). */
   protected readonly menuPath = APP_DIALOG_PATHS.menu;
