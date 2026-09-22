@@ -26,6 +26,11 @@ export const BotConfigSchema = v.object({
   // ══ Режим бота ══
   botMode: v.optional(v.picklist(['polling', 'webhook']), 'polling'),
 
+  // ══ Dev-режим: подмена личности (см. infra/dev-persona.ts) ══
+  // Только для локальной разработки: апдейты с этого telegramId
+  // получают личность фикстурной персоны (переключение /persona).
+  devTelegramId: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+
   // ══ Webhook (только если botMode = 'webhook') ══
   webhookUrl: v.optional(v.string()),
   webhookPort: v.optional(
@@ -77,6 +82,9 @@ export function loadConfig(): BotConfig {
     adminTelegramIds: process.env.ADMIN_TELEGRAM_IDS,
     loggerBotToken: process.env.LOGGER_BOT_TOKEN,
     dbDir: process.env.DB_DIR,
+    devTelegramId: process.env.DEV_TELEGRAM_ID
+      ? Number(process.env.DEV_TELEGRAM_ID)
+      : undefined,
   };
 
   try {

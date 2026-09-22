@@ -4,7 +4,6 @@ import { AppException } from '@u7-scl/core/domain';
 import { type MdText, md, mdJoin } from '@u7-scl/core/shared';
 import type { BotSession, BotUpdate, DialogResponse } from '@u7-scl/core/ui';
 import type { MyRecipientsView } from '@u7-scl/peer-review/domain';
-import { buttons } from '../../shared/buttons';
 import { campaignProfileOf } from './campaign-profiles';
 import type { MyReviewsStory } from './my-reviews.story';
 

@@ -13,6 +13,7 @@ import { createApiApp } from './create-api-app';
 import { createUiApp } from './create-ui-app';
 import { registerGroupHandlers } from './handlers/group-handler';
 import { BotTransport } from './infra/bot-transport';
+import { DevPersonaSwitch } from './infra/dev-persona';
 import { JsonBotSessionRepo } from './infra/json-bot-session-repo';
 import { TelegramLogger } from './infra/logger';
 
@@ -41,7 +42,20 @@ const botSessionRepo = new JsonBotSessionRepo(
   `${config.dbDir}/bot/sessions.json`,
   `${config.dbDir}/bot/short-ids.json`,
 );
-const transport = new BotTransport(uiBundle.uiApp, bot.api, botSessionRepo);
+// ══ Dev-режим: подмена личности на входе транспорта ══
+// «Театр одного актёра»: все роли фикстурного мира — один человек.
+// Подмена — до UiApp (from.id персоны), редирект исходящих — обёрткой
+// BotApi: проактивы персонам приходят в dev-чат. Вкл. только при
+// DEV_TELEGRAM_ID (env локальной разработки).
+const devSwitch = config.devTelegramId
+  ? new DevPersonaSwitch(config.devTelegramId)
+  : null;
+
+const transport = new BotTransport(
+  uiBundle.uiApp,
+  devSwitch ? devSwitch.wrapApi(bot.api) : bot.api,
+  botSessionRepo,
+);
 
 // Персистентность: восстановление ДО запуска polling/webhook.
 // Битый файл — fail-fast (JsonFileRepoError): падение старта с явной
@@ -126,6 +140,26 @@ privateBot.use(async (ctx, next) => {
 // welcome из menuButtons), прочее — pipe контроллеров (активный первым)
 // → дефолты u7 (help/cancel/unknown). /log_level — app-контроллер.
 // Поимённой grammy-регистрации команд нет.
+// ══ Dev-режим: перехват /persona + подмена автора ДО транспорта ══
+// Команда переключает персону и в домен не уходит; ответы — в реальный
+// dev-чат (chat.id не подменяется). Прочие пользователи — без изменений.
+if (devSwitch && config.devTelegramId) {
+  const devTelegramId = config.devTelegramId;
+  privateBot.use(async (ctx, next) => {
+    if (ctx.from?.id !== devTelegramId) return next();
+    const text = ctx.message?.text;
+    if (text) {
+      const reply = devSwitch.handleCommand(text);
+      if (reply !== null) {
+        await ctx.reply(reply);
+        return;
+      }
+    }
+    devSwitch.applyFrom(ctx);
+    return next();
+  });
+}
+
 privateBot.on('callback_query:data', (ctx) => transport.handleCallback(ctx));
 privateBot.on('message:text', (ctx) => transport.handleMessage(ctx));
 
@@ -180,6 +214,20 @@ if (config.botMode === 'webhook') {
 } else {
   bot.start({ allowed_updates: [...ALLOWED_UPDATES] });
   logger.info('main', 'Бот запущен в режиме polling');
+}
+
+// ══ Dev-режим: список персон — в лог и приветствием в чат ══
+if (devSwitch && config.devTelegramId) {
+  const hello = `🎭 Dev-режим подмены личности активен.\n\n${devSwitch.listText()}`;
+  // В лог — чтобы видеть персон ещё до открытия чата
+  logger.info('main', `\n${hello}`);
+  // И в чат бота — исходный api (не обёрнутый редиректом персон)
+  await bot.api.sendMessage(config.devTelegramId, hello).catch(() => {
+    logger.warn(
+      'main',
+      'Не удалось прислать приветствие dev-режима (напиши боту /start)',
+    );
+  });
 }
 
 // ══ Graceful shutdown: SIGINT / SIGTERM ══

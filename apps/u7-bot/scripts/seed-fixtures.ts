@@ -1,18 +1,27 @@
 /**
- * Скрипт для dev-режима: копирует e2e-фикстуры в data-директорию
- * и привязывает DEV_TELEGRAM_ID ко всем ролям.
+ * Скрипт dev-режима: сеет «реально-виртуальный мир» из e2e-фикстур.
+ *
+ * Мир остаётся собой: студенты и менторы — раздельные пользователи
+ * (разрежение ролей не ломается), кампании — как в шаблоне. Личность
+ * подменяется на входе транспорта (DEV_TELEGRAM_ID + /persona, см.
+ * src/infra/dev-persona.ts), поэтому посев НЕ привязывает telegramId
+ * к dev-аккаунту.
+ *
+ * Отличия от шаблона (только в копии data/fixtures):
+ *   - users: «Ментор» → «Dev»; Марина и Олег получают роль STUDENT
+ *     (в шаблоне GUEST — роли должны соответствовать месту в мире);
+ *   - peer-review: живым остаётся только c1 (окно от «сегодня»),
+ *     c2/c4 уводятся в истёкшие — c2 «сам себе ментор» (субъект 4444,
+ *     ментор 4444) как живая кампания бессмысленна.
+ *
+ * Идемпотентность: маркер .seed-rev защищает накопленные данные —
+ * повторный запуск мир не трогает (отзывы, написанные живьём, живут).
+ * Полный пересев — при смене ревизии или удалении маркера.
  *
  * Использование:
- *   DEV_TELEGRAM_ID=123456789 bun run apps/u7-bot/scripts/seed-fixtures.ts
- *
- * Что делает:
- *   1. Копирует apps/u7-bot/tests/fixtures/templates/ → data/fixtures/
- *      (включая пустые wish/ и questionnaires/ — каждый запуск даёт чистое состояние)
- *   2. Находит ментора (UUID 4444...) и привязывает к DEV_TELEGRAM_ID
- *   3. Даёт ему все роли: GUEST, STUDENT, MENTOR, AUTHOR, ADMIN
- *   4. Привязывает студента в потоке к этому же пользователю
- *   5. Оживляет фикстуры peer-review: окно кампаний пересчитывается
- *      от «сегодня», участники кампаний сохраняются в users.json
+ *   bun run apps/u7-bot/scripts/seed-fixtures.ts
+ *   DB_DIR=./data/fixtures DEV_TELEGRAM_ID=<твой tg> \
+ *     bun run apps/u7-bot/src/main.ts
  */
 
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -25,20 +34,25 @@ const FIXTURES_DIR = path.resolve(
 );
 const DATA_DIR = path.resolve(import.meta.dir, '../../../data/fixtures');
 
-const MENTOR_UUID = '44444444-4444-4444-4444-444444444444';
+/** Ревизия мира: смена = принудительный полный пересев. */
+const SEED_REV = 'dev-personas-v1';
 
 /** Миллисекунд в сутках. */
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+const MENTOR_UUID = '44444444-4444-4444-4444-444444444444';
+const MARINA_UUID = '77777777-7777-4777-8777-777777777777';
+const OLEG_UUID = '88888888-8888-4888-8888-888888888888';
+
 /**
  * Живые кампании peer-review (uuid из templates/peer-review/campaigns.json).
- * Кампании вне списка при посеве уводятся в прошлое — для проверки
- * экрана-заглушки истёкшего окна и фильтра onlyLives.
+ * Прочие уводятся в истёкшие — проверка заглушки окна и фильтра onlyLives.
+ *
+ * c1: субъект Андрей (completed_passed), участники [Марина, Олег],
+ * ментор Dev → Андрею — список адресатов S03 (2/3 отзывов уже есть),
+ * Dev — автопровод «Отзыв об Андрей» с перезаписью.
  */
-const LIVING_CAMPAIGN_UUIDS = new Set([
-  'c1a11111-1111-4111-8111-111111111111', // dev — ментор, субъект Андрей
-  'c2a22222-2222-4222-8222-222222222222', // dev — субъект (dropped)
-]);
+const LIVING_CAMPAIGN_UUIDS = new Set(['c1a11111-1111-4111-8111-111111111111']);
 
 /** Формат даты-времени агрегатов peer-review — до минут (isoNow проекта). */
 function isoMinute(date: Date): string {
@@ -46,59 +60,43 @@ function isoMinute(date: Date): string {
 }
 
 async function main() {
-  const devTelegramId = process.env.DEV_TELEGRAM_ID;
-  if (!devTelegramId) {
-    console.error('❌ Укажи DEV_TELEGRAM_ID — твой реальный Telegram ID');
-    console.error(
-      '   Пример: DEV_TELEGRAM_ID=123456789 bun run apps/u7-bot/scripts/seed-fixtures.ts',
+  console.log('🔧 Сею dev-мир из e2e-фикстур…');
+
+  const revPath = path.join(DATA_DIR, '.seed-rev');
+  const seeded = await readFile(revPath, 'utf-8')
+    .then((s) => s.trim())
+    .catch(() => null);
+  if (seeded === SEED_REV) {
+    console.log(`✅ Мир уже засеян (rev ${SEED_REV}) — данные не тронуты.`);
+    console.log(
+      '   Полный пересев: rm data/fixtures/.seed-rev и запуск снова.',
     );
-    process.exit(1);
+    printRunHint();
+    return;
   }
 
-  const id = Number(devTelegramId);
-  if (Number.isNaN(id) || id <= 0) {
-    console.error(
-      '❌ DEV_TELEGRAM_ID должен быть числом (твой Telegram user ID)',
-    );
-    process.exit(1);
-  }
-
-  console.log(`🔧 Настраиваю dev-окружение для Telegram ID: ${id}`);
-
-  // 1. Копируем фикстуры
   await copyFixtures();
-
-  // 2. Патчим users.json: привязываем ментора к dev-аккаунту, даём все роли
-  await patchUsers(id);
-
-  // 3. Патчим students.json: привязываем студента к ментору (dev-аккаунту)
-  await patchStudents();
-
-  // 4. Оживляем фикстуры peer-review: живое окно от «сегодня»
+  await patchUsers();
   await revitalizePeerReview();
+  await writeFile(revPath, SEED_REV);
 
-  console.log('✅ Готово! Запускай бота:');
-  console.log('   DB_DIR=./data/fixtures bun run apps/u7-bot/src/main.ts');
-  console.log('');
-  console.log(
-    '📋 Роли dev-пользователя: GUEST, STUDENT, MENTOR, AUTHOR, ADMIN',
-  );
-  console.log('📋 Ты ментор потоков: JS Core Поток 1–4');
-  console.log('📋 Ты студент в потоке: JS Core Поток 2 (Активный)');
+  console.log(`✅ Мир засеян (rev ${SEED_REV}).`);
+  printRunHint();
+  printWorldGuide();
 }
 
 async function copyFixtures() {
-  await mkdir(path.join(DATA_DIR, 'users'), { recursive: true });
-  await mkdir(path.join(DATA_DIR, 'streams'), { recursive: true });
-  await mkdir(path.join(DATA_DIR, 'courses'), { recursive: true });
-
-  await mkdir(path.join(DATA_DIR, 'wish'), { recursive: true });
-  await mkdir(path.join(DATA_DIR, 'questionnaires'), { recursive: true });
-  // Персистентность бота (трек bot-ui-session-persist): каждый пересев
-  // даёт чистые сессии — пустые коллекции перезаписывают накопленное.
-  await mkdir(path.join(DATA_DIR, 'bot'), { recursive: true });
-  // Кампании/отзывы peer-review копируются отдельно — с пересчётом окна
-  await mkdir(path.join(DATA_DIR, 'peer-review'), { recursive: true });
+  for (const dir of [
+    'users',
+    'streams',
+    'courses',
+    'wish',
+    'questionnaires',
+    'bot',
+    'peer-review',
+  ]) {
+    await mkdir(path.join(DATA_DIR, dir), { recursive: true });
+  }
 
   const copies: Array<[string, string]> = [
     ['users.json', 'users/users.json'],
@@ -115,6 +113,8 @@ async function copyFixtures() {
     ],
     ['bot/sessions.json', 'bot/sessions.json'],
     ['bot/short-ids.json', 'bot/short-ids.json'],
+    ['peer-review/campaigns.json', 'peer-review/campaigns.json'],
+    ['peer-review/reviews.json', 'peer-review/reviews.json'],
   ];
 
   for (const [src, dest] of copies) {
@@ -124,53 +124,26 @@ async function copyFixtures() {
   console.log('📁 Фикстуры скопированы в data/fixtures/');
 }
 
-async function patchUsers(devId: number) {
+/** Роли персон — по месту в мире (подмена личности подставит их тебе). */
+async function patchUsers() {
   const usersPath = path.join(DATA_DIR, 'users', 'users.json');
-  const raw = await readFile(usersPath, 'utf-8');
-  const users = JSON.parse(raw) as User[];
+  const users = JSON.parse(await readFile(usersPath, 'utf-8')) as User[];
+  const byId = new Map(users.map((u) => [u.uuid, u]));
 
-  const mentor = users.find((u) => u.uuid === MENTOR_UUID);
-  if (!mentor) {
-    console.error('❌ Ментор не найден в users.json');
-    process.exit(1);
+  const dev = byId.get(MENTOR_UUID);
+  if (!dev) throw new Error(`Ментор ${MENTOR_UUID} не найден в users.json`);
+  dev.name = 'Dev';
+
+  // Марина и Олег — студенты Потока 2 (в шаблоне роли GUEST — для смоука)
+  for (const uuid of [MARINA_UUID, OLEG_UUID]) {
+    const student = byId.get(uuid);
+    if (!student)
+      throw new Error(`Пользователь ${uuid} не найден в users.json`);
+    student.roles = [Role.STUDENT];
   }
 
-  // Привязываем ментора к dev-аккаунту и даём все роли
-  mentor.telegramId = devId;
-  mentor.roles = [
-    Role.GUEST,
-    Role.STUDENT,
-    Role.MENTOR,
-    Role.AUTHOR,
-    Role.ADMIN,
-  ];
-  mentor.name = 'Dev';
-
-  // Удаляем остальных пользователей, чтобы избежать конфликтов.
-  // Оставляем: ментора (dev-аккаунт), бот-админа (для BOT_ADMIN_UUID)
-  // и участников кампаний peer-review — иначе адресаты/субъекты
-  // фикстур останутся без карточек пользователей.
-  const BOT_ADMIN_UUID = 'ae00f3f6-1392-4b98-b178-41c27e794b7f';
-  const peerReviewUserIds = await peerReviewParticipantIds();
-  const keep = new Set([MENTOR_UUID, BOT_ADMIN_UUID, ...peerReviewUserIds]);
-  const filtered = users.filter((u) => keep.has(u.uuid));
-
-  await writeFile(usersPath, JSON.stringify(filtered, null, 2));
-  console.log('👤 Пользователь настроен: все роли на одном аккаунте');
-}
-
-async function patchStudents() {
-  const studentsPath = path.join(DATA_DIR, 'streams', 'students.json');
-  const raw = await readFile(studentsPath, 'utf-8');
-  const students = JSON.parse(raw);
-
-  // Привязываем студента к dev-аккаунту (ментору)
-  for (const s of students) {
-    s.userId = MENTOR_UUID; // dev-пользователь = ментор = теперь и студент
-  }
-
-  await writeFile(studentsPath, JSON.stringify(students, null, 2));
-  console.log('📝 Студент привязан к dev-аккаунту');
+  await writeFile(usersPath, JSON.stringify(users, null, 2));
+  console.log('👤 Роли персон выданы: Dev (ментор), Марина/Олег (студенты)');
 }
 
 /** Форма кампании peer-review (контекст stream_fate) — только нужное посеву. */
@@ -184,35 +157,18 @@ interface CampaignFixture {
   payload: { subjectOutcome: string; mentorId: string };
 }
 
-/** Прочитать шаблон кампаний peer-review. */
-async function readCampaignTemplates(): Promise<CampaignFixture[]> {
-  const raw = await readFile(
-    path.join(FIXTURES_DIR, 'peer-review/campaigns.json'),
-    'utf-8',
-  );
-  return JSON.parse(raw) as CampaignFixture[];
-}
-
-/** Все пользователи, на которых ссылаются кампании peer-review. */
-async function peerReviewParticipantIds(): Promise<string[]> {
-  const campaigns = await readCampaignTemplates();
-  const ids = new Set<string>();
-  for (const c of campaigns) {
-    ids.add(c.subjectId);
-    ids.add(c.payload.mentorId);
-    for (const p of c.participants) ids.add(p);
-  }
-  return [...ids];
-}
-
 /**
- * Оживить фикстуры peer-review: шаблонные даты устаревают, поэтому окно
- * кампаний пересчитывается от «сегодня» — живые открываются вчера
- * (6 дней остатка), истёкшая закрывается неделю назад. Отзывы сохраняют
- * своё смещение от старта окна кампании.
+ * Оживить фикстуры peer-review: окно кампаний пересчитывается от «сегодня» —
+ * живые открываются вчера (6 дней остатка), истёкшие закрываются 23 дня назад.
+ * Отзывы сохраняют своё смещение от старта окна кампании.
  */
 async function revitalizePeerReview() {
-  const campaigns = await readCampaignTemplates();
+  const campaigns = JSON.parse(
+    await readFile(
+      path.join(FIXTURES_DIR, 'peer-review/campaigns.json'),
+      'utf-8',
+    ),
+  ) as CampaignFixture[];
   const now = Date.now();
   const newCreatedAt = new Map<string, Date>();
 
@@ -222,18 +178,17 @@ async function revitalizePeerReview() {
       : new Date(now - 30 * DAY_MS); // истекла 23 дня назад
     const durationMs =
       new Date(c.expiresAt).getTime() - new Date(c.createdAt).getTime();
-    const expires = new Date(start.getTime() + durationMs);
     newCreatedAt.set(c.uuid, start);
     c.createdAt = isoMinute(start);
-    c.expiresAt = isoMinute(expires);
+    c.expiresAt = isoMinute(new Date(start.getTime() + durationMs));
   }
 
-  const reviewsPath = path.join(FIXTURES_DIR, 'peer-review/reviews.json');
-  const reviews = JSON.parse(await readFile(reviewsPath, 'utf-8')) as Array<{
-    uuid: string;
-    campaignId: string;
-    createdAt: string;
-  }>;
+  const reviews = JSON.parse(
+    await readFile(
+      path.join(FIXTURES_DIR, 'peer-review/reviews.json'),
+      'utf-8',
+    ),
+  ) as Array<{ uuid: string; campaignId: string; createdAt: string }>;
   for (const r of reviews) {
     const start = newCreatedAt.get(r.campaignId);
     if (!start) {
@@ -253,7 +208,35 @@ async function revitalizePeerReview() {
     path.join(DATA_DIR, 'peer-review/reviews.json'),
     JSON.stringify(reviews, null, 2),
   );
-  console.log('🏁 Peer-review: окно кампаний пересчитано от сегодня');
+  console.log(`🏁 Peer-review: живая кампания — c1, окно от сегодня`);
+}
+
+function printRunHint() {
+  console.log('');
+  console.log('Запуск бота:');
+  console.log(
+    '  DB_DIR=./data/fixtures DEV_TELEGRAM_ID=<твой tg> bun run apps/u7-bot/src/main.ts',
+  );
+}
+
+/** Карта ручных путей — что проверять каждой персоной. */
+function printWorldGuide() {
+  console.log(`
+🎭 Персонажи (переключение: /persona <ключ> в чате бота):
+  • dev    — ментор Потока 2 (и остальных): хаб → автопровод
+             «Отзыв об Андрей» с уже написанным отзывом (перезапись ✏️);
+             монитор потока → завершить Олега → событийная кампания
+             → приглашение Олегу прилетит в чат → /persona oleg.
+  • andrey — субъект живой c1: хаб → список S03 (Марина, Олег, Dev),
+             2/3 отзывов уже есть (✅ и метрики «2 из 3»).
+  • marina — завершившая студентка: живых кампаний нет (участник —
+             адресат, не автор); S07 с отзывом о себе.
+  • oleg   — одногруппник (not_advanced): адресат в списке Андрея;
+             после завершения ментором — своя кампания-список.
+
+Истёкшие кампании (заглушка окна): в хабе dev (c2, Поток 3) и
+andrey (c4, Поток 3) — при открытии экран «окно закрыто».
+Отзывы, написанные живьём, переживают перезапуски (маркер .seed-rev).`);
 }
 
 main().catch((err) => {
