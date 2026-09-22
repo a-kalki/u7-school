@@ -32,7 +32,7 @@ export abstract class BotUiApp<
   extends UiApp<TResolve>
   implements ProactiveSender
 {
-  declare protected readonly controllers: Map<
+  protected declare readonly controllers: Map<
     string,
     BotController<TAppMeta, TActor, TResolve>
   >;
