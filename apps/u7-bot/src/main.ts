@@ -7,13 +7,13 @@ import {
 } from '@u7-scl/core/shared';
 import { UserPolicy } from '@u7-scl/user/domain';
 import { webhookCallback } from 'grammy';
+import type { DevPersonaPanel } from '../scripts/dev-persona';
 import { createBot } from './bot';
 import { loadConfig } from './config';
 import { createApiApp } from './create-api-app';
 import { createUiApp } from './create-ui-app';
 import { registerGroupHandlers } from './handlers/group-handler';
 import { BotTransport } from './infra/bot-transport';
-import { DevPersonaSwitch } from './infra/dev-persona';
 import { JsonBotSessionRepo } from './infra/json-bot-session-repo';
 import { TelegramLogger } from './infra/logger';
 
@@ -44,18 +44,19 @@ const botSessionRepo = new JsonBotSessionRepo(
 );
 // ══ Dev-режим: подмена личности на входе транспорта ══
 // «Театр одного актёра»: все роли фикстурного мира — один человек.
-// Подмена — до UiApp (from.id персоны), редирект исходящих — обёрткой
-// BotApi: проактивы персонам приходят в dev-чат. Вкл. только при
-// DEV_TELEGRAM_ID из .env локальной разработки; в production guard
-// выключает подмену, даже если переменная утекла в прод-env.
-const devSwitch =
-  config.devTelegramId && process.env.NODE_ENV !== 'production'
-    ? new DevPersonaSwitch(config.devTelegramId)
-    : null;
+// Логика — в scripts/dev-persona.ts (вне прод-пути): подключается
+// динамическим импортом и только при DEV_TELEGRAM_ID вне production.
+// Прод-путь кода подмены не содержит; утечка DEV_TELEGRAM_ID в
+// прод-env ничего не активирует (guard по NODE_ENV).
+let devPanel: DevPersonaPanel | null = null;
+if (config.devTelegramId && process.env.NODE_ENV !== 'production') {
+  const { createDevPersonaPanel } = await import('../scripts/dev-persona');
+  devPanel = createDevPersonaPanel(config.devTelegramId);
+}
 
 const transport = new BotTransport(
   uiBundle.uiApp,
-  devSwitch ? devSwitch.wrapApi(bot.api) : bot.api,
+  devPanel ? devPanel.wrapApi(bot.api) : bot.api,
   botSessionRepo,
 );
 
@@ -143,24 +144,9 @@ privateBot.use(async (ctx, next) => {
 // → дефолты u7 (help/cancel/unknown). /log_level — app-контроллер.
 // Поимённой grammy-регистрации команд нет.
 // ══ Dev-режим: перехват /persona + подмена автора ДО транспорта ══
-// Команда переключает персону и в домен не уходит; ответы — в реальный
-// dev-чат (chat.id не подменяется). Прочие пользователи — без изменений.
-if (devSwitch && config.devTelegramId) {
-  const devTelegramId = config.devTelegramId;
-  privateBot.use(async (ctx, next) => {
-    if (ctx.from?.id !== devTelegramId) return next();
-    const text = ctx.message?.text;
-    if (text) {
-      const reply = devSwitch.handleCommand(text);
-      if (reply !== null) {
-        await ctx.reply(reply);
-        return;
-      }
-    }
-    devSwitch.applyFrom(ctx);
-    return next();
-  });
-}
+// Вся логика — внутри панели (scripts/dev-persona.ts): команда
+// переключает персону и в домен не уходит.
+devPanel?.installCommandInterceptor(privateBot);
 
 privateBot.on('callback_query:data', (ctx) => transport.handleCallback(ctx));
 privateBot.on('message:text', (ctx) => transport.handleMessage(ctx));
@@ -219,8 +205,8 @@ if (config.botMode === 'webhook') {
 }
 
 // ══ Dev-режим: список персон — в лог и приветствием в чат ══
-if (devSwitch && config.devTelegramId) {
-  const hello = `🎭 Dev-режим подмены личности активен.\n\n${devSwitch.listText()}`;
+if (devPanel && config.devTelegramId) {
+  const hello = `🎭 Dev-режим подмены личности активен.\n\n${devPanel.listText()}`;
   // В лог — чтобы видеть персон ещё до открытия чата
   logger.info('main', `\n${hello}`);
   // И в чат бота — исходный api (не обёрнутый редиректом персон)

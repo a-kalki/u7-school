@@ -1,8 +1,12 @@
-import type { Api } from 'grammy';
-import type { BotContext } from '../context';
+import type { Api, Composer } from 'grammy';
+import type { BotContext } from '../src/context';
 
 /**
  * Dev-режим «театр одного актёра»: подмена личности на входе транспорта.
+ *
+ * Живёт в scripts/ (не в src-пути прод-бандла): main.ts подгружает модуль
+ * динамически и только при DEV_TELEGRAM_ID вне production — прод-путь кода
+ * подмены не содержит.
  *
  * Фикстуры моделируют виртуальный мир (потоки, студенты, менторы).
  * Ручная проверка всех ролей без второго аккаунта: апдейты с
@@ -131,4 +135,43 @@ export class DevPersonaSwitch {
       },
     });
   }
+}
+
+/** Панель dev-режима — контракт точки подключения в main.ts. */
+export interface DevPersonaPanel {
+  /** Список персон (текущая роль + ключи) — для лога и приветствия. */
+  listText(): string;
+  /** Обёртка BotApi с редиректом проактивов персонам в dev-чат. */
+  wrapApi(api: Api): Api;
+  /** Перехватчик /persona + подмена автора ДО транспорта. */
+  installCommandInterceptor(bot: Composer<BotContext>): void;
+}
+
+/**
+ * Точка входа dev-режима для main.ts: собирает переключатель персон
+ * и всё, что нужно прод-скрипту для подключения (динамический импорт).
+ */
+export function createDevPersonaPanel(devTelegramId: number): DevPersonaPanel {
+  const sw = new DevPersonaSwitch(devTelegramId);
+  return {
+    listText: () => sw.listText(),
+    wrapApi: (api) => sw.wrapApi(api),
+    installCommandInterceptor(bot) {
+      // Ответы команды — в реальный dev-чат (chat.id не подменяется);
+      // прочие пользователи — без изменений.
+      bot.use(async (ctx, next) => {
+        if (ctx.from?.id !== devTelegramId) return next();
+        const text = ctx.message?.text;
+        if (text) {
+          const reply = sw.handleCommand(text);
+          if (reply !== null) {
+            await ctx.reply(reply);
+            return;
+          }
+        }
+        sw.applyFrom(ctx);
+        return next();
+      });
+    },
+  };
 }

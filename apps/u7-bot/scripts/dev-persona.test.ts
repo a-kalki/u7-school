@@ -1,10 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import type { Api } from 'grammy';
-import { DEV_PERSONAS, DevPersonaSwitch } from './dev-persona';
+import {
+  createDevPersonaPanel,
+  DEV_PERSONAS,
+  DevPersonaSwitch,
+} from './dev-persona';
 
 const DEV_TG = 999_111;
 
-/** Минимальный ctx-заглушки: dev-persona касается только from и message.text. */
+/** Минимальная ctx-заглушка: dev-persona касается только from и message.text. */
 function ctxOf(fromId: number | undefined, text?: string) {
   return {
     from: fromId === undefined ? undefined : { id: fromId },
@@ -89,5 +93,72 @@ describe('DevPersonaSwitch', () => {
       expect(sw.redirects.get(p.telegramId)).toBe(DEV_TG);
     }
     expect(sw.redirects.get(1005)).toBeUndefined(); // не персона
+  });
+});
+
+describe('createDevPersonaPanel (точка подключения main.ts)', () => {
+  /** Мини-заглушка grammy-bot: собирает middleware, вызывает вручную. */
+  function botStub() {
+    const middlewares: Array<
+      (ctx: object, next: () => Promise<void>) => Promise<void>
+    > = [];
+    return {
+      use(fn: (ctx: object, next: () => Promise<void>) => Promise<void>) {
+        middlewares.push(fn);
+      },
+      async dispatch(ctx: object) {
+        let nexted = false;
+        for (const fn of middlewares) {
+          await fn(ctx, async () => {
+            nexted = true;
+          });
+        }
+        return { nexted };
+      },
+    };
+  }
+
+  test('команда /persona от dev: ответ в реальный чат, в домен не уходит', async () => {
+    const panel = createDevPersonaPanel(DEV_TG);
+    const bot = botStub();
+    panel.installCommandInterceptor(bot as never);
+
+    const replies: string[] = [];
+    const ctx = {
+      ...ctxOf(DEV_TG, '/persona oleg'),
+      reply: (t: string) => {
+        replies.push(t);
+        return Promise.resolve({});
+      },
+    };
+    const { nexted } = await bot.dispatch(ctx);
+
+    expect(replies[0]).toContain('Теперь ты — Олег');
+    expect(nexted).toBe(false); // next не вызван — домен не увидит команду
+  });
+
+  test('обычное сообщение от dev: подмена from.id, уходит в домен', async () => {
+    const panel = createDevPersonaPanel(DEV_TG);
+    const bot = botStub();
+    panel.installCommandInterceptor(bot as never);
+    panel; // (панель уже установила interceptor с персоной dev)
+
+    const ctx = { ...ctxOf(DEV_TG, 'Мой отзыв о менторе') };
+    const { nexted } = await bot.dispatch(ctx);
+
+    expect(ctx.from?.id).toBe(1004); // подменён на Dev
+    expect(nexted).toBe(true);
+  });
+
+  test('сообщение от чужого пользователя: без подмены, уходит в домен', async () => {
+    const panel = createDevPersonaPanel(DEV_TG);
+    const bot = botStub();
+    panel.installCommandInterceptor(bot as never);
+
+    const ctx = { ...ctxOf(123_456, '/persona oleg') };
+    const { nexted } = await bot.dispatch(ctx);
+
+    expect(ctx.from?.id).toBe(123_456); // чужой не подменяется
+    expect(nexted).toBe(true); // команда уйдёт в домен как обычный текст
   });
 });
