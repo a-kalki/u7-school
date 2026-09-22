@@ -48,13 +48,13 @@ export class MyReviewsStory extends U7BotUiStory {
     session: BotSession,
   ): Promise<DialogResponse> {
     if (action === 'hub') {
-      return this.#showHub(actor);
+      return this.showHub(actor);
     }
     return this.unknownCommand(action, actor, session);
   }
 
   /** S02: интро + нумерованные мини-карточки + кнопки с номерами. */
-  async #showHub(actor: User): Promise<DialogResponse> {
+  async showHub(actor: User): Promise<DialogResponse> {
     const cards = await this.appApi.execute(
       'get-my-campaigns',
       { userId: actor.uuid, onlyLives: true },
@@ -93,7 +93,7 @@ export class MyReviewsStory extends U7BotUiStory {
       blocks.push(
         mdJoin([
           i > 0 ? separator : md``,
-          md`${i + 1}\\. Поток «${title}»`,
+          md`${i + 1}\\. *Поток «${title}»*`,
           md`${invite}`,
           md`${metrics}`,
         ]),

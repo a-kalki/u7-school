@@ -191,7 +191,7 @@ describe('MyReviewsStory — экран S02 «Мои отзывы» (мини-к
 
     // Абстрактное интро «что это за место»
     expect(text).toContain('Здесь ты можешь оставить отзывы');
-    expect(text).toContain('1\\. Поток «Первый поток»');
+    expect(text).toContain('1\\. *Поток «Первый поток»*');
     expect(text).toContain('Ты завершил обучение\\. Поделись впечатлениями');
     expect(text).toContain('Метрики: 1/4 \\(5 дн\\.\\)');
 
@@ -266,8 +266,8 @@ describe('MyReviewsStory — экран S02 «Мои отзывы» (мини-к
     const response = await story.handleCallback('hub', actor, session);
     const text = String(response.screen?.text ?? '');
 
-    expect(text).toContain('1\\. Поток «Первый поток»');
-    expect(text).toContain('2\\. Поток «Второй поток»');
+    expect(text).toContain('1\\. *Поток «Первый поток»*');
+    expect(text).toContain('2\\. *Поток «Второй поток»*');
 
     const rows = response.screen?.keyboard?.rows ?? [];
     expect(rows.length).toBe(3); // две кампании + меню

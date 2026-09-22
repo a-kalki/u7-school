@@ -3,27 +3,42 @@ import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import { AppException } from '@u7-scl/core/domain';
 import { type MdText, md, mdJoin } from '@u7-scl/core/shared';
 import type { BotSession, BotUpdate, DialogResponse } from '@u7-scl/core/ui';
+import type { MyRecipientsView } from '@u7-scl/peer-review/domain';
 import { buttons } from '../../shared/buttons';
+import type { MyReviewsStory } from './my-reviews.story';
 
 /**
  * US: Кампания отзывов — карточка кампании и ввод отзыва
- * (S03 список адресатов → S05 ввод → S06 сохранение, S04 перезапись,
- * S05i справка «Как писать отзыв»).
+ * (S03 список адресатов → S05 ввод → S06 сохранение, S04 перезапись).
  *
- * Вход: `list:<campaignId>` — из приглашения (S01) или хаба «Отзывы» (S02).
- * Тексты — ui-spec 2026-09-22: тракт «от общего к частному» — вводный абзац
- * S03 («кому и зачем») по паре «роль-судьба», подсказка S05 («что именно
- * и как»: мягкий шаблон двух секций + принципы), справка S05i по кнопке
- * без выхода из ввода. Адресация и ✅-признак считаются доменом
- * (`get-campaign-recipients`).
+ * Навигация (ui-spec 2026-09-22, живой прогон):
+ * - в экран ввода попадают только из списка кампании → «откуда пришёл,
+ *   туда вернёшься» выполняется без хранения referrer: родитель ввода —
+ *   S03 (несколько адресатов) или хаб S02 (единственный адресат);
+ * - единственный адресат — «выбор без выбора»: S03 не показываем,
+ *   сразу экран ввода (S05 или S04, если об этом человеке уже написано);
+ * - после сохранения — инфо-сообщение, затем новый экран-родитель;
+ * - справка «Как писать отзыв» — инфо-сообщение без кнопок: экран ввода
+ *   и ожидание текста не трогаются.
+ *
+ * Логика переходов собрана в явных методах-решениях (см. singleTargetOf,
+ * #backAction, #afterSaveResponse) — не расплывается по коду.
  */
 export class CampaignStory extends U7BotUiStory {
   readonly name = 'campaign';
 
+  /**
+   * Хаб «Мои отзывы» — рендер возврата при единственном адресате
+   * (S03 у такой кампании не показывается, родитель — хаб).
+   */
+  constructor(private readonly hub?: MyReviewsStory) {
+    super();
+  }
+
   override async handleCallback(
     action: string,
     actor: User,
-    _session: BotSession,
+    session: BotSession,
   ): Promise<DialogResponse> {
     const [cmd, campaignId, recipientId] = action.split(':');
     if (cmd === 'list' && campaignId) {
@@ -33,12 +48,10 @@ export class CampaignStory extends U7BotUiStory {
       return this.#askReview(campaignId, recipientId, actor);
     }
     if (cmd === 'how' && campaignId && recipientId) {
-      return this.#showHowTo(campaignId, recipientId);
+      // Инфо-сообщение без кнопок: экран и ожидание ввода не трогаем
+      return this.notify(HOW_TO_REVIEW);
     }
-    if (cmd === 'skip' && campaignId) {
-      return this.#showRecipients(campaignId, actor);
-    }
-    return this.unknownCommand(action, actor, _session);
+    return this.unknownCommand(action, actor, session);
   }
 
   override async handleMessage(
@@ -64,6 +77,15 @@ export class CampaignStory extends U7BotUiStory {
       );
     }
     try {
+      const before = await this.appApi.execute(
+        'get-my-review',
+        {
+          campaignId: context.campaignId,
+          authorId: actor.uuid,
+          recipientId: context.recipientId,
+        },
+        actor,
+      );
       const saved = await this.appApi.execute(
         'create-review',
         {
@@ -74,7 +96,15 @@ export class CampaignStory extends U7BotUiStory {
         },
         actor,
       );
-      return this.#showRecipients(saved.campaignId, actor, saved.recipientId);
+      const name =
+        (await this.#namesOf([context.recipientId], actor)).get(
+          context.recipientId,
+        ) ?? '';
+      // Инфо-сообщение о результате: новое сохранение или перезапись
+      const notice = before.found
+        ? md`✏️ Отзыв о ${name} обновлён\\.`
+        : md`✅ Отзыв о ${name} сохранён\\.`;
+      return this.#afterSaveResponse(saved.campaignId, actor, notice);
     } catch (err) {
       // Окно истекло пока писали — экран-заглушка (спека: возможности нет)
       if (
@@ -83,7 +113,7 @@ export class CampaignStory extends U7BotUiStory {
       ) {
         return this.screen(
           md`⌛ Возможность написать отзыв уже закрыта\\.`,
-          this.kb([[buttons.mainMenu()]]),
+          this.kb([[this.#hubBtn()]]),
         );
       }
       // Прочие ошибки домена (чужой адресат и т.п.) — реплика поверх
@@ -91,11 +121,10 @@ export class CampaignStory extends U7BotUiStory {
     }
   }
 
-  /** S03/S06: карточка кампании — контекст судьбы, прогресс, адресаты. */
+  /** S03: карточка кампании — контекст судьбы, прогресс, адресаты. */
   async #showRecipients(
     campaignId: string,
     actor: User,
-    savedId?: string,
   ): Promise<DialogResponse> {
     const view = await this.appApi.execute(
       'get-campaign-recipients',
@@ -109,10 +138,18 @@ export class CampaignStory extends U7BotUiStory {
     );
     const card = cards.find((c) => c.campaignId === campaignId);
     if (!card) {
+      // кампания не жива/не моя — проверка РАНЬШЕ автопровала: истёкшее
+      // окно с единственным адресатом не должно открывать ввод
       return this.screen(
         md`⚠️ Кампания не найдена\\.`,
-        this.kb([[buttons.mainMenu()]]),
+        this.kb([[this.#hubBtn()]]),
       );
+    }
+    // «Выбор без выбора»: единственный адресат — список не показываем,
+    // сразу экран ввода (подсказка S05 или перезапись S04)
+    const single = singleTargetOf(view);
+    if (single) {
+      return this.#askReview(campaignId, single.userId, actor);
     }
     const stream = await this.appApi.execute(
       'get-stream',
@@ -133,16 +170,11 @@ export class CampaignStory extends U7BotUiStory {
         this.cb('open', campaignId, r.userId),
       ),
     ]);
-    rows.push([buttons.mainMenu()]);
-
-    // S06: после сохранения — заголовок с именем, прогресс обновлён
-    const header = savedId
-      ? md`✅ Отзыв о ${names.get(savedId) ?? ''} сохранён\\. О ком ещё рассказать?`
-      : md`✍️ *Отзывы — поток «${stream.title}»*`;
+    rows.push([this.#hubBtn()]);
 
     return this.screen(
       mdJoin([
-        header,
+        md`✍️ *Отзывы — поток «${stream.title}»*`,
         md``,
         ...campaignIntro(view.myRole, view.subjectOutcome, subjectName),
         md``,
@@ -173,11 +205,14 @@ export class CampaignStory extends U7BotUiStory {
     if (!recipient) {
       return this.screen(
         md`⚠️ Адресат недоступен\\.`,
-        this.kb([[buttons.mainMenu()]]),
+        this.kb([[this.#hubBtn()]]),
       );
     }
     const name =
       (await this.#namesOf([recipientId], actor)).get(recipientId) ?? '';
+    const title = await this.#streamTitleOf(campaignId, actor);
+    // Шапка-ориентир: при провале из списка/хаба понятно, о каком потоке речь
+    const header = md`✍️ *Отзыв — поток «${title}»*`;
     const prompt = reviewPrompt(
       view.myRole,
       recipientRoleOf(recipientId, view.mentorId),
@@ -185,10 +220,10 @@ export class CampaignStory extends U7BotUiStory {
       view.subjectOutcome,
     );
     const context: ReviewInputContext = { campaignId, recipientId };
-    // Кнопка справки — в обоих экранах ввода, без выхода из ввода
+    // Назад — к родителю: список (>1 адресата) или хаб (единственный)
     const kb = this.kb([
+      [this.#backAction(campaignId, view.recipients.length)],
       [
-        this.btn('⏭️ Пропустить', this.cb('skip', campaignId)),
         this.btn(
           '❔ Как писать отзыв',
           this.cb('how', campaignId, recipientId),
@@ -196,7 +231,11 @@ export class CampaignStory extends U7BotUiStory {
       ],
     ]);
     if (!recipient.hasMyReview) {
-      return this.ask(mdJoin([prompt, md``, PRINCIPLES_BLOCK]), context, kb);
+      return this.ask(
+        mdJoin([header, md``, prompt, md``, PRINCIPLES_BLOCK]),
+        context,
+        kb,
+      );
     }
 
     // S04: адресат уже отозван — экран перезаписи с текущим текстом
@@ -207,10 +246,16 @@ export class CampaignStory extends U7BotUiStory {
     );
     if (!my.found) {
       // рассинхрон признака (гонка) — обычный ввод S05
-      return this.ask(mdJoin([prompt, md``, PRINCIPLES_BLOCK]), context, kb);
+      return this.ask(
+        mdJoin([header, md``, prompt, md``, PRINCIPLES_BLOCK]),
+        context,
+        kb,
+      );
     }
     return this.ask(
       mdJoin([
+        header,
+        md``,
         md`✏️ Ты уже писал\\(а\\) о ${name}:`,
         md``,
         md`«${my.text ?? ''}»`,
@@ -221,30 +266,65 @@ export class CampaignStory extends U7BotUiStory {
         PRINCIPLES_BLOCK,
       ]),
       context,
-      this.kb([
-        [
-          this.btn('❌ Назад', this.cb('skip', campaignId)),
-          this.btn(
-            '❔ Как писать отзыв',
-            this.cb('how', campaignId, recipientId),
-          ),
-        ],
-      ]),
+      kb,
     );
   }
 
   /**
-   * S05i: справка «Как писать отзыв» — по кнопке с экранов ввода.
-   * Screen без ask: диалог ввода (контекст, переспросы) сохраняется —
-   * «↩️ К вводу» возвращает подсказку, текст пользователя всё ещё ждёт.
+   * Экран после сохранения — «откуда пришли в отзыв, туда и вернулись»:
+   * несколько адресатов → список кампании S03 (обновлённые ✅ и метрики),
+   * единственный → хаб S02 (список у такой кампании не показывается).
+   * Инфо-сообщение о результате уходит первым, поверх нового экрана.
    */
-  #showHowTo(campaignId: string, recipientId: string): DialogResponse {
-    return this.screen(
-      HOW_TO_REVIEW,
-      this.kb([
-        [this.btn('↩️ К вводу', this.cb('open', campaignId, recipientId))],
-      ]),
+  async #afterSaveResponse(
+    campaignId: string,
+    actor: User,
+    notice: MdText,
+  ): Promise<DialogResponse> {
+    const view = await this.appApi.execute(
+      'get-campaign-recipients',
+      { campaignId, authorId: actor.uuid },
+      actor,
     );
+    const parent =
+      view.recipients.length > 1 || !this.hub
+        ? await this.#showRecipients(campaignId, actor)
+        : await this.hub.showHub(actor);
+    return { ...parent, notify: { text: notice } };
+  }
+
+  /** Кнопка «↩️ Мои отзывы» — родитель списка кампании. */
+  #hubBtn() {
+    return this.btn('↩️ Мои отзывы', this.cbFor('my-reviews', 'hub'));
+  }
+
+  /**
+   * Кнопка «↩️ Назад» с экранов ввода — к родителю по построению:
+   * в ввод попадают только из списка кампании, поэтому при нескольких
+   * адресатах родитель — S03; при единственном S03 не показывается,
+   * родитель — хаб S02.
+   */
+  #backAction(campaignId: string, recipientsCount: number) {
+    return recipientsCount > 1
+      ? this.btn('↩️ Назад', this.cb('list', campaignId))
+      : this.#hubBtn();
+  }
+
+  /** Название потока кампании — для шапки экранов ввода. */
+  async #streamTitleOf(campaignId: string, actor: User): Promise<string> {
+    const cards = await this.appApi.execute(
+      'get-my-campaigns',
+      { userId: actor.uuid },
+      actor,
+    );
+    const card = cards.find((c) => c.campaignId === campaignId);
+    if (!card) return '';
+    const stream = await this.appApi.execute(
+      'get-stream',
+      { streamId: card.scopeId },
+      actor,
+    );
+    return stream.title;
   }
 
   /** Имена адресатов для подписей кнопок. */
@@ -260,6 +340,14 @@ export class CampaignStory extends U7BotUiStory {
     }
     return names;
   }
+}
+
+/**
+ * Единственный адресат кампании («выбор без выбора»): список S03
+ * не показываем — сразу экран ввода об этом человеке.
+ */
+function singleTargetOf(view: MyRecipientsView) {
+  return view.recipients.length === 1 ? view.recipients[0] : undefined;
 }
 
 /**
@@ -282,7 +370,7 @@ function recipientRoleOf(
   return recipientId === mentorId ? 'mentor' : 'student';
 }
 
-/** 📊 Прогресс — развёрнутые метрики S03/S06 (каждая — своей строкой). */
+/** 📊 Прогресс — развёрнутые метрики S03 (каждая — своей строкой). */
 function progressBlock(
   done: number,
   total: number,
@@ -366,8 +454,9 @@ const PRINCIPLES_BLOCK: MdText = md`Будь честен, пиши правду
 
 /**
  * Текст-подсказка S05 — по направлению «кто о ком»; «о менторе» — ещё и
- * по исходу автора. Мягкий шаблон двух секций: готовые первые строки,
- * префиксы не обязательны (ui-spec 2026-09-22).
+ * по исходу автора. Рекомендация двух частей с готовыми первыми строками
+ * (моноширинные вставки; ui-spec 2026-09-22): префиксы не обязательны —
+ * это опора, а не форма. Плейсхолдер {Имя} пользователь заменяет сам.
  */
 function reviewPrompt(
   myRole: 'subject' | 'mentor',
@@ -375,29 +464,71 @@ function reviewPrompt(
   name: string,
   subjectOutcome: AuthorOutcome,
 ): MdText {
+  const lead = md`Предлагаем разделить отзыв на две части\\.`;
   if (recipientRole === 'student') {
     if (myRole === 'mentor') {
-      return md`Начни со строки "Отзыв для ${name}:" — как студент проявлялся в учёбе: сильные стороны, чего удалось достичь за поток\\. Затем через пустую строку добавь "Рекомендация по развитию:" — что стоит подтянуть и в каком направлении расти\\.`;
+      return mdJoin([
+        lead,
+        md``,
+        md`Сначала — \`Отзыв для {Имя}:\` \\(вместо \\{Имя\\} — ${name}\\) как студент проявлялся в учёбе: сильные стороны, чего удалось достичь за поток\\.`,
+        md``,
+        md`Затем с новой строки — \`Рекомендация по развитию:\` что стоит подтянуть и в каком направлении расти\\.`,
+      ]);
     }
-    return md`Начни со строки "Отзыв для ${name}:" — расскажи, как ${name} проявил\\(а\\) себя в учёбе: профессиональные, командные и личностные качества\\. Не обязательно перечислять всё — пиши то, что считаешь важным, и правду\\. Затем через пустую строку добавь "Как с ним работать:" — короткую рекомендацию тем, кто будет учиться или работать рядом\\.`;
+    return mdJoin([
+      lead,
+      md``,
+      md`Сначала — \`Отзыв для {Имя}:\` \\(вместо \\{Имя\\} — ${name}\\) расскажи, как ${name} проявил\\(а\\) себя в учёбе — профессиональные, командные и личностные качества\\. Не обязательно перечислять всё — пиши то, что считаешь важным, и правду\\.`,
+      md``,
+      md`Затем с новой строки — \`Как с ним работать:\` короткую рекомендацию тем, кто будет учиться или работать рядом\\.`,
+    ]);
   }
   switch (subjectOutcome) {
     case 'dropped':
-      return md`Начни со строки "Отзыв для ментора:" — почему забросил\\(а\\) учёбу, что помогало, что мешало, какие пожелания школе и ментору\\. Затем через пустую строку добавь "Следует ожидать от курса:" — твою рекомендацию тем, кто рассматривает это обучение\\.`;
+      return mdJoin([
+        lead,
+        md``,
+        md`Сначала — \`Отзыв для ментора:\` почему забросил\\(а\\) учёбу, что помогало, что мешало, какие пожелания школе и ментору\\.`,
+        md``,
+        md`Затем с новой строки — \`Следует ожидать от курса:\` твою рекомендацию тем, кто хочет выбрать это обучение\\.`,
+      ]);
     case 'never_started':
-      return md`Начни со строки "Что остановило:" — почему так и не начал\\(а\\) учёбу, что не совпало с ожиданиями\\. Затем через пустую строку добавь "Моя рекомендация:" — что стоит знать школе и тем, кто выбирает обучение\\.`;
+      return mdJoin([
+        lead,
+        md``,
+        md`Сначала — \`Что остановило:\` почему так и не начал\\(а\\) учёбу, что не совпало с ожиданиями\\.`,
+        md``,
+        md`Затем с новой строки — \`Моя рекомендация:\` что стоит знать школе и тем, кто выбирает обучение\\.`,
+      ]);
     // «завершил и прошёл» / «завершил и не прошёл» — текст один
     // (и защита от рассинхрона формы)
     default:
-      return md`Начни со строки "Отзыв для ментора:" — что помогало учиться, что мешало, чего не хватило\\. Затем через пустую строку добавь "Моя рекомендация студентам:" — кому и почему подойдёт этот ментор\\. Пиши правду\\.`;
+      return mdJoin([
+        lead,
+        md``,
+        md`Сначала — \`Отзыв для ментора:\` что помогало учиться, что мешало, чего не хватило\\.`,
+        md``,
+        md`Затем с новой строки — \`Моя рекомендация студентам:\` кому и почему подойдёт этот ментор\\.`,
+      ]);
   }
 }
 
-/** S05i: справка «Как писать отзыв» (ui-spec 2026-09-22, примеры обезличены). */
+/**
+ * S05i: справка «Как писать отзыв» — инфо-сообщение без кнопок
+ * (ui-spec 2026-09-22; примеры обезличены). Экран ввода остаётся активным —
+ * финальная строка напоминает об этом.
+ */
 const HOW_TO_REVIEW: MdText = mdJoin([
   md`❔ *Как писать отзыв*`,
   md``,
   md`Отзыв полезен, когда говорит о навыках и конкретных ситуациях — а не о людях\\.`,
+  md``,
+  md`🌱 *Сначала — сильные стороны*`,
+  md`Начинай с того, что получилось и в чём человек силён, а потом — что стоит подтянуть\\. Такой отзыв легче принять и полезнее читать\\.`,
+  md`✅ «Мне не раз приходилось работать с Андреем в сессиях парного программирования\\. Он всегда был в фокусе происходящего, предлагал ценные идеи и хорошо разбивал логику задачи на этапы\\. Бывает категоричен — отстоять другую точку зрения сложно, но в паре это же помогало быстрее приходить к решениям\\.»`,
+  md``,
+  md`🎯 *Пиши своё*`,
+  md`Ты не обязан писать по шаблону\\. Скажи то, что важно именно тебе: с желанием помочь человеку расти и подсказать другим, как с ним работается\\. Это и есть цель отзыва — всё остальное лишь средства\\.`,
   md``,
   md`🧩 *Пиши о навыках и фактах*`,
   md`Опирайся на наблюдаемое: что человек делал, как часто, с каким результатом\\.`,
@@ -421,4 +552,6 @@ const HOW_TO_REVIEW: MdText = mdJoin([
   md`«Он токсичный» → «На созвонах разговор часто уходил в споры, из\\-за этого я молчал и не предлагал идеи\\. Было бы легче договориться о формате заранее\\.»`,
   md``,
   md`Пиши правду — только она приносит пользу\\.`,
+  md``,
+  md`✍️ Экран ввода остаётся активным — просто напиши отзыв следующим сообщением\\.`,
 ]);

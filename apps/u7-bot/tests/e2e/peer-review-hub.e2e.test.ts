@@ -114,7 +114,7 @@ describe('E2E peer-review: хаб «Мои отзывы» и меню', () => {
     const hubText = String(hubResp.screen?.text);
     expect(hubText).toContain('💬 *Мои отзывы*');
     // myRole=subject: «одногруппники и ментор», окно свежей кампании — 7 дн
-    expect(hubText).toContain(`1\\. Поток «${STREAM_TITLE}»`);
+    expect(hubText).toContain(`1\\. *Поток «${STREAM_TITLE}»*`);
     expect(hubText).toContain('Ты завершил обучение');
     expect(hubText).toContain('Метрики: 0/3 \\(7 дн\\.\\)');
     const hubBtn = hubResp.screen?.keyboard?.rows
@@ -151,6 +151,32 @@ describe('E2E peer-review: хаб «Мои отзывы» и меню', () => {
         .flat()
         .some((b) => /\d\. Отзыв об Марина/.test(b.text)),
     ).toBe(true);
+
+    // Автопровал «выбор без выбора»: у ментора единственный адресат —
+    // клик по карточке открывает экран ввода, минуя список адресатов
+    const input = await transport.handleCallback(
+      transport.makeBotContext(MENTOR_TG, {
+        callbackData: pressedCode(transport, MENTOR_TG, 'Отзыв об Марина'),
+      }),
+    );
+    const inputText = String(input.screen?.text);
+    expect(inputText).toContain('✍️ *Отзыв — поток «');
+    expect(inputText).toContain('Предлагаем разделить отзыв на две части');
+    expect(inputText).toContain('`Отзыв для {Имя}:`');
+    // «Назад» при единственном адресате — в хаб
+    expect(input.screen?.keyboard?.rows.flat()[0]?.text).toBe('↩️ Мои отзывы');
+    expect(input.awaitInput).toBeDefined();
+
+    // Сохранение: инфо «сохранён» + возврат в хаб (родитель единственного)
+    const saved = await transport.handleMessage(
+      transport.makeBotContext(MENTOR_TG, {
+        text: 'Марина стабильно выполняла задания и задавала точные вопросы.',
+      }),
+    );
+    expect(String(saved.notify?.text ?? '')).toContain(
+      '✅ Отзыв о Марина сохранён',
+    );
+    expect(String(saved.screen?.text)).toContain('💬 *Мои отзывы*');
   });
 
   test('истёкшее окно: старое приглашение → «Кампания не найдена» (списочный путь)', async () => {
@@ -167,7 +193,7 @@ describe('E2E peer-review: хаб «Мои отзывы» и меню', () => {
       transport.makeBotContext(DROPPED_TG, { callbackData: staleCode }),
     );
     expect(String(s03.screen?.text)).toContain('⚠️ Кампания не найдена');
-    expect(s03.screen?.keyboard?.rows.flat()[0]?.text).toBe('↩️ Главное меню');
+    expect(s03.screen?.keyboard?.rows.flat()[0]?.text).toBe('↩️ Мои отзывы');
   });
 
   test('окно истекло во время ввода → экран-заглушка «возможность закрыта»', async () => {
@@ -217,6 +243,6 @@ describe('E2E peer-review: хаб «Мои отзывы» и меню', () => {
     expect(String(input.screen?.text)).toContain(
       '⌛ Возможность написать отзыв уже закрыта',
     );
-    expect(input.screen?.keyboard?.rows.flat()[0]?.text).toBe('↩️ Главное меню');
+    expect(input.screen?.keyboard?.rows.flat()[0]?.text).toBe('↩️ Мои отзывы');
   });
 });

@@ -123,7 +123,7 @@ describe('E2E peer-review: судьба субъекта — написание'
       'Одногруппник — Андрей',
       'Одногруппник — Олег',
       'Ментор — Ментор',
-      '↩️ Главное меню',
+      '↩️ Мои отзывы',
     ]);
 
     // ── 4. Выбор ментора → S05 (подсказка по исходу автора) ──
@@ -132,17 +132,35 @@ describe('E2E peer-review: судьба субъекта — написание'
     const s05 = await transport.handleCallback(
       transport.makeBotContext(SUBJECT_TG, { callbackData: mentorBtnCode }),
     );
+    // шапка-ориентир: о каком потоке отзыв
+    expect(String(s05.screen?.text)).toContain('✍️ *Отзыв — поток «');
     expect(String(s05.screen?.text)).toContain(
-      'Начни со строки "Отзыв для ментора:"',
+      'Предлагаем разделить отзыв на две части',
     );
     expect(String(s05.screen?.text)).toContain('что помогало учиться');
     expect(String(s05.screen?.text)).toContain('Моя рекомендация студентам:');
-    // Принципы — общий блок экранов ввода + кнопка справки
+    // Принципы — общий блок экранов ввода + кнопки справки
     expect(String(s05.screen?.text)).toContain('Характеризуй навыки');
-    const howBtn = s05.screen?.keyboard?.rows
-      .flat()
-      .find((b) => b.text.includes('Как писать отзыв'));
-    expect(howBtn?.code).toStartWith('peer-review:campaign:how:');
+    // код кнопок — из отштампованного транспорт-рендера (pressedCode)
+    expect(pressedCode(transport, SUBJECT_TG, 'Как писать отзыв')).toStartWith(
+      'peer-review:campaign:how:',
+    );
+    // «Назад» при нескольких адресатах — в список кампании
+    expect(pressedCode(transport, SUBJECT_TG, '↩️ Назад')).toStartWith(
+      'peer-review:campaign:list:',
+    );
+
+    // справка — инфо-сообщение, экран и ввод не трогаются
+    const how = await transport.handleCallback(
+      transport.makeBotContext(SUBJECT_TG, {
+        callbackData: pressedCode(transport, SUBJECT_TG, 'Как писать отзыв'),
+      }),
+    );
+    expect(String(how.notify?.text ?? '')).toContain('Как писать отзыв');
+    expect(String(how.notify?.text ?? '')).toContain(
+      'Экран ввода остаётся активным',
+    );
+    expect(how.screen).toBeUndefined();
 
     expect(s05.awaitInput).toBeDefined();
 
@@ -162,14 +180,19 @@ describe('E2E peer-review: судьба субъекта — написание'
     const s06 = await transport.handleMessage(
       transport.makeBotContext(SUBJECT_TG, { text: GOOD_TEXT }),
     );
-    expect(String(s06.screen?.text)).toContain('Отзыв о Ментор сохранён');
-    expect(String(s06.screen?.text)).toContain('О ком ещё рассказать?');
+    // инфо-сообщение о результате — поверх нового экрана-родителя
+    expect(String(s06.notify?.text ?? '')).toContain(
+      '✅ Отзыв о Ментор сохранён',
+    );
+    // экран-родитель: список кампании (несколько адресатов)
+    expect(String(s06.screen?.text)).toContain('О ком расскажешь?');
+    expect(String(s06.screen?.text)).not.toContain('сохранён');
     const s06buttons = s06.screen?.keyboard?.rows.flat() ?? [];
     expect(s06buttons.map((b) => b.text)).toEqual([
       'Одногруппник — Андрей',
       'Одногруппник — Олег',
       '✅Ментор — Ментор',
-      '↩️ Главное меню',
+      '↩️ Мои отзывы',
     ]);
 
     // ── 7. Перезапись: клик ✅ ментора → S04 с текущим текстом ──
@@ -189,13 +212,16 @@ describe('E2E peer-review: судьба субъекта — написание'
       '«Ментор спокойно разбирал мои ошибки и не давал застрять',
     );
     expect(String(s04.screen?.text)).toContain('он заменит текущий');
-    expect(s04.screen?.keyboard?.rows.flat()[0]?.text).toBe('❌ Назад');
+    expect(s04.screen?.keyboard?.rows.flat()[0]?.text).toBe('↩️ Назад');
 
     // ── 8. Новый текст заменяет старый ──
     const s06b = await transport.handleMessage(
       transport.makeBotContext(SUBJECT_TG, { text: GOOD_TEXT_2 }),
     );
-    expect(String(s06b.screen?.text)).toContain('Отзыв о Ментор сохранён');
+    expect(String(s06b.notify?.text ?? '')).toContain(
+      '✏️ Отзыв о Ментор обновлён',
+    );
+    expect(String(s06b.screen?.text)).toContain('О ком расскажешь?');
 
     const subject = (await app.userFacade.getUserByTelegramId(SUBJECT_TG))!;
     const campaign = await app.reviewCampaignRepo.findBySubject(

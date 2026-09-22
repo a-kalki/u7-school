@@ -15,10 +15,15 @@ import { ScopeReviewsStory } from './stories/scope-reviews.story';
 export class PeerReviewController extends U7BotController {
   readonly name = 'peer-review';
 
-  protected override readonly stories = [
-    new MyReviewsStory(),
-    new CampaignStory(),
-    new InviteStory(),
-    new ScopeReviewsStory(),
-  ];
+  protected override readonly stories = (() => {
+    // Хаб передаётся в стори кампании: возврат после сохранения
+    // при единственном адресате (S03 у такой кампании не показывается)
+    const hub = new MyReviewsStory();
+    return [
+      hub,
+      new CampaignStory(hub),
+      new InviteStory(),
+      new ScopeReviewsStory(),
+    ];
+  })();
 }
