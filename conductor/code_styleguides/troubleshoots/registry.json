@@ -113,6 +113,24 @@
       "last_shown_at": "2026-09-14",
       "last_used_at": null
     },
+    "telegram-editmessagetext-keyboard-not-removed": {
+      "tags": ["telegram", "keyboard", "editMessage", "questionnaire"],
+      "description": "editMessageText без reply_markup не удаляет инлайн-клавиатуру — живые кнопки старых вопросов анкеты дают лавину «Некорректный ответ»",
+      "symptoms": [
+        "Некорректный ответ",
+        "editMessageText",
+        "reply_markup",
+        "инлайн-клавиатура",
+        "старые кнопки анкеты"
+      ],
+      "file": "telegram-editmessagetext-keyboard-not-removed.md",
+      "created_at": "2026-09-21",
+      "shown": 0,
+      "opened": 0,
+      "helped": 0,
+      "last_shown_at": null,
+      "last_used_at": null
+    },
     "testbot-api-log-chronology": {
       "tags": ["bun-test", "test-stand", "edit"],
       "description": "Склейка Api-записей [...edited, ...sent] даёт неверную хронологию экранов при edit/send-чередовании",
