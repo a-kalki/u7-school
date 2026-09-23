@@ -25,9 +25,9 @@
  *   bun --env-file .env.production run scripts/deliver-peer-review-invites.ts --send     # боевой
  */
 
-import { Bot } from 'grammy';
-import { md, mdJoin, type MdText } from '@u7-scl/core/shared';
+import { type MdText, md, mdJoin } from '@u7-scl/core/shared';
 import type { StudentOutcome } from '@u7-scl/peer-review/domain';
+import { Bot } from 'grammy';
 
 /** Поток, по завершившим студентам которого уведомляется ментор. */
 const MENTOR_STREAM_ID = 'a765f732-0787-4f01-8710-7aed67b68a28'; // Синтаксис - 4
@@ -103,7 +103,8 @@ async function main() {
   const doSend = process.argv.includes('--send');
 
   const token = process.env.BOT_TOKEN;
-  if (doSend && !token) throw new Error('BOT_TOKEN не задан');
+  if (!token)
+    throw new Error('BOT_TOKEN не задан (запуск с --env-file .env.production)');
 
   const campaigns: Campaign[] = await Bun.file(
     'data/peer-review/campaigns.json',
@@ -140,10 +141,7 @@ async function main() {
     }
 
     // Ментору — только завершившие «Синтаксиса - 4»
-    if (
-      c.scopeId === MENTOR_STREAM_ID &&
-      outcome.startsWith('completed')
-    ) {
+    if (c.scopeId === MENTOR_STREAM_ID && outcome.startsWith('completed')) {
       const mentor = profiles.get(c.payload.mentorId);
       if (mentor?.telegramId !== undefined) {
         plan.push({
@@ -158,10 +156,14 @@ async function main() {
     }
   }
 
-  console.log(`\nПлан доставки: ${plan.length} сообщений (пропущено: ${skipped})`);
+  console.log(
+    `\nПлан доставки: ${plan.length} сообщений (пропущено: ${skipped})`,
+  );
   for (const [i, p] of plan.entries()) {
     const first = p.text.split('\n')[0];
-    console.log(`${String(i + 1).padStart(2)}. → ${p.to} (tg ${p.tgId}): ${first}`);
+    console.log(
+      `${String(i + 1).padStart(2)}. → ${p.to} (tg ${p.tgId}): ${first}`,
+    );
   }
 
   if (!doSend) {
@@ -169,7 +171,7 @@ async function main() {
     return;
   }
 
-  const api = new Bot(token!).api;
+  const api = new Bot(token).api;
   let sent = 0;
   let failed = 0;
   for (const p of plan) {
