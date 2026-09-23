@@ -61,7 +61,13 @@ describe('Контент шагов — валидный MarkdownV2 экран',
           projectTitle: 'Проект',
           lessonTitle: 'Урок',
         },
-        step,
+        {
+          uuid: step.uuid,
+          description: step.description ?? '',
+          kind: step.kind ?? 'text',
+          code: typeof step.code === 'string' ? step.code : undefined,
+          content: typeof step.content === 'string' ? step.content : undefined,
+        },
       );
       const result = validateMarkdownV2(screen);
       if (!result.valid) {
