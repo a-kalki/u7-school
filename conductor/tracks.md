@@ -13,8 +13,13 @@
 
 ---
 
-- [~] **Track: UI отзывов (peer-review)** — экраны S01–S07 по утверждённой спеке, приглашения по событиям судьбы студента (субъекту и ментору, `student-campaign.created`), хаб «Мои отзывы» с рендером по `myRole`, кнопка карточки потока. Зависит от треков peer-review-campaign (спека обновлена под v4), pagination (готовый пагинатор S07) и peer-review-outcomes (домен-выравнивание и предусловия — завершён; спека/план и ui-spec обновлены его Фазой 7). Разблокирован — готов к продолжению.
-*Link: [./tracks/peer-review-ui_20260916/](./tracks/peer-review-ui_20260916/)*
+- [x] **Track: UI отзывов (peer-review)** — экраны S01–S07 по утверждённой спеке, приглашения по событиям судьбы студента (субъекту и ментору, `student-campaign.created`), хаб «Мои отзывы» с рендером по `myRole`, кнопка карточки потока. Зависел от peer-review-campaign, pagination и peer-review-outcomes (завершены, в архиве). Завершён 2026-09-23 (гейт: 2481 pass / 0 fail), итоги — в [summary](./archive/peer-review-ui_20260916/summary.md)
+*Link: [./archive/peer-review-ui_20260916/](./archive/peer-review-ui_20260916/)*
+
+---
+
+- [ ] **Track: Тестовые миры** — декларативные миры вместо ручных JSON-фикстур: world-kit (конструкторы с инвариантами, детерминированные uuid, хронология), WorldState нейтральный к хранилищу (задел под будущие СУБД), материализация с кешем по хешу исходников, копии тестам; миры `core-education`/`minimal`; перевод всех текущих тестов; удаление templates. Концепция — [test-worlds.md](./guides/test-worlds.md)
+*Link: [./tracks/test-worlds_20260923/](./tracks/test-worlds_20260923/)*
 
 ---
 
