@@ -53,7 +53,11 @@ function makeResolve(
     },
     eventBus,
   };
-  return { resolve: resolve as unknown as PeerReviewApiModuleResolver, saved, eventBus };
+  return {
+    resolve: resolve as unknown as PeerReviewApiModuleResolver,
+    saved,
+    eventBus,
+  };
 }
 
 function expectError(name: string, kind: string) {
