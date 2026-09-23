@@ -108,6 +108,7 @@ export class CampaignStory extends U7BotUiStory {
       return this.#afterSaveResponse(
         saved.campaignId,
         actor,
+        session,
         notice,
         await this.#saveFinalize(saved.campaignId, name, verb, actor),
       );
@@ -317,6 +318,7 @@ export class CampaignStory extends U7BotUiStory {
   async #afterSaveResponse(
     campaignId: string,
     actor: User,
+    session: BotSession,
     notice: MdText,
     finalize: { text: MdText },
   ): Promise<DialogResponse> {
@@ -325,10 +327,12 @@ export class CampaignStory extends U7BotUiStory {
       { campaignId, authorId: actor.uuid },
       actor,
     );
+    // session — в хаб: сброс кеша страниц после смены эпохи диалога
+    // (обновлённый прогресс M/K на карточке)
     const parent =
       view.recipients.length > 1 || !this.hub
         ? await this.#showRecipients(campaignId, actor)
-        : await this.hub.showHub(actor);
+        : await this.hub.showHub(actor, session);
     return { ...parent, notify: { text: notice }, finalize };
   }
 

@@ -9,6 +9,15 @@ import { Role } from '@u7-scl/user/domain';
 import { Routes } from '../../shared/routes';
 import { MyReviewsStory } from './my-reviews.story';
 
+/** Кнопка по подстроке текста (кросс-describe хелпер). */
+function findBtn(response: DialogResponse, needle: string) {
+  return (
+    response.screen?.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes(needle)) ?? null
+  );
+}
+
 describe('MyReviewsStory — кнопка меню «💬 Отзывы» (S02)', () => {
   const actor: User = {
     uuid: 'user-1',
@@ -174,14 +183,6 @@ describe('MyReviewsStory — экран S02 «Мои отзывы» (мини-к
     return story;
   }
 
-  function findBtn(response: DialogResponse, needle: string) {
-    return (
-      response.screen?.keyboard?.rows
-        .flat()
-        .find((b) => b.text.includes(needle)) ?? null
-    );
-  }
-
   test('интро + мини-карточка субъекта «завершил»: текст пары «роль-судьба», метрики, кнопка с номером', async () => {
     const story = initStory(new MyReviewsStory(), [subjectCard]);
 
@@ -298,5 +299,129 @@ describe('MyReviewsStory — экран S02 «Мои отзывы» (мини-к
     expect(text).toContain('Твой подопечный студент завершил обучение');
     const btn = findBtn(response, '1. Отзыв');
     expect(btn?.text).toBe('1. Отзыв об студенте');
+  });
+});
+
+describe('MyReviewsStory — пагинация хаба S02 (BotPaginator + DialogCache)', () => {
+  const TOTAL = 30;
+
+  const session: BotSession = {
+    dialog: { path: 'peer-review/my-reviews', seq: 1 },
+  };
+  const actor: User = {
+    uuid: 'user-1',
+    name: 'Аня',
+    telegramId: 123,
+    roles: [Role.STUDENT],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
+
+  const STREAM = 'bbbbbbbb-0000-0000-0000-000000000001';
+
+  function manyCards(n: number) {
+    return Array.from({ length: n }, (_, i) => ({
+      campaignId: `aaaaaaaa-0000-0000-0000-${String(i).padStart(12, '0')}`,
+      scopeId: STREAM,
+      subjectId: actor.uuid,
+      myRole: 'subject' as const,
+      subjectOutcome: 'completed_passed' as const,
+      daysLeft: 5,
+      progress: { done: 0, total: 1 },
+    }));
+  }
+
+  function cardButtons(response: DialogResponse) {
+    return (response.screen?.keyboard?.rows ?? [])
+      .flat()
+      .filter((b) => b.code.startsWith('campaign:list:'));
+  }
+
+  function initStory(cards: ReturnType<typeof manyCards>) {
+    const appApi = {
+      execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
+        switch (ucName) {
+          case 'get-my-campaigns':
+            return cards;
+          case 'get-stream':
+            return { uuid: attrs.streamId, title: 'Первый поток' };
+          case 'get-users-by-ids':
+            return [];
+          default:
+            throw new Error(`неизвестный UC: ${ucName}`);
+        }
+      }),
+    };
+    const story = new MyReviewsStory();
+    story.init({ appApi } as never);
+    return { story, appApi };
+  }
+
+  test('много карточек → страницы по бюджету Telegram: индикатор, навигация, лимит 4096', async () => {
+    const { story } = initStory(manyCards(TOTAL));
+
+    const first = await story.handleCallback('hub', actor, session);
+    assertDialogResponseMarkdownSafe(first);
+    const text = String(first.screen?.text ?? '');
+
+    expect(text).toContain('Стр\\. 1/');
+    expect(findBtn(first, 'След ›')).not.toBeNull();
+    expect(findBtn(first, '‹ Пред')).toBeNull();
+    expect(text.length).toBeLessThanOrEqual(4096);
+
+    // Кнопки страницы — начало списка, меню последним рядом
+    const buttonsOnPage = cardButtons(first);
+    expect(buttonsOnPage.length).toBeGreaterThan(0);
+    expect(buttonsOnPage.length).toBeLessThan(TOTAL);
+    expect(buttonsOnPage[0]?.text).toBe('1. Поток «Первый поток»');
+  });
+
+  test('hub-page:N → кнопки своей страницы, нумерация сквозная, предел — последняя карточка', async () => {
+    const cards = manyCards(TOTAL);
+    const { story } = initStory(cards);
+
+    const first = await story.handleCallback('hub', actor, session);
+    const firstCount = cardButtons(first).length;
+
+    const second = await story.handleCallback('hub-page:1', actor, session);
+    assertDialogResponseMarkdownSafe(second);
+    const text = String(second.screen?.text ?? '');
+
+    expect(text).toContain('Стр\\. 2/');
+    expect(findBtn(second, '‹ Пред')).not.toBeNull();
+    expect(findBtn(second, 'След ›')).toBeNull();
+
+    const rest = cardButtons(second);
+    expect(rest).toHaveLength(TOTAL - firstCount);
+    expect(rest[0]?.text).toBe(`${firstCount + 1}. Поток «Первый поток»`);
+    expect(rest.at(-1)?.text).toBe(`${TOTAL}. Поток «Первый поток»`);
+    // Коды кнопок второй страницы — свои кампании
+    expect(rest[0]?.code).toBe(
+      `campaign:list:${cards[firstCount]?.campaignId}`,
+    );
+  });
+
+  test('тык навигации не перечитывает домен: build один раз на эпоху диалога', async () => {
+    const { story, appApi } = initStory(manyCards(TOTAL));
+
+    await story.handleCallback('hub', actor, session);
+    await story.handleCallback('hub-page:1', actor, session);
+    await story.handleCallback('hub-page:0', actor, session);
+
+    const calls = (
+      appApi.execute.mock.calls as unknown as Array<[string]>
+    ).filter(([ucName]) => ucName === 'get-my-campaigns');
+    expect(calls).toHaveLength(1);
+  });
+
+  test('одна страница — без индикатора и навигации (как без пагинации)', async () => {
+    const { story } = initStory(manyCards(2));
+
+    const response = await story.handleCallback('hub', actor, session);
+    const text = String(response.screen?.text ?? '');
+
+    expect(text).not.toContain('Стр\\. ');
+    expect(findBtn(response, 'След ›')).toBeNull();
+    expect(findBtn(response, '‹ Пред')).toBeNull();
+    expect(cardButtons(response)).toHaveLength(2);
   });
 });

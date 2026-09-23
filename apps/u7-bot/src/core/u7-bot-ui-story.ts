@@ -7,6 +7,7 @@ import type {
   DialogCache,
   DialogResponse,
   KbButton,
+  Page,
   Paged,
   ProactiveSender,
 } from '@u7-scl/core/ui';
@@ -27,7 +28,11 @@ interface PagedScreenOpts<T> {
   emptyScreen: (payload: T) => DialogResponse;
   /** Кнопки под навигацией — чистая функция payload («Назад», карточки
    * элементов уровня и т.п.). */
-  rows: (payload: T) => KbButton[][];
+  rows?: (payload: T) => KbButton[][];
+  /** Постраничные кнопки — номерные кнопки карточек ТЕКУЩЕЙ страницы
+   * (получает её блоки через курсор page.start). Приоритетнее rows:
+   * если задана — используется вместо неё. */
+  rowsPage?: (page: Page, payload: T) => KbButton[][];
   /** Ключ кеша `DialogCache` — включает параметры экрана (id и т.п.). */
   cacheKey: string;
   /** Запрошенная страница (0-based; за пределами — clamp). */
@@ -140,6 +145,8 @@ export abstract class U7BotUiStory extends BotUiStory<
     if (!page) {
       return opts.emptyScreen(cached.payload);
     }
+    const contentRows: (page: Page, payload: T) => KbButton[][] =
+      opts.rowsPage ?? ((_, payload) => opts.rows?.(payload) ?? []);
 
     const indicator = this.botPaginator.indicator(page);
     const header = indicator
@@ -150,7 +157,7 @@ export abstract class U7BotUiStory extends BotUiStory<
       mdConcat(header, md`\n\n`, mdRaw(page.text)),
       this.kb([
         ...this.botPaginator.navRows(page, opts.cbPage),
-        ...opts.rows(cached.payload),
+        ...contentRows(page, cached.payload),
       ]),
     );
   }
