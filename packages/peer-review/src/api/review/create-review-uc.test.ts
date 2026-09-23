@@ -33,6 +33,7 @@ function makeResolve(
   existing?: Review,
 ) {
   const saved: Review[] = [];
+  const eventBus = new InProcEventBus();
   const resolve = {
     reviewCampaignRepo: {
       findById: mock(() => Promise.resolve(campaign?.state)),
@@ -48,11 +49,11 @@ function makeResolve(
     appResolver: {
       logger: console,
       mode: 'test' as const,
-      eventBus: new InProcEventBus(),
+      eventBus,
     },
-    eventBus: new InProcEventBus(),
+    eventBus,
   };
-  return { resolve: resolve as unknown as PeerReviewApiModuleResolver, saved };
+  return { resolve: resolve as unknown as PeerReviewApiModuleResolver, saved, eventBus };
 }
 
 function expectError(name: string, kind: string) {
@@ -300,5 +301,69 @@ describe('CreateReviewUc (ФР-7)', () => {
     } catch (e) {
       expectError('PEER_REVIEW_CAMPAIGN_NOT_FOUND', 'not-found')(e);
     }
+  });
+
+  test('первая запись: событие review.created опубликовано в шину', async () => {
+    const campaign = makeCampaign();
+    const { resolve, eventBus } = makeResolve(campaign);
+    const received: unknown[] = [];
+    eventBus.subscribe('review.created', (e) => {
+      received.push(e);
+      return Promise.resolve();
+    });
+    const uc = new CreateReviewUc();
+    uc.init(resolve);
+
+    await uc.execute({
+      campaignId: CAMPAIGN_ID,
+      authorId: ALICE,
+      recipientId: BOB,
+      text: TEXT,
+    });
+
+    expect(received).toHaveLength(1);
+    expect(received[0]).toMatchObject({
+      eventName: 'review.created',
+      aggregateName: 'Review',
+      payload: {
+        campaignId: CAMPAIGN_ID,
+        scopeId: SCOPE,
+        authorId: ALICE,
+        recipientId: BOB,
+        direction: 'student_student',
+      },
+    });
+  });
+
+  test('перезапись: событие не публикуется (без повторного уведомления)', async () => {
+    const campaign = makeCampaign();
+    const existing = {
+      uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-000000000001',
+      scopeId: SCOPE,
+      campaignId: CAMPAIGN_ID,
+      authorId: ALICE,
+      direction: 'student_student' as const,
+      authorOutcome: 'completed_passed' as const,
+      recipientId: BOB,
+      text: 'Прежний текст отзыва, довольно длинный.',
+      createdAt: '2026-09-20T11:00',
+    } satisfies Review;
+    const { resolve, eventBus } = makeResolve(campaign, existing);
+    const received: unknown[] = [];
+    eventBus.subscribe('review.created', (e) => {
+      received.push(e);
+      return Promise.resolve();
+    });
+    const uc = new CreateReviewUc();
+    uc.init(resolve);
+
+    await uc.execute({
+      campaignId: CAMPAIGN_ID,
+      authorId: ALICE,
+      recipientId: BOB,
+      text: 'Другой текст отзыва после перезаписи.',
+    });
+
+    expect(received).toHaveLength(0);
   });
 });

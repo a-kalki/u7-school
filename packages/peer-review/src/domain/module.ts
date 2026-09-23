@@ -1,5 +1,6 @@
 import type { ModuleResolver } from '@u7-scl/core/domain';
 import type { StreamFacade } from '@u7-scl/stream/domain';
+import type { UserFacade } from '@u7-scl/user/domain';
 import type { CreateReviewCmdMeta } from './review/commands/create-review-cmd';
 import type { GetMyReviewCmdMeta } from './review/commands/get-my-review-cmd';
 import type { ListScopeFactsCmdMeta } from './review/commands/list-scope-facts-cmd';
@@ -17,6 +18,8 @@ export interface PeerReviewApiModuleResolver extends ModuleResolver {
   reviewRepo: ReviewRepo;
   /** Состав окружения субъекта окна (ментор + студенты с исходами). */
   streamFacade: StreamFacade;
+  /** Имена автора/адресата и доставка уведомлений (notify). */
+  userFacade: UserFacade;
 }
 
 /** Меты UC модуля peer-review (ФР-7). */

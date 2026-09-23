@@ -172,6 +172,7 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
     reviewCampaignRepo,
     reviewRepo,
     streamFacade,
+    userFacade,
     appResolver,
     eventBus: appResolver.eventBus,
   });

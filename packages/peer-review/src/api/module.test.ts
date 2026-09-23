@@ -58,9 +58,12 @@ describe('PeerReviewApiModule (ФР-6)', () => {
       'list-scope-facts',
       'list-scope-reviews',
     ]);
-    expect(mod.reactions).toHaveLength(1);
-    const [er] = mod.reactions;
-    expect([...er!.getEventNames()].sort()).toEqual([
+    expect(mod.reactions).toHaveLength(2);
+    const eventNames = mod.reactions
+      .flatMap((er) => [...er.getEventNames()])
+      .sort();
+    expect(eventNames).toEqual([
+      'review.created',
       'student.abandoned',
       'student.completed',
     ]);

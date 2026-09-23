@@ -5,6 +5,7 @@ import type {
   PeerReviewApiModuleResolver,
 } from '../domain/module';
 import { CreateStudentCampaignEr } from './er/create-student-campaign-er';
+import { NotifyReviewRecipientEr } from './er/notify-review-recipient-er';
 import { CreateReviewUc } from './review/create-review-uc';
 import { GetMyReviewUc } from './review/get-my-review-uc';
 import { ListScopeFactsUc } from './review/list-scope-facts-uc';
@@ -26,6 +27,9 @@ export class PeerReviewApiModule extends U7ApiModule<
     new ListScopeReviewsUc(),
     new ListScopeFactsUc(),
   ];
-  readonly reactions: EventReaction<ErMeta>[] = [new CreateStudentCampaignEr()];
+  readonly reactions: EventReaction<ErMeta>[] = [
+    new CreateStudentCampaignEr(),
+    new NotifyReviewRecipientEr(),
+  ];
   readonly jobs = [];
 }

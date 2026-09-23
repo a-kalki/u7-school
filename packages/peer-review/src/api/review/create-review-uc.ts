@@ -72,6 +72,10 @@ export class CreateReviewUc extends U7UseCase<
         });
     await this.resolve.reviewRepo.save(review.state);
 
+    // Факт первой записи — в шину (подписчик: уведомление адресату);
+    // перезапись событий не создаёт — publishEvents ничего не публикует.
+    this.publishEvents(review);
+
     return {
       reviewId: review.state.uuid,
       campaignId: command.campaignId,

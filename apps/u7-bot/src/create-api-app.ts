@@ -168,6 +168,7 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     reviewCampaignRepo,
     reviewRepo,
     streamFacade,
+    userFacade,
     appResolver,
     eventBus: appResolver.eventBus,
   });

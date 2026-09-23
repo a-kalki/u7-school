@@ -1,4 +1,5 @@
 import { Aggregate, errValidation, throwError } from '@u7-scl/core/domain';
+import { isoNow } from '@u7-scl/core/shared';
 import type { StudentOutcome } from '../review-campaign/entity';
 import type { ReviewArMeta, ReviewDirection } from './entity';
 import {
@@ -47,7 +48,32 @@ export class ReviewAr extends Aggregate<ReviewArMeta> {
       createdAt: params.now.toISOString().slice(0, 16),
     };
 
-    return new ReviewAr(state);
+    const ar = new ReviewAr(state);
+    ar.announceCreated();
+    return ar;
+  }
+
+  /**
+   * Зафиксировать факт первой записи отзыва (перезапись текста
+   * событие не создаёт — см. ReviewCreatedEvent).
+   * Вызывается фабричным create().
+   */
+  announceCreated(): void {
+    this.addEvent({
+      eventId: crypto.randomUUID(),
+      eventName: 'review.created',
+      occurredAt: isoNow(),
+      aggregateName: 'Review',
+      aggregateId: this._state.uuid,
+      payload: {
+        reviewId: this._state.uuid,
+        campaignId: this._state.campaignId,
+        scopeId: this._state.scopeId,
+        authorId: this._state.authorId,
+        recipientId: this._state.recipientId,
+        direction: this._state.direction,
+      },
+    });
   }
 
   /** Перезаписать текст (окно гвардит UC через кампанию). */

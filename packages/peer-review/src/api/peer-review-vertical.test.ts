@@ -77,6 +77,21 @@ function makeVertical() {
     streamFacade: {
       getMembers: mock(() => Promise.resolve(members())),
     } as unknown as PeerReviewApiModuleResolver['streamFacade'],
+    // Фасад user — стаб: имена по UUID, notify — тихая заглушка
+    // (ER notify-review-recipient вызовет его при create-review).
+    userFacade: {
+      getUserByUuid: mock((uuid: string) =>
+        Promise.resolve(
+          uuid === MENTOR
+            ? ({ uuid, name: 'Ментор' } as unknown as User)
+            : ({
+                uuid,
+                name: `Участник ${uuid.slice(0, 4)}`,
+              } as unknown as User),
+        ),
+      ),
+      notify: mock(() => Promise.resolve()),
+    } as unknown as PeerReviewApiModuleResolver['userFacade'],
     appResolver: {
       logger: SILENT_LOGGER,
       mode: 'test' as const,

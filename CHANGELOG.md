@@ -10,6 +10,13 @@ Added / Changed / Fixed / Migration.
 
 ## [Unreleased]
 
+### Added
+
+- Уведомление адресату о новом отзыве: агрегат Review публикует
+  `review.created` (только первая запись; перезапись — нет), ER
+  `notify-review-recipient` шлёт адресату реплику через единый механизм
+  `notify-user` (роль автора в тексте — по направлению «кто о кому»).
+
 ### Removed
 
 - Одноразовые скрипты, свою работу выполнившие: `backfill-peer-review-campaigns.ts`

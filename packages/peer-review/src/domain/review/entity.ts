@@ -2,6 +2,7 @@ import type { ArMeta } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import { StudentOutcomeSchema } from '../review-campaign/entity';
 import { isoMinuteField, uuidField } from '../shared/schema';
+import type { ReviewCreatedEvent } from './events';
 
 /** Минимальная длина текста отзыва (символов). */
 export const REVIEW_TEXT_MIN_LENGTH = 10;
@@ -51,4 +52,5 @@ export interface ReviewArMeta extends ArMeta {
   name: 'Review';
   label: 'Отзыв';
   state: Review;
+  events: ReviewCreatedEvent;
 }
