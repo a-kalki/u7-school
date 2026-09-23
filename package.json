@@ -1,6 +1,6 @@
 {
   "name": "u7-school",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "module": "index.ts",
   "dependencies": {
     "@google/genai": "^1.52.0",
