@@ -8,6 +8,15 @@
 (наличие секции проверяет `scripts/release.sh`). Группировка:
 Added / Changed / Fixed / Migration.
 
+## [Unreleased]
+
+### Removed
+
+- Одноразовые скрипты, свою работу выполнившие: `backfill-peer-review-campaigns.ts`
+  и `deliver-peer-review-invites.ts` (миграция кампаний потоков до v0.1.4 —
+  проведена на проде), `deliver-redesign.ts` (укладка контента «Алгоритмики» —
+  черновики redesign-p1…p5 из репо удалены).
+
 ## [0.1.5] — 2026-09-23
 
 Пагинация хаба «Отзывы» (S02) и one-off скрипты для кампаний потоков, закрытых до выката peer-review (Синтаксис-4/5/6).
