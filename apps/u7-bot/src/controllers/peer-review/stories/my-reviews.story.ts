@@ -21,6 +21,8 @@ interface HubCardBtn {
   mentor: boolean;
   title: string;
   subjectName?: string;
+  /** Все отзывы кампании написаны (✅ на кнопке, у ментора и студента). */
+  reviewed: boolean;
 }
 
 /**
@@ -130,6 +132,9 @@ export class MyReviewsStory extends U7BotUiStory {
           mentor: card.myRole === 'mentor',
           title: titles.get(card.scopeId) ?? '',
           subjectName: names.get(card.subjectId),
+          reviewed:
+            card.progress.total > 0 &&
+            card.progress.done === card.progress.total,
         }));
 
         return {
@@ -193,16 +198,22 @@ export class MyReviewsStory extends U7BotUiStory {
   /**
    * Кнопки страницы: ровно карточки этой страницы (курсоры page.start /
    * items.length), в тех же номерах, что в тексте; главное меню — последним.
+   * Карточка с написанными всеми отзывами — с ✅; код несёт страницу
+   * возврата (p<n>) — из кампании вернётесь туда же, откуда вошли.
    */
   #cardRows(page: Page, cardBtns: HubCardBtn[]): KbButton[][] {
     const rows = cardBtns
       .slice(page.start, page.start + page.items.length)
       .map((b) => [
         this.btn(
-          b.mentor
-            ? campaignProfileOf(b.context).hubMentorBtn(b.no, b.subjectName)
-            : campaignProfileOf(b.context).hubSubjectBtn(b.no, b.title),
-          this.cbFor('campaign', 'list', b.campaignId),
+          `${b.reviewed ? '✅ ' : ''}${
+            b.mentor
+              ? campaignProfileOf(b.context).hubMentorBtn(b.no, b.subjectName)
+              : campaignProfileOf(b.context).hubSubjectBtn(b.no, b.title)
+          }`,
+          page.index > 0
+            ? this.cbFor('campaign', 'list', b.campaignId, `p${page.index}`)
+            : this.cbFor('campaign', 'list', b.campaignId),
         ),
       ]);
     rows.push([buttons.mainMenu()]);

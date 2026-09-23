@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppException } from '@u7-scl/core/domain';
+import { md } from '@u7-scl/core/shared';
 import {
   assertDialogResponseMarkdownSafe,
   type BotSession,
@@ -121,11 +122,15 @@ describe('CampaignStory (S03 — список адресатов)', () => {
   // Хаб связан со стори кампании (возврат при единственном адресате) —
   // обе стори на одном моке appApi
   function makeStories(api: ReturnType<typeof makeAppApi>) {
+    return makeBoth(api).story;
+  }
+
+  function makeBoth(api: ReturnType<typeof makeAppApi>) {
     const hub = new MyReviewsStory();
     hub.init({ appApi: api } as never);
     const story = new CampaignStory(hub);
     story.init({ appApi: api } as never);
-    return story;
+    return { story, hub };
   }
 
   function findBtn(response: DialogResponse, needle: string) {
@@ -814,5 +819,107 @@ describe('CampaignStory (S03 — список адресатов)', () => {
     expect(String(response.screen?.text ?? '')).toContain(
       'Предлагаем разделить отзыв на две части',
     );
+  });
+
+  // ── страница хаба-родителя: возвраты ведут на неё ──
+
+  test('list:p2 — «Мои отзывы» и коды адресатов несут страницу возврата', async () => {
+    const appApi = makeAppApi([
+      { userId: MENTOR_ID, hasMyReview: false },
+      { userId: PEER_ID, hasMyReview: false },
+    ]);
+    const story = makeStories(appApi);
+
+    const response = await story.handleCallback(
+      `list:${CAMPAIGN_ID}:p2`,
+      actor,
+      session,
+    );
+
+    const last = (response.screen?.keyboard?.rows ?? []).at(-1)?.[0];
+    expect(last?.code).toBe('my-reviews:hub-page:2');
+    const peerBtn = findBtn(response, 'Борис');
+    expect(peerBtn?.code).toBe(`campaign:open:${CAMPAIGN_ID}:${PEER_ID}:p2`);
+  });
+
+  test('list:p2 с единственным адресатом — «Назад» в хаб на стр. 2, страница в контексте ввода', async () => {
+    const appApi = makeAppApi([{ userId: PEER_ID, hasMyReview: false }]);
+    const story = makeStories(appApi);
+
+    const response = await story.handleCallback(
+      `list:${CAMPAIGN_ID}:p2`,
+      actor,
+      session,
+    );
+
+    const back = findBtn(response, 'Мои отзывы');
+    expect(back?.code).toBe('my-reviews:hub-page:2');
+    expect(response.awaitInput?.context).toEqual({
+      campaignId: CAMPAIGN_ID,
+      recipientId: PEER_ID,
+      pageNumber: 2,
+    });
+  });
+
+  test('ввод: pageNumber=2 в контексте — после сохранения «Мои отзывы» вернёт на стр. 2', async () => {
+    const recipients: RecipientView[] = [
+      { userId: MENTOR_ID, hasMyReview: false },
+      { userId: PEER_ID, hasMyReview: false },
+    ];
+    const appApi = makeAppApi(recipients);
+    const story = makeStories(appApi);
+
+    const dialog: BotSession = {
+      dialog: {
+        path: 'peer-review/campaign',
+        seq: 2,
+        input: {
+          context: {
+            campaignId: CAMPAIGN_ID,
+            recipientId: PEER_ID,
+            pageNumber: 2,
+          },
+        },
+      },
+    };
+    const response = await story.handleMessage(
+      message(reviewText),
+      actor,
+      dialog,
+    );
+
+    const last = (response.screen?.keyboard?.rows ?? []).at(-1)?.[0];
+    expect(last?.code).toBe('my-reviews:hub-page:2');
+  });
+
+  test('ввод: единственный адресат с pageNumber=2 — хаб открывается на стр. 2', async () => {
+    const appApi = makeAppApi([{ userId: PEER_ID, hasMyReview: false }]);
+    const { story, hub } = makeBoth(appApi);
+    const showHub = mock(() =>
+      Promise.resolve<DialogResponse>({ screen: { text: md`хаб-заглушка` } }),
+    );
+    (hub as unknown as { showHub: unknown }).showHub = showHub;
+
+    const dialog: BotSession = {
+      dialog: {
+        path: 'peer-review/campaign',
+        seq: 2,
+        input: {
+          context: {
+            campaignId: CAMPAIGN_ID,
+            recipientId: PEER_ID,
+            pageNumber: 2,
+          },
+        },
+      },
+    };
+    await story.handleMessage(message(reviewText), actor, dialog);
+
+    expect(showHub).toHaveBeenCalledTimes(1);
+    const args = (
+      showHub.mock.calls as unknown as Array<[unknown, unknown, number]>
+    )[0];
+    expect(args).toBeDefined();
+    expect(args?.[2]).toBe(2);
   });
 });

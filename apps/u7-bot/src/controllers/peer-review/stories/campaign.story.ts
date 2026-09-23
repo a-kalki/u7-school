@@ -40,14 +40,15 @@ export class CampaignStory extends U7BotUiStory {
     actor: User,
     session: BotSession,
   ): Promise<DialogResponse> {
-    const [cmd, campaignId, recipientId] = action.split(':');
+    const [cmd, campaignId, third, fourth] = action.split(':');
     if (cmd === 'list' && campaignId) {
-      return this.#showRecipients(campaignId, actor);
+      // Суффикс p<n> — страница хаба-родителя: все возвраты ведут на неё
+      return this.#showRecipients(campaignId, actor, parsePageSeg(third));
     }
-    if (cmd === 'open' && campaignId && recipientId) {
-      return this.#askReview(campaignId, recipientId, actor);
+    if (cmd === 'open' && campaignId && third) {
+      return this.#askReview(campaignId, third, actor, parsePageSeg(fourth));
     }
-    if (cmd === 'how' && campaignId && recipientId) {
+    if (cmd === 'how' && campaignId && third) {
       // Инфо-сообщение без кнопок: экран и ожидание ввода не трогаем
       return this.notify(HOW_TO_REVIEW);
     }
@@ -111,6 +112,7 @@ export class CampaignStory extends U7BotUiStory {
         session,
         notice,
         await this.#saveFinalize(saved.campaignId, name, verb, actor),
+        context.pageNumber,
       );
     } catch (err) {
       // Окно истекло пока писали — экран-заглушка (спека: возможности нет).
@@ -130,7 +132,7 @@ export class CampaignStory extends U7BotUiStory {
           },
           ...this.screen(
             md`⌛ Возможность написать отзыв уже закрыта\\.`,
-            this.kb([[this.#hubBtn()]]),
+            this.kb([[this.#hubBtn(context.pageNumber)]]),
           ),
         };
       }
@@ -139,10 +141,12 @@ export class CampaignStory extends U7BotUiStory {
     }
   }
 
-  /** S03: карточка кампании — контекст судьбы, прогресс, адресаты. */
+  /** S03: карточка кампании — контекст судьбы, прогресс, адресаты.
+   * `page` — страница хаба-родителя: все возвраты ведут на неё. */
   async #showRecipients(
     campaignId: string,
     actor: User,
+    page?: number,
   ): Promise<DialogResponse> {
     const view = await this.appApi.execute(
       'get-campaign-recipients',
@@ -160,14 +164,14 @@ export class CampaignStory extends U7BotUiStory {
       // окно с единственным адресатом не должно открывать ввод
       return this.screen(
         md`⚠️ Кампания не найдена\\.`,
-        this.kb([[this.#hubBtn()]]),
+        this.kb([[this.#hubBtn(page)]]),
       );
     }
     // «Выбор без выбора»: единственный адресат — список не показываем,
     // сразу экран ввода (подсказка S05 или перезапись S04)
     const single = singleTargetOf(view);
     if (single) {
-      return this.#askReview(campaignId, single.userId, actor);
+      return this.#askReview(campaignId, single.userId, actor, page);
     }
     const stream = await this.appApi.execute(
       'get-stream',
@@ -187,10 +191,10 @@ export class CampaignStory extends U7BotUiStory {
     const rows = view.recipients.map((r) => [
       this.btn(
         `${r.hasMyReview ? '✅' : ''}${profile.recipientLabel(recipientRoleOf(r.userId, view.mentorId), view.myRole)} — ${names.get(r.userId) ?? ''}`,
-        this.cb('open', campaignId, r.userId),
+        pageSegCode(this.cb('open', campaignId, r.userId), page),
       ),
     ]);
-    rows.push([this.#hubBtn()]);
+    rows.push([this.#hubBtn(page)]);
 
     return this.screen(
       mdJoin([
@@ -210,11 +214,13 @@ export class CampaignStory extends U7BotUiStory {
     );
   }
 
-  /** S05/S04: ввод отзыва — подсказка или перезапись (✅-адресат). */
+  /** S05/S04: ввод отзыва — подсказка или перезапись (✅-адресат).
+   * `page` — страница хаба-родителя (проваливается в контекст ввода). */
   async #askReview(
     campaignId: string,
     recipientId: string,
     actor: User,
+    page?: number,
   ): Promise<DialogResponse> {
     const view = await this.appApi.execute(
       'get-campaign-recipients',
@@ -225,7 +231,7 @@ export class CampaignStory extends U7BotUiStory {
     if (!recipient) {
       return this.screen(
         md`⚠️ Адресат недоступен\\.`,
-        this.kb([[this.#hubBtn()]]),
+        this.kb([[this.#hubBtn(page)]]),
       );
     }
     const name =
@@ -240,10 +246,14 @@ export class CampaignStory extends U7BotUiStory {
       name,
       subjectOutcome: view.subjectOutcome,
     });
-    const context: ReviewInputContext = { campaignId, recipientId };
+    const context: ReviewInputContext = {
+      campaignId,
+      recipientId,
+      pageNumber: page,
+    };
     // Назад — к родителю: список (>1 адресата) или хаб (единственный)
     const kb = this.kb([
-      [this.#backAction(campaignId, view.recipients.length)],
+      [this.#backAction(campaignId, view.recipients.length, page)],
       [
         this.btn(
           '❔ Как писать отзыв',
@@ -321,6 +331,7 @@ export class CampaignStory extends U7BotUiStory {
     session: BotSession,
     notice: MdText,
     finalize: { text: MdText },
+    page?: number,
   ): Promise<DialogResponse> {
     const view = await this.appApi.execute(
       'get-campaign-recipients',
@@ -328,17 +339,24 @@ export class CampaignStory extends U7BotUiStory {
       actor,
     );
     // session — в хаб: сброс кеша страниц после смены эпохи диалога
-    // (обновлённый прогресс M/K на карточке)
+    // (обновлённый прогресс M/K на карточке); page — возврат на ту же
+    // страницу хаба, с которой пришли в кампанию
     const parent =
       view.recipients.length > 1 || !this.hub
-        ? await this.#showRecipients(campaignId, actor)
-        : await this.hub.showHub(actor, session);
+        ? await this.#showRecipients(campaignId, actor, page)
+        : await this.hub.showHub(actor, session, page ?? 0);
     return { ...parent, notify: { text: notice }, finalize };
   }
 
-  /** Кнопка «↩️ Мои отзывы» — родитель списка кампании. */
-  #hubBtn() {
-    return this.btn('↩️ Мои отзывы', this.cbFor('my-reviews', 'hub'));
+  /** Кнопка «↩️ Мои отзывы» — родитель списка кампании.
+   * `page` — страница хаба для возврата (0/undefined — обычный вход). */
+  #hubBtn(page?: number) {
+    return this.btn(
+      '↩️ Мои отзывы',
+      page && page > 0
+        ? this.cbFor('my-reviews', 'hub-page', String(page))
+        : this.cbFor('my-reviews', 'hub'),
+    );
   }
 
   /**
@@ -347,10 +365,10 @@ export class CampaignStory extends U7BotUiStory {
    * адресатах родитель — S03; при единственном S03 не показывается,
    * родитель — хаб S02.
    */
-  #backAction(campaignId: string, recipientsCount: number) {
+  #backAction(campaignId: string, recipientsCount: number, page?: number) {
     return recipientsCount > 1
-      ? this.btn('↩️ Назад', this.cb('list', campaignId))
-      : this.#hubBtn();
+      ? this.btn('↩️ Назад', pageSegCode(this.cb('list', campaignId), page))
+      : this.#hubBtn(page);
   }
 
   /** Название потока кампании — для шапки экранов ввода. */
@@ -393,6 +411,24 @@ function singleTargetOf(view: MyRecipientsView) {
   return view.recipients.length === 1 ? view.recipients[0] : undefined;
 }
 
+/** Сегмент страницы хаба для callback-кода (`p2`); 0/undefined — без суффикса. */
+function pageSeg(page?: number): string | undefined {
+  return page && page > 0 ? `p${page}` : undefined;
+}
+
+/** Callback-код с сегментом страницы хаба (все возвраты ведут на неё). */
+function pageSegCode(code: string, page?: number): string {
+  const seg = pageSeg(page);
+  return seg ? `${code}:${seg}` : code;
+}
+
+/** Разбор сегмента `p<n>` из callback-кода: n или undefined. */
+function parsePageSeg(seg?: string): number | undefined {
+  if (!seg?.startsWith('p')) return undefined;
+  const n = Number(seg.slice(1));
+  return Number.isInteger(n) && n >= 0 ? n : undefined;
+}
+
 /** 📊 Прогресс — развёрнутые метрики S03 (каждая — своей строкой). */
 function progressBlock(
   done: number,
@@ -418,10 +454,12 @@ function recipientRoleOf(
 const REVIEW_MIN_CHARS = 10;
 const REVIEW_MAX_CHARS = 3500;
 
-/** Контекст ввода отзыва (живёт в dialog.input.context). */
+/** Контекст ввода отзыва (живёт в dialog.input.context).
+ * `pageNumber` — страница хаба-родителя: возврат после сохранения туда же. */
 interface ReviewInputContext {
   campaignId: string;
   recipientId: string;
+  pageNumber?: number;
 }
 
 /** Принципы полезного отзыва — общий блок экранов ввода (S05/S04). */

@@ -277,6 +277,27 @@ describe('MyReviewsStory — экран S02 «Мои отзывы» (мини-к
     expect(rows.at(-1)?.[0]?.code).toBe(Routes.app.mainMenu);
   });
 
+  test('✅ на кнопке карточки, когда все отзывы кампании написаны (done === total)', async () => {
+    const done: Card = {
+      ...subjectCard,
+      progress: { done: 4, total: 4 },
+    };
+    const partial: Card = {
+      ...subjectCard,
+      campaignId: CAMPAIGN_2,
+      scopeId: STREAM_2,
+      progress: { done: 1, total: 4 },
+    };
+    const story = initStory(new MyReviewsStory(), [done, partial]);
+
+    const response = await story.handleCallback('hub', actor, session);
+
+    const doneBtn = findBtn(response, '1. Поток');
+    expect(doneBtn?.text).toBe('✅ 1. Поток «Первый поток»');
+    const partialBtn = findBtn(response, '2. Поток');
+    expect(partialBtn?.text).toBe('2. Поток «Второй поток»');
+  });
+
   test('нет живых кампаний (окно истекло после меню) — заглушка с главным меню', async () => {
     const story = initStory(new MyReviewsStory(), []);
 
@@ -394,9 +415,9 @@ describe('MyReviewsStory — пагинация хаба S02 (BotPaginator + Dia
     expect(rest).toHaveLength(TOTAL - firstCount);
     expect(rest[0]?.text).toBe(`${firstCount + 1}. Поток «Первый поток»`);
     expect(rest.at(-1)?.text).toBe(`${TOTAL}. Поток «Первый поток»`);
-    // Коды кнопок второй страницы — свои кампании
+    // Коды кнопок второй страницы — свои кампании + страница возврата p1
     expect(rest[0]?.code).toBe(
-      `campaign:list:${cards[firstCount]?.campaignId}`,
+      `campaign:list:${cards[firstCount]?.campaignId}:p1`,
     );
   });
 
