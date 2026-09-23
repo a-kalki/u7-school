@@ -2,12 +2,9 @@ import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import { type MdText, md } from '@u7-scl/core/shared';
 import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
-import type {
-  RecipientReviewsGroup,
-  ReviewDirection,
-  StudentOutcome,
-} from '@u7-scl/peer-review/domain';
+import type { RecipientReviewsGroup } from '@u7-scl/peer-review/domain';
 import { Routes } from '../../shared/routes';
+import { authorLabel, rolesOf } from './review-render';
 
 /**
  * US: Просмотр отзывов потока (S07) — только чтение.
@@ -137,8 +134,8 @@ function uniqueIds(groups: RecipientReviewsGroup[]): string[] {
 /** Снимок отзыва для рендера блока (контракт scope-reviews-ds). */
 interface ReviewSnapshotLike {
   authorId: string;
-  direction: ReviewDirection;
-  authorOutcome?: StudentOutcome;
+  direction: Parameters<typeof authorLabel>[0]['direction'];
+  authorOutcome?: Parameters<typeof authorLabel>[0]['authorOutcome'];
   text: string;
 }
 
@@ -156,33 +153,6 @@ function reviewBlock(args: {
   const roles = rolesOf(review.direction);
   const recipient = names.get(group.recipientId) ?? 'неизвестно';
   const author = names.get(review.authorId) ?? 'неизвестно';
-  const outcome =
-    roles.author === 'студент' && review.authorOutcome
-      ? ` · ${OUTCOME_LABELS[review.authorOutcome]}`
-      : '';
   return md`👤 ${recipient} \\(${roles.recipient}\\):
-«${review.text}» — ${author} \\(${roles.author}${outcome}\\)`;
+«${review.text}» — ${author} \\(${authorLabel(review)}\\)`;
 }
-
-/** Роли «кто о ком» из направления отзыва. */
-function rolesOf(direction: ReviewDirection): {
-  recipient: 'студент' | 'ментор';
-  author: 'студент' | 'ментор';
-} {
-  switch (direction) {
-    case 'student_mentor':
-      return { recipient: 'ментор', author: 'студент' };
-    case 'mentor_student':
-      return { recipient: 'студент', author: 'ментор' };
-    default:
-      return { recipient: 'студент', author: 'студент' };
-  }
-}
-
-/** Лейблы 4-значной проекции исходов (ui-spec S07). */
-const OUTCOME_LABELS: Record<StudentOutcome, string> = {
-  completed_passed: 'завершил и прошел',
-  completed_not_passed: 'завершил и не прошел',
-  dropped: 'забросил',
-  never_started: 'не начал',
-};

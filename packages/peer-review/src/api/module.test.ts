@@ -45,7 +45,7 @@ function makeResolve(members: StreamMembers | undefined) {
 }
 
 describe('PeerReviewApiModule (ФР-6)', () => {
-  test('шесть пользовательских UC (ФР-7) + ER реакции (ФР-6)', () => {
+  test('семь пользовательских UC (ФР-7) + ER реакции (ФР-6)', () => {
     const { resolve } = makeResolve(makeMembers());
     const mod = new PeerReviewApiModule(
       resolve as unknown as PeerReviewApiModuleResolver,
@@ -55,6 +55,7 @@ describe('PeerReviewApiModule (ФР-6)', () => {
       'get-campaign-recipients',
       'get-my-campaigns',
       'get-my-review',
+      'list-my-reviews',
       'list-scope-facts',
       'list-scope-reviews',
     ]);

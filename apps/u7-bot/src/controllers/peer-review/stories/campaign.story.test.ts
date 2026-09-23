@@ -93,6 +93,8 @@ describe('CampaignStory (S03 — список адресатов)', () => {
                 progress: { done: 1, total: recipients.length },
               },
             ];
+          case 'list-my-reviews':
+            return { reviews: [] };
           case 'create-review':
             return {
               reviewId: '10000000-0000-0000-0000-000000000001',

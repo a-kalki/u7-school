@@ -27,4 +27,7 @@ export interface ReviewRepo {
 
   /** Все отзывы скоупа — чтение и факты фасада (ФР-8). */
   findByScope(scopeId: string): Promise<Review[]>;
+
+  /** Все отзывы, адресованные пользователю — «Отзывы мне» (S08). */
+  findByRecipient(recipientId: string): Promise<Review[]>;
 }

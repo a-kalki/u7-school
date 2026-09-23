@@ -25,6 +25,13 @@ interface HubCardBtn {
   reviewed: boolean;
 }
 
+/** Payload хаба: карточки страницы + признак входящих отзывов (S08). */
+interface HubPayload {
+  cards: HubCardBtn[];
+  /** Есть отзывы адресату — показываем кнопку «📥 Отзывы мне». */
+  hasIncoming: boolean;
+}
+
 /**
  * US: Хаб «Мои отзывы» (S02) — список живых кампаний автора.
  *
@@ -42,6 +49,10 @@ interface HubCardBtn {
  * только её кнопки. Листание — `hub-page:<n>`, экраны редактируются
  * на месте. Ментор закрытого потока видит все его кампании — без
  * пагинации список карточек не влезает в одно сообщение.
+ *
+ * Кнопка меню видна и при одних только входящих отзывах (S08): живых
+ * кампаний может не быть, но читать отзывы пользователь должен уметь —
+ * в этом случае хаб сворачивается в заглушку с кнопкой «📥 Отзывы мне».
  */
 export class MyReviewsStory extends U7BotUiStory {
   readonly name = 'my-reviews';
@@ -52,12 +63,15 @@ export class MyReviewsStory extends U7BotUiStory {
   // ── Главное меню (декларативная кнопка) ──
 
   override async menuButtons(actor: User): Promise<MenuButton[]> {
-    const cards = await this.appApi.execute(
-      'get-my-campaigns',
-      { userId: actor.uuid, onlyLives: true },
-      actor,
-    );
-    if (cards.length === 0) return [];
+    const [cards, incoming] = await Promise.all([
+      this.appApi.execute(
+        'get-my-campaigns',
+        { userId: actor.uuid, onlyLives: true },
+        actor,
+      ),
+      this.appApi.execute('list-my-reviews', { userId: actor.uuid }, actor),
+    ]);
+    if (cards.length === 0 && incoming.reviews.length === 0) return [];
     return [
       {
         kind: 'callback',
@@ -100,17 +114,27 @@ export class MyReviewsStory extends U7BotUiStory {
   ): Promise<DialogResponse> {
     return this.pagedScreen({
       // Весь домен читается в build: кеш покрывает и список карточек
-      build: async () => {
-        const cards = await this.appApi.execute(
-          'get-my-campaigns',
-          { userId: actor.uuid, onlyLives: true },
-          actor,
-        );
+      build: async (): Promise<{
+        header: MdText;
+        blocks: string[];
+        payload: HubPayload;
+      }> => {
+        const [cards, incoming] = await Promise.all([
+          this.appApi.execute(
+            'get-my-campaigns',
+            { userId: actor.uuid, onlyLives: true },
+            actor,
+          ),
+          this.appApi.execute('list-my-reviews', { userId: actor.uuid }, actor),
+        ]);
         if (cards.length === 0) {
           return {
             header: md``,
             blocks: [] as string[],
-            payload: [] as HubCardBtn[],
+            payload: {
+              cards: [] as HubCardBtn[],
+              hasIncoming: incoming.reviews.length > 0,
+            },
           };
         }
         const [titles, names] = await Promise.all([
@@ -140,12 +164,15 @@ export class MyReviewsStory extends U7BotUiStory {
         return {
           header: this.#header(),
           blocks: this.#blocks(cards, titles, names),
-          payload,
+          payload: {
+            cards: payload,
+            hasIncoming: incoming.reviews.length > 0,
+          },
         };
       },
       // Гонка: окно истекло после рендера меню — та же заглушка, что и в S03
-      emptyScreen: () => this.#emptyScreen(),
-      rowsPage: (page, cardBtns) => this.#cardRows(page, cardBtns),
+      emptyScreen: (payload) => this.#emptyScreen(payload),
+      rowsPage: (page, payload) => this.#cardRows(page, payload),
       cacheKey: this.#cacheKey,
       pageIndex,
       cbPage: (n) => this.cb('hub-page', String(n)),
@@ -163,11 +190,18 @@ export class MyReviewsStory extends U7BotUiStory {
     ]);
   }
 
-  /** Экран-заглушка: окна истекли после рендера меню. */
-  #emptyScreen(): DialogResponse {
+  /** Экран-заглушка: окна истекли после рендера меню (или остались только входящие отзывы). */
+  #emptyScreen(payload: HubPayload): DialogResponse {
+    const rows: KbButton[][] = [];
+    if (payload.hasIncoming) {
+      rows.push([
+        this.btn('📥 Отзывы мне', this.cbFor('reviews-for-me', 'view')),
+      ]);
+    }
+    rows.push([buttons.mainMenu()]);
     return this.screen(
       md`⌛ Открытых окон отзывов нет — возможность появляется после завершения потока\\.`,
-      this.kb([[buttons.mainMenu()]]),
+      this.kb(rows),
     );
   }
 
@@ -201,7 +235,8 @@ export class MyReviewsStory extends U7BotUiStory {
    * Карточка с написанными всеми отзывами — с ✅; код несёт страницу
    * возврата (p<n>) — из кампании вернётесь туда же, откуда вошли.
    */
-  #cardRows(page: Page, cardBtns: HubCardBtn[]): KbButton[][] {
+  #cardRows(page: Page, payload: HubPayload): KbButton[][] {
+    const cardBtns = payload.cards;
     const rows = cardBtns
       .slice(page.start, page.start + page.items.length)
       .map((b) => [
@@ -216,6 +251,12 @@ export class MyReviewsStory extends U7BotUiStory {
             : this.cbFor('campaign', 'list', b.campaignId),
         ),
       ]);
+    // Входящие отзывы (S08) — отдельным рядом перед меню
+    if (payload.hasIncoming) {
+      rows.push([
+        this.btn('📥 Отзывы мне', this.cbFor('reviews-for-me', 'view')),
+      ]);
+    }
     rows.push([buttons.mainMenu()]);
     return rows;
   }

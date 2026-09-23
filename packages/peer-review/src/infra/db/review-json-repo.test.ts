@@ -248,4 +248,41 @@ describe('ReviewJsonRepo', () => {
       UUIDS.review3,
     ]);
   });
+
+  test('findByRecipient: все отзывы адресату, где бы он ни был адресатом', async () => {
+    const repo = new ReviewJsonRepo(join(dir, 'by-recipient.json'));
+    await repo.save(
+      makeReview({
+        uuid: UUIDS.review1,
+        campaignId: UUIDS.campaignA,
+        scopeId: UUIDS.scope1,
+        authorId: UUIDS.author1,
+        recipientId: UUIDS.recipient1,
+      }),
+    );
+    await repo.save(
+      makeReview({
+        uuid: UUIDS.review2,
+        campaignId: UUIDS.campaignA,
+        scopeId: UUIDS.scope1,
+        authorId: UUIDS.author2,
+        recipientId: UUIDS.recipient1,
+      }),
+    );
+    await repo.save(
+      makeReview({
+        uuid: UUIDS.review3,
+        campaignId: UUIDS.campaignB,
+        scopeId: UUIDS.scope2,
+        authorId: UUIDS.author1,
+        recipientId: UUIDS.recipient2,
+      }),
+    );
+
+    const result = await repo.findByRecipient(UUIDS.recipient1);
+    expect(result.map((r) => r.uuid).sort()).toEqual([
+      UUIDS.review1,
+      UUIDS.review2,
+    ]);
+  });
 });

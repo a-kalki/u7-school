@@ -27,21 +27,33 @@ describe('MyReviewsStory — кнопка меню «💬 Отзывы» (S02)',
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
-  function makeStory(campaignCount: number) {
+  function makeStory(campaignCount: number, reviewCount = 0) {
     const appApi = {
-      execute: mock(async (ucName: string) => {
+      execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
         if (ucName === 'get-my-campaigns') {
           return Array.from({ length: campaignCount }, (_, i) => ({
             campaignId: `aaaaaaaa-0000-0000-0000-00000000000${i}`,
             context: 'stream_fate',
             scopeId: 'bbbbbbbb-0000-0000-0000-000000000001',
-            subjectId: actor.uuid,
+            subjectId: attrs.userId,
             myRole: 'subject',
             subjectOutcome: 'completed_passed',
             expiresAt: '2026-09-26T00:00',
             daysLeft: 5,
             progress: { done: 0, total: 1 },
           }));
+        }
+        if (ucName === 'list-my-reviews') {
+          return {
+            reviews: Array.from({ length: reviewCount }, (_, i) => ({
+              reviewId: `11111111-0000-0000-0000-${String(i).padStart(12, '0')}`,
+              authorId: 'cccccccc-0000-0000-0000-000000000001',
+              direction: 'student_student',
+              authorOutcome: 'completed_passed',
+              text: 'Отзыв адресату',
+              createdAt: '2026-09-21T10:00',
+            })),
+          };
         }
         throw new Error(`неизвестный UC: ${ucName}`);
       }),
@@ -74,17 +86,30 @@ describe('MyReviewsStory — кнопка меню «💬 Отзывы» (S02)',
     expect(buttons).toEqual([]);
   });
 
-  test('проверка — UC get-my-campaigns с onlyLives от id актора', async () => {
+  test('проверка — UC get-my-campaigns (onlyLives) и list-my-reviews от id актора', async () => {
     const { story, appApi } = makeStory(1);
 
     await story.menuButtons(actor);
 
-    expect(appApi.execute).toHaveBeenCalledTimes(1);
     expect(appApi.execute).toHaveBeenCalledWith(
       'get-my-campaigns',
       { userId: actor.uuid, onlyLives: true },
       actor,
     );
+    expect(appApi.execute).toHaveBeenCalledWith(
+      'list-my-reviews',
+      { userId: actor.uuid },
+      actor,
+    );
+  });
+
+  test('нет живых кампаний, но есть входящие отзывы → кнопка меню есть (S08)', async () => {
+    const { story } = makeStory(0, 2);
+
+    const buttons = await story.menuButtons(actor);
+
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]?.text).toBe('💬 Отзывы');
   });
 });
 
@@ -141,15 +166,33 @@ describe('MyReviewsStory — экран S02 «Мои отзывы» (мини-к
   };
 
   /**
-   * appApi-мок: get-my-campaigns (только живые), get-stream, get-users-by-ids.
+   * appApi-мок: get-my-campaigns (только живые), list-my-reviews,
+   * get-stream, get-users-by-ids. `incoming` — входящие отзывы (S08),
    * `missingSubject` — batch не находит субъекта (запасной лейбл).
    */
-  function makeAppApi(cards: Card[], opts: { missingSubject?: boolean } = {}) {
+  function makeAppApi(
+    cards: Card[],
+    opts: {
+      missingSubject?: boolean;
+      incoming?: number;
+    } = {},
+  ) {
     return {
       execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
         switch (ucName) {
           case 'get-my-campaigns':
             return cards.map((c) => ({ ...c, context: 'stream_fate' }));
+          case 'list-my-reviews':
+            return {
+              reviews: Array.from({ length: opts.incoming ?? 0 }, (_, i) => ({
+                reviewId: `11111111-0000-0000-0000-${String(i).padStart(12, '0')}`,
+                authorId: 'cccccccc-0000-0000-0000-000000000001',
+                direction: 'student_student',
+                authorOutcome: 'completed_passed',
+                text: 'Отзыв адресату',
+                createdAt: '2026-09-21T10:00',
+              })),
+            };
           case 'get-stream':
             return {
               uuid: attrs.streamId,
@@ -177,7 +220,7 @@ describe('MyReviewsStory — экран S02 «Мои отзывы» (мини-к
   function initStory(
     story: MyReviewsStory,
     cards: Card[],
-    opts?: { missingSubject?: boolean },
+    opts?: { missingSubject?: boolean; incoming?: number },
   ) {
     story.init({ appApi: makeAppApi(cards, opts) } as never);
     return story;
@@ -309,6 +352,41 @@ describe('MyReviewsStory — экран S02 «Мои отзывы» (мини-к
     expect(last?.code).toBe(Routes.app.mainMenu);
   });
 
+  test('есть входящие отзывы → в хабе ряд «📥 Отзывы мне» перед меню (S08)', async () => {
+    const story = initStory(new MyReviewsStory(), [subjectCard], {
+      incoming: 2,
+    });
+
+    const response = await story.handleCallback('hub', actor, session);
+
+    const rows = response.screen?.keyboard?.rows ?? [];
+    const incoming = findBtn(response, 'Отзывы мне');
+    expect(incoming?.text).toBe('📥 Отзывы мне');
+    expect(incoming?.code).toBe('reviews-for-me:view');
+    // ряд перед главным меню
+    expect(rows.at(-1)?.[0]?.code).toBe(Routes.app.mainMenu);
+    expect(rows.at(-2)?.[0]?.text).toBe('📥 Отзывы мне');
+  });
+
+  test('нет входящих отзывов → кнопки «📥 Отзывы мне» в хабе нет', async () => {
+    const story = initStory(new MyReviewsStory(), [subjectCard]);
+
+    const response = await story.handleCallback('hub', actor, session);
+
+    expect(findBtn(response, 'Отзывы мне')).toBeNull();
+  });
+
+  test('кампаний нет, но входящие отзывы есть → заглушка с кнопкой «📥 Отзывы мне»', async () => {
+    const story = initStory(new MyReviewsStory(), [], { incoming: 3 });
+
+    const response = await story.handleCallback('hub', actor, session);
+
+    const text = String(response.screen?.text ?? '');
+    expect(text).toContain('Открытых окон');
+    const incoming = findBtn(response, 'Отзывы мне');
+    expect(incoming?.code).toBe('reviews-for-me:view');
+  });
+
   test('имя субъекта не найдено (batch пуст) — запасной «студент»', async () => {
     const story = initStory(new MyReviewsStory(), [mentorCard], {
       missingSubject: true,
@@ -363,6 +441,8 @@ describe('MyReviewsStory — пагинация хаба S02 (BotPaginator + Dia
         switch (ucName) {
           case 'get-my-campaigns':
             return cards;
+          case 'list-my-reviews':
+            return { reviews: [] };
           case 'get-stream':
             return { uuid: attrs.streamId, title: 'Первый поток' };
           case 'get-users-by-ids':

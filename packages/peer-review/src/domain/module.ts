@@ -3,6 +3,7 @@ import type { StreamFacade } from '@u7-scl/stream/domain';
 import type { UserFacade } from '@u7-scl/user/domain';
 import type { CreateReviewCmdMeta } from './review/commands/create-review-cmd';
 import type { GetMyReviewCmdMeta } from './review/commands/get-my-review-cmd';
+import type { ListMyReviewsCmdMeta } from './review/commands/list-my-reviews-cmd';
 import type { ListScopeFactsCmdMeta } from './review/commands/list-scope-facts-cmd';
 import type { ListScopeReviewsCmdMeta } from './review/commands/list-scope-reviews-cmd';
 import type { ReviewRepo } from './review/repo';
@@ -28,6 +29,7 @@ export type PeerReviewUcMetas =
   | GetCampaignRecipientsCmdMeta
   | CreateReviewCmdMeta
   | GetMyReviewCmdMeta
+  | ListMyReviewsCmdMeta
   | ListScopeReviewsCmdMeta
   | ListScopeFactsCmdMeta;
 
