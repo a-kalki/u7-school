@@ -133,6 +133,52 @@ describe('safeConvert', () => {
     const v = validateMarkdownV2(result);
     expect(v.issues.filter((i) => i.char === '_')).toEqual([]);
   });
+
+  // ── Hard break: `\` перед переносом (баг «Проверь имя основной ветки») ──
+
+  test('hard break (два пробела в конце строки) → валидный перенос без \\', () => {
+    const result = safeConvert('Строка один  \nСтрока два\n');
+
+    // Голый слеш перед переносом снят
+    expect(result).not.toContain('\\\n');
+    // Перенос строки сохранён
+    expect(result.split('\n')[0]).toContain('Строка один');
+    expect(validateMarkdownV2(result).valid).toBe(true);
+  });
+
+  test('hard break через обратный слеш в исходнике → тот же результат', () => {
+    const result = safeConvert('Строка один\\\nСтрока два\n');
+
+    expect(result).not.toContain('\\\n');
+    expect(validateMarkdownV2(result).valid).toBe(true);
+  });
+
+  test('перенос внутри кодового блока с \\ не искажается (bash-континуация)', () => {
+    const input = ['```bash', 'docker run \\', '  --rm alpine', '```'].join(
+      '\n',
+    );
+
+    const result = safeConvert(input);
+    // Внутри pre `\\` — легитимно экранированный слеш, не трогаем
+    expect(result).toContain('docker run \\\\\n');
+    expect(validateMarkdownV2(result).valid).toBe(true);
+  });
+
+  test('контент с hard break внутри списка + код-блоками — валиден (шаг p1-l2)', () => {
+    // Из шага «Проверь имя основной ветки» — из-за него застревал студент
+    const input = [
+      '- Если увидел `main` — всё в порядке, иди дальше',
+      '- Если увидел что-то другое, то выдай ИИ ассистенту промпт: "Как переименовать ветку в main?".  ',
+      'Возможно нужно указать свою операционную систему.',
+      '',
+      '```',
+      'git branch --show-current',
+      '```',
+    ].join('\n');
+
+    const result = safeConvert(input);
+    expect(validateMarkdownV2(result).valid).toBe(true);
+  });
 });
 
 // ── mdCodeBlock / mdInlineCode — безопасные код-сущности ──

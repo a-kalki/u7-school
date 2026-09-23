@@ -136,7 +136,7 @@ export function escapeMarkdown(text: string): string {
  * 2. `convert(prepared)` — преобразует разметку, экранирует символы
  */
 export function safeConvert(markdown: string): string {
-  return convert(prepareMarkdown(markdown));
+  return unescapeLineBreaks(convert(prepareMarkdown(markdown)));
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -241,4 +241,93 @@ function convertTablesInText(text: string): string {
     // чтобы следующий абзац не прилипал
     return `${[formatRow(header), ...dataRows.map(formatRow)].join('\n')}\n`;
   });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Постобработка: экранирование перевода строки
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Снимает экранирование перевода строки (`\` + LF → LF) вне код-сущностей.
+ *
+ * `convert()` рендерит markdown hard break (два пробела или `\` в конце
+ * строки) как `\` перед переводом строки. Голый `\` перед переносом —
+ * issue для валидатора (`assertMarkdownV2Safe` в проде ловит это
+ * fail-fast, и экран не уходит пользователю). Обычный LF Telegram
+ * рендерит тем же переносом, поэтому экранирование избыточно — снимаем.
+ *
+ * Код-сущности не трогаем: внутри pre и инлайн-кода `\\` — легитимно
+ * экранированный слеш (например, перенос строки в bash-команде), снятие
+ * экранирования исказило бы код. Сканируем линейно по тем же правилам,
+ * что и валидатор (markdown-validator.ts), чтобы интерпретация текста
+ * совпадала один в один.
+ */
+function unescapeLineBreaks(text: string): string {
+  let result = '';
+  let mode: 'outside' | 'inline' | 'pre' = 'outside';
+  let i = 0;
+
+  while (i < text.length) {
+    const c = text.charAt(i);
+
+    // ── Пре-блок: пары \\ копируем, ``` закрывает ──
+    if (mode === 'pre') {
+      if (c === '\\') {
+        result += text.slice(i, i + 2);
+        i += 2;
+        continue;
+      }
+      if (c === '`' && text.startsWith('```', i)) {
+        mode = 'outside';
+        result += '```';
+        i += 3;
+        continue;
+      }
+      result += c;
+      i += 1;
+      continue;
+    }
+
+    // ── Инлайн-код: пары \\ копируем, ` закрывает ──
+    if (mode === 'inline') {
+      if (c === '\\') {
+        result += text.slice(i, i + 2);
+        i += 2;
+        continue;
+      }
+      if (c === '`') mode = 'outside';
+      result += c;
+      i += 1;
+      continue;
+    }
+
+    // ── Outside: единственная правка — `\` + LF → LF ──
+    if (c === '\\' && text.charAt(i + 1) === '\n') {
+      result += '\n';
+      i += 2;
+      continue;
+    }
+    if (c === '\\') {
+      // Экранированный символ — копируем пару целиком
+      result += text.slice(i, i + 2);
+      i += 2;
+      continue;
+    }
+    if (c === '`') {
+      if (text.startsWith('```', i)) {
+        mode = 'pre';
+        result += '```';
+        i += 3;
+        continue;
+      }
+      mode = 'inline';
+      result += c;
+      i += 1;
+      continue;
+    }
+    result += c;
+    i += 1;
+  }
+
+  return result;
 }
