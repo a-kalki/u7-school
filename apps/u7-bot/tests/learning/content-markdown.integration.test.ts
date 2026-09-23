@@ -1,6 +1,6 @@
+import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, test } from 'bun:test';
 import { validateMarkdownV2 } from '@u7-scl/core/shared';
 import { formatStepMessage } from '../../src/controllers/learning/shared';
 
