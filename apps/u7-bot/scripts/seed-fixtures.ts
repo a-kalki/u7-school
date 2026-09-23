@@ -14,9 +14,11 @@
  *     c2/c4 уводятся в истёкшие — c2 «сам себе ментор» (субъект 4444,
  *     ментор 4444) как живая кампания бессмысленна.
  *
- * Идемпотентность: маркер .seed-rev защищает накопленные данные —
- * повторный запуск мир не трогает (отзывы, написанные живьём, живут).
- * Полный пересев — при смене ревизии или удалении маркера.
+ * Поведение посева (по умолчанию — всегда свежий мир):
+ *   - `bun run seed:fixtures` — стирает data/fixtures и сеет мир заново
+ *     (окна кампаний пересчитываются от «сегодня»);
+ *   - `KEEP_WORLD=1 bun run seed:fixtures` — текущий мир не трогается:
+ *     отзывы, написанные живьём, и ручные правки data/fixtures живут.
  *
  * Использование:
  *   bun run apps/u7-bot/scripts/seed-fixtures.ts
@@ -24,6 +26,7 @@
  *     bun run apps/u7-bot/src/main.ts
  */
 
+import { existsSync, rmSync } from 'node:fs';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Role, type User } from '@u7-scl/user/domain';
@@ -33,9 +36,6 @@ const FIXTURES_DIR = path.resolve(
   '../tests/fixtures/templates',
 );
 const DATA_DIR = path.resolve(import.meta.dir, '../../../data/fixtures');
-
-/** Ревизия мира: смена = принудительный полный пересев. */
-const SEED_REV = 'dev-personas-v1';
 
 /** Миллисекунд в сутках. */
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -60,27 +60,27 @@ function isoMinute(date: Date): string {
 }
 
 async function main() {
-  console.log('🔧 Сею dev-мир из e2e-фикстур…');
-
-  const revPath = path.join(DATA_DIR, '.seed-rev');
-  const seeded = await readFile(revPath, 'utf-8')
-    .then((s) => s.trim())
-    .catch(() => null);
-  if (seeded === SEED_REV) {
-    console.log(`✅ Мир уже засеян (rev ${SEED_REV}) — данные не тронуты.`);
-    console.log(
-      '   Полный пересев: rm data/fixtures/.seed-rev и запуск снова.',
-    );
+  const keepWorld = process.env.KEEP_WORLD === '1';
+  if (keepWorld && existsSync(DATA_DIR)) {
+    console.log('🌍 KEEP_WORLD=1 — текущий мир сохранён, посев пропущен.');
     printRunHint();
     return;
   }
 
+  console.log(
+    keepWorld
+      ? '🔧 KEEP_WORLD=1, но мира ещё нет — сею с нуля…'
+      : '🔧 Сею dev-мир из e2e-фикстур (свежий мир; сохранить текущий: KEEP_WORLD=1)…',
+  );
+
+  // По умолчанию — полный пересев: накопленные данные не переживают запуск.
+  rmSync(DATA_DIR, { recursive: true, force: true });
+
   await copyFixtures();
   await patchUsers();
   await revitalizePeerReview();
-  await writeFile(revPath, SEED_REV);
 
-  console.log(`✅ Мир засеян (rev ${SEED_REV}).`);
+  console.log('✅ Мир засеян.');
   printRunHint();
   printWorldGuide();
 }
@@ -236,7 +236,8 @@ function printWorldGuide() {
 
 Истёкшие кампании (заглушка окна): в хабе dev (c2, Поток 3) и
 andrey (c4, Поток 3) — при открытии экран «окно закрыто».
-Отзывы, написанные живьём, переживают перезапуски (маркер .seed-rev).`);
+Отзывы, написанные живьём, переживают перезапуски только с
+KEEP_WORLD=1; обычный запуск сеет свежий мир.`);
 }
 
 main().catch((err) => {

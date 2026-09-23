@@ -86,7 +86,8 @@ Grammy → BotTransport (сессии, штампы, shortId, per-chat очер�
 ```bash
 # Разработка (с фикстурами — «театр одного актёра":
 # все роли фикстурного мира играешь ты, переключение /persona)
-bun run dev:fixtures
+bun run dev:fixtures               # свежий мир при каждом запуске
+KEEP_WORLD=1 bun run dev:fixtures  # не пересеивать: текущий мир и правки живут
 
 # Продакшен
 NODE_ENV=production bun run apps/u7-bot/src/main.ts
