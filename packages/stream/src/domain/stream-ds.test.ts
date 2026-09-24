@@ -161,6 +161,189 @@ describe('StreamDs.completeStep', () => {
     // Статус студента не меняется автоматически — его изменит ментор через CompleteStudentUc
     expect(student.state.status).toBe('enrolled');
   });
+
+  test('повисший на хвосте студент продолжается при расширении снапшота (level project)', () => {
+    // Студент проходит всю программу до хвоста
+    const stream = StreamAr.create(mockCreateCmd, snapshot);
+    stream.activate();
+    const student = StudentAr.enroll(
+      stream.state.uuid,
+      mockUserId,
+      '77777777-7777-4777-8777-777777777777',
+      mockModuleId,
+    );
+    student.issueStep('77777777-7777-4777-8777-777777777777');
+
+    StreamDs.completeStep(
+      stream,
+      student,
+      '77777777-7777-4777-8777-777777777777',
+    );
+    const last = StreamDs.completeStep(
+      stream,
+      student,
+      '88888888-8888-4888-8888-888888888888',
+    );
+    expect(last).toEqual({ level: 'stream', completed: true });
+
+    // Снапшот расширили новым проектом (контент доставили позже)
+    const extendedSnapshot: ContentSnapshot = [
+      ...snapshot,
+      {
+        projectId: 'e0000000-0000-4000-8000-000000000003',
+        projectTitle: 'П2',
+        lessons: [
+          {
+            lessonId: 'e0000000-0000-4000-8000-000000000004',
+            lessonTitle: 'У2',
+            stepIds: ['e0000000-0000-4000-8000-000000000002'],
+          },
+        ],
+      },
+    ];
+    const extendedStream = StreamAr.create(mockCreateCmd, extendedSnapshot);
+    extendedStream.activate();
+
+    // Повторное «Выполнено» на последнем шаге — выдаётся первый шаг нового проекта
+    const result = StreamDs.completeStep(
+      extendedStream,
+      student,
+      '88888888-8888-4888-8888-888888888888',
+    );
+
+    expect(result).toEqual({
+      level: 'project',
+      currentStepId: 'e0000000-0000-4000-8000-000000000002',
+      completedProjectId: '55555555-5555-4555-8555-555555555555',
+    });
+    expect(student.state.currentStepId).toBe(
+      'e0000000-0000-4000-8000-000000000002',
+    );
+    expect(
+      student.state.steps.find(
+        (s) => s.stepId === 'e0000000-0000-4000-8000-000000000002',
+      )?.status,
+    ).toBe('issued');
+  });
+
+  test('повисший студент: расширение внутри проекта — уровень lesson', () => {
+    // Программа: П1 = У1.1 (2 шага) + У1.2 (1 шаг); студент дошёл до хвоста
+    const tailSnapshot: ContentSnapshot = [
+      {
+        projectId: '55555555-5555-4555-8555-555555555555',
+        projectTitle: 'П1',
+        lessons: [
+          {
+            lessonId: '66666666-6666-4666-8666-666666666666',
+            lessonTitle: 'У1.1',
+            stepIds: [
+              '77777777-7777-4777-8777-777777777777',
+              '88888888-8888-4888-8888-888888888888',
+            ],
+          },
+          {
+            lessonId: '99999999-9999-4999-8999-999999999999',
+            lessonTitle: 'У1.2',
+            stepIds: ['aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'],
+          },
+        ],
+      },
+    ];
+    const stream = StreamAr.create(mockCreateCmd, tailSnapshot);
+    stream.activate();
+    const student = StudentAr.enroll(
+      stream.state.uuid,
+      mockUserId,
+      '77777777-7777-4777-8777-777777777777',
+      mockModuleId,
+    );
+    student.issueStep('77777777-7777-4777-8777-777777777777');
+
+    StreamDs.completeStep(
+      stream,
+      student,
+      '77777777-7777-4777-8777-777777777777',
+    );
+    StreamDs.completeStep(
+      stream,
+      student,
+      '88888888-8888-4888-8888-888888888888',
+    );
+    const last = StreamDs.completeStep(
+      stream,
+      student,
+      'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    );
+    expect(last).toEqual({ level: 'stream', completed: true });
+
+    // В тот же проект добавили урок с новым шагом
+    const extendedSnapshot: ContentSnapshot = [
+      {
+        projectId: '55555555-5555-4555-8555-555555555555',
+        projectTitle: 'П1',
+        lessons: [
+          ...tailSnapshot[0].lessons,
+          {
+            lessonId: 'e0000000-0000-4000-8000-000000000005',
+            lessonTitle: 'У1.3',
+            stepIds: ['e0000000-0000-4000-8000-000000000002'],
+          },
+        ],
+      },
+    ];
+    const extendedStream = StreamAr.create(mockCreateCmd, extendedSnapshot);
+    extendedStream.activate();
+
+    const result = StreamDs.completeStep(
+      extendedStream,
+      student,
+      'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    );
+
+    expect(result).toEqual({
+      level: 'lesson',
+      currentStepId: 'e0000000-0000-4000-8000-000000000002',
+      completedLessonId: '99999999-9999-4999-8999-999999999999',
+    });
+    expect(student.state.currentStepId).toBe(
+      'e0000000-0000-4000-8000-000000000002',
+    );
+  });
+
+  test('хвост не расширялся — already_completed как раньше', () => {
+    // Студент прошёл все шаги, новых в снапшоте нет
+    const stream = StreamAr.create(mockCreateCmd, snapshot);
+    stream.activate();
+    const student = StudentAr.enroll(
+      stream.state.uuid,
+      mockUserId,
+      '77777777-7777-4777-8777-777777777777',
+      mockModuleId,
+    );
+    student.issueStep('77777777-7777-4777-8777-777777777777');
+
+    StreamDs.completeStep(
+      stream,
+      student,
+      '77777777-7777-4777-8777-777777777777',
+    );
+    StreamDs.completeStep(
+      stream,
+      student,
+      '88888888-8888-4888-8888-888888888888',
+    );
+
+    const result = StreamDs.completeStep(
+      stream,
+      student,
+      '88888888-8888-4888-8888-888888888888',
+    );
+
+    expect(result).toEqual({
+      level: 'already_completed',
+      currentStepId: '88888888-8888-4888-8888-888888888888',
+    });
+  });
 });
 
 describe('StreamDs.completeStep — определение уровней (многопроектный)', () => {

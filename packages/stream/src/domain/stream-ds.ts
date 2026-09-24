@@ -63,8 +63,15 @@ export const StreamDs = {
     const nextStepId = stream.findNextStep(stepId);
     const outcome = student.completeStep(stepId, nextStepId);
 
-    // Повторное завершение уже завершённого шага — ничего не выдаём
+    // Повторное завершение уже завершённого шага — обычно ничего не выдаём.
+    // Исключение: студент дошёл до «хвоста» снапшота, а снапшот потом расширили
+    // (контент доставили позже). Тогда после currentStepId появились ещё не
+    // выданные шаги — выдаём следующий и возвращаем обычный переход.
     if (outcome === 'already_completed') {
+      const resumed = StreamDs.tryIssueTailStep(stream, student, stepId);
+      if (resumed) {
+        return resumed;
+      }
       return {
         level: 'already_completed',
         currentStepId: student.state.currentStepId,
@@ -99,6 +106,66 @@ export const StreamDs = {
 
     // Обычный шаг
     return { level: 'step', currentStepId: nextStepId };
+  },
+
+  /**
+   * Попытка продолжить программу для студента, дошедшего до «хвоста» снапшота.
+   *
+   * Сценарий: студент завершил все выданные шаги, когда следующего шага в
+   * снапшоте ещё не было (контент доставили позже) — бот показал «поток
+   * завершён». После расширения снапшота currentStepId остаётся на последнем
+   * завершённом шаге, а новые шаги не выданы: без этой логики повторное
+   * «Выполнено» возвращает already_completed и студент застревает.
+   *
+   * Условия продолжения (все обязательны):
+   *  - currentStepId студента уже завершён;
+   *  - в снапшоте после currentStepId есть следующий шаг;
+   *  - этот шаг ещё не выдан студенту.
+   *
+   * Уровень перехода определяется позицией завершённого шага — так же,
+   * как при первичном завершении (step / lesson / project).
+   * Возвращает null, если условия не выполнены (обычный already_completed).
+   */
+  tryIssueTailStep(
+    stream: StreamAr,
+    student: StudentAr,
+    completedStepId: string,
+  ): CompletionResult | null {
+    const currentStepId = student.state.currentStepId;
+    const currentRecord = student.state.steps.find(
+      (s) => s.stepId === currentStepId,
+    );
+    if (currentRecord?.status !== 'completed') {
+      return null;
+    }
+
+    const tailStepId = stream.findNextStep(currentStepId);
+    if (!tailStepId) {
+      return null;
+    }
+    const tailIssued = student.state.steps.some((s) => s.stepId === tailStepId);
+    if (tailIssued) {
+      return null;
+    }
+
+    student.issueStep(tailStepId);
+
+    const ctx = stream.findStepContext(completedStepId);
+    if (ctx.isLastStepInLesson && ctx.isLastLessonInProject) {
+      return {
+        level: 'project',
+        currentStepId: tailStepId,
+        completedProjectId: ctx.projectId,
+      };
+    }
+    if (ctx.isLastStepInLesson) {
+      return {
+        level: 'lesson',
+        currentStepId: tailStepId,
+        completedLessonId: ctx.lessonId,
+      };
+    }
+    return { level: 'step', currentStepId: tailStepId };
   },
 
   /**
