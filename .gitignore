@@ -43,3 +43,9 @@ data/*
 !data/sources/
 !data/fullstack-js/
 data/fixtures/
+
+# Временные рабочие файлы перепроектирования модуля «Алгоритмика»
+# (черновики контента и одноразовый скрипт доставки — в git не входят)
+redesign-p*/
+redesign-algorithms-*.md
+scripts/deliver-redesign.ts
