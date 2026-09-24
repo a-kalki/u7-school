@@ -2075,5 +2075,205 @@
       "5c7aa75a-3598-47ee-a493-bcdb75d56b38"
     ],
     "mentorStepIds": []
+  },
+  {
+    "uuid": "b27b637c-2021-4eaf-895a-c32120416f0c",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Что такое Git и зачем он нужен",
+    "additional": "Первый урок проекта: карта всего пути проекта 1, знакомство с ресурсом W3Schools, базовая теория Git (система контроля версий, репозиторий, коммит, stage, ветка).",
+    "status": "published",
+    "createdAt": "2026-09-21T13:37",
+    "updatedAt": "2026-09-21T13:37",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "fafb9801-78ae-4b14-9874-3a6d2010bc09",
+      "6f80b4b2-951a-4c68-ab17-41c5d2c68839",
+      "f9fde003-a6c5-4869-91af-80fe2e6948c9",
+      "0afc4476-8749-47a4-b44f-327e1cf67ab9"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "26a9e9d8-213b-4e61-b428-2cbc11971b51",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Первый репозиторий",
+    "additional": "Превращаем папку проекта в git-репозиторий: `git init`, проверка имени основной ветки (main), настройка `.gitignore`.",
+    "status": "published",
+    "createdAt": "2026-09-21T13:37",
+    "updatedAt": "2026-09-21T13:37",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "1fda6d14-1288-464a-9da7-dea8bccf2714",
+      "e65409c7-43d5-4848-a2d7-23c5e342c6dc",
+      "3e47d323-20ad-4153-8e99-20f753b54cba",
+      "a2279e28-d74c-4cc0-9638-b472228f09ce"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "8e3b59fd-4191-4de1-8dc2-79174e5f4c4d",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Первый коммит",
+    "additional": "Теория коммитов на W3Schools, правила хороших commit-сообщений, первый коммит (`.gitignore`) и просмотр истории через `git log`.",
+    "status": "published",
+    "createdAt": "2026-09-21T13:37",
+    "updatedAt": "2026-09-21T13:37",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "ecd85a97-8f18-4963-853c-d6435e84e67e",
+      "8a73ea80-6bd6-418d-a568-0467984cf004",
+      "9a21ac1b-fec9-4413-b3f3-239a79f23c68",
+      "0c533161-73d6-4c7c-9a3b-00097b4738f0"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "70d842f7-59a0-4024-b713-c8817a45358b",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "GitHub: аккаунт и SSH",
+    "additional": "Знакомство с GitHub, регистрация аккаунта, генерация SSH-ключа, добавление публичного ключа, проверка соединения.",
+    "status": "published",
+    "createdAt": "2026-09-21T13:37",
+    "updatedAt": "2026-09-21T13:37",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "2e0432b8-2108-49a3-8c09-3775bd8e3e2e",
+      "f968cdd7-cd7f-4a4d-908f-d87eec310dba",
+      "605d00b1-8a7b-4144-b3d1-e9621ee5d0f6",
+      "f9365362-36e6-4c8e-89d4-dbe21ba7788d"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "77bd1503-8626-4731-9241-584ade2dc8e8",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Удалённый репозиторий и первый push",
+    "additional": "Теория remote и push, создание репозитория на GitHub, связывание с локальным (`git remote add`), контрольная точка main и первый push.",
+    "status": "published",
+    "createdAt": "2026-09-21T13:37",
+    "updatedAt": "2026-09-21T13:37",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "040a963b-361f-4715-9e29-d7901f860e5a",
+      "5e0f70c3-000f-4ccc-9dff-b7261d17720d",
+      "094e0098-4520-44fd-822f-783603748b90",
+      "1aff7705-0d33-4196-8ff5-b150785e79c6"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "33b3b79e-5460-4ae6-8bcc-bfbe04a54f72",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Markdown за 10 минут",
+    "additional": "Что такое markdown и где он встречается в работе разработчика, базовый синтаксис с практикой в VS Code, домашнее задание — официальная шпаргалка GitHub.",
+    "status": "published",
+    "createdAt": "2026-09-21T13:37",
+    "updatedAt": "2026-09-21T13:37",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "2a6c9bd2-e2c6-4248-9b2a-ac1549a49c65",
+      "591a5f9a-c4e3-4976-a1ca-e386ba08bdd4",
+      "a7aaff41-2c93-456a-b149-213017b2e9dd"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "1fd688bb-84d4-4087-84f4-069208075e7f",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Ветки в Git",
+    "additional": "Теория веток на W3Schools и безопасный эксперимент: создание ветки, переключение между ветками, «параллельность» состояний, удаление ветки и reflog.",
+    "status": "published",
+    "createdAt": "2026-09-21T13:37",
+    "updatedAt": "2026-09-21T13:37",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "c2ee3187-cae8-4ff9-98a7-00a9bf30679c",
+      "101b4c88-cf59-4286-a1b5-712bee75b7d5",
+      "7e2c5099-087c-4ee8-a75d-823c51705649",
+      "c81169b6-c4dd-49a8-b2ff-e54a2f10cb51",
+      "34fb22d2-179a-4658-ad5c-4b0b426c7af0"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "dba14ae3-79bd-4497-96b4-df5ee37c953a",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "homework.md в отдельной ветке",
+    "additional": "Создаём рабочую ветку `docs/homework` и первые два файла курса: `homework.md` (знакомство, цели, конспекты и встроенная подсказка ревьюерам) и `README.md` (визитка репозитория).",
+    "status": "published",
+    "createdAt": "2026-09-21T13:37",
+    "updatedAt": "2026-09-21T13:37",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "3d0718a5-b384-4f95-a472-fb8a3d687e59",
+      "81da4b0c-b5b6-42ba-8a6a-553c7ea864fd",
+      "c275f0b4-c46b-47de-9b89-2ff7b95d2155",
+      "e7c2c89b-29f4-4064-9f0a-aa743a12a17f"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "e38319c5-7c85-4e85-8c69-e7d13f62ae11",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "ДЗ: статья «Git для новичков» (часть 1)",
+    "additional": "Обязательное домашнее чтение: статья «Git для новичков (часть 1)» на Habr. Конспект 5–7 пунктов в `homework.md` и второй коммит в ветке.",
+    "status": "published",
+    "createdAt": "2026-09-21T13:37",
+    "updatedAt": "2026-09-21T13:37",
+    "estimatedMinutes": 30,
+    "stepIds": [
+      "fb2b5117-410a-4a02-8197-8c7cf23f3475"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "9c20183a-685f-4dea-ae36-b6b15409a4c0",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Pull Request: теория",
+    "additional": "Что такое Pull Request и GitHub Flow, зачем нужно код-ревью. Теория перед практикой: в следующем уроке студент создаст свой первый PR из ветки.",
+    "status": "published",
+    "createdAt": "2026-09-21T13:37",
+    "updatedAt": "2026-09-21T13:37",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "d59aae18-387b-447c-92cd-2432e6ed53cb",
+      "d66e08a5-cfea-4349-bf43-5c6f57e036b3"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "e80c3c31-e202-4c6e-a4f8-fa995b02a4bb",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Пуш ветки и создание Pull Request",
+    "additional": "Финальная проверка, отправка ветки `docs/homework` на GitHub, создание первого настоящего PR из ветки в `main` и сообщение со ссылкой в общий чат.",
+    "status": "published",
+    "createdAt": "2026-09-21T13:37",
+    "updatedAt": "2026-09-21T13:37",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "9e9bbe9a-58bc-4208-8e0c-c2459b5f6851",
+      "bd5a863c-b7e0-4277-93d4-2693474da0e5",
+      "b094a1a6-2913-45ea-ba1e-6eff49809b63",
+      "520c2886-defd-4de2-9745-ad1b79b6e6c7",
+      "cdd4a6d6-dda3-452f-b2ec-47d6eca2b0fc",
+      "c8bcf31c-0138-4a75-aea8-8e76c6c166ef"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "2e918fde-a725-43bf-908c-7186aae40f17",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Итоги проекта 1",
+    "additional": "Чек-лист результатов проекта, пересказ GitHub Flow своими словами и анонс проекта 2 (код-ревью). Мост между проектами: PR создан — теперь учимся его проводить.",
+    "status": "published",
+    "createdAt": "2026-09-21T13:37",
+    "updatedAt": "2026-09-21T13:37",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "1ece0e67-fde8-4d58-908e-b7cca7b30d7b",
+      "5fac7d10-496e-43c7-a3e8-8558f956a568",
+      "724a3727-8059-4ee8-b01e-b65bdd1ebe18"
+    ],
+    "mentorStepIds": []
   }
 ]
