@@ -277,12 +277,13 @@ describe('StreamDs.completeStep', () => {
     expect(last).toEqual({ level: 'stream', completed: true });
 
     // В тот же проект добавили урок с новым шагом
+    const p1Lessons = tailSnapshot[0]?.lessons ?? [];
     const extendedSnapshot: ContentSnapshot = [
       {
         projectId: '55555555-5555-4555-8555-555555555555',
         projectTitle: 'П1',
         lessons: [
-          ...tailSnapshot[0].lessons,
+          ...p1Lessons,
           {
             lessonId: 'e0000000-0000-4000-8000-000000000005',
             lessonTitle: 'У1.3',
