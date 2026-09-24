@@ -5,6 +5,22 @@
     "stale_days": 365
   },
   "entries": {
+    "api-app-execute-actor-object": {
+      "tags": ["api-app", "actor", "scripts", "execute"],
+      "description": "ApiApp.execute принимает готовый actor-объект, а не UUID — скрипты с NUR_UUID падают на actor.roles",
+      "symptoms": [
+        "actor.roles.includes",
+        "undefined is not an object",
+        "ошибка: undefined is not an object"
+      ],
+      "file": "api-app-execute-actor-object.md",
+      "created_at": "2026-09-24",
+      "shown": 0,
+      "opened": 0,
+      "helped": 0,
+      "last_shown_at": null,
+      "last_used_at": null
+    },
     "bot-controller-response-prefix": {
       "tags": ["core", "bot-ui", "prefix"],
       "description": "Экраны из handleMessage/команд без префикса контроллера — кнопки дают «Неизвестная команда»",
