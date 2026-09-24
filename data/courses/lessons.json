@@ -213,6 +213,7 @@
     "additional": "Поведение || и && с небулевыми значениями, короткое замыкание, оператор ?? (нулевое слияние) и его отличие от ||",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-04T11:30",
     "estimatedMinutes": 12,
     "stepIds": [
       "cb4b397e-96b7-41e7-9536-215719c19cf9",
@@ -220,8 +221,7 @@
       "6fa06a5f-3387-4818-a2e7-9b28a5425d01",
       "88b8d422-818a-41da-8eff-a4627bc6a062"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T11:30"
+    "mentorStepIds": []
   },
   {
     "uuid": "ea72f1e8-830c-4295-bee3-39fd281f6198",
@@ -230,6 +230,7 @@
     "additional": "Таблица приоритетов от () до присваивания, ассоциативность, рекомендации по скобкам и разбивке выражений",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-04T12:00",
     "estimatedMinutes": 17,
     "stepIds": [
       "3d56934c-32a3-43b1-b309-edaaef875be1",
@@ -237,8 +238,7 @@
       "002293aa-017c-4a54-8068-b660f5860fd3",
       "05b240e9-a0be-45f2-8a83-2987899ee46f"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T12:00"
+    "mentorStepIds": []
   },
   {
     "uuid": "f95b3b36-747b-4fa0-b1dc-6694ebb5b8b0",
@@ -247,6 +247,7 @@
     "additional": "Массивы: создание, методы push/pop/shift/unshift, перебор",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-04T12:30",
     "estimatedMinutes": 15,
     "stepIds": [
       "0f8b08d8-1aa8-42a9-aa56-a1552460abfd",
@@ -254,8 +255,7 @@
       "989b5634-e1ab-41c2-84a0-710c629dd825",
       "9058da50-2a57-400d-8fa1-cc48d8e4ff26"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T12:30"
+    "mentorStepIds": []
   },
   {
     "uuid": "5c565f93-fbbe-4557-aafd-593e1c0e643a",
@@ -264,6 +264,7 @@
     "additional": "Объекты: создание, доступ через точку и скобки, перебор свойств",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-04T13:00",
     "estimatedMinutes": 15,
     "stepIds": [
       "7c60fa67-801c-453d-bde3-0b9b4614b941",
@@ -271,8 +272,7 @@
       "d3b550f2-f3e2-4b2d-b518-0cc47a9f6f52",
       "9d9958a6-c770-4986-a7ae-e29cd2b619ce"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T13:00"
+    "mentorStepIds": []
   },
   {
     "uuid": "0065e74e-e22b-4906-939c-17670cad2cfd",
@@ -297,6 +297,7 @@
     "additional": "Синтаксис for (инициализация; условие; обновление), поток выполнения, когда количество итераций известно",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-04T13:30",
     "estimatedMinutes": 13,
     "stepIds": [
       "bbe9160f-c3b0-4295-a01c-9c600e33acff",
@@ -304,8 +305,7 @@
       "c367fd4f-16f6-4341-b7c2-9f3e66fc395a",
       "654bff87-1e71-474a-89e4-434800c51252"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T13:30"
+    "mentorStepIds": []
   },
   {
     "uuid": "c9cfacbd-e8de-4463-9cfb-df5e14e6f8c4",
@@ -314,6 +314,7 @@
     "additional": "Строка как коллекция символов с доступом по индексу, свойство length, стандартный паттерн for для посимвольного анализа",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-04T13:30",
     "estimatedMinutes": 11,
     "stepIds": [
       "abb26249-f069-4e9b-a0b3-a48a1fec27a8",
@@ -321,8 +322,7 @@
       "049d3a91-83fe-4923-87ae-d18c25bac2d1",
       "0eea84f0-929c-4c35-81a0-2ec247e6b0fa"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T13:30"
+    "mentorStepIds": []
   },
   {
     "uuid": "106fb6e4-e7dd-43fa-92a9-18b7f41f75c4",
@@ -331,6 +331,7 @@
     "additional": "While с предусловием, do-while с постусловием, выбор цикла по семантике, опасность бесконечных циклов",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-04T13:30",
     "estimatedMinutes": 11,
     "stepIds": [
       "5281a902-3c37-4849-8dcd-61b5b78eda4c",
@@ -338,8 +339,7 @@
       "96668db2-ddb6-49de-acc2-86114510fc7b",
       "1220c276-da6a-4d3b-8df5-0700faedb991"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T13:30"
+    "mentorStepIds": []
   },
   {
     "uuid": "939f7cc7-e463-40ca-aa40-8887a381b43d",
@@ -348,6 +348,7 @@
     "additional": "Проверка свойств через in, перебор ключей for...in (для объектов), перебор значений for...of (для массивов/строк/Map/Set)",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-04T13:30",
     "estimatedMinutes": 15,
     "stepIds": [
       "987feb27-9278-48e9-95c1-56643a677ec7",
@@ -355,8 +356,7 @@
       "bbafb6a6-6904-46f5-a50f-08ab6842a646",
       "0f9136e0-5fc5-4a4f-a00c-5af2a918f1f1"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T13:30"
+    "mentorStepIds": []
   },
   {
     "uuid": "fdcdf925-bf8b-40ca-9b38-142c72f5d761",
@@ -365,6 +365,7 @@
     "additional": "Дорабатываем программу: массив сотрудников, циклы for/while/for...of для обработки каждого, подсчёт общих удержаний и выплат по всем сотрудникам, объекты для хранения данных.",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-04T14:00",
     "estimatedMinutes": 100,
     "stepIds": [
       "8ca3dc65-99c1-45b8-977b-3680f93b0c2d",
@@ -373,8 +374,7 @@
       "d9a5c1e3-7f6b-4a0c-bd4e-8c3f0a5e9e2c",
       "e0b6d2f4-8a7c-4b1d-ce5f-9d4a1b6f0f3d"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T14:00"
+    "mentorStepIds": []
   },
   {
     "uuid": "0f2c505f-9429-4f62-9b02-42ce1f82f4a2",
@@ -468,6 +468,7 @@
     "additional": "Глобальная, функциональная и блочная область видимости. Время жизни переменных. Разница let, const и var. Сборщик мусора.",
     "status": "published",
     "createdAt": "2026-06-23T10:00",
+    "updatedAt": "2026-06-23T10:00",
     "estimatedMinutes": 15,
     "stepIds": [
       "12a19f57-8058-4ddc-a72e-1bb287400b61",
@@ -480,8 +481,7 @@
       "a97daf76-2d97-414e-934f-b6f180098372",
       "f99100d6-4d87-402b-a0b7-5190447d452c"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-23T10:00"
+    "mentorStepIds": []
   },
   {
     "uuid": "ef8ac41a-e0af-4e29-b05e-46a62a96e7ef",
@@ -490,6 +490,7 @@
     "additional": "Параметры vs аргументы, пропущенные аргументы → undefined, простые типы по значению, сложные по ссылке",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-16T12:00",
     "estimatedMinutes": 14,
     "stepIds": [
       "d1654fe3-26c1-4c1b-bb22-eaa6e074435b",
@@ -497,8 +498,7 @@
       "23904826-d5b1-4550-adfe-7e2dd0d20273",
       "a0b97391-cd87-4462-b7d3-c5407ecdf9d2"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-16T12:00"
+    "mentorStepIds": []
   },
   {
     "uuid": "0f46b1eb-4078-4e25-ba2d-3176ec1f1bbc",
@@ -507,6 +507,7 @@
     "additional": "Вложенные функции, замыкания (closures), колбэки, функция возвращающая функцию, ленивые вычисления",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-16T12:00",
     "estimatedMinutes": 15,
     "stepIds": [
       "daddb826-35ca-4e99-808a-fbf27ac9bc8c",
@@ -514,8 +515,7 @@
       "09ff2763-0153-4d53-baf7-448b14963946",
       "49fb9123-8dfe-4aad-b870-79f377508f3b"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-16T12:00"
+    "mentorStepIds": []
   },
   {
     "uuid": "7d3f22b6-eaeb-4d86-95c7-43d745d1d7f0",
@@ -524,6 +524,7 @@
     "additional": "Синхронные колбэки (map, filter, forEach), асинхронные (setTimeout), error-first callback, Callback Hell",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-16T12:00",
     "estimatedMinutes": 15,
     "stepIds": [
       "2164cc63-dfa5-4c18-a086-1a1895299d5a",
@@ -537,8 +538,7 @@
       "e5903541-cd46-45e9-978e-0ae7abff2989",
       "b2db7822-44f8-4045-97c5-cf909b22160d"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-16T12:00"
+    "mentorStepIds": []
   },
   {
     "uuid": "23336a43-8f2d-4ebe-9998-d1d0143a6d1b",
@@ -547,14 +547,14 @@
     "additional": "База и шаг рекурсии, контекст выполнения и стек вызовов, рекурсивный обход вложенных структур, итеративно vs рекурсивно",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-16T12:00",
     "estimatedMinutes": 15,
     "stepIds": [
       "0b3acca3-d8e6-4339-a3c6-aaa066cfc26c",
       "f181d6d6-3725-4785-a397-0b9f35098399",
       "4b7323cc-c499-46f6-999f-82eb530fbb41"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-16T12:00"
+    "mentorStepIds": []
   },
   {
     "uuid": "e7ed6fc7-09b2-4612-a7d8-743e725da626",
@@ -563,6 +563,7 @@
     "additional": "Разделение кода на модули, синтаксис export/import, default vs named exports, реэкспорт",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-16T12:00",
     "estimatedMinutes": 45,
     "stepIds": [
       "8879e4c2-6631-4f57-9854-f5a1acfc26e6",
@@ -575,8 +576,7 @@
       "b71aa2bc-af0c-4b23-9890-14f19a1dbd22",
       "b9845386-61fd-4846-bfca-598e5eea0077"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-16T12:00"
+    "mentorStepIds": []
   },
   {
     "uuid": "edf3078d-8878-4aae-9028-6199cd971675",
@@ -585,6 +585,7 @@
     "additional": "Пишем функцию drawTree(height), используя вложенные циклы и работу со строками. Декомпозиция на helper-функции для построения ярусов, пробелов и вывода. Применение for для перебора строк.",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-16T12:00",
     "estimatedMinutes": 120,
     "stepIds": [
       "735086fd-7929-439d-a80d-3e5ba7b5c948",
@@ -592,8 +593,7 @@
       "715a8d0f-d1af-4131-97bc-3ca0e17aa780",
       "594362ef-32c8-4c35-97a3-58af8ae884ef"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-16T12:00"
+    "mentorStepIds": []
   },
   {
     "uuid": "9a055767-a082-457c-b5ce-25e94331b251",
@@ -602,6 +602,7 @@
     "additional": "Практикуем канонический TDD-цикл: каждый тестовый случай проходит RED → GREEN отдельно. Тесты на bun:test, группируются в describe; явные случаи (пустая строка, один символ, латиница, кириллица, палиндром). Основное решение — рекурсивное, затем то же через цикл как второе решение.",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-16T12:00",
     "estimatedMinutes": 40,
     "stepIds": [
       "040de88c-678e-4e59-83cd-1d84bb7854f1",
@@ -609,8 +610,7 @@
       "b0b46058-5520-4cbc-bc07-b3d02cbb21df",
       "cf640fad-bc8d-44cc-a112-180e6e58d4a9"
     ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-16T12:00"
+    "mentorStepIds": []
   },
   {
     "uuid": "6f9fa666-fa9a-46de-b89d-6b7140813d8f",
@@ -637,10 +637,12 @@
     "additional": "Ментор показывает построение функции buildPyramid(n) вживую: приём пирамиды через пробелы и #, постановка задачи, циклы, тесты. Студенты повторяют за ментором.",
     "status": "published",
     "createdAt": "2026-06-16T12:00",
+    "updatedAt": "2026-06-16T12:00",
     "estimatedMinutes": 45,
-    "stepIds": ["0537679d-a582-443b-a34e-c89d72b81d28"],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-16T12:00"
+    "stepIds": [
+      "0537679d-a582-443b-a34e-c89d72b81d28"
+    ],
+    "mentorStepIds": []
   },
   {
     "uuid": "224091fe-4dc7-4057-a7f2-2ea358c19eea",
@@ -2273,6 +2275,133 @@
       "1ece0e67-fde8-4d58-908e-b7cca7b30d7b",
       "5fac7d10-496e-43c7-a3e8-8558f956a568",
       "724a3727-8059-4ee8-b01e-b65bdd1ebe18"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "cf7f8cd7-7e7b-4ad8-b18f-fe99749bf249",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Как работает код-ревью",
+    "additional": "Зачем нужно ревью, если код и так работает; кто такие ревьюеры в нашем курсе; механика ревью на GitHub (Comment / Approve / Request changes).",
+    "status": "published",
+    "createdAt": "2026-09-24T14:17",
+    "updatedAt": "2026-09-24T14:17",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "60149f96-f052-435e-9238-fb673d2e9c00",
+      "d08e14e1-1193-44ba-b121-4a77c598ab8e",
+      "d7b410f2-11bd-4f9e-af75-42f9219fbc51"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "f2d7f9b4-5960-41a4-87a3-859a5baaa627",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Правила ревью",
+    "additional": "Как формулировать комментарии: предложения vs критические замечания; чем закончить ревью — Approve или Request changes; памятка «что проверяем».",
+    "status": "published",
+    "createdAt": "2026-09-24T14:17",
+    "updatedAt": "2026-09-24T14:17",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "7fa4d535-63f0-45bc-b285-c038755d7047",
+      "c4aee53f-eeb1-4b85-a6e1-95ff521f230e",
+      "870e4b3e-f9fd-4756-a71c-74352daf85c7"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "41557245-178d-4d95-ae72-a1bc7adf3eb9",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Практика: мини-ревью на образце",
+    "additional": "Тренировка ревью на учебном примере: находишь предложение и критическое замечание в «воображаемом» коде, затем сверяешься с разбором.",
+    "status": "published",
+    "createdAt": "2026-09-24T14:17",
+    "updatedAt": "2026-09-24T14:17",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "a2f32ff9-c624-4d3f-afa1-92f72c1432f8",
+      "fb222a2c-d328-4788-ab20-88b0026cf062"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "17edb2fe-fb65-4f27-937f-4cd158e9033e",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Доработка по ревью",
+    "additional": "Что делать, когда на твой PR пришли комментарии: процесс доработки, тренировка ответа на замечание, запрос повторного ревью.",
+    "status": "published",
+    "createdAt": "2026-09-24T14:17",
+    "updatedAt": "2026-09-24T14:17",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "89ef7205-65ab-4c01-8c35-654a4aa2877b",
+      "b7495335-a3e0-428b-8812-8b72e398bffb",
+      "4055269d-04e5-4612-a213-5a6f5dd56052"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "6d5dddbd-2ac3-451e-a674-c8253e291609",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Пока ждёшь апрувы",
+    "additional": "Как следить за уведомлениями, пока PR ждёт ревью, и что делать, если ревьюер молчит.",
+    "status": "published",
+    "createdAt": "2026-09-24T14:17",
+    "updatedAt": "2026-09-24T14:17",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "374e93d4-80ac-489c-8ce3-c53d2c97324a",
+      "46af4654-2d2f-4690-9007-bc154ae569bd"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "6bd16e49-fdb6-403b-871d-e8a990e24222",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Ревьюим чужой homework-PR",
+    "additional": "Первое настоящее ревью: находим PR одногруппника в общем чате, проверяем по памятке, оставляем минимум одно содержательное предложение и завершаем ревью вердиктом.",
+    "status": "published",
+    "createdAt": "2026-09-24T14:17",
+    "updatedAt": "2026-09-24T14:17",
+    "estimatedMinutes": 25,
+    "stepIds": [
+      "0b34dbd4-0475-477f-b7d2-822e2b0699c3",
+      "e1c501f9-388b-4efb-9804-9a5432eb9eb6",
+      "3fdd512c-c33a-4753-954c-dcfaf4d96ba0"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "d34e7c86-59b0-40cc-9a2f-d2332e838364",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Финальный мерж homework-PR",
+    "additional": "Проверка условий мержа, мерж homework-PR через интерфейс GitHub, обновление локального main и удаление рабочих веток.",
+    "status": "published",
+    "createdAt": "2026-09-24T14:17",
+    "updatedAt": "2026-09-24T14:17",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "d88b2bd4-096e-4e77-9940-b910f3e7392a",
+      "4b367178-b017-4743-9360-df5dcce4a621",
+      "19a1abd8-824a-4616-8ff2-89c68d7a689e",
+      "1e9c48b0-0115-44d3-bcf9-2731afc13aac",
+      "d4c57fed-44d1-424c-b2d6-8b5013e50809"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "5a0f31d8-de9f-4c12-b1c2-e13f2f2e6f9e",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "ДЗ: статья «Git для новичков» (часть 2)",
+    "additional": "Обязательное чтение: вторая часть статьи «Git для новичков» (командная работа, ветки, merge). Конспект — в `homework.md`, сдаётся прямым коммитом в `main` и пушем на GitHub, без PR (образовательное исключение: мелкие некодовые правки; весь код — только через PR и ревью).",
+    "status": "published",
+    "createdAt": "2026-09-24T14:17",
+    "updatedAt": "2026-09-24T14:17",
+    "estimatedMinutes": 40,
+    "stepIds": [
+      "5c4b1fb9-dcfd-4c3b-ba81-2d61afc28312",
+      "73f37601-80a2-44eb-b18c-283ab51f114f"
     ],
     "mentorStepIds": []
   }
