@@ -2681,5 +2681,133 @@
       "2501f26e-6881-4657-b7ac-a61bd75c6d6e"
     ],
     "mentorStepIds": []
+  },
+  {
+    "uuid": "d2b820b4-7dcd-4b29-ad16-550eacace9d5",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Проблема: поиск подстроки",
+    "additional": "Вторая реализация: где встречается поиск подстроки, как формально выглядит задача, идея наивного алгоритма. Состав API проекта и ветка `feat/substring-search`.",
+    "status": "published",
+    "createdAt": "2026-09-25T07:53",
+    "updatedAt": "2026-09-25T07:53",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "8ffa4ff3-044f-4517-8762-4b2cbfd2b286",
+      "6b991e90-b86a-4d4f-b4c7-1bcb26bb390e",
+      "da7d423a-c0f2-48c5-90f3-263899ee8491"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "f4a039de-44a6-43a9-9617-6c372e9db0c7",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция indexOf(str, search)",
+    "additional": "Главная функция проекта — наивный поиск подстроки через TDD: скользящее окно, 14 тестовых случаев, включая хитрые пересекающиеся совпадения.",
+    "status": "published",
+    "createdAt": "2026-09-25T07:53",
+    "updatedAt": "2026-09-25T07:53",
+    "estimatedMinutes": 40,
+    "stepIds": [
+      "96aed104-d917-406c-a139-904ed15286fd",
+      "6c36dab4-2be4-4ef6-ac96-e7e63b2bd446"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "db8e66dd-17b8-41ea-9282-38b0138b6707",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функции includes(), startsWith(), endsWith()",
+    "additional": "Три функции-проверки наличия подстроки. Секрет эффективности: все три можно построить на базе уже готового `indexOf()` — переиспользование вместо дублирования.",
+    "status": "published",
+    "createdAt": "2026-09-25T07:53",
+    "updatedAt": "2026-09-25T07:53",
+    "estimatedMinutes": 40,
+    "stepIds": [
+      "e4a4d341-6511-49d3-bf69-5931bb488fe1",
+      "71fc0eb5-ac46-4cbc-96e0-f7b69c123ff0",
+      "3da35bef-c403-40e4-976d-abc8a4b5cc1a",
+      "a782e77a-cbe3-4f3d-b97a-310205f764ee"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "cf0952f6-73f0-4bd3-b2a1-13b70d196444",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция reverse(str)",
+    "additional": "Переворот строки: классическая задача на цикл и накопление результата. TDD-цикл, 8 тестовых случаев.",
+    "status": "published",
+    "createdAt": "2026-09-25T07:53",
+    "updatedAt": "2026-09-25T07:53",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "abfecd28-09e5-4234-81b0-da0a58cdbc14",
+      "4d015f79-5f6a-4b12-bd73-44b49deba77f"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "6cc55a00-ab72-4bfa-b143-ed2cb332d008",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция repeat(str, count)",
+    "additional": "Повторение строки: конкатенация в цикле, тонкости с дробными и граничными count. Последняя функция проекта.",
+    "status": "published",
+    "createdAt": "2026-09-25T07:53",
+    "updatedAt": "2026-09-25T07:53",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "ec56a284-3dc6-4ec7-bb05-60fddff26788",
+      "97903a80-4ae6-4bf5-a4d6-b6911f02c04d"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "91cc3ff5-9532-478d-be3c-bdff4f25cdda",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Слияние веток и конфликты",
+    "additional": "Теория merge и конфликтов + практика в изолированных ветках: fast-forward, создание и разрешение конфликта, откат тупика через `reset --hard`.",
+    "status": "published",
+    "createdAt": "2026-09-25T07:53",
+    "updatedAt": "2026-09-25T07:53",
+    "estimatedMinutes": 35,
+    "stepIds": [
+      "fd51a286-184f-4563-9caa-29f23fe556eb",
+      "fe4677d9-b8f3-4242-8f49-f494c7f5b39d",
+      "85c079a0-2118-4ee4-9cf6-318e0f42962d",
+      "9936b382-bc5f-42ed-8bfc-ebb211f75f54",
+      "cfd842d1-2ebd-46e1-b645-ed2570f07c6e"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "c37d5360-8488-434f-9c8e-fd24fc0f04f6",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Пуш ветки, PR, сообщение в чат",
+    "additional": "Финальный прогон, пуш `feat/substring-search`, PR по шаблону, сообщение в чат. Третий PR — по памяти.",
+    "status": "published",
+    "createdAt": "2026-09-25T07:53",
+    "updatedAt": "2026-09-25T07:53",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "0fb599a7-8dd9-40cc-afc9-d5d004457cec",
+      "5b6c5be7-a755-46d4-a051-d9ee3c4f3775",
+      "ba161931-e474-4d68-b6dd-35a3cb447d45"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "7521f90a-8ead-4b8d-9ce5-4aa7f9195b79",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Ревью-цикл и финальный мерж",
+    "additional": "Ревью-цикл по накатанной: замечания → правки → повторное ревью → 2 апрува → мерж → чистка. Финальное осмысление: полный цикл пройден дважды.",
+    "status": "published",
+    "createdAt": "2026-09-25T07:53",
+    "updatedAt": "2026-09-25T07:53",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "a14790fd-33dc-4426-9387-645803c74d02",
+      "dddb6309-cccd-45c0-ba11-f10ec5bfc12c",
+      "05f5a1bb-1850-4214-a2e4-1007dcacee36"
+    ],
+    "mentorStepIds": []
   }
 ]
