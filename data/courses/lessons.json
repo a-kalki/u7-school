@@ -639,7 +639,9 @@
     "createdAt": "2026-06-16T12:00",
     "updatedAt": "2026-06-16T12:00",
     "estimatedMinutes": 45,
-    "stepIds": ["0537679d-a582-443b-a34e-c89d72b81d28"],
+    "stepIds": [
+      "0537679d-a582-443b-a34e-c89d72b81d28"
+    ],
     "mentorStepIds": []
   },
   {
@@ -2221,7 +2223,9 @@
     "createdAt": "2026-09-21T13:37",
     "updatedAt": "2026-09-21T13:37",
     "estimatedMinutes": 30,
-    "stepIds": ["fb2b5117-410a-4a02-8197-8c7cf23f3475"],
+    "stepIds": [
+      "fb2b5117-410a-4a02-8197-8c7cf23f3475"
+    ],
     "mentorStepIds": []
   },
   {
@@ -2398,6 +2402,283 @@
     "stepIds": [
       "5c4b1fb9-dcfd-4c3b-ba81-2d61afc28312",
       "73f37601-80a2-44eb-b18c-283ab51f114f"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "54eab3d2-6278-4bb1-956a-14d50037deaa",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Проблема: какое API мы строим",
+    "additional": "Постановка задачи: строим свою библиотеку строковых утилит `string-utils` — 7 функций сравнения через TDD. Правила реализации (что запрещено). Рабочий git-цикл проекта.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "4d738ec0-7317-4d9e-ae83-0decbb57674e",
+      "e665a15d-7bf6-420a-87e9-1475960def54",
+      "4d67bab3-5123-4b49-8350-38aed885fb79"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "01a09652-bf63-4ac1-b96d-7749abc1e543",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Обработка ошибок: throw и try-catch",
+    "additional": "Зачем функциям сообщать о неправильном использовании; оператор `throw` и типы ошибок; перехват через `try-catch`; практика: предсказать вывод; `repeat()` с проверками.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 25,
+    "stepIds": [
+      "329d9fee-e566-4ebb-ae1d-e09ecc769891",
+      "086b5379-6d59-4656-9822-4136e995fb70",
+      "0a6bb9af-946d-4e57-b5b8-5fa021aa7663",
+      "433995ea-9c60-464e-980f-04ad1b49d6fd",
+      "3b4322da-8796-455e-8019-e47cf08e7580"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "04a9cb6c-0459-4248-9458-3ea05e84aa1a",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "TDD и функция len()",
+    "additional": "Цикл RED-GREEN-REFACTOR; заглушка `len()`; первый тест и падение (RED); реализация (GREEN); граничные случаи и тесты на исключения; коммит.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 30,
+    "stepIds": [
+      "21aed3c8-9c80-4f96-85ac-4a590cbf4730",
+      "6931623b-4934-44f4-8416-25755adee6cf",
+      "f0d98acd-b105-4224-8b0f-bb985a34b491",
+      "d12d9887-525e-4f53-b197-08a8502a0afa",
+      "7de8b84a-fb32-48be-80c1-28eb00df47b6",
+      "b5bc4557-066e-4a08-8d9a-d87f44d6e460",
+      "527a759a-c037-498d-b564-588e21413d0b"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "9d7b77e8-7595-4070-bca5-a40139f4e18d",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Таблица символов: ASCII и Unicode",
+    "additional": "Компьютер хранит символы как числа; таблицы ASCII и Unicode; разрешённые методы `charCodeAt()` и `fromCodePoint()`; лексикографическое сравнение; практика предсказания результатов.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 25,
+    "stepIds": [
+      "44e11854-8301-4719-8ff0-0cc486a63ff1",
+      "332eddd2-c910-42c8-a444-f9deb069533d",
+      "020cb3aa-cb18-4b31-8693-f24dda6bd158",
+      "f56436bf-f1a8-42d6-a3ab-10518316b017",
+      "08c3ce8d-ebfc-4299-857e-4fc9c87d1300"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "b1da7ad8-60e8-4f87-89e7-a665d7491acd",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция isEqual()",
+    "additional": "Первая функция сравнения — `isEqual(a, b)`: полный TDD-цикл самостоятельно, с продуманным набором тестов. Коммит.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 30,
+    "stepIds": [
+      "90972c9c-633f-49ee-b92b-ef36062143bd",
+      "0dd5f540-4679-4da3-873d-3c69f5bb3232"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "543795bb-9734-414b-80b2-944ad9d2a954",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функции isNotEqual, isMore, isLess",
+    "additional": "Три функции за урок: отрицание равенства и два лексикографических сравнения. Каждая — свой TDD-цикл и свой коммит.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 35,
+    "stepIds": [
+      "fd27f4a6-5531-4e3b-93be-5f57f9b378f3",
+      "6b28322f-1297-4b3a-8f88-3840ab77b87b",
+      "dbde0f93-cd68-406f-adfb-db5d69a9f845"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "7cfcac06-3ed8-4ff0-ba7b-ac431942c7c1",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функции isMoreOrEqual и isLessOrEqual",
+    "additional": "Ускоряемся: запуск только нужных тестов (фильтры и режимы Bun) и последние две функции — «больше или равно» и «меньше или равно».",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 25,
+    "stepIds": [
+      "71dc5472-18bf-4b1c-9f5b-798dfbadfeef",
+      "09531e4e-84f5-45f4-ae6b-8a82d280ad15",
+      "eb7eafd5-170c-4991-9c0c-9e8cc5c34bd7",
+      "cd1c6bcf-600c-41c7-b3ef-8a6618d75225"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "52b12f10-8c7e-4ab2-b095-8c251cac378d",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Пуш ветки и создание Pull Request",
+    "additional": "Финальный прогон всех тестов, пуш ветки `feat/string-comparison`, PR по шаблону и сообщение в чат. Ревью этого PR — тема проекта 4.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "3bd53bb3-c756-435d-bdd5-d9cb96ad2cb8",
+      "4532a20b-1394-419e-a5ae-c0a7c074c759",
+      "667a3e0f-bbe7-4ba8-968d-eb2c53f86d65",
+      "82314a16-4726-4035-9149-faf605fa8f24"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "57279366-f067-4a26-8da2-24058e8e1b28",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "ДЗ: статьи про кодировки и TDD (опционально)",
+    "additional": "Две опциональные статьи: про кодировки (углубление в таблицы символов) и про TDD (углубление в методологию). Конспект — в `homework.md`, сдача прямым пушем в `main`.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 40,
+    "stepIds": [
+      "9a562006-18f4-442b-8644-4221562c8bcf",
+      "ef097db6-072f-4397-8704-b48d2278cad1"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "3bcfb714-69d8-46fe-bbda-967abc565e78",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Твой PR глазами ревьюера",
+    "additional": "До того как ревьюеры откроют твой кодовый PR — посмотри на него сам их глазами: diff, описание, коммиты. Чек-лист самопроверки и самостоятельные правки.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "b47a091f-d03c-465d-9091-fb2537b109e1",
+      "961c419c-6173-459c-8cc2-2ca5acabc286"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "00d11b29-718e-49bb-beab-dd9a566eb214",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Как читать чужой код",
+    "additional": "Навык ревьюера №1 — чтение чужого кода: порядок чтения, на что смотреть, чем ревью кода отличается от ревью текста.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "5fc6fbbf-57bf-4d2d-8cfd-45c88a2ebdc0",
+      "005a6549-f96a-404a-9ad5-45e5bee10303",
+      "eecff112-f306-4c77-ad11-a51a55971635",
+      "87155e26-ea93-4ae8-88c0-565f1c24536e"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "81964675-9452-4ff0-a699-224b2ac4a2da",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Практика: ревью кодового PR одногруппника",
+    "additional": "Первое настоящее кодовое ревью: находим в чате PR одногруппника из проекта 3, читаем по методике, оставляем минимум 1–2 содержательных замечания, ставим вердикт.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 30,
+    "stepIds": [
+      "431ce434-cd87-46d6-b3ce-7a7ab11ba19d",
+      "f6f3bd68-1a3c-464a-b9c0-f08aa014c1c8",
+      "ff5669de-f1ee-4687-8ee8-7a2c74918504"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "46d85f57-0ae3-4169-a6eb-6d20db51ba2e",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Разбор пришедших замечаний",
+    "additional": "Как работать с комментариями к своему кодовому PR: прочитать, классифицировать по категориям, определить позицию по каждому. Урок — отложенное действие.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "f148deee-d1eb-4ff4-9105-357ea020af1d",
+      "beeea0d2-4499-4eab-a9b2-70e5967e87de"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "91000137-d2bc-4a9f-95cc-c75c4d03d105",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Fix-коммиты в ветку",
+    "additional": "Как вносить правки по ревью: прямо в feature-ветку, отдельными осмысленными коммитами. Как отвечать на комментарии и закрывать conversations.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "b7b2230b-2135-49a7-bc4f-d33d71a89d44",
+      "1564ed1f-2e06-48b7-8993-2ec63f9273bd"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "17f78cdf-9f60-407b-b9c9-cd8ac61e86ef",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Повторное ревью и апрувы",
+    "additional": "Запрос повторного ревью и ожидание: ревьюер проверяет исправления, новый коммит сам попадает в PR, 2 апрува — зелёный свет к мержу.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "689b57f2-503f-4561-8ed8-104ee7135174",
+      "1ce3aeb2-3616-45f1-b2a1-e81d5bef445f"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "eafb224f-1f5f-47c8-8660-22be4c9b8da1",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Первый боевой мерж",
+    "additional": "Финальная проверка, мерж кодового PR через интерфейс GitHub, обновление локального main, удаление рабочих веток. Твой первый боевой мерж кода.",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "125abac4-76cc-4acb-97b4-467741ac7456",
+      "e43bfc13-7e69-4f54-8f67-b2b437cdbb71",
+      "a4bf97bb-bf70-497b-bb76-f00386838125",
+      "75f3e10d-4d5f-4f4c-83ea-5192bebf38df"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "9e3dea21-1ad9-4644-b5d4-6820a98655ad",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Ретро: опыт-выводы",
+    "additional": "Ретроспектива: что дало ревью, личный чек-лист «перед отправкой PR», итоги полного цикла «проблема → решение → результат → выводы».",
+    "status": "published",
+    "createdAt": "2026-09-25T06:49",
+    "updatedAt": "2026-09-25T06:49",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "7c6ed4b8-3b0a-428a-963f-ca5a054c5527",
+      "2501f26e-6881-4657-b7ac-a61bd75c6d6e"
     ],
     "mentorStepIds": []
   }
