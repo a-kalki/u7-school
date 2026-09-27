@@ -1,0 +1,139 @@
+/* Дизайн-токены — те же, что в проекте 2 (визитка) */
+:root {
+  --color-bg: #f4f5f7;
+  --color-surface: #ffffff;
+  --color-text: #222;
+  --color-muted: #666;
+  --color-accent: #2b5fd9;
+  --color-accent-soft: #e8eefb;
+  --color-border: #d9dce3;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  color: var(--color-text);
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Шапка ===== */
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.logo-mark {
+  width: 32px;
+  height: 32px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== Оболочка: сайдбар + рабочая область (каркас на grid) ===== */
+.shell {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  min-height: 0; /* main скроллится внутри оболочки */
+}
+
+/* ===== Сайдбар ===== */
+.sidebar {
+  min-height: 0;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-3) var(--space-2);
+}
+
+.menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu-item {
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Активный пункт — в М3 только у первого, статично */
+.menu-item.active {
+  background: var(--color-accent-soft);
+  font-weight: bold;
+}
+
+/* ===== Рабочая область ===== */
+.main {
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-3);
+}
+
+.section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: var(--space-3);
+}
+
+/* Секции идут сплошным потоком — зазор между соседними */
+.section + .section {
+  margin-top: var(--space-3);
+}
+
+.section h2 {
+  margin: 0 0 var(--space-2);
+  font-size: 18px;
+  color: var(--color-accent);
+}
+
+/* Заглушки разделов, ожидающих данные проекта 4 */
+.placeholder {
+  color: var(--color-muted);
+  border: 1px dashed var(--color-border);
+  padding: var(--space-3);
+  text-align: center;
+}
+
+/* ===== Таблица (переехала из визитки проекта 2) ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid var(--color-border);
+  padding: var(--space-1) var(--space-2);
+  text-align: left;
+}
+
+thead th {
+  background: var(--color-bg);
+}
