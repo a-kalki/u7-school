@@ -130,6 +130,8 @@ describe('StepViewStory', () => {
     const btnTexts =
       response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
+    // Шаг выдаётся новым сообщением (история пройденных шагов)
+    expect(response.newMessage).toBe(true);
   });
 
   test('my-study:continue — «↩️ Главное меню» последней строкой', async () => {
@@ -175,6 +177,20 @@ describe('StepViewStory', () => {
     const btnTexts =
       response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
+    // Следующий шаг — новым сообщением, прежний шаг остаётся в истории
+    expect(response.newMessage).toBe(true);
+  });
+
+  test('my-study:view — просмотр пройденного шага: edit на месте (без newMessage)', async () => {
+    const { story } = makeStory();
+
+    const response = await story.handleCallback(
+      `my-study:view:${STREAM_ID}:${STEP2_ID}`,
+      studentActor,
+      session,
+    );
+
+    expect(response.newMessage).toBeUndefined();
   });
 
   test('code-шаг с ` и \\ — содержимое экранировано в блоке кода', async () => {
@@ -352,6 +368,8 @@ describe('StepViewStory', () => {
     expect(btnTexts.some((t) => t.includes('Начать следующий урок'))).toBe(
       true,
     );
+    // Поздравление с завершением урока — новым сообщением
+    expect(response.newMessage).toBe(true);
 
     expect(String(response.screen?.text)).toContain('📊');
     expect(String(response.screen?.text)).toContain('Прогресс по модулю');

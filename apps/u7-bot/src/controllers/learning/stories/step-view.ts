@@ -283,7 +283,9 @@ export class StepViewStory extends U7BotUiStory {
 
     keyboard.rows.push([buttons.mainMenu()]);
 
-    return this.screen(message, keyboard);
+    // Шаг выдаётся новым сообщением: пройденный шаг остаётся в истории,
+    // у него снимается клавиатура (хлебные крошки), новый шаг — send.
+    return { ...this.screen(message, keyboard), newMessage: true };
   }
 
   #buildStepKeyboard(streamId: string, stepId: string): KeyboardDescription {
@@ -294,10 +296,13 @@ export class StepViewStory extends U7BotUiStory {
 
   /** Экран S05c «Завершение потока». */
   #streamCompletedScreen(): DialogResponse {
-    return this.screen(
-      md`🏆 *Поток полностью завершён\\!* Поздравляю с успешным окончанием обучения\\!`,
-      this.kb([[buttons.mainMenu()]]),
-    );
+    return {
+      ...this.screen(
+        md`🏆 *Поток полностью завершён\\!* Поздравляю с успешным окончанием обучения\\!`,
+        this.kb([[buttons.mainMenu()]]),
+      ),
+      newMessage: true,
+    };
   }
 
   // ── Приватные методы: переходы ──
@@ -322,12 +327,15 @@ export class StepViewStory extends U7BotUiStory {
       student,
     );
 
-    return this.screen(
-      messageText,
-      this.kb([
-        [this.btn(buttonText, this.cb('my-study:continue'))],
-        [buttons.mainMenu()],
-      ]),
-    );
+    return {
+      ...this.screen(
+        messageText,
+        this.kb([
+          [this.btn(buttonText, this.cb('my-study:continue'))],
+          [buttons.mainMenu()],
+        ]),
+      ),
+      newMessage: true,
+    };
   }
 }

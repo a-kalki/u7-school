@@ -302,6 +302,8 @@ describe('E2E: Студент — «Моя учёба» (learning)', () => {
     expect(String(stepResp.screen?.text)).toContain('Шаг 1');
 
     // 3. Нажимаем «✅ Выполнено»
+    const sentBefore = transport.api.sentMessages.length;
+    const editedBefore = transport.api.editedMessages.length;
     const completeResp = await transport.handleCallback(
       transport.makeBotContext(tgId, {
         callbackData: pressedCode(transport, tgId, 'Выполнено'),
@@ -314,6 +316,10 @@ describe('E2E: Студент — «Моя учёба» (learning)', () => {
         text.includes('завершён') ||
         text.includes('Поток полностью завершён'),
     ).toBe(true);
+    // Новый учебный экран доставлен новым сообщением, а прежний шаг
+    // погашен в чате (edit со снятой клавиатурой) — история сохраняется
+    expect(transport.api.sentMessages.length).toBeGreaterThan(sentBefore);
+    expect(transport.api.editedMessages.length).toBeGreaterThan(editedBefore);
   });
 
   test('студент: хаб → Уроки → проект → урок → шаги', async () => {

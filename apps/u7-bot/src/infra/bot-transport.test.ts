@@ -686,6 +686,66 @@ describe('BotTransport — рендер-политика', () => {
     expect(sends.at(-1)).toBe('Вопрос 2');
   });
 
+  test('newMessage своего экрана: send нового, прежний — с маркером выбора и без клавиатуры', async () => {
+    const { api, transport, pressed, session } = await startDialog({
+      seq: 5,
+      text: 'Шаг 1',
+      uiApp: {
+        handleCallback: mock(async () => ({
+          screen: { text: mdRaw('Шаг 2'), keyboard: kb('step:complete') },
+          newMessage: true,
+        })),
+      },
+    });
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
+    );
+
+    const edits = callsOf(api.editMessageText);
+    expect(edits.length).toBe(1);
+    expect(edits[0]?.[1]).toBe(1); // тот же messageId
+    // Текст сохранён + маркер: видно, какой клик привёл к новому сообщению
+    expect(edits[0]?.[2]).toBe('Шаг 1\n\n—————\nВы выбрали: 📂 Меню');
+    expect(edits[0]?.[3]).toMatchObject({ reply_markup: undefined });
+
+    const sends = callsOf(api.sendMessage).map((c) => c[1]);
+    expect(sends.at(-1)).toBe('Шаг 2'); // новый экран — новым сообщением
+    expect(session.screen?.text).toBe('Шаг 2');
+  });
+
+  test('newMessage при смене диалога: прежний retire с маркером, новый — send', async () => {
+    const { api, transport, pressed } = await startDialog({
+      seq: 5,
+      text: 'Хаб',
+      code: 'hub:open',
+      uiApp: {
+        handleCallback: mock(async (_d, _t, s: BotSession) => {
+          s.dialog = { path: 'learning/step-view', seq: 6 };
+          return {
+            screen: { text: mdRaw('Шаг 1'), keyboard: kb('step:complete') },
+            newMessage: true,
+          };
+        }),
+      },
+    });
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
+    );
+
+    const edits = callsOf(api.editMessageText);
+    expect(edits.length).toBe(1);
+    // Хлебные крошки смены диалога — маркер выбора; newMessage не дублирует его
+    expect(edits[0]?.[2]).toBe('Хаб\n\n—————\nВы выбрали: 📂 Меню');
+    const sends = callsOf(api.sendMessage).map((c) => c[1]);
+    expect(sends.at(-1)).toBe('Шаг 1');
+  });
+
   test('finalize один (без screen): экран финализирован, release снимает input', async () => {
     const { transport, pressed, session } = await startDialog({
       seq: 5,

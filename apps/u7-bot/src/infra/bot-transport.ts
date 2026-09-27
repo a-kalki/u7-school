@@ -519,11 +519,18 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       }
     }
 
-    // 3. screen — владеешь экраном (и без finalize) → edit на месте;
-    //    иначе → retire прежнего (маркер выбора при известном коде) + send.
+    // 3. screen — владеешь экраном (и без finalize/newMessage) → edit на
+    //    месте; иначе → retire прежнего (маркер выбора при известном коде)
+    //    + send. `newMessage` — осознанно новый экран: прежний свой экран
+    //    гасится со штампом «Вы выбрали: …» (текст сохраняется), чтобы
+    //    по старому сообщению был виден ведущий к нему клик.
     if (response.screen) {
       const current = session.screen;
-      if (current?.ownerSeq === dialog.seq && !response.finalize) {
+      if (
+        current?.ownerSeq === dialog.seq &&
+        !response.finalize &&
+        !response.newMessage
+      ) {
         await this.#editMessage(
           tgId,
           current.messageId,
