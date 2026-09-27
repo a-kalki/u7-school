@@ -1019,14 +1019,16 @@ describe('StudentAr', () => {
   // ── isLaggingFromMedian ──
 
   describe('isLaggingFromMedian', () => {
-    let isoNowSpy: ReturnType<typeof spyOn>;
+    let nowSpy: ReturnType<typeof spyOn>;
 
     beforeAll(() => {
-      isoNowSpy = spyOn(Shared, 'isoNow').mockReturnValue('2026-08-01T12:00');
+      nowSpy = spyOn(Shared, 'now').mockReturnValue(
+        new Date('2026-08-01T12:00'),
+      );
     });
 
     afterAll(() => {
-      isoNowSpy.mockRestore();
+      nowSpy.mockRestore();
     });
 
     function makeStudentWithLastActivity(completedAt: string) {

@@ -6,6 +6,7 @@ import {
   mdConcat,
   mdInlineCode,
   mdJoin,
+  now,
 } from '@u7-scl/core/shared';
 import type {
   BotSession,
@@ -381,7 +382,7 @@ export class CreateStreamStory extends U7BotUiStory {
     text: string,
   ): DialogResponse {
     // Пример даты: сегодня + 5 дней, время 10:00
-    const exampleDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+    const exampleDate = new Date(now().getTime() + 5 * 24 * 60 * 60 * 1000);
     const yyyy = exampleDate.getFullYear();
     const mm = String(exampleDate.getMonth() + 1).padStart(2, '0');
     const dd = String(exampleDate.getDate()).padStart(2, '0');

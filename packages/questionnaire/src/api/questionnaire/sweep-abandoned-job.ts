@@ -1,6 +1,6 @@
 import { Job, type JobMeta, type JobSchedule } from '@u7-scl/core/api';
 import type { DomainEvent } from '@u7-scl/core/domain';
-import { isoNow } from '@u7-scl/core/shared';
+import { isoNow, now } from '@u7-scl/core/shared';
 import type { QuestionnaireApiModuleResolver } from '../../domain/module';
 import type { Questionnaire } from '../../domain/questionnaire/entity';
 import type {
@@ -76,7 +76,7 @@ export class SweepAbandonedJob extends Job<
       // Точный простой: репо отсёк всё ниже порога приглашения,
       // здесь различаем пороги приглашения/предупреждения/закрытия
       const idleFrom = Date.parse(state.updatedAt ?? state.createdAt);
-      const idleMs = Date.now() - idleFrom;
+      const idleMs = now().getTime() - idleFrom;
 
       try {
         if (idleMs >= ABANDON_AFTER_IDLE_MS) {

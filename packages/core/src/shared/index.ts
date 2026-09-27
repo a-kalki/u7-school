@@ -29,4 +29,5 @@ export {
   MarkdownV2ValidationError,
   validateMarkdownV2,
 } from './markdown-validator';
+export { now } from './now';
 export { serializeError } from './serialize-error';

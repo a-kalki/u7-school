@@ -1,5 +1,6 @@
 import { U7UseCase } from '@u7-scl/app/domain';
 import { errNotFound } from '@u7-scl/core/domain';
+import { now } from '@u7-scl/core/shared';
 import type { PeerReviewApiModuleResolver } from '#domain/module';
 import { CampaignFactsDs } from '#domain/review-campaign/campaign-facts-ds';
 import {
@@ -59,7 +60,7 @@ export class GetCampaignRecipientsUc extends U7UseCase<
       mentorId: ar.mentorId,
       // Исход субъекта окна — тексты S03/S05 по парам «роль-судьба»
       subjectOutcome: ar.subjectOutcome,
-      daysLeft: ar.daysLeft(new Date()),
+      daysLeft: ar.daysLeft(now()),
       recipients: CampaignFactsDs.recipientsWithMyReview(
         ar,
         command.authorId,

@@ -1,6 +1,15 @@
-import { describe, expect, mock, test } from 'bun:test';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  mock,
+  spyOn,
+  test,
+} from 'bun:test';
 import { AppException } from '@u7-scl/core/domain';
 import { InProcEventBus } from '@u7-scl/core/infra';
+import * as Shared from '@u7-scl/core/shared';
 import type { PeerReviewApiModuleResolver } from '#domain/module';
 import type { Review } from '#domain/review/entity';
 import type { ReviewRepo } from '#domain/review/repo';
@@ -70,6 +79,15 @@ function expectError(name: string, kind: string) {
 }
 
 describe('CreateReviewUc (ФР-7)', () => {
+  let nowSpy: ReturnType<typeof spyOn>;
+
+  beforeEach(() => {
+    nowSpy = spyOn(Shared, 'now').mockReturnValue(NOW);
+  });
+
+  afterEach(() => {
+    nowSpy.mockRestore();
+  });
   test('субъект пишет ментору: снапшоты из кампании, отзыв сохранён', async () => {
     const campaign = makeCampaign();
     const { resolve, saved } = makeResolve(campaign);

@@ -1,4 +1,5 @@
 import { errConflict, throwError } from '@u7-scl/core/domain';
+import { now } from '@u7-scl/core/shared';
 import type { ContentSnapshot, StepPosition } from '@u7-scl/course/domain';
 import { CourseDs } from '@u7-scl/course/domain';
 import type { StreamConflictUcError } from '../api/errors';
@@ -429,7 +430,7 @@ export const StreamDs = {
    */
   categorizeStudents(
     students: Student[],
-    now: Date = new Date(),
+    current: Date = now(),
   ): CategorizedStudent[] {
     // Время с последней активности для каждого
     const hoursMap = new Map<string, number>();
@@ -451,7 +452,7 @@ export const StreamDs = {
         if (ms > latest) latest = ms;
       }
       const hours =
-        latest > 0 ? (now.getTime() - latest) / (1000 * 60 * 60) : 0;
+        latest > 0 ? (current.getTime() - latest) / (1000 * 60 * 60) : 0;
       hoursMap.set(s.uuid, hours);
 
       if (inProgressIds.has(s.uuid)) {

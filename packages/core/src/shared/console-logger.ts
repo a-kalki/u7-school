@@ -1,4 +1,5 @@
 import { type Logger, LogLevel } from './logger';
+import { now } from './now';
 
 const LEVEL_LABELS: Record<LogLevel, string> = {
   [LogLevel.DEBUG]: 'DEBUG',
@@ -55,7 +56,7 @@ export class ConsoleLogger implements Logger {
   ): void {
     if (level < this.#getEffectiveLevel(source)) return;
 
-    const ts = new Date().toISOString();
+    const ts = now().toISOString();
     const label = LEVEL_LABELS[level];
     const prefix = `[${ts}] [${label}] [${source}]`;
     const metaStr = meta ? ` ${JSON.stringify(meta)}` : '';

@@ -1,6 +1,13 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import { type MdText, md, mdConcat, mdJoin, mdRaw } from '@u7-scl/core/shared';
+import {
+  type MdText,
+  md,
+  mdConcat,
+  mdJoin,
+  mdRaw,
+  now,
+} from '@u7-scl/core/shared';
 import type { BotSession, DialogResponse, KbButton } from '@u7-scl/core/ui';
 import type {
   CategorizedStudent,
@@ -112,7 +119,7 @@ export class MonitorStory extends U7BotUiStory {
         );
 
     // Категоризируем через DS
-    const categorized = StreamDs.categorizeStudents(visible, new Date());
+    const categorized = StreamDs.categorizeStudents(visible, now());
     const lagMap = new Map(categorized.map((c) => [c.studentId, c.lagLevel]));
 
     // Считаем прогресс и собираем данные для каждого студента

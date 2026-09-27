@@ -3,6 +3,7 @@ import {
   escapeMarkdown,
   getGlobalLogger,
   type MdText,
+  now,
 } from '@u7-scl/core/shared';
 import {
   assertDialogResponseMarkdownSafe,
@@ -429,7 +430,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   async kickFromGroup(groupId: number | string, userId: number): Promise<void> {
     try {
       await this.botApi.banChatMember(groupId, userId, {
-        until_date: Math.floor(Date.now() / 1000) + 60,
+        until_date: Math.floor(now().getTime() / 1000) + 60,
       });
       await this.botApi.unbanChatMember(groupId, userId);
       getGlobalLogger()?.info(

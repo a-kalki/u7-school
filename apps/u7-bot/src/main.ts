@@ -2,6 +2,7 @@ import { CompositeLogger } from '@u7-scl/app/infra';
 import {
   ConsoleLogger,
   LogLevel,
+  now,
   serializeError,
   setGlobalLogger,
 } from '@u7-scl/core/shared';
@@ -227,9 +228,9 @@ const FORCE_EXIT_MS = 2000;
 let shuttingDown = false;
 let firstSignalAt = 0;
 async function shutdown(signal: string): Promise<void> {
-  const now = Date.now();
+  const currentMs = now().getTime();
   if (shuttingDown) {
-    if (now - firstSignalAt < FORCE_EXIT_MS) {
+    if (currentMs - firstSignalAt < FORCE_EXIT_MS) {
       logger.debug('main', `Дубликат ${signal} — игнорирую, graceful уже идёт`);
       return;
     }
@@ -238,7 +239,7 @@ async function shutdown(signal: string): Promise<void> {
     process.exit(1);
   }
   shuttingDown = true;
-  firstSignalAt = now;
+  firstSignalAt = currentMs;
   logger.info('main', `Получен ${signal} — graceful shutdown`);
 
   try {

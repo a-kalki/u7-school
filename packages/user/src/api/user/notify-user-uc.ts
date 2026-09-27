@@ -1,3 +1,4 @@
+import { now } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import { UserUseCase } from '#api/user-uc';
 import {
@@ -26,7 +27,7 @@ export class NotifyUserUc extends UserUseCase<NotifyUserCmdMeta> {
     const event: UserNotifiedEvent = {
       eventId: crypto.randomUUID(),
       eventName: 'user.notified',
-      occurredAt: new Date().toISOString(),
+      occurredAt: now().toISOString(),
       aggregateName: 'User',
       aggregateId: command.userId,
       payload: {

@@ -1,6 +1,6 @@
 import { Job, type JobMeta, type JobSchedule } from '@u7-scl/core/api';
 import type { DomainEvent } from '@u7-scl/core/domain';
-import { isoNow } from '@u7-scl/core/shared';
+import { isoNow, now } from '@u7-scl/core/shared';
 import type { StreamApiModuleResolver } from '#domain/module';
 import { StudentAr } from '#domain/student/a-root';
 import type { Student } from '#domain/student/entity';
@@ -63,10 +63,10 @@ export class InactivitySweepJob extends Job<
       'enrolled',
     ]);
 
-    const now = new Date();
+    const current = now();
     for (const state of candidates) {
       try {
-        await this.#process(state, now);
+        await this.#process(state, current);
       } catch (err) {
         this.resolve.appResolver.logger.warn(
           SOURCE,

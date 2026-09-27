@@ -1,5 +1,6 @@
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import { JsonFileRepo } from '@u7-scl/core/infra';
+import { now } from '@u7-scl/core/shared';
 import type { QuestionnaireStatus } from '#domain/questionnaire/entity';
 import type {
   GetIdleQuestionnairesParams,
@@ -52,7 +53,7 @@ export class QuestionnaireJsonRepo
       'invited',
       'in_progress',
     ];
-    const now = Date.now();
+    const current = now().getTime();
     const all = await this.readAll();
     return all.filter((q): q is Extract<QuestionnaireState, { kind: K }> => {
       if (!statuses.includes(q.status)) return false;
@@ -60,7 +61,7 @@ export class QuestionnaireJsonRepo
         return false;
       }
       const idleFrom = Date.parse(q.updatedAt ?? q.createdAt);
-      return now - idleFrom >= params.idleMs;
+      return current - idleFrom >= params.idleMs;
     });
   }
 }

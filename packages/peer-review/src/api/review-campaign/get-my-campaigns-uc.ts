@@ -1,4 +1,5 @@
 import { U7UseCase } from '@u7-scl/app/domain';
+import { now } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import type { PeerReviewApiModuleResolver } from '#domain/module';
 import type { ReviewCampaignAr } from '#domain/review-campaign/a-root';
@@ -32,7 +33,7 @@ export class GetMyCampaignsUc extends U7UseCase<
   protected readonly outputSchema = v.array(MyCampaignSchema);
 
   async execute(command: GetMyCampaignsCmd): Promise<MyCampaignCard[]> {
-    const now = new Date();
+    const current = now();
     const repo = this.resolve.reviewCampaignRepo;
 
     const campaigns: ReviewCampaignAr[] = [];
@@ -45,7 +46,7 @@ export class GetMyCampaignsUc extends U7UseCase<
 
     let selected = campaigns;
     if (command.onlyLives) {
-      selected = selected.filter((ar) => !ar.isExpired(now));
+      selected = selected.filter((ar) => !ar.isExpired(current));
     }
     const context = command.filter?.context;
     if (context) {
@@ -66,7 +67,7 @@ export class GetMyCampaignsUc extends U7UseCase<
         ar,
         command.userId,
         myReviews,
-        now,
+        current,
       );
       result.push({
         campaignId: ar.state.uuid,

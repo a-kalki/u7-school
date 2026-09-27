@@ -1,5 +1,6 @@
 import type { ErMeta } from '@u7-scl/core/api';
 import { EventReaction } from '@u7-scl/core/api';
+import { now } from '@u7-scl/core/shared';
 import type {
   StreamMember,
   StreamMembers,
@@ -65,7 +66,7 @@ export class CreateStudentCampaignEr extends EventReaction<
       mentorId: members.mentorId,
       subjectOutcome,
       participantIds: this.#participantIds(event, members, subjectId),
-      now: new Date(),
+      now: now(),
     });
 
     await this.resolve.reviewCampaignRepo.save(ar.state);

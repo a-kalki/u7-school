@@ -1,6 +1,7 @@
 import type { Job } from '../api/job/job';
 import type { JobExecutor } from '../api/job/job-executor';
 import type { Logger } from '../shared/logger';
+import { now } from '../shared/now';
 import type { JobRunRepo } from './job-run-repo';
 import type { JobSchedulePlanner } from './job-schedule-planner';
 
@@ -59,7 +60,7 @@ export class ScheduledJobRunner {
 
     const lastRunIso = this.#deps.store.getLastRunAt(this.#deps.job.jobName);
     const lastRun = lastRunIso !== undefined ? new Date(lastRunIso) : undefined;
-    const now = new Date();
+    const current = now();
 
     // runAtStart без истории: первый прогон через стартовую задержку
     if (lastRun === undefined && this.#isRunAtStart()) {
@@ -69,14 +70,14 @@ export class ScheduledJobRunner {
 
     const next = this.#deps.planner.nextRunAfter(
       this.#deps.job.schedule,
-      lastRun ?? now,
+      lastRun ?? current,
     );
 
-    if (next.getTime() <= now.getTime()) {
+    if (next.getTime() <= current.getTime()) {
       // Misfire: упущенный запуск — один догоняющий прогон
       this.#arm(this.#startDelayMs);
     } else {
-      this.#arm(next.getTime() - now.getTime());
+      this.#arm(next.getTime() - current.getTime());
     }
   }
 
@@ -116,14 +117,14 @@ export class ScheduledJobRunner {
       // lastRunAt фиксируем и при ошибке: рестарт не должен зацикливать догон
       this.#deps.store.setLastRunAt(
         this.#deps.job.jobName,
-        new Date().toISOString(),
+        now().toISOString(),
       );
       if (this.#started) {
         const next = this.#deps.planner.nextRunAfter(
           this.#deps.job.schedule,
-          new Date(),
+          now(),
         );
-        this.#arm(Math.max(0, next.getTime() - Date.now()));
+        this.#arm(Math.max(0, next.getTime() - now().getTime()));
       }
     }
   }

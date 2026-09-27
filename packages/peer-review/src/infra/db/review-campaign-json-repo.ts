@@ -1,4 +1,5 @@
 import { JsonFileRepo } from '@u7-scl/core/infra';
+import { now } from '@u7-scl/core/shared';
 import type { ReviewCampaign } from '#domain/review-campaign/entity';
 import { ReviewCampaignSchema } from '#domain/review-campaign/entity';
 import type { ReviewCampaignRepo } from '#domain/review-campaign/repo';
@@ -64,16 +65,16 @@ export class ReviewCampaignJsonRepo implements ReviewCampaignRepo {
   }
 
   async findActiveBySubject(userId: string): Promise<ReviewCampaign[]> {
-    const now = new Date();
+    const current = now();
     const all = await this.#repo.readAll();
-    return all.filter((c) => c.subjectId === userId && !isExpired(c, now));
+    return all.filter((c) => c.subjectId === userId && !isExpired(c, current));
   }
 
   async findActiveByMentor(userId: string): Promise<ReviewCampaign[]> {
-    const now = new Date();
+    const current = now();
     const all = await this.#repo.readAll();
     return all.filter(
-      (c) => c.payload.mentorId === userId && !isExpired(c, now),
+      (c) => c.payload.mentorId === userId && !isExpired(c, current),
     );
   }
 

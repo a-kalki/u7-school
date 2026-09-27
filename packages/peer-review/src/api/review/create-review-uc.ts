@@ -1,5 +1,6 @@
 import { U7UseCase } from '@u7-scl/app/domain';
 import { errNotFound } from '@u7-scl/core/domain';
+import { now } from '@u7-scl/core/shared';
 import type { PeerReviewApiModuleResolver } from '#domain/module';
 import { ReviewAr } from '#domain/review/a-root';
 import {
@@ -47,7 +48,7 @@ export class CreateReviewUc extends U7UseCase<
       );
     }
     const ar = ReviewCampaignFactory.restore(state);
-    ar.ensureLive(new Date());
+    ar.ensureLive(now());
     const { direction, authorOutcome } = ar.assertCanWrite(
       command.authorId,
       command.recipientId,
@@ -68,7 +69,7 @@ export class CreateReviewUc extends U7UseCase<
           ...(authorOutcome !== undefined ? { authorOutcome } : {}),
           recipientId: command.recipientId,
           text: command.text,
-          now: new Date(),
+          now: now(),
         });
     await this.resolve.reviewRepo.save(review.state);
 

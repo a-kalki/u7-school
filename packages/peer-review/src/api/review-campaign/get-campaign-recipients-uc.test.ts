@@ -1,6 +1,15 @@
-import { describe, expect, mock, test } from 'bun:test';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  mock,
+  spyOn,
+  test,
+} from 'bun:test';
 import { AppException } from '@u7-scl/core/domain';
 import { InProcEventBus } from '@u7-scl/core/infra';
+import * as Shared from '@u7-scl/core/shared';
 import type { PeerReviewApiModuleResolver } from '#domain/module';
 import type { ReviewRepo } from '#domain/review/repo';
 import type { ReviewCampaignRepo } from '#domain/review-campaign/repo';
@@ -66,6 +75,15 @@ function makeResolve(
 }
 
 describe('GetCampaignRecipientsUc', () => {
+  let nowSpy: ReturnType<typeof spyOn>;
+
+  beforeEach(() => {
+    nowSpy = spyOn(Shared, 'now').mockReturnValue(NOW);
+  });
+
+  afterEach(() => {
+    nowSpy.mockRestore();
+  });
   test('субъект: соученик + ментор, ✅-признак', async () => {
     const campaign = makeCampaign();
     const uc = new GetCampaignRecipientsUc();

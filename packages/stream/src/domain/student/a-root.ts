@@ -1,5 +1,5 @@
 import { Aggregate } from '@u7-scl/core/domain';
-import { isoNow } from '@u7-scl/core/shared';
+import { isoNow, now } from '@u7-scl/core/shared';
 import {
   AbandonSign,
   CompletionSign,
@@ -212,7 +212,7 @@ export class StudentAr extends Aggregate<StudentArMeta> {
    * Даёт idempotentность повтора «через день» и проверяемость строки
    * «уведомления были ранее отправлены» в уведомлении ментору.
    */
-  markNoticed(kind: StudentNoticeKind, at: Date = new Date()): void {
+  markNoticed(kind: StudentNoticeKind, at: Date = now()): void {
     const record: StudentNoticeRecord = {
       kind,
       // Формат до минут — общий стандарт хранения дат проекта (isoNow)
@@ -459,7 +459,7 @@ export class StudentAr extends Aggregate<StudentArMeta> {
    *
    * Неактивные статусы (abandoned, advanced, not_advanced) — всегда on_track.
    */
-  computeLagLevel(now: Date = new Date()): 'critical' | 'lagging' | 'on_track' {
+  computeLagLevel(at: Date = now()): 'critical' | 'lagging' | 'on_track' {
     if (this._state.status !== 'active' && this._state.status !== 'enrolled') {
       return 'on_track';
     }
@@ -467,7 +467,7 @@ export class StudentAr extends Aggregate<StudentArMeta> {
     const last = this.lastActivityAt;
     if (!last) return 'on_track';
 
-    const hoursSince = (now.getTime() - last.getTime()) / (1000 * 60 * 60);
+    const hoursSince = (at.getTime() - last.getTime()) / (1000 * 60 * 60);
 
     if (hoursSince > 7 * 24) return 'critical';
     if (hoursSince > 4 * 24) return 'lagging';
@@ -483,8 +483,7 @@ export class StudentAr extends Aggregate<StudentArMeta> {
     const last = this.lastActivityAt;
     if (!last) return false;
 
-    const studentHours =
-      (new Date(isoNow()).getTime() - last.getTime()) / (1000 * 60 * 60);
+    const studentHours = (now().getTime() - last.getTime()) / (1000 * 60 * 60);
     return studentHours >= medianHours * 1.3;
   }
 }
