@@ -639,9 +639,7 @@
     "createdAt": "2026-06-16T12:00",
     "updatedAt": "2026-06-16T12:00",
     "estimatedMinutes": 45,
-    "stepIds": [
-      "0537679d-a582-443b-a34e-c89d72b81d28"
-    ],
+    "stepIds": ["0537679d-a582-443b-a34e-c89d72b81d28"],
     "mentorStepIds": []
   },
   {
@@ -2223,9 +2221,7 @@
     "createdAt": "2026-09-21T13:37",
     "updatedAt": "2026-09-21T13:37",
     "estimatedMinutes": 30,
-    "stepIds": [
-      "fb2b5117-410a-4a02-8197-8c7cf23f3475"
-    ],
+    "stepIds": ["fb2b5117-410a-4a02-8197-8c7cf23f3475"],
     "mentorStepIds": []
   },
   {
