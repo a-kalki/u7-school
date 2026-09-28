@@ -1,4 +1,5 @@
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, spyOn, test } from 'bun:test';
+import * as Shared from '@u7-scl/core/shared';
 import type { StudentCompletedEvent } from '@u7-scl/stream/domain';
 import { createTestApp, type TestApp } from '@u7-scl/test-helpers/test-app';
 import {
@@ -28,6 +29,13 @@ const SUBJECT_TG = 1007; // «Марина»
 const SUBJECT_USER_ID = '77777777-7777-4777-8777-777777777777';
 const MENTOR_TG = 1004; // «Ментор» — ментор потока e1e1e1e1
 
+/**
+ * Замораживаем «сейчас» на дату фикстур: иначе кампании c1a11111/c2a22222
+ * истекают по календарю (expiresAt 2026-09-28T10:00) и тест протухает.
+ * Тот же приём, что в unit-тестах peer-review (spyOn(Shared, 'now')).
+ */
+const FROZEN_NOW = new Date('2026-09-22T12:00');
+
 /** Ждёт условия (poll) — ER и стори обрабатывают событие асинхронно. */
 async function waitUntil(
   probe: () => boolean | Promise<boolean>,
@@ -43,14 +51,17 @@ async function waitUntil(
 describe('E2E peer-review: инфраструктура стенда (smoke)', () => {
   let app: TestApp;
   let transport: TestBotTransport;
+  let nowSpy: ReturnType<typeof spyOn>;
 
   beforeAll(async () => {
+    nowSpy = spyOn(Shared, 'now').mockReturnValue(FROZEN_NOW);
     app = await createTestApp('pr-smoke');
     transport = createTestBotTransport(app, [new PeerReviewController()]);
   });
 
   afterAll(async () => {
     await app.cleanup();
+    nowSpy.mockRestore();
   });
 
   test('модуль peer-review зарегистрирован — get-my-campaigns отвечает', async () => {
@@ -62,9 +73,8 @@ describe('E2E peer-review: инфраструктура стенда (smoke)', (
       mentor,
     );
     expect(Array.isArray(cards)).toBe(true);
-    // Фикстура c1a11111: субъект 333…, ментор 444… — кампания живая на дату фикстур,
-    // но isExpired(now) от реального «сейчас» → onlyLives может быть пуст;
-    // без фильтра кампания ментора обязана найтись.
+    // Фикстура c1a11111: субъект 333…, ментор 444… — окно кампании живое
+    // на замороженное «сейчас» (FROZEN_NOW), поэтому репозиторий её вернёт.
     expect(
       cards.some(
         (c) => c.campaignId === 'c1a11111-1111-4111-8111-111111111111',

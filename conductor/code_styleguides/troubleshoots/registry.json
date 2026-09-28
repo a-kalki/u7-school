@@ -40,6 +40,24 @@
       "last_shown_at": "2026-09-14",
       "last_used_at": null
     },
+    "bun-test-time-dependent-fixture-expiry": {
+      "tags": ["bun-test", "time", "fixtures", "peer-review", "now"],
+      "description": "e2e-тест на фикстурах с абсолютным expiresAt протухает по календарю — заморозь now() через spyOn(Shared, now)",
+      "symptoms": [
+        "get-my-campaigns отвечает",
+        "кампания ментора обязана найтись",
+        "expected: true",
+        "received: false",
+        "e2e smoke протух"
+      ],
+      "file": "bun-test-time-dependent-fixture-expiry.md",
+      "created_at": "2026-09-28",
+      "shown": 0,
+      "opened": 0,
+      "helped": 0,
+      "last_shown_at": null,
+      "last_used_at": null
+    },
     "deploy-migration-updatedAt-format": {
       "tags": ["deploy", "valibot", "isoDateTime"],
       "description": "Миграция пишет updatedAt с пробелом вместо T — невалидный isoDateTime",
