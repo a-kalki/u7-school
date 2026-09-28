@@ -16,13 +16,15 @@
 
 ## Фаза 2: App — тип `School` и резолверы
 
-- [ ] Task: Тесты `SchoolSchema` (валидный объект; отсутствие обязательного поля; опциональный `site`).
-- [ ] Task: Реализовать `packages/app/src/domain/school.ts` — VO + valibot-схема + статические
-      значения школы (`name`, `description`, `address`, `contacts.phone`).
+- [ ] Task: Тесты `SchoolSchema` (валидный объект с `id`; отсутствие обязательного поля; опциональный `site`).
+- [ ] Task: Реализовать `packages/app/src/domain/school.ts` — сущность (entity)
+      + valibot-схема, константа `id` + статические значения школы (`name`, `description`,
+      `address`, `contacts.phone`).
 - [ ] Task: Перенести `U7AppResolver` в `packages/app/src/domain`, добавить `school: School`.
 - [ ] Task: Ввести `U7ModuleResolver extends ModuleResolver<U7AppResolver>`.
-- [ ] Task: Закрыть дженерик в `U7UseCase`/`U7ApiModule` (default `TResolve = U7ModuleResolver`)
-      и обновить `*ApiModuleResolver` доменов, где необходима школа.
+- [ ] Task: Закрыть резолвер в `U7UseCase`/`U7ApiModule`
+      (`TResolve extends U7ModuleResolver = U7ModuleResolver`) и перевести **все** доменные
+      `*ApiModuleResolver` со core-`ModuleResolver` на `U7ModuleResolver`.
 - [ ] Task: Удалить пустой `U7AppResolver` из `apps/u7-bot/src/core/u7-bot-app-meta.ts`,
       заменить импортом из `@u7-scl/app/domain`.
 - [ ] Task: Экспортировать новые типы из `@u7-scl/app/domain` (barrel `index.ts`).
@@ -31,7 +33,7 @@
 ## Фаза 3: apps/u7-bot — env → config → резолвер, `mode`
 
 - [ ] Task: Обновить тесты `loadConfig`: новые обязательные переменные, `mode` из `NODE_ENV`,
-      дефолт `test`, падение при отсутствии обязательной переменной.
+      падение при отсутствии/невалидности `NODE_ENV` (дефолта нет).
 - [ ] Task: Обновить `BotConfigSchema`: `communityGroupId`/`communityGroupUrl`,
       `studentGroupId`/`studentGroupInvite`, поле `mode`.
 - [ ] Task: Собрать `School` (статика + config) в `create-api-app.ts`, положить в
@@ -58,9 +60,12 @@
 
 ## Фаза 6: Env-файлы, CHANGELOG, документация
 
-- [ ] Task: Обновить `.env.development`: community и student — одна группа; исправить битый URL.
-- [ ] Task: `CHANGELOG`: секция Migration — переименование `SCHOOL_GROUP_*` → `COMMUNITY_GROUP_*`,
-      новые `STUDENT_GROUP_*`, готовые значения, корректный перезапуск pm2 под `production`.
+- [ ] Task: Обновить `.env.development`: удалить legacy `SCHOOL_GROUP_*`, оставить только
+      `COMMUNITY_GROUP_*`/`STUDENT_GROUP_*` и `NODE_ENV=development` (код и env меняются
+      в одном релизе `0.2.0`, дубли имён не нужны).
+- [ ] Task: `CHANGELOG`: секция Migration — перенос `SCHOOL_GROUP_*` → `COMMUNITY_GROUP_*`,
+      новые `STUDENT_GROUP_*` (прод-значения), `NODE_ENV=production`, порядок «env → выкат
+      кода», корректный перезапуск pm2 под `production`.
 - [ ] Task: Обновить conductor-документацию (`architecture.md` / `domain-boundaries.md`) про
       `AppResolver.school` и generic `ModuleResolver`.
 - [ ] Task: Conductor - User Manual Verification 'Фаза 6: Миграция и документация' (Protocol in workflow.md)

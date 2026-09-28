@@ -75,6 +75,7 @@
     - [ ] [Green] Реализация ветки `readOnly` без тел.
 - [ ] Task: Убрать старое наследие
     - [ ] Удалить `#formatTreeBody` и inline-рендер программы.
-    - [ ] Проверить потребителей `tree-renderer`; удалить, если не осталось.
+    - [ ] Проверить потребителей `tree-renderer`: удаление `renderTreeBlocks`/`tree-renderer` —
+          владелец трек `course-catalog-nav_20260928` (последний потребитель).
 - [ ] Task: Обновить `ui-spec.md` (streams, learning) под реальное состояние экранов/кнопок.
 - [ ] Task: Conductor - User Manual Verification 'Публичная ветка и зачистка старого' (Protocol in workflow.md)

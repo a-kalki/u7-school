@@ -1,5 +1,7 @@
 # Трек: Школа как конфигурация уровня приложения (school-config)
 
+**Релиз:** `0.2.0` (группа «Школа»).
+
 ## Обзор
 
 Ввести на уровне модуля `app` понятие **«Школа»** — единый источник данных о школе
@@ -31,10 +33,12 @@
 
 ## Функциональные требования
 
-**FR-1. Тип `School` в модуле app.**
-В `packages/app/src/domain/school.ts`: value object + valibot-схема, экспорт из
+**FR-1. Тип `School` в модуле app (сущность).**
+В `packages/app/src/domain/school.ts`: сущность (entity) + valibot-схема, экспорт из
 `@u7-scl/app/domain`. Поля:
 
+- `id: string` — uuid школы, константа в app-слое (связка `Stream.schoolId`; в будущем —
+  из БД модуля школ);
 - `name: string` — «U7 School»;
 - `description: string` — «Развиваем не только хард-скиллы, но и софт-скиллы, придавая
   последним не меньшее значение. Весь процесс обучения заточен на это.»;
@@ -45,18 +49,26 @@
   `["8d9a56f6-51e7-49f0-ba58-2832b157e718"]` (Nur); статика в коде, пополняется
   по мере появления менторов; имена резолвятся по uuid на UI-слое (`userFacade`);
 - `communityGroup: { id: number; url: string }` — группа сообщества (для всех);
-- `studentGroup: { id: number; inviteUrl: string }` — студенческая группа (для потоков).
+- `studentGroup: { id: number; inviteUrl: string }` — общая студенческая группа школы
+  (дефолт для новых потоков; не путать с группой конкретного потока).
 
 Статические значения (имя, описание, адрес, телефон) живут в коде app-слоя.
 Средозависимые (группы) приходят из env.
 
-**FR-2. Резолверы.**
-- `core`: `ModuleResolver<TAppResolver extends AppResolver = AppResolver>` — generic с
-  дефолтом (обратная совместимость).
-- `app`: `U7AppResolver extends AppResolver { school: School }` (переносится из
-  `apps/u7-bot` в `packages/app/src/domain` — иначе пакеты не могут на него ссылаться).
-- `app`: `U7ModuleResolver extends ModuleResolver<U7AppResolver>` — закрывает дженерик один
-  раз; доменные модули наследуют свои `*ApiModuleResolver` от него.
+**FR-2. Резолверы и закрытие дженериков уровня приложения.**
+- `core`: `ModuleResolver<TAppResolver extends AppResolver = AppResolver>` — generic
+  с дефолтом (обратная совместимость).
+- `app`: `U7AppResolver extends AppResolver { school: School }` — переносится из
+  `apps/u7-bot` в `packages/app/src/domain` (иначе пакеты не могут на него ссылаться).
+- `app`: `U7ModuleResolver extends ModuleResolver<U7AppResolver>` — закрывает дженерик
+  один раз.
+- `app`: `U7UseCase<TMeta, TResolve extends U7ModuleResolver = U7ModuleResolver>` и
+  `U7ApiModule<TMeta, TResolve extends U7ModuleResolver = U7ModuleResolver>` — дефолт
+  резолвера уровня приложения (актор `User` остаётся закрытым там же).
+- Доменные модули убирают прямой импорт core-`ModuleResolver`: их `*ApiModuleResolver`
+  наследуют `U7ModuleResolver` и дополняют своими зависимостями (`streamRepo`,
+  `userFacade`, …).
+- Удалить пустой `U7AppResolver` из `apps/u7-bot/src/core/u7-bot-app-meta.ts`.
 
 **FR-3. Резолв школы из env.**
 `BotConfig` читает обязательные `COMMUNITY_GROUP_ID`, `COMMUNITY_GROUP_URL`,
@@ -65,11 +77,10 @@
 **приложение падает при загрузке** (без fallback).
 
 **FR-4. Проброс в UI; UI не зависит от `BotConfig`.**
-`U7BotUiAppResolve` получает `school`. `AppController`/`CommunityStory` и
-`CreateStreamStory` берут данные школы из resolve, а не из `config`.
-Стори и контроллеры `config` уже не используют — закрепить инвариант;
-`create-ui-app.ts` перестаёт принимать `BotConfig`: школа и `adminTelegramIds`
-приходят через резолвер, `botAdminUser` резолвится из `botAdminUuid` в нём же.
+`U7BotUiAppResolve` получает `school`, `adminTelegramIds` и `botAdminUser`
+(резолв из `botAdminUuid`); `AppController`/`CommunityStory` и `CreateStreamStory`
+берут данные школы из resolve, а не из `config`. Стори и контроллеры `config` уже не
+используют — закрепить инвариант; `create-ui-app.ts` перестаёт принимать `BotConfig`.
 
 **FR-5. Убрать прямые `config.schoolGroup*`.**
 Из `main.ts` (для `group-handler`) и `create-ui-app.ts` (для `AppController`) —
@@ -77,23 +88,31 @@
 
 **FR-6. Единые имена в коде и env.**
 - `SCHOOL_GROUP_ID` → `COMMUNITY_GROUP_ID`, `SCHOOL_GROUP_URL` → `COMMUNITY_GROUP_URL`;
-- новые `STUDENT_GROUP_ID`, `STUDENT_GROUP_INVITE`;
-- переименование без fallback на старое имя;
-- `.env.development`: одна группа и для community, и для student; исправить битый
-  `SCHOOL_GROUP_URL` (`https:t.me/...` без `//`).
+- новые `STUDENT_GROUP_ID`, `STUDENT_GROUP_INVITE` — общая студенческая группа школы;
+- переименование без fallback; legacy `SCHOOL_GROUP_*` **сразу удаляются** (в `.env.development`
+  тоже) — код и env меняются в одном релизе `0.2.0`, дубли имён не нужны;
+- значения различаются по средам; для `.env.development` обе группы совпадают —
+  `COMMUNITY_GROUP_ID=-5242483751` / `COMMUNITY_GROUP_URL=https://t.me/+31g_Pw1AWfQ1YjQy`,
+  те же значения для `STUDENT_GROUP_*`;
+- прод-значения задаёт владелец по Migration-инструкции (они другие).
 
 **FR-7. `mode` из `NODE_ENV`.**
 `AppEnvMode` (`test`/`development`/`production`) читается из `NODE_ENV` с валидацией;
-если не задана — падает. Согласовано: `bun test` выставляет `test`,
-`dev:fixtures` — `development`, pm2 `env_production` — `production`.
+отсутствующее или неизвестное значение — **падение при загрузке** (fallback нет).
+Значения задают скрипты и окружения: `bun test` → `test`, `dev:fixtures` →
+`development`, pm2 `env_production` → `production`; в `.env.development` добавляется
+`NODE_ENV=development`.
 
 **FR-8. Pre-fill wizard создания потока.**
 Шаги 9–10 (`CreateStreamStory`) предзаполняются `school.studentGroup`: значение показано
 в тексте шага, есть «Оставить значение», «Пропустить» и возможность ввести другое.
 
 **FR-9. Миграционная инструкция для прода.**
-Секция **Migration** в `CHANGELOG` с точными значениями и шагами для `.env.production`
-и корректного перезапуска pm2 под `production`.
+Секция **Migration** в `CHANGELOG`: (1) перенести значения `SCHOOL_GROUP_*` в
+`COMMUNITY_GROUP_*`, (2) задать `STUDENT_GROUP_ID`/`STUDENT_GROUP_INVITE` (прод-значения),
+(3) задать `NODE_ENV=production`, (4) перезапустить
+`pm2 start pm2.config.cjs --env production --update-env`. Порядок обязателен: **env
+правится до выката кода** — без обязательной переменной приложение падает при загрузке.
 
 ## Нефункциональные требования
 
@@ -118,7 +137,8 @@
 
 - Хаб «🏫 Школа» (инфо, менторы, потоки, отзывы, сообщество) — отдельный трек
   (`school-hub`); концепция школ — `conductor/roadmap/schools-system.md`.
-- Модуль школ: `SchoolAr`/`SchoolRepo`, несколько школ, резолв из БД.
+- Модуль школ: `SchoolAr`/`SchoolRepo`, несколько школ, резолв из БД (`School` пока —
+  сущность уровня app без Ar/Repo: статика + env).
 - Миграция/перезапись существующих потоков и их `telegramGroupId`.
 - Отображение `name`/`description`/`address`/`contacts` в новых экранах (кроме
   информации о группе сообщества).

@@ -2,6 +2,14 @@
 
 Порядок миграции bot-ui: 1 → 1.1 → 2 → (3 ∥ 4) → 5 → 6. Декомпозиция — в [bot-ui-session-architecture.md](./roadmap/bot-ui-session-architecture.md), §9.
 
+**Релизные группы (порядок выката).** Несколько треков могут ехать одним тегом; внутри группы `main` между треками может быть в сломанном состоянии — в тег попадает только согласованное (`bun run check` зелёный).
+
+- **`0.2.0` «Школа»** — `test-worlds` → `school-config` → `school-hub`. Отдельный тег под `test-worlds` не нужен (прод-поведение не меняется). Окно одно: env + миграция `streams.schoolId` + рестарт; внутри группы env/`list-scope-reviews`/резолверы переделываются без обратной совместимости.
+- **`0.3.0` «Drill-down»** — `module-program-nav` → `course-catalog-nav`. Только после `0.2.0`; миграций нет.
+
+Порядок треков внутри группы: `test-worlds` → `school-config` → `school-hub` → `module-program-nav` → `course-catalog-nav`. Причина: миры — базис тестов для всех последующих треков; школа — фундамент хаба; хаб выравнивает нейминг («Курсы», входы) до переписывания каталога; drill-down — сначала ядро, затем каталог.
+
+---
 
 - [x] **Track: Кампании судьбы студента (peer-review v4)** — персональные кампании (`subjectId`, триггеры `student.completed`/`student.abandoned`, ментор — соавтор в кампании субъекта), мультисобытийная подписка ER в core, ER вместо UC создания, 4-значная проекция исходов, пользовательские UC, фасад, json-репо, сборка. Завершён, итоги — в [summary](./archive/peer-review-campaign_20260918/summary.md)
 *Link: [./archive/peer-review-campaign_20260918/](./archive/peer-review-campaign_20260918/)*
@@ -33,12 +41,13 @@
 
 ---
 
-- [ ] **Track: Школа как конфигурация уровня приложения (school-config)** — тип `School` в модуле app (имя, описание, адрес, контакты, community- и student-группы); generic `ModuleResolver` в core + `U7AppResolver`/`U7ModuleResolver` (перенос и закрытие дженерика в app); резолв школы из env в композиционном корне и проброс в API (`appResolver.school`) и UI (`U7BotUiAppResolve.school`); замена прямых `config.schoolGroup*` у потребителей (`group-handler`, `AppController`/`CommunityStory`); единые имена env `COMMUNITY_GROUP_*`/`STUDENT_GROUP_*` без fallback; `mode` из `NODE_ENV`; pre-fill wizard создания потока студенческой группой; Migration-инструкция в CHANGELOG. Видение продолжения — [schools-system.md](./roadmap/schools-system.md)
+- [ ] **Track: Школа как конфигурация уровня приложения (school-config)** — сущность `School` с `id` в модуле app (имя, описание, адрес, контакты, community- и student-группы); generic `ModuleResolver` в core + закрытие резолверов уровня app (`U7AppResolver`, `U7ModuleResolver`, дефолты в `U7UseCase`/`U7ApiModule`); резолв школы из env и проброс в API/UI; замена прямых `config.schoolGroup*`; единые имена env `COMMUNITY_GROUP_*`/`STUDENT_GROUP_*` без fallback; падение при отсутствии `NODE_ENV`; pre-fill wizard студенческой группой; Migration-инструкция в CHANGELOG. Видение продолжения — [schools-system.md](./roadmap/schools-system.md)
 *Link: [./tracks/school-config_20260928/](./tracks/school-config_20260928/)*
 
 ---
 
-- [ ] **Track: Хаб «Школа» (school-hub)** — разделение осей «🏫 Школа» (место) и «📖 Курсы» (материалы авторов); контроллер `school` с карточкой школы и «Наши менторы»; экран «Инфо»; перенос в хаб кнопок «Сообщество» и «Потоки курсов»; простой срез «Отзывы» о менторах школы; переименование «Программы курсов» → «Курсы». Общая концепция школ — [schools-system.md](./roadmap/schools-system.md)
+- [ ] **Track: Хаб «Школа» (school-hub)** — разделение осей «🏫 Школа» (место) и «📖 Курсы» (материалы авторов); контроллер `school` с карточкой школы и «Наши менторы»; экран «Инфо»; перенос в хаб кнопок «Сообщество» и «Потоки курсов»; `Stream.schoolId` и экран «Отзывы» (только чтение, отзывы по потокам школы); переименование «Программы курсов» → «Курсы». Общая концепция школ — [schools-system.md](./roadmap/schools-system.md)
+Зависит от `school-config_20260928` (тип `School`, `appResolver.school`).
 *Link: [./tracks/school-hub_20260928/](./tracks/school-hub_20260928/)*
 
 ---

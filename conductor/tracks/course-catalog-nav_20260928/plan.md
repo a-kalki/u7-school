@@ -41,6 +41,7 @@
 ## Фаза 3: Зачистка и документация
 
 - [ ] Task: Удалить inline-поддеревья и `pagedScreen` из `course-catalog`
-    - [ ] Проверить отсутствие остаточных потребителей `renderTreeBlocks`/`tree-renderer`.
+    - [ ] Удалить `renderTreeBlocks`/`tree-renderer` — последний потребитель здесь
+          (трек-владелец зачистки); убедиться, что ссылок не осталось.
 - [ ] Task: Обновить `ui-spec.md` (courses) под новое поведение экранов/кнопок.
 - [ ] Task: Conductor - User Manual Verification 'Зачистка и документация' (Protocol in workflow.md)
