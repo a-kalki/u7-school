@@ -1,0 +1,8 @@
+{
+  "track_id": "course-catalog-nav_20260928",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-09-28T12:17:23Z",
+  "updated_at": "2026-09-28T12:17:23Z",
+  "description": "Каталог курсов: drill-down навигация (курс → этап → модуль → проект → урок) на переиспользуемом ядре из трека module-program-nav"
+}
