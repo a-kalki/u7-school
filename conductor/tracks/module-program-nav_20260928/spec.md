@@ -71,7 +71,9 @@
 - единый формат адреса уровня со стабильными id (без индексов `phaseIdx`/`projectIdx`);
 - резолверы контекста: источник `stream` (студент, ментор).
 
-Контракт и каркас — в [conductor/guides/drill-down-navigation.md](../../guides/drill-down-navigation.md).
+Контракт и каркас — в [courses/content-nav.md](../../../apps/u7-bot/src/controllers/courses/content-nav.md).
+Код: `NavLevel`/`NavChild` + presenter — в `packages/core/src/ui/content-nav/`;
+резолверы и стори — в `apps/u7-bot`.
 
 **FR-8. Выпиливание старого.** Удалить ручное дерево `#formatTreeBody` в `nav-tree` и
 inline-рендер программы; проверить и убрать `tree-renderer`, если не останется потребителей;

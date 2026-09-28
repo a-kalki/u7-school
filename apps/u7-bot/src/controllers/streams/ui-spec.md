@@ -118,8 +118,8 @@ _{StreamDescription}_
 **Кому:** все роли, но детали зависят от прав.
 
 **Формат:** карточная drill-down `модуль → проект → урок → шаг` — общая механика в
-[Drill-down навигация по контенту](../../../../../conductor/guides/drill-down-navigation.md)
-(в обучении — `learning/ui-spec.md`, S05b). Отличия — по режиму доступа:
+[courses/content-nav.md](../courses/content-nav.md); статусы студента —
+в [learning/ui-spec.md](../learning/ui-spec.md) (S05b). Отличия — по режиму доступа:
 
 | Зритель | Статусы/прогресс | Тела шагов |
 |---------|------------------|------------|

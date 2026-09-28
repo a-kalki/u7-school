@@ -12,7 +12,8 @@
     - [ ] `streams/ui-spec.md`: `S03` — «Программа модуля» (drill-down с шагами); правки кнопки в `S02`/`S02m`.
     - [ ] Согласовать с владельцем до начала реализации.
 - [ ] Task: Спроектировать модель карточки уровня (`NavLevel`) и единый формат адреса уровня
-    - [ ] Следовать каркасу [conductor/guides/drill-down-navigation.md](../../guides/drill-down-navigation.md).
+    - [ ] Следовать каркасу [courses/content-nav.md](../../../apps/u7-bot/src/controllers/courses/content-nav.md).
+    - [ ] Разместить `NavLevel`/presenter в `packages/core/src/ui/content-nav/`, резолверы — в `apps/u7-bot`.
     - [ ] Зафиксировать структуру: `title`, `subtitle` (пояснение), `children[]`
           (`id`, `index`, `title`, `emoji`, `meta`, `status`, `enterable`, `children[]`),
           адреса `prev`/`next`/`back`.
