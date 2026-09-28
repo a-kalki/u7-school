@@ -22,12 +22,12 @@
 - [ ] Task: Реализовать экран «Инфо» и возврат в хаб.
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2: Экран Инфо' (Protocol in workflow.md)
 
-## Фаза 3: «Сообщество школы» (перенос)
+## Фаза 3: «Сообщество» (перенос)
 
 - [ ] Task: Тесты: кнопка сообщества в хабе ведёт по `school.communityGroup.url`.
 - [ ] Task: Перенести `CommunityStory` из `AppController` в `SchoolController`
       (убрать кнопку из главного меню).
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3: Сообщество школы' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Фаза 3: Сообщество' (Protocol in workflow.md)
 
 ## Фаза 4: «Потоки» (перенос каталога)
 
