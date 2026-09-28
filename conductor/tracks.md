@@ -33,10 +33,10 @@
 
 ---
 
-- [ ] **Track: Школа как конфигурация уровня приложения (school-config)** — тип `School` в модуле app (имя, описание, адрес, контакты, community- и student-группы); generic `ModuleResolver` в core + `U7AppResolver`/`U7ModuleResolver` (перенос и закрытие дженерика в app); резолв школы из env в композиционном корне и проброс в API (`appResolver.school`) и UI (`U7BotUiAppResolve.school`); замена прямых `config.schoolGroup*` у потребителей (`group-handler`, `AppController`/`CommunityStory`); единые имена env `COMMUNITY_GROUP_*`/`STUDENT_GROUP_*` без fallback; `mode` из `NODE_ENV`; pre-fill wizard создания потока студенческой группой; Migration-инструкция в CHANGELOG. Видение продолжения — [school-home.md](./roadmap/school-home.md)
+- [ ] **Track: Школа как конфигурация уровня приложения (school-config)** — тип `School` в модуле app (имя, описание, адрес, контакты, community- и student-группы); generic `ModuleResolver` в core + `U7AppResolver`/`U7ModuleResolver` (перенос и закрытие дженерика в app); резолв школы из env в композиционном корне и проброс в API (`appResolver.school`) и UI (`U7BotUiAppResolve.school`); замена прямых `config.schoolGroup*` у потребителей (`group-handler`, `AppController`/`CommunityStory`); единые имена env `COMMUNITY_GROUP_*`/`STUDENT_GROUP_*` без fallback; `mode` из `NODE_ENV`; pre-fill wizard создания потока студенческой группой; Migration-инструкция в CHANGELOG. Видение продолжения — [schools-system.md](./roadmap/schools-system.md)
 *Link: [./tracks/school-config_20260928/](./tracks/school-config_20260928/)*
 
 ---
 
-- [ ] **Кандидат: «Наша школа» (`school-home`)** — хаб «🏫 Наша школа» с информацией о школе (имя, описание, адрес, контакты) и входом в каталог курсов; поверх типа `School` из трека school-config. Начинать после school-config. Видение и черновик спеки — [school-home.md](./roadmap/school-home.md)
-*Источник: обсуждение владельца 2026-09-28 при планировании трека school-config. Трек ещё не создан: скоуп и декомпозиция — при планировании.*
+- [ ] **Track: Хаб «Школа» (school-hub)** — разделение осей «🏫 Школа» (место) и «📖 Курсы» (материалы авторов); контроллер `school` с карточкой школы и «Наши менторы»; экран «Инфо»; перенос в хаб «Сообщества школы» и «Потоков курсов»; простой срез «Отзывы» о менторах школы; переименование «Программы курсов» → «Курсы». Общая концепция школ — [schools-system.md](./roadmap/schools-system.md)
+*Link: [./tracks/school-hub_20260928/](./tracks/school-hub_20260928/)*
