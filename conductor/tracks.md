@@ -30,3 +30,13 @@
 
 - [ ] **Кандидат: Групповая регистрация — перенос `group-handler` (регистрация при добавлении в группу школы) в зону app-контроллера**
 *Источник: решения владельца при ревизии ФР-4 (трек 1.1, сессия 2026-09-06): регистрация пользователей при добавлении в группу школы — ответственность системного контроллера приложения, как и гост-регистрация на `/start` и `/log_level`. Трек ещё не создан: скоуп и декомпозиция — при планировании.*
+
+---
+
+- [ ] **Track: Школа как конфигурация уровня приложения (school-config)** — тип `School` в модуле app (имя, описание, адрес, контакты, community- и student-группы); generic `ModuleResolver` в core + `U7AppResolver`/`U7ModuleResolver` (перенос и закрытие дженерика в app); резолв школы из env в композиционном корне и проброс в API (`appResolver.school`) и UI (`U7BotUiAppResolve.school`); замена прямых `config.schoolGroup*` у потребителей (`group-handler`, `AppController`/`CommunityStory`); единые имена env `COMMUNITY_GROUP_*`/`STUDENT_GROUP_*` без fallback; `mode` из `NODE_ENV`; pre-fill wizard создания потока студенческой группой; Migration-инструкция в CHANGELOG. Видение продолжения — [school-home.md](./roadmap/school-home.md)
+*Link: [./tracks/school-config_20260928/](./tracks/school-config_20260928/)*
+
+---
+
+- [ ] **Кандидат: «Наша школа» (`school-home`)** — хаб «🏫 Наша школа» с информацией о школе (имя, описание, адрес, контакты) и входом в каталог курсов; поверх типа `School` из трека school-config. Начинать после school-config. Видение и черновик спеки — [school-home.md](./roadmap/school-home.md)
+*Источник: обсуждение владельца 2026-09-28 при планировании трека school-config. Трек ещё не создан: скоуп и декомпозиция — при планировании.*

@@ -86,3 +86,4 @@
 | [contribution-system.md](./roadmap/contribution-system.md) | вклад: кросс-анкеты командных задач, явные фиксации, блок «член сообщества» |
 | [content-management.md](./roadmap/content-management.md) | управление контентом: basedOn, frozen snapshots, Import/Export, Fork |
 | [domain-manifest-graph.md](./roadmap/domain-manifest-graph.md) | DMG: декларации, Result, политики, каузальный анализ |
+| [school-home.md](./roadmap/school-home.md) | «Наша школа»: хаб с информацией о школе и курсами (после трека school-config) |
