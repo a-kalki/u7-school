@@ -43,6 +43,3 @@ data/*
 !data/sources/
 !data/fullstack-js/
 data/fixtures/
-
-# Одноразовый скрипт доставки модуля 3 «HTML & CSS» (в git не входит)
-scripts/deliver-m3.ts
