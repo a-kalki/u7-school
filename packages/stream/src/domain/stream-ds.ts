@@ -391,19 +391,21 @@ export const StreamDs = {
 
   /**
    * Прогресс в уроке для конкретного шага: сколько шагов завершено.
+   *
+   * Урок ищется по самому шагу, а не по заголовку: заголовки уроков
+   * не уникальны в снимке (одноимённые уроки могут быть в разных
+   * проектах), поэтому поиск по названию может вернуть чужой урок
+   * с другим числом шагов.
    */
   getStepLessonProgress(
     snapshot: ContentSnapshot,
     stepId: string,
     student: { steps: Array<{ stepId: string; status: string }> },
   ): Progress {
-    const pos = new CourseDs().findStepPosition(snapshot, stepId);
-    if (!pos) return { completed: 0, total: 0, percent: 0 };
-
-    const lessonStepIds =
-      snapshot
-        .flatMap((p) => p.lessons)
-        .find((l) => l.lessonTitle === pos.lessonTitle)?.stepIds ?? [];
+    const lesson = snapshot
+      .flatMap((p) => p.lessons)
+      .find((l) => l.stepIds.includes(stepId));
+    if (!lesson) return { completed: 0, total: 0, percent: 0 };
 
     const completedIds = new Set(
       student.steps
@@ -411,10 +413,10 @@ export const StreamDs = {
         .map((s) => s.stepId),
     );
 
-    const completed = lessonStepIds.filter((sid) =>
+    const completed = lesson.stepIds.filter((sid) =>
       completedIds.has(sid),
     ).length;
-    const total = lessonStepIds.length;
+    const total = lesson.stepIds.length;
     const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
     return { completed, total, percent };
   },

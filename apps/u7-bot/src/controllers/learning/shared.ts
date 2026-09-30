@@ -197,8 +197,11 @@ export function formatStepMessage(
   snapshot?: ContentSnapshot,
   student?: { steps: Array<{ stepId: string; status: string }> },
 ): MdText {
-  // Прогресс урока: только завершённые шаги
+  // Прогресс урока: только завершённые шаги.
+  // completed и total берём из одного источника: иначе прогресс-бар
+  // может получить completed > total и упасть в String.repeat.
   let completed = resolved?.stepIndex ?? 0;
+  let totalSteps = resolved?.totalSteps ?? 1;
   if (snapshot && student) {
     const progress = StreamDs.getStepLessonProgress(
       snapshot,
@@ -206,9 +209,8 @@ export function formatStepMessage(
       student,
     );
     completed = progress.completed;
+    totalSteps = progress.total;
   }
-
-  const totalSteps = resolved?.totalSteps ?? 1;
 
   const lines: MdText[] = [
     md`📖 *Поток:* ${streamTitle}`,

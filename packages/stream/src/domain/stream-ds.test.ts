@@ -1331,3 +1331,87 @@ describe('computeStudentCard', () => {
     expect(card.medianTimeMinutes).toBeNull();
   });
 });
+
+describe('StreamDs.getStepLessonProgress', () => {
+  // Одноимённые уроки в разных проектах: урок должен находиться
+  // по шагу, а не по заголовку, иначе вернётся чужой урок.
+  const dupTitleSnapshot: ContentSnapshot = [
+    {
+      projectId: '55555555-5555-4555-8555-555555555555',
+      projectTitle: 'П1',
+      lessons: [
+        {
+          lessonId: '66666666-6666-4666-8666-666666666666',
+          lessonTitle: 'Одноимённый урок',
+          stepIds: [
+            '77777777-7777-4777-8777-777777777777',
+            '88888888-8888-4888-8888-888888888888',
+            '99999999-9999-4999-8999-999999999999',
+          ],
+        },
+      ],
+    },
+    {
+      projectId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      projectTitle: 'П2',
+      lessons: [
+        {
+          lessonId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+          lessonTitle: 'Одноимённый урок',
+          stepIds: [
+            'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+            'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+          ],
+        },
+      ],
+    },
+  ];
+
+  test('берёт урок по шагу, а не первый урок с тем же заголовком', () => {
+    const student = studentWithSteps({
+      completed: [
+        '77777777-7777-4777-8777-777777777777',
+        '88888888-8888-4888-8888-888888888888',
+        '99999999-9999-4999-8999-999999999999',
+      ],
+    });
+
+    // Шаг из второго (2-шагового) урока, оба первых урока пройдены.
+    const progress = StreamDs.getStepLessonProgress(
+      dupTitleSnapshot,
+      'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+      student,
+    );
+
+    expect(progress).toEqual({ completed: 0, total: 2, percent: 0 });
+  });
+
+  test('считает завершённые шаги внутри своего урока', () => {
+    const student = studentWithSteps({
+      completed: [
+        'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+        '77777777-7777-4777-8777-777777777777',
+      ],
+    });
+
+    const progress = StreamDs.getStepLessonProgress(
+      dupTitleSnapshot,
+      'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+      student,
+    );
+
+    expect(progress).toEqual({ completed: 1, total: 2, percent: 50 });
+  });
+
+  test('неизвестный шаг — нулевой прогресс', () => {
+    const student = studentWithSteps({ completed: [] });
+
+    const progress = StreamDs.getStepLessonProgress(
+      dupTitleSnapshot,
+      'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+      student,
+    );
+
+    expect(progress).toEqual({ completed: 0, total: 0, percent: 0 });
+  });
+});
