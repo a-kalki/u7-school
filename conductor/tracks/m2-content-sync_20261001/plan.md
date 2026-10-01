@@ -5,14 +5,12 @@
 
 ## ⏸ Текущее состояние (для продолжения после сжатия контекста)
 
-- Ветка: `track/m2-content-sync`; **Фазы 1–2 закрыты** (checkpoint'ы `eeff217`, `61af4e9`); `main` не тронут.
+- Ветка: `track/m2-content-sync`; **Фазы 1–3 закрыты** (checkpoint'ы `eeff217`, `61af4e9`, `e0fc36a`); `main` не тронут.
 - Инструменты: `scripts/generate-m2-sources.ts` (генератор md), `scripts/deliver-m2.ts` (create/update/check).
-- **md П1–П5 вычитаны и закоммичены** (`61af4e9`): 45 уроков / 147 шагов в `data/fullstack-js/m2-algorithm/`.
-- Сверка `bun run scripts/deliver-m2.ts --check p1,p2,p3,p4,p5` → 0 расхождений.
-- **md П6 сгенерированы** (`generate-m2-sources.ts --only p6 --apply`): 12 уроков / 31 шаг в `data/fullstack-js/m2-algorithm/p6-*`, в git НЕ закоммичены.
-- **Следующий шаг:** вычитка и правки md П6 Нурболатом (ручное) → укладка в json (`deliver-m2.ts --create p6 --apply`) **только после одобрения** → коммит `data/courses` + md.
-- Открытый вопрос к вычитке П6: напоминания (Q3) — черновик пока содержит явные git-команды (l2, l3, l11, l12).
-- Перед `deliver-m2 --apply` — `bun run backup` и остановка бота; прод/снапшот потока 7 — вне трека.
+- **П1–П6 в json и md.** П1–П5 — `61af4e9` (45/147); П6 — `e0fc36a` (проект `6cfc4ea0-30e2-4955-8da5-34e00ff3b266` published, 12/31, папки `p6-*`). Сверка `--check` по всем → 0 расхождений.
+- **Следующий шаг:** Фаза 4 — П7 (массивы: структура, 12/34). Адаптировать черновик `/tmp/redesign-m2/redesign-p7` (папка уже `array-utils/`) → сгенерировать md → вычитка Нурболата → укладка `--create p7 --apply` → коммит.
+- **Бэкап:** `bun run backup` недоступен вне сервера (нет `~/server-ops/lib/backup-contract.sh`) — ручная копия `data/courses/{modules,lessons,steps}.json` перед `--apply`. Прод-бот локально не запущен (pm2 пуст).
+- `--create/--update` пишут через доменный слой и нормализуют порядок ключей: первая запись (П6) нормализовала всю БД — семантический no-op; дальше шума нет.
 - Источники в `/tmp` (не переживают перезагрузку): `/tmp/redesign-m2` (черновики p1–p8), `/tmp/m2-algorithm-old` (старые p7–p12).
 - Тестовые артефакты П6/П9 удалены. `.gitignore` (запись `redesign-m2/`) — предсуществующее изменение, не трогать до Финала.
 - **Конвенция папок (spec §6.1):** `string-utils/` (П1–П6), `array-utils/` (П7–П10), `object-utils/` (П11), `business-utils/` (П12), `sorting/` (П13). Черновики П7/П8 уже переименованы (`arrays/` → `array-utils/`).
@@ -42,14 +40,14 @@
 - [x] Task: Ручная вычитка Нурболатом — выполнена
 - [x] Task: Conductor - User Manual Verification 'П1–П5' (Protocol in workflow.md)
 
-## Фаза 3: П6 — JSDoc и трансформация строк (12 уроков / 31 шаг) — новые uuid
+## Фаза 3: П6 — JSDoc и трансформация строк (12 уроков / 31 шаг) — новые uuid [checkpoint: e0fc36a]
 
-- [ ] Task: Адаптировать черновик П6 (единый финальный урок, напоминания, термины)
-- [ ] Task: Сгенерировать md П6 в `m2-algorithm`
-- [ ] Task: Вычитка и правки md П6 Нурболатом (ручное)
-- [ ] Task: Уложить П6 в json (новые uuid) + публикация — только после одобрения вычитки
-- [ ] Task: Коммит `data/courses` + md
-- [ ] Task: Conductor - User Manual Verification 'П6' (Protocol in workflow.md)
+- [x] Task: Адаптировать черновик П6 (единый финальный урок, напоминания, термины)
+- [x] Task: Сгенерировать md П6 в `m2-algorithm`
+- [x] Task: Вычитка и правки md П6 Нурболатом (ручное)
+- [x] Task: Уложить П6 в json (новые uuid) + публикация — только после одобрения вычитки
+- [x] Task: Коммит `data/courses` + md
+- [x] Task: Conductor - User Manual Verification 'П6' (Protocol in workflow.md)
 
 ## Фаза 4: П7 — Массивы: структура (12 уроков / 34 шага) — новые uuid
 
