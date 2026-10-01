@@ -1,0 +1,26 @@
+# Контракт бэкапа u7-school (v1). Читается backup-orchestrator из server-ops.
+# Описание: docs/backup.md. Общая система: ~/server-ops/docs/plans/backup-system.md
+
+BACKUP_CONTRACT_VERSION=1
+BACKUP_ENABLED=1
+
+# Команда планового снимка (запускается из корня проекта).
+BACKUP_CMD="bash scripts/backup.sh scheduled"
+
+# Каталог снимков относительно корня проекта.
+BACKUP_DIR="data/backup"
+
+# «Источник» для контроля изменений — отпечаток данных, который обновляет
+# сам backup.sh при изменении файлов.
+BACKUP_SOURCE="data/backup/.fingerprint"
+
+# Максимальный допустимый возраст самого свежего снимка, часы.
+BACKUP_MAX_AGE_HOURS=26
+
+# Локальная ретенция.
+BACKUP_LOCAL_KEEP_DAILY=7
+BACKUP_LOCAL_KEEP_WEEKLY=4
+BACKUP_LOCAL_KEEP_MONTHLY=6
+
+# Антидребезг: не чаще одного снимка в час.
+BACKUP_MIN_INTERVAL_MINUTES=60

@@ -70,7 +70,7 @@
 - Если не уверен, отслеживается ли файл — проверь `git ls-files <путь>`; при сомнениях считай файл незащищённым.
 
 **Спец-скрипты и команды (использовать их, а не ручные операции):**
-- `bun run backup` (= `bash scripts/backup.sh <причина>`) — бэкап всех файлов данных в `data/backup/<timestamp>-<причина>/`. Причины: `planned`, `before-pull`, `before-migration`.
+- `bun run backup` (= `bash scripts/backup.sh <причина>`) — бэкап данных. Команды, причины, восстановление — `docs/backup.md`.
 - Точечные операции с данными — через готовые скрипты `scripts/` (`call-uc.ts`, `distribute-lesson.ts`, `distribute-mentor.ts`, `update-stream-snapshot.ts`, `list-lessons.ts`), а не через ручное редактирование JSON.
 - `bun run seed:fixtures` и `DB_DIR=./data/fixtures` — тестовые фикстуры; НИКОГДА не запускать генерацию/seed в сторону реальных данных.
 - `bun run start:prod` / `start:prod:stop` / `start:prod:restart` — прод работает под pm2; перезапуск влияет на живой сервис.
