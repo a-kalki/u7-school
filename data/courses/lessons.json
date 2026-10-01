@@ -639,7 +639,9 @@
     "createdAt": "2026-06-16T12:00",
     "updatedAt": "2026-06-16T12:00",
     "estimatedMinutes": 45,
-    "stepIds": ["0537679d-a582-443b-a34e-c89d72b81d28"],
+    "stepIds": [
+      "0537679d-a582-443b-a34e-c89d72b81d28"
+    ],
     "mentorStepIds": []
   },
   {
@@ -2221,7 +2223,9 @@
     "createdAt": "2026-09-21T13:37",
     "updatedAt": "2026-09-21T13:37",
     "estimatedMinutes": 30,
-    "stepIds": ["fb2b5117-410a-4a02-8197-8c7cf23f3475"],
+    "stepIds": [
+      "fb2b5117-410a-4a02-8197-8c7cf23f3475"
+    ],
     "mentorStepIds": []
   },
   {
@@ -3207,6 +3211,193 @@
       "84383e0e-588a-43e1-be97-66f2813cd97b",
       "970a6b5e-95b4-45b4-86b9-7629f93e2db6",
       "5736830a-7863-47b5-a0ae-e01847a317ce"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "bd59fca9-e3a5-443d-980e-cc3413ad6c03",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "JSDoc: документирование функций",
+    "additional": "Код читают чаще, чем пишут. JSDoc — стандарт документирования JS-кода: что функция делает, что принимает, что возвращает, какие ошибки выбрасывает. Хорошие и плохие докстринги.",
+    "status": "published",
+    "createdAt": "2026-10-01T13:26",
+    "updatedAt": "2026-10-01T13:26",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "5bffe814-1546-43e6-b9f9-23ca70c89bfb",
+      "3b0aecf7-f2e9-4987-ae56-2741d62f0c43",
+      "734e3593-3b06-4813-9484-e10fc9497980"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "01acaab2-40cf-4864-9e55-463e9116e835",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Документируем существующий код",
+    "additional": "Практика JSDoc: документируем все функции, уже лежащие в main, и пушим изменения напрямую — без ветки и PR. Разбор, когда это допустимо. Правило: JSDoc сразу после заглушки в TDD-цикле.",
+    "status": "published",
+    "createdAt": "2026-10-01T13:26",
+    "updatedAt": "2026-10-01T13:26",
+    "estimatedMinutes": 25,
+    "stepIds": [
+      "3146ac90-167e-424b-b78f-4a73e09d3eaa",
+      "b148cca1-48f0-4559-ab25-43a69831d2bf",
+      "3db5988d-c8c5-4d09-94af-3e94def263ab",
+      "0b72fbc3-d1ff-4b57-a3be-dbca054cafca"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "a59150ef-9ecc-484a-9b57-8a70f4f704b4",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Проблема: трансформация строк",
+    "additional": "Третья реализация: состав API проекта — 8 функций трансформации строк. Правила реализации те же. Ветка `feat/string-transform`.",
+    "status": "published",
+    "createdAt": "2026-10-01T13:26",
+    "updatedAt": "2026-10-01T13:26",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "a04f6d70-3934-42e6-95ef-cf86d817d253",
+      "0b8c24d2-2648-403f-a05c-8d84e9e4501d",
+      "f9e6124a-f97a-4121-890d-6ceafb7dd0e0"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "eab5ba9f-8f44-450b-8655-36e44d6ca148",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция substring(str, start, end)",
+    "additional": "Извлечение подстроки с нормализацией индексов — как у стандартного `String.prototype.substring`. TDD + JSDoc после заглушки, 17 тестовых случаев.",
+    "status": "published",
+    "createdAt": "2026-10-01T13:26",
+    "updatedAt": "2026-10-01T13:26",
+    "estimatedMinutes": 25,
+    "stepIds": [
+      "6914dd6b-0845-455a-b136-e8948ae0ecc0",
+      "e2781560-ec61-444c-94a0-efeb6049dead"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "908c3153-4622-4d89-90d6-8f71115aada7",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция slice(str, start, end)",
+    "additional": "Извлечение подстроки с поддержкой отрицательных индексов — как у стандартного `String.prototype.slice`. Сравнение с substring: главное отличие в правилах нормализации.",
+    "status": "published",
+    "createdAt": "2026-10-01T13:26",
+    "updatedAt": "2026-10-01T13:26",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "8364cac6-7e33-4e4f-8ac3-dacd73150493",
+      "6d43696c-e573-491a-aa1f-93479ca49af2"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "8394fdc0-219e-41e6-b22c-efa8bd9a6932",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция trim(str)",
+    "additional": "Удаление пробелов с начала и конца строки. Классическая задача «обрезки краёв»: ищем первый и последний непробельный символ.",
+    "status": "published",
+    "createdAt": "2026-10-01T13:26",
+    "updatedAt": "2026-10-01T13:26",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "9e6db082-3132-41f6-9e24-27bab32fcab5",
+      "958b2430-0c9d-454c-a0ed-1a7693ad36c5"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "2688be41-e352-4e0a-a915-0cb25662c87f",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция replace(str, search, replacement)",
+    "additional": "Замена первого вхождения подстроки. Комбинирует навыки из проекта 5 (поиск indexOf) с построением новой строки.",
+    "status": "published",
+    "createdAt": "2026-10-01T13:26",
+    "updatedAt": "2026-10-01T13:26",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "726f1254-ecea-4461-8c12-dc071fb28738",
+      "23b37359-fac9-47b6-9179-9cd535de07bb"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "7d53c8c7-8936-4f64-8410-2605096d253d",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция replaceAll(str, search, replacement)",
+    "additional": "Замена всех вхождений подстроки. Ключевая тонкость: заменённый текст не участвует в дальнейшем поиске.",
+    "status": "published",
+    "createdAt": "2026-10-01T13:26",
+    "updatedAt": "2026-10-01T13:26",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "f86e77ab-1d0f-4313-b220-018527d6c92f",
+      "59e3293a-a228-4195-be1a-d9f9c895332b"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "29b20a19-2d6b-4f33-89c9-9f6ca5d56980",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция pad(str, length, char, side)",
+    "additional": "Дополнение строки символами до заданной длины: слева, справа или с обеих сторон. Самая «математическая» функция проекта: нормализация padding, циклическое повторение char, нечётный остаток.",
+    "status": "published",
+    "createdAt": "2026-10-01T13:26",
+    "updatedAt": "2026-10-01T13:26",
+    "estimatedMinutes": 25,
+    "stepIds": [
+      "db562633-d4c9-4e79-811d-3e68c345e82e",
+      "5680b8c4-0d21-4984-a183-9dc77066dabc"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "7e866de6-7329-460d-95f7-c810a91b58bc",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функции upperCase() и lowerCase()",
+    "additional": "Перевод регистра через коды символов: латиница и кириллица. Две зеркальные функции за один урок — вторая пишется быстрее, если таблицу кодов продумать при первой.",
+    "status": "published",
+    "createdAt": "2026-10-01T13:26",
+    "updatedAt": "2026-10-01T13:26",
+    "estimatedMinutes": 30,
+    "stepIds": [
+      "86f71bd4-da3d-4ad5-a334-9ff1f7dfed29",
+      "5a1c1ce9-0458-4014-8f50-2b5a5bef1755",
+      "c9d51e12-6b5d-4a64-8c71-1343a904b594"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "777d1470-7625-41fb-92be-0363f25c2a45",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Пуш ветки, PR, сообщение в чат",
+    "additional": "Финальный прогон, пуш `feat/string-transform`, PR по шаблону, сообщение в чат. Четвёртый PR — по памяти.",
+    "status": "published",
+    "createdAt": "2026-10-01T13:26",
+    "updatedAt": "2026-10-01T13:26",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "1631af59-5aef-458e-bf77-2cc541fd6671",
+      "ae5e5e94-445d-431b-95c3-96e333cfa94c",
+      "13952aee-a7ac-4d75-b5ff-dde37d218a97"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "9d918deb-d4b0-4446-9200-6adb87d96bbb",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Ревью-цикл, финальный мерж и ретро",
+    "additional": "Ревью-цикл по накатанной: замечания → правки → повторное ревью → 2 апрува → мерж → чистка. Ретро третьей реализации.",
+    "status": "published",
+    "createdAt": "2026-10-01T13:26",
+    "updatedAt": "2026-10-01T13:26",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "a475ed5a-ca1c-4ad1-8b95-bf4fef6003d2",
+      "7cd90008-f8ba-4697-a12b-3f0886ac32ac",
+      "4d8c6a12-88b6-4945-a5e4-8c43b9668b8e"
     ],
     "mentorStepIds": []
   }
