@@ -9,10 +9,10 @@
     - [x] `data/fullstack-js/m2-algorithm` → `/tmp/m2-algorithm-old/`
     - [x] `redesign-m2/` → `/tmp/redesign-m2/`
     - [x] Убедиться, что в `data/fullstack-js/m2-algorithm` не осталось старых папок
-- [ ] Task: Разработать генератор md-исходников `scripts/generate-m2-sources.ts`
-    - [ ] Источники: json (`data/courses`), черновики (`/tmp/redesign-m2`), старые md (`/tmp/m2-algorithm-old`)
-    - [ ] Формирование `lesson.md` (паспорт), `steps.md`, `summary.md`
-    - [ ] Режим dry-run; корректная нумерация `pN-lM` по новому плану
+- [x] Task: Разработать генератор md-исходников `scripts/generate-m2-sources.ts` (1e9be96)
+    - [x] Источники: json (`data/courses`), черновики (`/tmp/redesign-m2`), старые md (`/tmp/m2-algorithm-old`)
+    - [x] Формирование `lesson.md` (паспорт), `steps.md`, `summary.md`
+    - [x] Режим dry-run; корректная нумерация `pN-lM` по новому плану
 - [ ] Task: Разработать инструмент укладки/правки контента
     - [ ] Создание новых проектов (П6–П8) через UC + публикация (по образцу `deliver-redesign.ts`)
     - [ ] Обновление существующих сущностей (П9–П14) прямой правкой JSON по маппингу uuid
