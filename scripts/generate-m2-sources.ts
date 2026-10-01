@@ -189,23 +189,34 @@ function parseOldLesson(md: string): ParsedOld {
 /** Шаги старого steps.md: блоки через `---`, `### Название`, `**kind:**`. */
 function parseOldSteps(md: string): Step[] {
   const body = md.replace(/^#[^\n]*\n/, '');
-  const chunks = body
-    .split(/\n---\s*\n/)
-    .map((c) => c.trim())
-    .filter(Boolean);
+  const re = /^###\s+(.+)\n+\*\*kind:\*\*\s*`([^`]+)`[ \t]*$/gm;
+  const marks: Array<{
+    name: string;
+    kind: string;
+    headerStart: number;
+    bodyStart: number;
+  }> = [];
+  let m = re.exec(body);
+  while (m !== null) {
+    marks.push({
+      name: (m[1] ?? '').trim(),
+      kind: m[2] ?? 'text',
+      headerStart: m.index,
+      bodyStart: m.index + m[0].length,
+    });
+    m = re.exec(body);
+  }
   const steps: Step[] = [];
-  for (const chunk of chunks) {
-    const hm = chunk.match(/^###\s+(.+)$/m);
-    if (!hm || hm.index === undefined) continue;
-    const name = (hm[1] ?? '').trim();
-    let rest = chunk.slice(hm.index + hm[0].length).trim();
-    let kind = 'text';
-    const km = rest.match(/^\*\*kind:\*\*\s*`([^`]+)`/);
-    if (km) {
-      kind = km[1] ?? 'text';
-      rest = rest.slice(km[0].length).trim();
-    }
-    steps.push({ name, kind, body: rest });
+  for (let i = 0; i < marks.length; i++) {
+    const mark = marks[i];
+    if (!mark) continue;
+    const next = marks[i + 1];
+    const raw = body.slice(
+      mark.bodyStart,
+      next ? next.headerStart : body.length,
+    );
+    const text = raw.replace(/\n---\s*$/, '').trim();
+    steps.push({ name: mark.name, kind: mark.kind, body: text });
   }
   return steps;
 }

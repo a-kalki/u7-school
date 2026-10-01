@@ -145,29 +145,40 @@ function parsePassport(md: string): {
   };
 }
 
-/** Шаги steps.md: `### Название` + `**kind:**` + тело. */
+/** Шаги steps.md: заголовок шага = `### Название` + строка `**kind:**`. */
 function parseStepsMd(md: string): Step[] {
   const body = md.replace(/^#[^\n]*\n/, '');
-  const chunks = body
-    .split(/\n---\s*\n/)
-    .map((c) => c.trim())
-    .filter(Boolean);
+  const re = /^###\s+(.+)\n+\*\*kind:\*\*\s*`([^`]+)`[ \t]*$/gm;
+  const marks: Array<{
+    name: string;
+    kind: StepKind;
+    headerStart: number;
+    bodyStart: number;
+  }> = [];
+  let m = re.exec(body);
+  while (m !== null) {
+    const rawKind = m[2] ?? 'text';
+    const kind: StepKind =
+      rawKind === 'code' || rawKind === 'file' ? rawKind : 'text';
+    marks.push({
+      name: (m[1] ?? '').trim(),
+      kind,
+      headerStart: m.index,
+      bodyStart: m.index + m[0].length,
+    });
+    m = re.exec(body);
+  }
   const steps: Step[] = [];
-  for (const chunk of chunks) {
-    const hm = chunk.match(/^###\s+(.+)$/m);
-    if (!hm || hm.index === undefined) continue;
-    const name = (hm[1] ?? '').trim();
-    let rest = chunk.slice(hm.index + hm[0].length).trim();
-    let kind: StepKind = 'text';
-    const km = rest.match(/^\*\*kind:\*\*\s*`([^`]+)`/);
-    if (km) {
-      kind =
-        km[1] === 'code' || km[1] === 'file' || km[1] === 'text'
-          ? km[1]
-          : 'text';
-      rest = rest.slice(km[0].length).trim();
-    }
-    steps.push({ name, kind, body: rest });
+  for (let i = 0; i < marks.length; i++) {
+    const mark = marks[i];
+    if (!mark) continue;
+    const next = marks[i + 1];
+    const raw = body.slice(
+      mark.bodyStart,
+      next ? next.headerStart : body.length,
+    );
+    const text = raw.replace(/\n---\s*$/, '').trim();
+    steps.push({ name: mark.name, kind: mark.kind, body: text });
   }
   return steps;
 }
@@ -217,11 +228,27 @@ async function writeDb(db: Db): Promise<void> {
   );
 }
 
+/** uuid проекта в БД: для П1–П5 — по названию черновика, для П9–П14 — старый uuid. */
+function resolveProjectUuid(p: number, db: Db): string {
+  if (p >= 9) {
+    const uuid = OLD_PROJECT_UUID[p];
+    if (!uuid) throw new Error(`Нет старого uuid для П${p}`);
+    return uuid;
+  }
+  const metaPath = `${DRAFT_DIR}/redesign-p${p}/project.json`;
+  if (!existsSync(metaPath)) throw new Error(`Нет ${metaPath}`);
+  const meta = JSON.parse(readText(metaPath)) as { title: string };
+  const proj = db.mod.projects.find(
+    (x) => x.title === meta.title && x.status === 'published',
+  );
+  if (!proj) throw new Error(`В БД нет published-проекта «${meta.title}»`);
+  return proj.uuid;
+}
+
 // ─── Dry-run отчёты ───
 
 function reportCheck(p: number, db: Db): boolean {
-  const projUuid = OLD_PROJECT_UUID[p];
-  if (!projUuid) throw new Error(`Нет старого uuid для П${p}`);
+  const projUuid = resolveProjectUuid(p, db);
   const proj = db.mod.projects.find((x) => x.uuid === projUuid);
   if (!proj) throw new Error(`В БД нет проекта ${projUuid}`);
   const mdLessons = readMdLessons(p);
