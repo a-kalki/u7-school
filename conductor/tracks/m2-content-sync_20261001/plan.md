@@ -3,7 +3,7 @@
 > Читать вместе со `spec.md`. Формат md: `lesson.md` (паспорт) + `steps.md` (шаги) + `summary.md`.
 > Процесс каждого батча: генерация md → вычитка Нурболата → укладка в json → коммит (dev).
 
-## Фаза 1: Подготовка
+## Фаза 1: Подготовка [checkpoint: eeff217]
 
 - [x] Task: Перенести старое в системный `/tmp` (8e53417b)
     - [x] `data/fullstack-js/m2-algorithm` → `/tmp/m2-algorithm-old/`
