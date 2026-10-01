@@ -35,8 +35,8 @@
 
 - [x] Task: Сгенерировать 45 папок П1–П5 (`steps.md` из json, `lesson.md`/`summary.md` из черновиков) — 45 уроков / 147 шагов
 - [x] Task: Сверить `steps.md` ↔ json по составу и тексту (автоматическая сверка) — 0 расхождений (`8ae9b51`)
-- [ ] Task: Ручная вычитка Нурболатом 
-- [ ] Task: Conductor - User Manual Verification 'П1–П5' (Protocol in workflow.md)
+- [x] Task: Ручная вычитка Нурболатом — выполнена
+- [x] Task: Conductor - User Manual Verification 'П1–П5' (Protocol in workflow.md)
 
 ## Фаза 3: П6 — JSDoc и трансформация строк (12 уроков / 31 шаг) — новые uuid
 
