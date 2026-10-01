@@ -15,6 +15,7 @@
 - Перед `deliver-m2 --apply` — `bun run backup` и остановка бота; прод/снапшот потока 7 — вне трека.
 - Источники в `/tmp` (не переживают перезагрузку): `/tmp/redesign-m2` (черновики p1–p8), `/tmp/m2-algorithm-old` (старые p7–p12).
 - Тестовые артефакты П6/П9 удалены. `.gitignore` (запись `redesign-m2/`) — предсуществующее изменение, не трогать до Финала.
+- **Конвенция папок (spec §6.1):** `string-utils/` (П1–П6), `array-utils/` (П7–П10), `object-utils/` (П11), `business-utils/` (П12), `sorting/` (П13). Черновики П7/П8 уже переименованы (`arrays/` → `array-utils/`).
 - Команды: `bun run scripts/generate-m2-sources.ts [--only pN] [--apply]`; `bun run scripts/deliver-m2.ts (--create|--update|--check) pN [--apply]`.
 
 ## Фаза 1: Подготовка [checkpoint: eeff217]
