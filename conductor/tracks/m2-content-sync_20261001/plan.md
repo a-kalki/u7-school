@@ -3,6 +3,17 @@
 > Читать вместе со `spec.md`. Формат md: `lesson.md` (паспорт) + `steps.md` (шаги) + `summary.md`.
 > Процесс каждого батча: генерация md → вычитка Нурболата → укладка в json → коммит (dev).
 
+## ⏸ Текущее состояние (для продолжения после сжатия контекста)
+
+- Ветка: `track/m2-content-sync`; **Фаза 1 закрыта** (checkpoint `eeff217`); `main` не тронут.
+- Инструменты: `scripts/generate-m2-sources.ts` (генератор md), `scripts/deliver-m2.ts` (create/update/check).
+- **md П1–П5 сгенерированы** в `data/fullstack-js/m2-algorithm/` (45 уроков / 147 шагов). В git **НЕ закоммичены** — ждут вычитки Нурболата.
+- Сверка `bun run scripts/deliver-m2.ts --check p1,p2,p3,p4,p5` → 0 расхождений.
+- **Следующий шаг:** ручная вычитка Нурболатом md П1–П5 (Фаза 2, задача 3) → коммит md → верификация фазы.
+- Источники в `/tmp` (не переживают перезагрузку): `/tmp/redesign-m2` (черновики p1–p8), `/tmp/m2-algorithm-old` (старые p7–p12).
+- Тестовые артефакты П6/П9 удалены. `.gitignore` (запись `redesign-m2/`) — предсуществующее изменение, не трогать до Финала.
+- Команды: `bun run scripts/generate-m2-sources.ts [--only pN] [--apply]`; `bun run scripts/deliver-m2.ts (--create|--update|--check) pN [--apply]`.
+
 ## Фаза 1: Подготовка [checkpoint: eeff217]
 
 - [x] Task: Перенести старое в системный `/tmp` (8e53417b)
@@ -22,8 +33,8 @@
 
 ## Фаза 2: П1–П5 — md-исходники (147 шагов)
 
-- [ ] Task: Сгенерировать 45 папок П1–П5 (`steps.md` из json, `lesson.md`/`summary.md` из черновиков)
-- [ ] Task: Сверить `steps.md` ↔ json по составу и тексту (автоматическая сверка)
+- [x] Task: Сгенерировать 45 папок П1–П5 (`steps.md` из json, `lesson.md`/`summary.md` из черновиков) — 45 уроков / 147 шагов
+- [x] Task: Сверить `steps.md` ↔ json по составу и тексту (автоматическая сверка) — 0 расхождений (`8ae9b51`)
 - [ ] Task: Ручная вычитка Нурболатом 
 - [ ] Task: Conductor - User Manual Verification 'П1–П5' (Protocol in workflow.md)
 
