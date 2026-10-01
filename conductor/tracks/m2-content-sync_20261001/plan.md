@@ -5,10 +5,10 @@
 
 ## Фаза 1: Подготовка
 
-- [ ] Task: Перенести старое в системный `/tmp`
-    - [ ] `data/fullstack-js/m2-algorithm` → `/tmp/m2-algorithm-old/`
-    - [ ] `redesign-m2/` → `/tmp/redesign-m2/`
-    - [ ] Убедиться, что в `data/fullstack-js/m2-algorithm` не осталось старых папок
+- [x] Task: Перенести старое в системный `/tmp` (8e53417b)
+    - [x] `data/fullstack-js/m2-algorithm` → `/tmp/m2-algorithm-old/`
+    - [x] `redesign-m2/` → `/tmp/redesign-m2/`
+    - [x] Убедиться, что в `data/fullstack-js/m2-algorithm` не осталось старых папок
 - [ ] Task: Разработать генератор md-исходников `scripts/generate-m2-sources.ts`
     - [ ] Источники: json (`data/courses`), черновики (`/tmp/redesign-m2`), старые md (`/tmp/m2-algorithm-old`)
     - [ ] Формирование `lesson.md` (паспорт), `steps.md`, `summary.md`
