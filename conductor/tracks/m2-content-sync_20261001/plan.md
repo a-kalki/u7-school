@@ -5,11 +5,12 @@
 
 ## ⏸ Текущее состояние (для продолжения после сжатия контекста)
 
-- Ветка: `track/m2-content-sync`; **Фаза 1 закрыта** (checkpoint `eeff217`); `main` не тронут.
+- Ветка: `track/m2-content-sync`; **Фазы 1–2 закрыты** (checkpoint'ы `eeff217`, `61af4e9`); `main` не тронут.
 - Инструменты: `scripts/generate-m2-sources.ts` (генератор md), `scripts/deliver-m2.ts` (create/update/check).
-- **md П1–П5 сгенерированы** в `data/fullstack-js/m2-algorithm/` (45 уроков / 147 шагов). В git **НЕ закоммичены** — ждут вычитки Нурболата.
+- **md П1–П5 вычитаны и закоммичены** (`61af4e9`): 45 уроков / 147 шагов в `data/fullstack-js/m2-algorithm/`.
 - Сверка `bun run scripts/deliver-m2.ts --check p1,p2,p3,p4,p5` → 0 расхождений.
-- **Следующий шаг:** ручная вычитка Нурболатом md П1–П5 (Фаза 2, задача 3) → коммит md → верификация фазы.
+- **Следующий шаг:** Фаза 3 — П6 (JSDoc). Адаптировать черновик `/tmp/redesign-m2/redesign-p6` (единый финальный урок, напоминания, термины, ревизия Нурболата) → сгенерировать md П6 (`generate-m2-sources.ts --only p6 --apply`) → уложить в json новыми uuid (`deliver-m2.ts --create p6 --apply`) → коммит.
+- Перед `deliver-m2 --apply` — `bun run backup` и остановка бота; прод/снапшот потока 7 — вне трека.
 - Источники в `/tmp` (не переживают перезагрузку): `/tmp/redesign-m2` (черновики p1–p8), `/tmp/m2-algorithm-old` (старые p7–p12).
 - Тестовые артефакты П6/П9 удалены. `.gitignore` (запись `redesign-m2/`) — предсуществующее изменение, не трогать до Финала.
 - Команды: `bun run scripts/generate-m2-sources.ts [--only pN] [--apply]`; `bun run scripts/deliver-m2.ts (--create|--update|--check) pN [--apply]`.
@@ -31,7 +32,7 @@
 - [x] Task: Проверить маппинг `list-lessons.ts` на новых папках (позиция ↔ `pN-lM`) — проверено на П1–П5: `2:P:L` находит `pP-lL-…`
 - [ ] Task: Conductor - User Manual Verification 'Подготовка' (Protocol in workflow.md)
 
-## Фаза 2: П1–П5 — md-исходники (147 шагов)
+## Фаза 2: П1–П5 — md-исходники (147 шагов) [checkpoint: 61af4e9]
 
 - [x] Task: Сгенерировать 45 папок П1–П5 (`steps.md` из json, `lesson.md`/`summary.md` из черновиков) — 45 уроков / 147 шагов
 - [x] Task: Сверить `steps.md` ↔ json по составу и тексту (автоматическая сверка) — 0 расхождений (`8ae9b51`)
