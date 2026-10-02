@@ -3590,5 +3590,143 @@
       "2622a09b-038d-45f1-881d-1d2d48f6322e"
     ],
     "mentorStepIds": []
+  },
+  {
+    "uuid": "e8ee3a13-7ed2-48d8-837f-cbac836b0aa9",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Проблема: трансформация массивов",
+    "additional": "Вторая реализация массивов: 6 функций трансформации. Мутабельность/иммутабельность — заранее известная разметка API. Ветка `feat/array-transform`.",
+    "status": "published",
+    "createdAt": "2026-10-02T07:11",
+    "updatedAt": "2026-10-02T07:11",
+    "estimatedMinutes": 12,
+    "stepIds": [
+      "e91a5fc7-72a6-4084-8031-7bfa0502cd37",
+      "af2fec4d-0e31-4e3b-8530-8debf6a23981"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "a7eb96d5-577c-4938-a971-33c2d85b78d4",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция fill(arr, value, start, end)",
+    "additional": "Заполнение массива (или его части) указанным значением — мутабельная, возвращает тот же массив. Нормализация отрицательных индексов — как в slice из проекта 6.",
+    "status": "published",
+    "createdAt": "2026-10-02T07:11",
+    "updatedAt": "2026-10-02T07:11",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "e71cadba-fd5e-4e73-8e17-0da4484469b9",
+      "14848bfa-ee16-4dba-a354-488a5dfd9872"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "7258aa2c-03f5-4ff4-ab0d-9c0588d62568",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция reverse(arr) — переворот массива на месте",
+    "additional": "Переворот массива на месте — мутабельная. Новая идея в алгоритмике: два указателя, движущиеся навстречу друг другу с обменом элементов.",
+    "status": "published",
+    "createdAt": "2026-10-02T07:11",
+    "updatedAt": "2026-10-02T07:11",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "a1b46db5-9589-4a1b-9131-c3c41d9095c6",
+      "b2a960d2-fe30-455a-aa07-ca9df15991f9"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "5e3ee30b-cd2a-4e3e-ad6f-ef7e6627db26",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция concat(arr1, arr2) — объединение массивов",
+    "additional": "Объединение двух массивов в новый — первая иммутабельная функция проекта. Spread-подход запрещён: только циклы и твоя логика.",
+    "status": "published",
+    "createdAt": "2026-10-02T07:11",
+    "updatedAt": "2026-10-02T07:11",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "a200ad6b-5d27-41ae-946a-985725cf8dd1",
+      "fa3d4bfb-8f1c-432a-b90e-d3900dd84234"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "ee3a3804-27e2-42c7-8c31-1108109b8831",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция slice(arr, start, end) — копирование подмассива",
+    "additional": "Копирование части массива в новый — иммутабельная, с отрицательными индексами. Строковый slice из проекта 6 — готовый ориентир.",
+    "status": "published",
+    "createdAt": "2026-10-02T07:11",
+    "updatedAt": "2026-10-02T07:11",
+    "estimatedMinutes": 12,
+    "stepIds": [
+      "f90ad5e5-584f-40af-86bf-232a8523c699",
+      "2e73ab59-6bc1-4c02-bb61-dc98147b3807"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "5ef70453-252a-43d2-b4c8-2ff844004a6a",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция join(arr, separator) — склеивание массива в строку",
+    "additional": "Склеивание элементов массива в строку — иммутабельная. Первая функция проекта, превращающая массив в строку.",
+    "status": "published",
+    "createdAt": "2026-10-02T07:11",
+    "updatedAt": "2026-10-02T07:11",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "fbb88f71-48a2-405a-a10f-f75af5210588",
+      "ec59486a-b42d-4fae-afd9-658071d79d3f"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "a29999ac-84b2-41ca-a702-31869ed836c9",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция splice(arr, start, deleteCount, ...items)",
+    "additional": "Самая сложная функция проекта: удаление и вставка элементов. Реализация в два захода: сначала удаление, затем вставка. Новая техника — rest-параметр.",
+    "status": "published",
+    "createdAt": "2026-10-02T07:11",
+    "updatedAt": "2026-10-02T07:11",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "9f5c0c17-1c26-41f9-8081-aef21ea87c11",
+      "ab2298ba-7275-41a4-8ae0-673626881cec",
+      "d3c1f1f9-fa81-498d-a349-415863b06304"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "2d3b8b5d-ad4c-4562-95bf-19f58c12de9f",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Пуш ветки, PR, сообщение в чат",
+    "additional": "Финальный прогон, пуш `feat/array-transform`, PR по шаблону, сообщение в чат. Шестой PR — по памяти.",
+    "status": "published",
+    "createdAt": "2026-10-02T07:11",
+    "updatedAt": "2026-10-02T07:11",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "55b1ef2c-ceca-4039-9410-2b6aeb3054d7",
+      "93792621-e031-4b48-86fb-a593820c8c06",
+      "92155695-9dd9-45d6-9993-68551bad7342"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "6bd699bc-ba16-4245-9fe5-86fe9743b588",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Ревью-цикл, финальный мерж и ретро",
+    "additional": "Ревью-цикл по накатанной: замечания → правки → повторное ревью → 2 апрува → мерж → чистка. Ретро: конец «ведения за руку» — дальше задания и напоминания.",
+    "status": "published",
+    "createdAt": "2026-10-02T07:11",
+    "updatedAt": "2026-10-02T07:11",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "9a0ec192-9108-4f95-b54a-35566b349b53",
+      "827de7e8-f173-4516-b4a8-298fe0790c49",
+      "2399c5ae-d6e5-4a1e-9148-4a560708cfc4"
+    ],
+    "mentorStepIds": []
   }
 ]
