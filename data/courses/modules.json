@@ -220,7 +220,7 @@
         "title": "Массивы: итеративные методы",
         "goal": "Освоить callback-паттерн для перебора массивов, реализовать 5 итеративных методов: forEach, map, filter, some, every — включая ранний выход",
         "result": "PR с 5 функциями в папке arrays/: forEach, map, filter, some, every — задокументированными по JSDoc, все иммутабельные, some/every с ранним выходом",
-        "status": "archived",
+        "status": "published",
         "lessonIds": [
           "9789b6eb-7981-49d6-a6f1-5d1d4819c774",
           "36f7214e-7af1-46e8-8ebd-60640458543a",
@@ -235,7 +235,7 @@
         "title": "Итеративные методы: find, reduce, flat",
         "goal": "Освоить продвинутые итеративные методы: поиск с ранним выходом (find, findIndex), свёртку (reduce) и рекурсивное разглаживание (flat)",
         "result": "PR с 4 функциями в папке arrays/: find, findIndex, reduce, flat — задокументированными по JSDoc, все иммутабельные, find/findIndex с ранним выходом, reduce с двумя режимами, flat через рекурсию",
-        "status": "archived",
+        "status": "published",
         "lessonIds": [
           "c1d56b87-e96f-43cb-b691-68613be0435a",
           "d919432e-a380-49ac-ac8f-a8b05b863155",
