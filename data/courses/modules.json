@@ -248,7 +248,7 @@
         "title": "Объекты: методы и глубокая обработка",
         "goal": "Освоить объект как структуру данных, реализовать keys/values/entries, глубокое копирование и сравнение объектов через рекурсию",
         "result": "PR с 5 функциями в папке objects/: keys, values, entries, cloneDeep, isEqualDeep — все иммутабельные, values/entries через композицию с keys, cloneDeep/isEqualDeep рекурсивные",
-        "status": "archived",
+        "status": "published",
         "lessonIds": [
           "c968f875-663e-4b70-a209-78989e0d5642",
           "d7fcba0c-0ccd-465b-8a6a-57c9fbe1d365",
