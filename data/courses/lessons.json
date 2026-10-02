@@ -3400,5 +3400,195 @@
       "4d8c6a12-88b6-4945-a5e4-8c43b9668b8e"
     ],
     "mentorStepIds": []
+  },
+  {
+    "uuid": "9b87b3eb-825c-4784-b162-dabed7613df5",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Проблема: массивы",
+    "additional": "Новая структура данных: массив как упорядоченная коллекция. Состав API проекта — 9 функций, отдельная папка `array-utils/`. Ветка `feat/array-basics`.",
+    "status": "published",
+    "createdAt": "2026-10-02T06:08",
+    "updatedAt": "2026-10-02T06:08",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "05077a0e-ef55-4035-9bf3-907d09c08ceb",
+      "78a03bd9-3159-4757-9764-9ec4252f6256",
+      "6875668b-9374-4028-9937-deaa75a3f63c"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "93733f66-8cd1-4fcf-a9af-8e6c44ab9c74",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Мутабельность: изменение массива «на месте»",
+    "additional": "Ключевое понятие проекта: мутабельные и иммутабельные операции. Массив передаётся по ссылке — функция меняет «оригинал». Практика на гипотетических функциях и разбор опасности.",
+    "status": "published",
+    "createdAt": "2026-10-02T06:08",
+    "updatedAt": "2026-10-02T06:08",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "15481c59-cb6d-4b22-bc4d-8d562c9c6c7c",
+      "2751b933-11b4-417c-bc49-47b820bcbc38",
+      "dac3b621-c27c-4397-8c3b-a7a815dacd2c",
+      "bcf32915-9ea2-4a2d-bcfa-063cbad16316"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "6b668580-9b0b-4e04-bec9-567f13f8b147",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Как тестировать мутабельные функции",
+    "additional": "Тест мутабельной функции проверяет два результата: возвращённое значение и состояние массива после вызова. Правило независимости тестов — и почему с мутабельными функциями оно критично.",
+    "status": "published",
+    "createdAt": "2026-10-02T06:08",
+    "updatedAt": "2026-10-02T06:08",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "461b71c4-31f7-4fc5-81dd-c8c5ce9f32e6",
+      "341930eb-b914-4564-8142-9c6841488731",
+      "f16455e3-0ca1-4c83-87df-c88f00bd8de4"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "3c2e1355-14ed-4bf0-8562-5694f11ebded",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция len(arr) — подсчёт элементов массива",
+    "additional": "Первая функция проекта — базовый примитив: без него ни одна другая функция массивов не обойдётся. Подсчёт элементов до первого `undefined`.",
+    "status": "published",
+    "createdAt": "2026-10-02T06:08",
+    "updatedAt": "2026-10-02T06:08",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "748e4243-a4ce-4dd3-b71a-40385c4b888a",
+      "9d53ff5a-81b5-4315-9371-4df86977ccdf"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "dc733a24-dddf-4ddb-9a44-60b46ac3819d",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция at(arr, index) — доступ по индексу",
+    "additional": "Доступ к элементу массива по индексу — с поддержкой отрицательных индексов, как `slice` из проекта 6.",
+    "status": "published",
+    "createdAt": "2026-10-02T06:08",
+    "updatedAt": "2026-10-02T06:08",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "f0a12756-7295-4e3f-bb03-0a5798f7371d",
+      "b6e41ed1-ea5b-41e5-8432-e5c7ec6fcf66"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "44ff076a-08a8-436b-abf4-46d40145d266",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция push(arr, item) — добавление в конец",
+    "additional": "Первая мутабельная функция проекта. Перед ней — шпаргалка по bun:test: чем проверять массив целиком (toEqual) и почему toBe для массивов не работает.",
+    "status": "published",
+    "createdAt": "2026-10-02T06:08",
+    "updatedAt": "2026-10-02T06:08",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "e682e32a-ca11-47a9-a2ab-06e9de8af694",
+      "4489b5a9-b4cd-4342-9eda-8776dea8d0d6",
+      "54a1e6b3-39bc-42ba-87e1-9709fa4f7df1"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "56bf2df6-b695-46a3-9069-241a53b1c774",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция pop(arr) — удаление с конца",
+    "additional": "Удаление последнего элемента, мутабельная. Перед реализацией — знакомство с оператором `delete`: как он работает с объектами и массивами и чем дырка отличается от undefined.",
+    "status": "published",
+    "createdAt": "2026-10-02T06:08",
+    "updatedAt": "2026-10-02T06:08",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "332b848c-211e-41ee-a2aa-c59bc3fe4ea2",
+      "c6ff8022-6c33-4e0a-b168-7c1c1597d673",
+      "439708d2-7b1b-45f6-8d62-a7fffd48d0ae"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "e10c97cf-f3b4-4b4b-98a4-55090d945e40",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функции unshift(arr, item) и shift(arr)",
+    "additional": "Зеркальная пара мутабельных операций для начала массива: добавление и удаление первого элемента — обе со сдвигом всех остальных.",
+    "status": "published",
+    "createdAt": "2026-10-02T06:08",
+    "updatedAt": "2026-10-02T06:08",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "c06e81ea-15c0-4cf5-8a58-44e9c91bb341",
+      "04c2d53a-13ec-4e99-919f-ad0800adf8c0",
+      "1ed59975-2aec-4ba3-a0b4-eb07f3b765d8"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "3bdd5d94-b3ff-448c-a409-c07a6aa0f24c",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция indexOf(arr, item) — поиск элемента в массиве",
+    "additional": "Поиск первого вхождения элемента в массив. Прямой аналог своей строковой indexOf из проекта 5 — только сравниваем элементы, а не символы.",
+    "status": "published",
+    "createdAt": "2026-10-02T06:08",
+    "updatedAt": "2026-10-02T06:08",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "52ad2d1c-5e18-4a87-92a3-cc2abb504c33",
+      "7972b89e-cb6d-46ca-ab68-13109c513692"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "87d03084-ee73-4bb5-bb1b-98421ac86360",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функции lastIndexOf(arr, item) и includes(arr, item)",
+    "additional": "Две функции поиска, завершающие проект: поиск последнего вхождения (с конца) и проверка наличия элемента — вторая строится на первой через композицию.",
+    "status": "published",
+    "createdAt": "2026-10-02T06:08",
+    "updatedAt": "2026-10-02T06:08",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "99a3b7b7-a1f4-46ad-bd16-abf461c30b03",
+      "3901b85d-e6c6-4840-82d2-75ef7573084d",
+      "87f63e12-119d-4af6-82ff-427a12053f04"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "bc6cfd6a-b736-4238-9417-041b3de8cc53",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Пуш ветки, PR, сообщение в чат",
+    "additional": "Финальный прогон, пуш `feat/array-basics`, PR по шаблону, сообщение в чат. Пятый PR — по памяти.",
+    "status": "published",
+    "createdAt": "2026-10-02T06:08",
+    "updatedAt": "2026-10-02T06:08",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "dac164b5-8fa1-4417-9be8-7316f086f058",
+      "1a7438d5-01e1-4fa5-bfb2-9fbb9886d468",
+      "4e91b5af-066d-487a-a94c-6acfba1f89cf"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "81b40b5a-832a-40c4-87a4-bf8bfa991e5c",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Ревью-цикл, финальный мерж и ретро",
+    "additional": "Ревью-цикл по накатанной: замечания → правки → повторное ревью → 2 апрува → мерж → чистка. Ретро: первая реализация на новой структуре данных.",
+    "status": "published",
+    "createdAt": "2026-10-02T06:08",
+    "updatedAt": "2026-10-02T06:08",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "aef47589-f960-451c-97f8-2f900e918ac5",
+      "9a879188-a807-4515-8e31-35829673dc00",
+      "2622a09b-038d-45f1-881d-1d2d48f6322e"
+    ],
+    "mentorStepIds": []
   }
 ]
