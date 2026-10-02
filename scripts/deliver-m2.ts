@@ -111,6 +111,23 @@ function nowStamp(): string {
   return new Date().toISOString().slice(0, 16);
 }
 
+/**
+ * `JSON.stringify(…, 2)` разворачивает короткие массивы, а biome их схлопывает —
+ * поэтому после записи прогоняем те же файлы через biome, чтобы `bun run lint`
+ * оставался зелёным (см. troubleshoot: json-stringify-vs-biome-format).
+ */
+function formatJsonFiles(files: string[]): void {
+  const res = Bun.spawnSync(['bunx', 'biome', 'format', '--write', ...files], {
+    stdout: 'pipe',
+    stderr: 'pipe',
+  });
+  if (res.exitCode !== 0) {
+    throw new Error(
+      `Не удалось отформатировать ${files.join(', ')}: ${res.stderr.toString()}`,
+    );
+  }
+}
+
 /** Папки уроков проекта `pN-…`, отсортированные по номеру урока. */
 function lessonDirsFor(p: number): string[] {
   const dir = SRC_DIR;
@@ -226,6 +243,11 @@ async function writeDb(db: Db): Promise<void> {
     `${COURSES_DIR}/steps.json`,
     `${JSON.stringify(db.steps, null, 2)}\n`,
   );
+  formatJsonFiles([
+    `${COURSES_DIR}/modules.json`,
+    `${COURSES_DIR}/lessons.json`,
+    `${COURSES_DIR}/steps.json`,
+  ]);
 }
 
 /** uuid проекта в БД: для П1–П5 — по названию черновика, для П9–П14 — старый uuid. */
@@ -425,6 +447,11 @@ async function publishCreated(
     `${COURSES_DIR}/steps.json`,
     `${JSON.stringify(dbSteps, null, 2)}\n`,
   );
+  formatJsonFiles([
+    `${COURSES_DIR}/modules.json`,
+    `${COURSES_DIR}/lessons.json`,
+    `${COURSES_DIR}/steps.json`,
+  ]);
   console.log(
     `   ✅ опубликовано: проект + ${publishedLessons} уроков + ${publishedSteps} шагов`,
   );
