@@ -104,6 +104,11 @@ function kebabOfDir(dirName: string): string {
   return dirName.replace(/^p\d+-l\d+-/, '');
 }
 
+/** Нормализация заголовка проекта: без хвостового уточнения в скобках. */
+function normTitle(title: string): string {
+  return title.replace(/\s*\([^)]*\)\s*$/, '').trim();
+}
+
 // ─── Парсинг черновика (redesign-p1…p8) ───
 
 interface ParsedDraft {
@@ -459,7 +464,9 @@ async function buildJobs(): Promise<Job[]> {
       const meta = await readJson<{ title: string }>(
         `${sourceDir}/project.json`,
       );
-      const proj = published.find((x) => x.title === meta.title);
+      const proj = published.find(
+        (x) => normTitle(x.title) === normTitle(meta.title),
+      );
       if (!proj) throw new Error(`В БД нет published-проекта «${meta.title}»`);
       jobs.push({
         group: 'draft-json',
