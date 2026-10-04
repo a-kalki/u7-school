@@ -215,12 +215,15 @@ console.log(inDiskFormat); // Привет\nМир (напечатано в од
 console.log(inDiskFormat.length); // 11 символов (появился слэш + буква n)
 
 // Записываем на диск — в файле будет строго одна строка!
-await Bun.write('one-line.txt', inDiskFormat);
+writeFileSync('one-line.txt', inDiskFormat, 'utf8');
 
 // Переход из Мира 2 обратно в Мир 1: восстанавливаем при чтении
-const fromDisk = await Bun.file('one-line.txt').text();
+const fromDisk = readFileSync('one-line.txt', 'utf8');
 const restored = fromDisk.replaceAll('\\n', '\n');
 console.log(restored === original); // true!
+
+// Удаляем временный файл
+unlinkSync('one-line.txt');
 ```
 
 ---
