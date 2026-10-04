@@ -42,17 +42,17 @@ console.log('Статусы в обработке:', Object.keys(groups));
 const completedPath = 'business-utils/orders-completed.csv';
 const pendingPath = 'business-utils/orders-pending.csv';
 
-await saveToFile(completedPath, groups.completed);
-await saveToFile(pendingPath, groups.pending);
+saveToFile(completedPath, groups.completed);
+saveToFile(pendingPath, groups.pending);
 
 // 6. Проверяем файл на диске: строка не разорвалась, перенос экранирован!
-const rawFileContent = await Bun.file(completedPath).text();
+const rawFileContent = readFileSync(completedPath, 'utf8');
 console.log('--- Содержимое файла на диске ---');
 console.log(rawFileContent);
 // Ровно 3 строки файла: 1 строка заголовков + 2 заказа! Заказ Ивана не порвал таблицу.
 
 // 7. Читаем отчёт обратно через loadFromFile
-const loadedCompleted = await loadFromFile(completedPath);
+const loadedCompleted = loadFromFile(completedPath);
 console.log('Восстановлено заказов:', loadedCompleted.length);
 console.log('Отзыв Ивана в памяти:', JSON.stringify(loadedCompleted[0].review));
 // В памяти снова реальный перенос строки: 'Отличный сервис!\nКурьеру спасибо.'!
@@ -106,8 +106,8 @@ bun test
 - `toCSV`: `@param {Array<object>} data`, `@returns {string}`, правила экранирования
 - `fromCSV`: `@param {string} csvString`, `@returns {Array<object>}`, round-trip совместимость с `toCSV`, конечный автомат
 - `groupBy`: `@param {array} array`, `@param {string} key`, `@returns {object}`, что объекты в группах не клонируются
-- `saveToFile`: `@param {string} path`, `@param {Array<object>} data`, `@returns {Promise<void>}`, запись через `Bun.write`
-- `loadFromFile`: `@param {string} path`, `@returns {Promise<Array<object>>}`, чтение через `Bun.file().text()`
+- `saveToFile`: `@param {string} path`, `@param {Array<object>} data`, `@returns {undefined}`, синхронная запись через `writeFileSync`
+- `loadFromFile`: `@param {string} path`, `@returns {Array<object>}`, синхронное чтение через `readFileSync`
 
 Пропущено что-то — дополни.
 

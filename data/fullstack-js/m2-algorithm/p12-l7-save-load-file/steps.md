@@ -1,4 +1,4 @@
-# Шаги урока: Сохранение и чтение файла (Bun API)
+# Шаги урока: Сохранение и чтение файла (`node:fs`)
 
 ---
 
@@ -20,28 +20,32 @@
 файл → чтение строки → fromCSV → массив объектов
 ```
 
-В этом уроке напишем `saveToFile(path, data)` и `loadFromFile(path)` и проверим, что данные переживают круг через настоящий файл.
+В этом уроке напишем синхронные функции `saveToFile(path, data)` и `loadFromFile(path)` и проверим, что данные переживают круг через настоящий файл.
 
 ---
 
-### Файловый API Bun
+### Синхронный API модуля `node:fs`
 
 **kind:** `text`
 
-Bun даёт простой файловый API — ничего подключать не нужно.
+Для синхронной работы с файлами в Bun и Node.js используется встроенный модуль `'node:fs'`. Никаких промисов и `await` — всё работает просто и последовательно.
 
 **Запись:**
 
 ```js
-await Bun.write('users.txt', 'строка');
+import { writeFileSync } from 'node:fs';
+
+writeFileSync('users.txt', 'строка', 'utf8');
 ```
 
-Создаёт файл или перезаписывает его. Возвращает число записанных байт.
+Создаёт файл или перезаписывает его.
 
 **Чтение:**
 
 ```js
-const text = await Bun.file('users.txt').text();
+import { readFileSync } from 'node:fs';
+
+const text = readFileSync('users.txt', 'utf8');
 ```
 
 Возвращает содержимое как строку.
@@ -49,21 +53,19 @@ const text = await Bun.file('users.txt').text();
 **Проверка существования:**
 
 ```js
-const ok = await Bun.file('users.txt').exists(); // true / false
+import { existsSync } from 'node:fs';
+
+const ok = existsSync('users.txt'); // true / false
 ```
 
-Заметь: чтение и запись **асинхронные** — возвращают `Promise`. Как мы помним из урока 4, всю теорию промисов и асинхронности мы будем глубоко изучать в курсе **«Продвинутый JavaScript»**. Сейчас мы просто следуем правилу: объявляем функцию через `async`, а вызовы делаем через `await`. Код выполняется пошагово, строка за строкой.
+Операции синхронные — программа ждёт завершения записи или чтения диска и сразу возвращает результат.
 
-Две детали, которые пригодятся:
-
-- кодировка — UTF-8, наши `\n` сохраняются как есть;
-- если файла нет, `.text()` выбрасывает ошибку (ENOENT), а `.exists()` возвращает `false`.
-
-Проверь сам через `bun`:
+Проверь сам через `bun repl`:
 
 ```js
-await Bun.write('/tmp/demo.txt', 'Привет');
-console.log(await Bun.file('/tmp/demo.txt').text()); // Привет
+import { writeFileSync, readFileSync } from 'node:fs';
+writeFileSync('/tmp/demo.txt', 'Привет', 'utf8');
+console.log(readFileSync('/tmp/demo.txt', 'utf8')); // Привет
 ```
 
 ---
@@ -72,26 +74,28 @@ console.log(await Bun.file('/tmp/demo.txt').text()); // Привет
 
 **kind:** `text`
 
-Реализуй `saveToFile(path, data)`. Создай файлы `business-utils/file-storage.js` и `business-utils/file-storage.test.js`, следуй TDD.
+Реализуй синхронную функцию `saveToFile(path, data)`. Создай файлы `business-utils/file-storage.js` и `business-utils/file-storage.test.js`, следуй TDD.
 
 **Функция принимает:**
 - `path`: `string` — путь к файлу;
 - `data`: `array` — массив плоских объектов (как у `toCSV`).
 
-**Функция возвращает:** `Promise` — результат ждут через `await`.
+**Функция возвращает:** `undefined`.
 
-**Важно:** функция **иммутабельная** — `data` не меняется. Строку формирует готовая `toCSV`, а в файл её пишет `Bun.write`.
+**Важно:** функция **иммутабельная** — `data` не меняется. Строку формирует готовая `toCSV`, а в файл её пишет `writeFileSync`.
 
 ```js
-async function saveToFile(path, data) {
+import { writeFileSync } from 'node:fs';
+
+function saveToFile(path, data) {
   const text = toCSV(data);
-  await Bun.write(path, text);
+  writeFileSync(path, text, 'utf8');
 }
 ```
 
 Тестовые случаи:
-- после вызова файл существует: `await Bun.file(path).exists()` → `true`
-- содержимое файла равно `toCSV(data)`: `await Bun.file(path).text()` → `'a\n1\n'`
+- после вызова файл существует: `existsSync(path)` → `true`
+- содержимое файла равно `toCSV(data)`: `readFileSync(path, 'utf8')` → `'a\n1\n'`
 - пустой массив: `toCSV([])` → `''`, и файл записывается пустым
 - файл перезаписывается, а не дополняется
 
@@ -117,18 +121,20 @@ afterEach(() => {
 
 **kind:** `text`
 
-Реализуй `loadFromFile(path)` в том же файле.
+Реализуй синхронную функцию `loadFromFile(path)` в том же файле.
 
 **Функция принимает:**
 - `path`: `string` — путь к файлу.
 
-**Функция возвращает:** `Promise<array>` — массив объектов.
+**Функция возвращает:** `array` — массив объектов.
 
-**Важно:** читает строку через `Bun.file(path).text()` и разбирает готовой `fromCSV`.
+**Важно:** читает строку через `readFileSync(path, 'utf8')` и разбирает готовой `fromCSV`.
 
 ```js
-async function loadFromFile(path) {
-  const text = await Bun.file(path).text();
+import { readFileSync } from 'node:fs';
+
+function loadFromFile(path) {
+  const text = readFileSync(path, 'utf8');
   return fromCSV(text);
 }
 ```
@@ -137,7 +143,7 @@ async function loadFromFile(path) {
 - читает то, что записал `saveToFile`
 - файл с данными `'a\n1\n'` → `[{ a: 1 }]`
 - пустой файл → `[]`
-- несуществующий файл → ошибка: `await expect(loadFromFile('нет.txt')).rejects.toThrow()`
+- несуществующий файл → ошибка: `expect(() => loadFromFile('нет.txt')).toThrow()`
 - Windows-файл с CRLF: `'a\r\n1\r\n'` → `[{ a: 1 }]`
 
 ---
