@@ -479,9 +479,14 @@ function titleOverlap(a: string, b: string): number {
   return common / Math.min(ta.size, tb.size);
 }
 
-async function runUpdate(projects: number[], apply: boolean): Promise<void> {
+async function runUpdate(
+  projects: number[],
+  apply: boolean,
+  onlyLesson?: string,
+): Promise<void> {
   const db = await loadDb();
   const now = nowStamp();
+  const onlyLessonNeedle = onlyLesson?.toLowerCase();
   let changedLessons = 0;
   let changedSteps = 0;
 
@@ -561,9 +566,17 @@ async function runUpdate(projects: number[], apply: boolean): Promise<void> {
 
     for (let li = 0; li < mdLessons.length; li++) {
       const mdLesson = mdLessons[li] as MdLesson;
+      const isTarget =
+        !onlyLessonNeedle ||
+        mdLesson.title.toLowerCase().includes(onlyLessonNeedle);
       let dbLesson = matchOldLesson(mdLesson.title);
 
       if (!dbLesson) {
+        if (onlyLessonNeedle) {
+          throw new Error(
+            `Фильтр --lesson: в md есть новый урок «${mdLesson.title}», это не поддерживается`,
+          );
+        }
         // Новый урок
         dbLesson = {
           uuid: crypto.randomUUID(),
@@ -595,6 +608,10 @@ async function runUpdate(projects: number[], apply: boolean): Promise<void> {
         console.log(
           `   ➕ новый урок L${li + 1}: ${mdLesson.title} (${dbLesson.stepIds.length} шагов)`,
         );
+      } else if (!isTarget) {
+        // Фильтр --lesson: не трогаем этот урок, только сохраняем его uuid
+        newProjLessonIds.push(dbLesson.uuid);
+        continue;
       } else {
         // Существующий урок
         if (mdLesson.steps.length < dbLesson.stepIds.length) {
@@ -699,10 +716,12 @@ async function main() {
   const create = parseProjects(args, '--create');
   const update = parseProjects(args, '--update');
   const check = parseProjects(args, '--check');
+  const lessonIdx = args.indexOf('--lesson');
+  const onlyLesson = lessonIdx >= 0 ? args[lessonIdx + 1] : undefined;
 
   if (create.length === 0 && update.length === 0 && check.length === 0) {
     console.error(
-      'Использование: deliver-m2.ts (--create | --update | --check) pN[,pN] [--apply]',
+      'Использование: deliver-m2.ts (--create | --update | --check) pN[,pN] [--lesson <подстрока>] [--apply]',
     );
     process.exit(1);
   }
@@ -719,7 +738,7 @@ async function main() {
     if (!allOk) process.exit(2);
   }
   if (create.length) await runCreate(create, apply);
-  if (update.length) await runUpdate(update, apply);
+  if (update.length) await runUpdate(update, apply, onlyLesson);
 }
 
 main().catch((err) => {
