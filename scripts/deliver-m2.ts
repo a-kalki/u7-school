@@ -469,57 +469,161 @@ async function runUpdate(projects: number[], apply: boolean): Promise<void> {
     const proj = db.mod.projects.find((x) => x.uuid === projUuid);
     if (!proj) throw new Error(`В БД нет проекта ${projUuid}`);
     const mdLessons = readMdLessons(p);
-    if (mdLessons.length !== proj.lessonIds.length) {
+    if (mdLessons.length < proj.lessonIds.length) {
       throw new Error(
         `П${p}: уроков md=${mdLessons.length}, json=${proj.lessonIds.length}`,
       );
     }
+    // Сопоставляем md-уроки со старыми уроками в БД (по совпадению названия или имени функции)
+    const oldLessons = proj.lessonIds
+      .map((id) => db.lessons.find((l) => l.uuid === id))
+      .filter((l): l is DbLesson => Boolean(l));
+    const usedDbLessonUuids = new Set<string>();
+
+    function matchOldLesson(mdTitle: string): DbLesson | undefined {
+      // 1. Точное совпадение названий
+      for (const old of oldLessons) {
+        if (!usedDbLessonUuids.has(old.uuid) && old.title === mdTitle) {
+          usedDbLessonUuids.add(old.uuid);
+          return old;
+        }
+      }
+      // 2. Совпадение по имени функции (например toCSV, parseUrl, groupBy)
+      const funcMatch = mdTitle.match(/([a-zA-Z]+)\(/)?.[1];
+      if (funcMatch) {
+        for (const old of oldLessons) {
+          if (
+            !usedDbLessonUuids.has(old.uuid) &&
+            old.title.includes(funcMatch)
+          ) {
+            usedDbLessonUuids.add(old.uuid);
+            return old;
+          }
+        }
+      }
+      // 3. Финальный PR
+      if (mdTitle.includes('Финальн') || mdTitle.includes('PR')) {
+        for (const old of oldLessons) {
+          if (
+            !usedDbLessonUuids.has(old.uuid) &&
+            (old.title.includes('Финальн') || old.title.includes('PR'))
+          ) {
+            usedDbLessonUuids.add(old.uuid);
+            return old;
+          }
+        }
+      }
+      return undefined;
+    }
+
     console.log(
       `\n📚 update П${p} «${proj.title}» [${proj.status}] — ${mdLessons.length} уроков`,
     );
-    mdLessons.forEach((mdLesson, li) => {
-      const dbLesson = db.lessons.find((l) => l.uuid === proj.lessonIds[li]);
-      if (!dbLesson) throw new Error(`Нет урока ${proj.lessonIds[li]}`);
-      if (mdLesson.steps.length !== dbLesson.stepIds.length) {
-        throw new Error(
-          `П${p}-l${li + 1}: шагов md=${mdLesson.steps.length}, json=${dbLesson.stepIds.length}`,
-        );
-      }
-      const lessonChanged =
-        dbLesson.title !== mdLesson.title ||
-        dbLesson.additional !== mdLesson.summary ||
-        dbLesson.estimatedMinutes !== mdLesson.minutes ||
-        dbLesson.status !== 'published';
-      if (lessonChanged) {
-        changedLessons++;
-        console.log(`   ✏️  L${li + 1}: ${mdLesson.title}`);
-      }
-      if (apply) {
-        dbLesson.title = mdLesson.title;
-        dbLesson.additional = mdLesson.summary;
-        dbLesson.estimatedMinutes = mdLesson.minutes;
-        dbLesson.status = 'published';
-        dbLesson.updatedAt = now;
-      }
-      mdLesson.steps.forEach((s, si) => {
-        const dbStep = db.steps.find((x) => x.uuid === dbLesson.stepIds[si]);
-        if (!dbStep) throw new Error(`Нет шага ${dbLesson.stepIds[si]}`);
-        const stepChanged =
-          dbStep.description !== s.name ||
-          dbStep.content !== s.body ||
-          dbStep.kind !== s.kind ||
-          dbStep.status !== 'published';
-        if (stepChanged) changedSteps++;
-        if (apply) {
-          dbStep.description = s.name;
-          dbStep.content = s.body;
-          dbStep.kind = s.kind;
-          dbStep.status = 'published';
-          dbStep.updatedAt = now;
+
+    const newProjLessonIds: string[] = [];
+
+    for (let li = 0; li < mdLessons.length; li++) {
+      const mdLesson = mdLessons[li] as MdLesson;
+      let dbLesson = matchOldLesson(mdLesson.title);
+
+      if (!dbLesson) {
+        // Новый урок
+        dbLesson = {
+          uuid: crypto.randomUUID(),
+          moduleId: db.mod.uuid,
+          title: mdLesson.title,
+          additional: mdLesson.summary,
+          estimatedMinutes: mdLesson.minutes,
+          status: 'published',
+          updatedAt: now,
+          stepIds: [],
+          mentorStepIds: [],
+        };
+        for (const s of mdLesson.steps) {
+          const step: DbStep = {
+            uuid: crypto.randomUUID(),
+            moduleId: db.mod.uuid,
+            description: s.name,
+            content: s.body,
+            kind: s.kind,
+            status: 'published',
+            updatedAt: now,
+          };
+          db.steps.push(step);
+          dbLesson.stepIds.push(step.uuid);
         }
-      });
-    });
+        db.lessons.push(dbLesson);
+        changedLessons++;
+        changedSteps += dbLesson.stepIds.length;
+        console.log(
+          `   ➕ новый урок L${li + 1}: ${mdLesson.title} (${dbLesson.stepIds.length} шагов)`,
+        );
+      } else {
+        // Существующий урок
+        if (mdLesson.steps.length < dbLesson.stepIds.length) {
+          throw new Error(
+            `П${p}-l${li + 1} (${mdLesson.title}): шагов md=${mdLesson.steps.length}, json=${dbLesson.stepIds.length}`,
+          );
+        }
+        // Недостающие шаги создаём и дописываем в урок (порядок md = порядок json).
+        for (
+          let si = dbLesson.stepIds.length;
+          si < mdLesson.steps.length;
+          si++
+        ) {
+          const s = mdLesson.steps[si] as Step;
+          const step: DbStep = {
+            uuid: crypto.randomUUID(),
+            moduleId: db.mod.uuid,
+            description: s.name,
+            content: s.body,
+            kind: s.kind,
+            status: 'published',
+            updatedAt: now,
+          };
+          db.steps.push(step);
+          dbLesson.stepIds.push(step.uuid);
+          changedSteps++;
+        }
+        const lessonChanged =
+          dbLesson.title !== mdLesson.title ||
+          dbLesson.additional !== mdLesson.summary ||
+          dbLesson.estimatedMinutes !== mdLesson.minutes ||
+          dbLesson.status !== 'published';
+        if (lessonChanged) {
+          changedLessons++;
+          console.log(`   ✏️  L${li + 1}: ${mdLesson.title}`);
+        }
+        if (apply) {
+          dbLesson.title = mdLesson.title;
+          dbLesson.additional = mdLesson.summary;
+          dbLesson.estimatedMinutes = mdLesson.minutes;
+          dbLesson.status = 'published';
+          dbLesson.updatedAt = now;
+        }
+        mdLesson.steps.forEach((s, si) => {
+          const dbStep = db.steps.find((x) => x.uuid === dbLesson.stepIds[si]);
+          if (!dbStep) throw new Error(`Нет шага ${dbLesson.stepIds[si]}`);
+          const stepChanged =
+            dbStep.description !== s.name ||
+            dbStep.content !== s.body ||
+            dbStep.kind !== s.kind ||
+            dbStep.status !== 'published';
+          if (stepChanged) changedSteps++;
+          if (apply) {
+            dbStep.description = s.name;
+            dbStep.content = s.body;
+            dbStep.kind = s.kind;
+            dbStep.status = 'published';
+            dbStep.updatedAt = now;
+          }
+        });
+      }
+      newProjLessonIds.push(dbLesson.uuid);
+    }
+
     if (apply) {
+      proj.lessonIds = newProjLessonIds;
       proj.status = 'published';
     }
   }

@@ -252,13 +252,15 @@
         "title": "Бизнес-утилиты",
         "goal": "Применить все полученные навыки в реальных бизнес-задачах: разбор URL, CSV, группировка",
         "result": "PR с 5 функциями в папке utils/: getQueryParams, parseUrl, toCSV, fromCSV (конечный автомат), groupBy — все иммутабельные, fromCSV обратна к toCSV",
-        "status": "archived",
+        "status": "published",
         "lessonIds": [
           "3d5dd754-0659-4f98-ac0d-3698982798c1",
           "21b7e80a-0c16-433c-b387-c19ec0ffa08e",
+          "03ef84ea-d497-4633-baa8-28a58c8370e4",
+          "e6269535-7bf0-4b50-9760-ebb37a0f02e2",
           "c9515d1b-35c6-4f64-9b9e-424f22bb93e6",
           "26c68a6f-a8f8-4504-860d-1b8c2bd9d69b",
-          "03ef84ea-d497-4633-baa8-28a58c8370e4",
+          "744b93e5-aca3-4cd0-9051-da9bedbe59e8",
           "8354d666-16f8-435f-80e3-bbd09c567090"
         ]
       },
