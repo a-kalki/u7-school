@@ -457,6 +457,28 @@ async function publishCreated(
   );
 }
 
+/** Доля общих слов двух заголовков — для сопоставления переименованных уроков. */
+function titleOverlap(a: string, b: string): number {
+  const tokenize = (s: string): Set<string> => {
+    const set = new Set<string>();
+    for (const token of s
+      .toLowerCase()
+      .replaceAll(/[`(),.:«»]/g, ' ')
+      .split(/\s+/)) {
+      if (token.length >= 3) set.add(token);
+    }
+    return set;
+  };
+  const ta = tokenize(a);
+  const tb = tokenize(b);
+  if (ta.size === 0 || tb.size === 0) return 0;
+  let common = 0;
+  for (const token of ta) {
+    if (tb.has(token)) common++;
+  }
+  return common / Math.min(ta.size, tb.size);
+}
+
 async function runUpdate(projects: number[], apply: boolean): Promise<void> {
   const db = await loadDb();
   const now = nowStamp();
@@ -512,6 +534,21 @@ async function runUpdate(projects: number[], apply: boolean): Promise<void> {
             return old;
           }
         }
+      }
+      // 4. Похожесть заголовков — для уроков, у которых сменилось название
+      let best: DbLesson | undefined;
+      let bestScore = 0.5;
+      for (const old of oldLessons) {
+        if (usedDbLessonUuids.has(old.uuid)) continue;
+        const score = titleOverlap(old.title, mdTitle);
+        if (score > bestScore) {
+          bestScore = score;
+          best = old;
+        }
+      }
+      if (best) {
+        usedDbLessonUuids.add(best.uuid);
+        return best;
       }
       return undefined;
     }
