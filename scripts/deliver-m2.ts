@@ -7,13 +7,21 @@
  *   - `--create pN,…` — создаёт НОВЫЕ проекты (П6–П8) через боевые UC:
  *     `add-project` → `create-lesson` → `create-step`, затем публикация
  *     прямой правкой JSON по манифесту (publish-UC для контента нет);
- *   - `--update pN,…` — обновляет СУЩЕСТВУЮЩИЕ проекты (П9–П14) прямой
- *     правкой JSON по маппингу старых uuid (create/update-UC нет).
+ *   - `--update pN,…` — обновляет СУЩЕСТВУЮЩИЕ проекты (позиции 9+) прямой
+ *     правкой JSON (create/update-UC нет);
+ *   - `--recreate pN,…` — пересоздаёт проект полностью: старый проект отвязывается
+ *     от модуля (его уроки/шаги остаются в БД published — для старых снапшотов),
+ *     новый проект/уроки/шаги создаются со свежими uuid из тех же md.
+ *
+ * Проекты адресуются **позицией** (1-based) в порядке программы модуля — она же
+ * номер папок `pN-…` и номер в `list-lessons 2-N` (сортировка = 12, сложность = 13).
  *
  * ## Использование
  *   bun run scripts/deliver-m2.ts --create p6            # dry-run
  *   bun run scripts/deliver-m2.ts --update p9             # dry-run: список diff
  *   bun run scripts/deliver-m2.ts --check p9              # сверка md ↔ json
+ *   bun run scripts/deliver-m2.ts --check p12             # позиция 12 = сортировка
+ *   bun run scripts/deliver-m2.ts --recreate p12 --apply  # пересоздать (свежие uuid)
  *   bun run scripts/deliver-m2.ts --update p9 --apply     # запись
  *
  * ## Перед --apply
@@ -24,6 +32,10 @@
  * ## Принципы
  *   - Dry-run обязателен перед записью (по умолчанию — чтение).
  *   - Обновление — только по uuid, без изменения состава связи.
+ *   - Шаги никогда не удаляются физически: при расхождении шаг лишь отвязывается
+ *     от урока (остаётся в steps.json в статусе published) — на него могут
+ *     ссылаться сохранённые снапшоты стримов (ContentSnapshot хранит stepIds,
+ *     а не копии контента), а не-авторам get-step отдаёт только published.
  *   - Число уроков/шагов в md должно совпадать с JSON (иначе — стоп).
  */
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -33,16 +45,6 @@ const COURSES_DIR = 'data/courses';
 const SRC_DIR = 'data/fullstack-js/m2-algorithm-core';
 const DRAFT_DIR = '/tmp/redesign-m2';
 const MODULE_TITLE = 'Алгоритмика: ядро';
-
-// новый проект → uuid старого (архивного) проекта в БД; для П9–П14
-const OLD_PROJECT_UUID: Record<number, string> = {
-  9: '0452b677-851a-432f-930d-6032a552530d',
-  10: 'c92bf9c2-bb40-4c99-b85f-d44f8c462abc',
-  11: '4da5dc6c-9ce0-4039-8f25-7511bd66db09',
-  12: '7af9f0e5-dd60-45b4-8b9d-1f442488c031',
-  13: '1cabe329-a2ec-4acb-a7a6-d83d51493c53',
-  14: '8621d5f9-43b2-44cc-a4a8-0c61cb5ae0de',
-};
 
 // ─── Типы ───
 
@@ -67,7 +69,7 @@ interface DbProject {
   title: string;
   goal: string;
   result: string;
-  additional: string;
+  additional?: string;
   status: string;
   lessonIds: string[];
 }
@@ -86,6 +88,7 @@ interface DbLesson {
   additional: string;
   estimatedMinutes?: number;
   status: string;
+  createdAt: string;
   updatedAt: string;
   stepIds: string[];
   mentorStepIds: string[];
@@ -98,6 +101,7 @@ interface DbStep {
   content: string;
   kind: StepKind;
   status: string;
+  createdAt: string;
   updatedAt: string;
 }
 
@@ -250,29 +254,22 @@ async function writeDb(db: Db): Promise<void> {
   ]);
 }
 
-/** uuid проекта в БД: для П1–П5 — по названию черновика, для П9–П14 — старый uuid. */
-function resolveProjectUuid(p: number, db: Db): string {
-  if (p >= 9) {
-    const uuid = OLD_PROJECT_UUID[p];
-    if (!uuid) throw new Error(`Нет старого uuid для П${p}`);
-    return uuid;
+/**
+ * Проект по позиции (1-based) в порядке программы модуля.
+ * Позиция совпадает с номером папок `pN-…` и с `list-lessons 2-N`.
+ */
+function projectAt(p: number, db: Db): DbProject {
+  const proj = db.mod.projects[p - 1];
+  if (!proj) {
+    throw new Error(`В модуле «${MODULE_TITLE}» нет проекта на позиции ${p}`);
   }
-  const metaPath = `${DRAFT_DIR}/redesign-p${p}/project.json`;
-  if (!existsSync(metaPath)) throw new Error(`Нет ${metaPath}`);
-  const meta = JSON.parse(readText(metaPath)) as { title: string };
-  const proj = db.mod.projects.find(
-    (x) => x.title === meta.title && x.status === 'published',
-  );
-  if (!proj) throw new Error(`В БД нет published-проекта «${meta.title}»`);
-  return proj.uuid;
+  return proj;
 }
 
 // ─── Dry-run отчёты ───
 
 function reportCheck(p: number, db: Db): boolean {
-  const projUuid = resolveProjectUuid(p, db);
-  const proj = db.mod.projects.find((x) => x.uuid === projUuid);
-  if (!proj) throw new Error(`В БД нет проекта ${projUuid}`);
+  const proj = projectAt(p, db);
   const mdLessons = readMdLessons(p);
   if (mdLessons.length !== proj.lessonIds.length) {
     console.error(
@@ -491,10 +488,12 @@ async function runUpdate(
   let changedSteps = 0;
 
   for (const p of projects) {
-    const projUuid = OLD_PROJECT_UUID[p];
-    if (!projUuid) throw new Error(`--update поддерживает только П9–П14`);
-    const proj = db.mod.projects.find((x) => x.uuid === projUuid);
-    if (!proj) throw new Error(`В БД нет проекта ${projUuid}`);
+    if (p < 9) {
+      throw new Error(
+        '--update поддерживает позиции 9–13; для П6–П8 — --create',
+      );
+    }
+    const proj = projectAt(p, db);
     const mdLessons = readMdLessons(p);
     if (mdLessons.length < proj.lessonIds.length) {
       throw new Error(
@@ -585,6 +584,7 @@ async function runUpdate(
           additional: mdLesson.summary,
           estimatedMinutes: mdLesson.minutes,
           status: 'published',
+          createdAt: now,
           updatedAt: now,
           stepIds: [],
           mentorStepIds: [],
@@ -597,6 +597,7 @@ async function runUpdate(
             content: s.body,
             kind: s.kind,
             status: 'published',
+            createdAt: now,
             updatedAt: now,
           };
           db.steps.push(step);
@@ -613,52 +614,38 @@ async function runUpdate(
         newProjLessonIds.push(dbLesson.uuid);
         continue;
       } else {
-        // Существующий урок
-        if (mdLesson.steps.length < dbLesson.stepIds.length) {
-          throw new Error(
-            `П${p}-l${li + 1} (${mdLesson.title}): шагов md=${mdLesson.steps.length}, json=${dbLesson.stepIds.length}`,
-          );
-        }
-        // Недостающие шаги создаём и дописываем в урок (порядок md = порядок json).
-        for (
-          let si = dbLesson.stepIds.length;
-          si < mdLesson.steps.length;
-          si++
-        ) {
-          const s = mdLesson.steps[si] as Step;
-          const step: DbStep = {
-            uuid: crypto.randomUUID(),
-            moduleId: db.mod.uuid,
-            description: s.name,
-            content: s.body,
-            kind: s.kind,
-            status: 'published',
-            updatedAt: now,
-          };
-          db.steps.push(step);
-          dbLesson.stepIds.push(step.uuid);
-          changedSteps++;
-        }
-        const lessonChanged =
-          dbLesson.title !== mdLesson.title ||
-          dbLesson.additional !== mdLesson.summary ||
-          dbLesson.estimatedMinutes !== mdLesson.minutes ||
-          dbLesson.status !== 'published';
-        if (lessonChanged) {
-          changedLessons++;
-          console.log(`   ✏️  L${li + 1}: ${mdLesson.title}`);
-        }
-        if (apply) {
-          dbLesson.title = mdLesson.title;
-          dbLesson.additional = mdLesson.summary;
-          dbLesson.estimatedMinutes = mdLesson.minutes;
-          dbLesson.status = 'published';
-          dbLesson.updatedAt = now;
-        }
-        const stepIds = dbLesson.stepIds;
-        mdLesson.steps.forEach((s, si) => {
-          const dbStep = db.steps.find((x) => x.uuid === stepIds[si]);
-          if (!dbStep) throw new Error(`Нет шага ${stepIds[si]}`);
+        // Существующий урок. Шаги выравниваем по названию (`description`),
+        // а не по позиции: правки могли вставить/удалить шаг в середине.
+        // Одноимённые шаги сохраняют uuid, новые создаются, лишние удаляются.
+        const oldStepIds = [...dbLesson.stepIds];
+        const keptOldIds = new Set<string>();
+        const newStepIds: string[] = [];
+
+        for (const s of mdLesson.steps) {
+          let dbStep: DbStep | undefined;
+          for (const id of oldStepIds) {
+            if (keptOldIds.has(id)) continue;
+            const candidate = db.steps.find((x) => x.uuid === id);
+            if (candidate?.description === s.name) {
+              dbStep = candidate;
+              keptOldIds.add(id);
+              break;
+            }
+          }
+          if (!dbStep) {
+            dbStep = {
+              uuid: crypto.randomUUID(),
+              moduleId: db.mod.uuid,
+              description: s.name,
+              content: s.body,
+              kind: s.kind,
+              status: 'published',
+              createdAt: now,
+              updatedAt: now,
+            };
+            db.steps.push(dbStep);
+            changedSteps++;
+          }
           const stepChanged =
             dbStep.description !== s.name ||
             dbStep.content !== s.body ||
@@ -672,7 +659,39 @@ async function runUpdate(
             dbStep.status = 'published';
             dbStep.updatedAt = now;
           }
-        });
+          newStepIds.push(dbStep.uuid);
+        }
+
+        // Шаги, которых нет в md, отвязываем от урока, но НЕ удаляем из steps.json:
+        // на них могут ссылаться сохранённые снапшоты стримов, а ContentSnapshot
+        // хранит только stepIds (без копий контента). Удаление сломало бы доступ.
+        // Статус сохраняем published: не-авторам get-step отдаёт только published.
+        const detachedIds = oldStepIds.filter((id) => !keptOldIds.has(id));
+        if (detachedIds.length) {
+          changedSteps += detachedIds.length;
+          console.log(
+            `   🔓 L${li + 1}: отвязано шагов ${detachedIds.length} (нет в md, шаги сохранены)`,
+          );
+        }
+
+        const lessonChanged =
+          dbLesson.title !== mdLesson.title ||
+          dbLesson.additional !== mdLesson.summary ||
+          dbLesson.estimatedMinutes !== mdLesson.minutes ||
+          dbLesson.status !== 'published' ||
+          newStepIds.length !== oldStepIds.length;
+        if (lessonChanged) {
+          changedLessons++;
+          console.log(`   ✏️  L${li + 1}: ${mdLesson.title}`);
+        }
+        if (apply) {
+          dbLesson.title = mdLesson.title;
+          dbLesson.additional = mdLesson.summary;
+          dbLesson.estimatedMinutes = mdLesson.minutes;
+          dbLesson.status = 'published';
+          dbLesson.stepIds = newStepIds;
+          dbLesson.updatedAt = now;
+        }
       }
       newProjLessonIds.push(dbLesson.uuid);
     }
@@ -693,6 +712,81 @@ async function runUpdate(
       `\n🔍 Dry-run: будет изменено уроков ${changedLessons}, шагов ${changedSteps}. Для записи добавь --apply`,
     );
   }
+}
+
+/**
+ * Полностью пересоздать проект. Старый проект отвязывается от модуля (его уроки
+ * и шаги остаются в БД published — их читают старые снапшоты стримов), а вместо
+ * него создаётся новый проект со свежими uuid проекта/уроков/шагов из md той же
+ * позиции. Метаданные (title/goal/result) берутся у старого проекта.
+ */
+async function runRecreate(p: number, apply: boolean): Promise<void> {
+  const db = await loadDb();
+  const now = nowStamp();
+  const oldProj = projectAt(p, db);
+  const mdLessons = readMdLessons(p);
+  const stepCount = mdLessons.reduce((n, l) => n + l.steps.length, 0);
+  console.log(
+    `\n♻️  recreate П${p} «${oldProj.title}» → новый проект (${mdLessons.length} уроков / ${stepCount} шагов)`,
+  );
+  console.log(
+    `   старый uuid ${oldProj.uuid} отвязывается; его уроки/шаги остаются в БД`,
+  );
+  if (!apply) {
+    for (const l of mdLessons) {
+      console.log(`   • NEW ${l.title} — ${l.steps.length} шагов`);
+    }
+    console.log('\n🔍 Dry-run. Для записи добавь --apply');
+    return;
+  }
+
+  const newLessonIds: string[] = [];
+  for (const l of mdLessons) {
+    const stepIds: string[] = [];
+    for (const s of l.steps) {
+      const stepUuid = crypto.randomUUID();
+      db.steps.push({
+        uuid: stepUuid,
+        moduleId: db.mod.uuid,
+        description: s.name,
+        content: s.body,
+        kind: s.kind,
+        status: 'published',
+        createdAt: now,
+        updatedAt: now,
+      });
+      stepIds.push(stepUuid);
+    }
+    const lessonUuid = crypto.randomUUID();
+    db.lessons.push({
+      uuid: lessonUuid,
+      moduleId: db.mod.uuid,
+      title: l.title,
+      additional: l.summary,
+      estimatedMinutes: l.minutes,
+      status: 'published',
+      createdAt: now,
+      updatedAt: now,
+      stepIds,
+      mentorStepIds: [],
+    });
+    newLessonIds.push(lessonUuid);
+  }
+
+  const newProj: DbProject = {
+    uuid: crypto.randomUUID(),
+    title: oldProj.title,
+    goal: oldProj.goal,
+    result: oldProj.result,
+    status: 'published',
+    lessonIds: newLessonIds,
+  };
+  db.mod.projects[db.mod.projects.indexOf(oldProj)] = newProj;
+
+  await writeDb(db);
+  console.log(
+    `   ✅ новый проект ${newProj.uuid}: уроков ${newLessonIds.length}, шагов ${stepCount}`,
+  );
 }
 
 // ─── CLI ───
@@ -716,13 +810,19 @@ async function main() {
   const apply = args.includes('--apply');
   const create = parseProjects(args, '--create');
   const update = parseProjects(args, '--update');
+  const recreate = parseProjects(args, '--recreate');
   const check = parseProjects(args, '--check');
   const lessonIdx = args.indexOf('--lesson');
   const onlyLesson = lessonIdx >= 0 ? args[lessonIdx + 1] : undefined;
 
-  if (create.length === 0 && update.length === 0 && check.length === 0) {
+  if (
+    create.length === 0 &&
+    update.length === 0 &&
+    recreate.length === 0 &&
+    check.length === 0
+  ) {
     console.error(
-      'Использование: deliver-m2.ts (--create | --update | --check) pN[,pN] [--lesson <подстрока>] [--apply]',
+      'Использование: deliver-m2.ts (--create | --update | --recreate | --check) pN[,pN] [--lesson <подстрока>] [--apply]',
     );
     process.exit(1);
   }
@@ -740,6 +840,7 @@ async function main() {
   }
   if (create.length) await runCreate(create, apply);
   if (update.length) await runUpdate(update, apply, onlyLesson);
+  for (const p of recreate) await runRecreate(p, apply);
 }
 
 main().catch((err) => {

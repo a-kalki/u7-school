@@ -3724,5 +3724,136 @@
       "2399c5ae-d6e5-4a1e-9148-4a560708cfc4"
     ],
     "mentorStepIds": []
+  },
+  {
+    "uuid": "69f2c8d7-bfb6-43bb-804b-eb2bd4be97f0",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Сортировка пузырьком (bubble sort)",
+    "additional": "Попарные обмены соседей, O(n²). Старт проекта.",
+    "estimatedMinutes": 20,
+    "status": "published",
+    "createdAt": "2026-10-05T18:04",
+    "updatedAt": "2026-10-05T18:04",
+    "stepIds": [
+      "14add8e0-3c39-47cf-82ab-f7f8269bd430",
+      "66d07e73-3e42-48e8-a39a-7fa90ebdfa24",
+      "14807ade-f1c0-4cd6-8fef-68c245cd7201",
+      "8d1e9b27-4611-475a-96bc-b60ddba137aa",
+      "dc2c2499-6b08-444d-a700-1d17734bdf74",
+      "cb645470-2346-486a-9a1d-8614d3d29540",
+      "35507a16-f1eb-4d05-be79-0d480435a458"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "11bb3b07-3b35-4933-bde8-337df8f853f7",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Сортировка вставками (insertion sort)",
+    "additional": "Вставка элемента в отсортированную часть, O(n²), ~O(n) на почти отсортированных.",
+    "estimatedMinutes": 20,
+    "status": "published",
+    "createdAt": "2026-10-05T18:04",
+    "updatedAt": "2026-10-05T18:04",
+    "stepIds": [
+      "9e6866a0-beca-422f-b6d3-aefbc3217519",
+      "749ad7b6-fd31-4eb2-b19e-a0ebafe6526a",
+      "285c610f-cb35-4954-ac21-3b48682f72e0",
+      "b9050289-fcb2-488b-b5ec-135189d37515"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "cc980a20-9b9d-4777-a744-a9762e8f251d",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Сортировка выбором (selection sort)",
+    "additional": "Поиск минимума, O(n²), минимум обменов.",
+    "estimatedMinutes": 20,
+    "status": "published",
+    "createdAt": "2026-10-05T18:04",
+    "updatedAt": "2026-10-05T18:04",
+    "stepIds": [
+      "9840a22d-73cc-496b-9c15-b8d92fd087ad",
+      "25e47320-3402-4eb6-a327-68bb4fda1c88",
+      "83580ff8-69ad-44c6-bacd-192fc35a29fb",
+      "8ef37906-7ecb-4bc2-8ed6-e43c3da0ae44"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "161fe9b2-acff-4182-bdde-1966e29d40f2",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Быстрая сортировка (quick sort)",
+    "additional": "Рекурсия «разделяй и властвуй», O(n log n) в среднем.",
+    "estimatedMinutes": 25,
+    "status": "published",
+    "createdAt": "2026-10-05T18:04",
+    "updatedAt": "2026-10-05T18:04",
+    "stepIds": [
+      "f3934272-dc30-4e44-8eb5-2055b709d240",
+      "194e6d15-7c95-4b9a-bad7-2bfd44f8eac8",
+      "a4029fc2-3768-4eca-ab93-4d76bfcefb37",
+      "6325c52c-9821-466d-afd1-8dc79eaeb80c"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "69412ffd-68fd-416b-b92b-1b99a1008f58",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Бинарный поиск: ищем в отсортированном массиве",
+    "additional": "Бинарный поиск в отсортированном массиве, O(log n).",
+    "estimatedMinutes": 20,
+    "status": "published",
+    "createdAt": "2026-10-05T18:04",
+    "updatedAt": "2026-10-05T18:04",
+    "stepIds": [
+      "0e406e4c-cf64-4c9f-864d-d5e5902326b8",
+      "24c3fe6d-0e1f-4e9e-894a-22be943f3353",
+      "08490775-0686-414f-b64a-a8d5101ff47b",
+      "c0a28164-f055-4834-bb71-39374d8290ed"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "71b87b05-5878-4995-96ad-97e4a212cd4c",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Измеряем скорость: бенчмарк сортировок и поиска",
+    "additional": "Бенчмарк: замер скорости 4 сортировок и поиска.",
+    "estimatedMinutes": 25,
+    "status": "published",
+    "createdAt": "2026-10-05T18:04",
+    "updatedAt": "2026-10-05T18:04",
+    "stepIds": [
+      "40ff6b2a-d2c2-429b-ae46-6a46576850cd",
+      "3a5e0426-4600-467d-9127-1e2a1baf4ce5",
+      "e5acb3f6-b062-4824-96be-719894e2ae79",
+      "3e22fd97-f905-4424-854c-54f170726375",
+      "3ae1b7c0-72f2-4594-9719-8a6d6c63fbe9",
+      "5b5123c4-5090-4b43-8d23-6cc596675b26",
+      "381cb8e8-84ee-4921-8d7a-cda9f1751d6d",
+      "48047fe3-8453-46bd-8505-3829e1fe29d7",
+      "fb876c86-0b47-462c-9a1f-fef321dbd99f",
+      "7fb1e799-59b9-4d8a-a770-a260fbb07c04",
+      "c11d2450-08e4-4ecc-823c-a1d703ce26bf"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "e46d1ee8-2de1-4f74-815d-0fd61c02dd87",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Финальный PR и сравнение алгоритмов",
+    "additional": "Финальный PR, сравнение алгоритмов, мостик к O-нотации.",
+    "estimatedMinutes": 25,
+    "status": "published",
+    "createdAt": "2026-10-05T18:04",
+    "updatedAt": "2026-10-05T18:04",
+    "stepIds": [
+      "09045399-44c3-4c09-9577-dfba0adeceb4",
+      "05fa1422-8445-4a07-aeb2-a3e37b1217a9",
+      "b85b13dc-7c71-4fdf-b0b3-4c074f416128",
+      "cc53d206-dfc8-46d0-9ecc-4bec6887f3cf",
+      "b8cda14d-1332-46dd-a3d0-73bcf86a146e",
+      "d9982d84-d973-42ef-9094-a6e491c1d165"
+    ],
+    "mentorStepIds": []
   }
 ]
