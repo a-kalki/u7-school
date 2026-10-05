@@ -33,7 +33,8 @@
 - **П14 (2026-10-05):** md `p13-*` вычитаны; в json l1–l3 обновлены in-place (uuid сохранены,
   добавлены «Термины урока»), l4 пересоздан новым уроком `f449423e-f059-45cd-8e86-dede0e163f9d`
   (`--recreate-lesson`); старый l4 `44ea61d8` отвязан (published). Проект `8621d5f9` → `published`.
-- **Следующий шаг:** Фаза 11 (финал): финальная сверка md ↔ json по всему m2, уборка `.gitignore`, `summary.md` трека.
+- **Трек завершён (2026-10-05):** фазы 1–11 закрыты; осталась ручная верификация 'Финал'.
+  Итоги — в [summary.md](./summary.md).
 
 ## Закрытые фазы (1–8) — сводка
 
@@ -95,8 +96,7 @@
 
 ## Фаза 11: Финал
 
-- [ ] Task: Финальная сверка md ↔ json по всему m2 (13 проектов + archived «Бизнес-утилиты»)
-- [ ] Task: Убрать временные `.gitignore`-записи (`redesign-m2/`, `tmp`-хвосты, `redesign-p*/`,
-      `redesign-algorithms-*.md`)
-- [ ] Task: Написать `summary.md` трека, обновить `tracks.md` (завершён)
+- [x] Task: Финальная сверка md ↔ json по всем 13 проектам m2 — расхождений нет
+- [x] Task: Временных `.gitignore`-записей нет (ни `redesign-*`, ни `tmp`-хвостов) — удалять нечего
+- [x] Task: Написан `summary.md` трека, `tracks.md` → завершён, `metadata.json` → `completed`
 - [ ] Task: Conductor - User Manual Verification 'Финал' (Protocol in workflow.md)
