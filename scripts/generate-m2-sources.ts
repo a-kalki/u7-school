@@ -2,7 +2,7 @@
  * generate-m2-sources.ts — генерация md-исходников модуля «Алгоритмика» (m2).
  *
  * ## Назначение
- * Приводит `data/fullstack-js/m2-algorithm` в соответствие новому плану
+ * Приводит `data/fullstack-js/m2-algorithm-core` в соответствие новому плану
  * (П1–П14). Для каждого урока формирует три файла целевого формата:
  *   - `lesson.md` — паспорт (заголовок, Краткое содержание, Время,
  *     Основные темы, Термины, Источники) + конспект (если был в источнике);
@@ -34,10 +34,10 @@ import {
 } from 'node:fs';
 
 const COURSES_DIR = 'data/courses';
-const OUT_DIR = 'data/fullstack-js/m2-algorithm';
+const OUT_DIR = 'data/fullstack-js/m2-algorithm-core';
 const DRAFT_DIR = '/tmp/redesign-m2';
 const OLD_DIR = '/tmp/m2-algorithm-old';
-const MODULE_TITLE = 'Алгоритмика';
+const MODULE_TITLE = 'Алгоритмика: ядро';
 
 // новый проект → uuid старого (архивного) проекта в БД; для П9–П14
 const OLD_PROJECT_UUID: Record<number, string> = {
@@ -174,6 +174,7 @@ interface ParsedOld {
   title: string;
   summary: string;
   extraMd: string;
+  timeLine: string | undefined;
 }
 
 function parseOldLesson(md: string): ParsedOld {
@@ -184,11 +185,19 @@ function parseOldLesson(md: string): ParsedOld {
   const summary = sumMatch?.[1]?.trim() ?? '';
   // Конспект — всё после абзаца «Краткое содержание»
   const restStart = sumMatch ? (sumMatch.index ?? 0) + sumMatch[0].length : 0;
-  const extraMd = md
+  let extraMd = md
     .slice(restStart)
     .replace(/^\s*\n+/, '')
     .trim();
-  return { title, summary, extraMd };
+  // «Время» из старого файла (если есть) — в паспорт, из конспекта убираем
+  const timeLine = extraMd.match(/^\*\*Время:\*\*\s*(.+)$/m)?.[1]?.trim();
+  if (timeLine) {
+    extraMd = extraMd
+      .replace(/^\*\*Время:\*\*\s*.+\n?/, '')
+      .replace(/^\s*\n+/, '')
+      .trim();
+  }
+  return { title, summary, extraMd, timeLine };
 }
 
 /** Шаги старого steps.md: блоки через `---`, `### Название`, `**kind:**`. */
@@ -416,14 +425,13 @@ async function buildOldLessons(job: Job): Promise<Lesson[]> {
   const dirs = listLessonDirs(job.sourceDir).filter((d) =>
     d.startsWith(`p${oldP}-l`),
   );
-  if (dirs.length !== proj.lessonIds.length) {
+  if (dirs.length < proj.lessonIds.length) {
     throw new Error(
       `${job.sourceDir}: уроков ${dirs.length}, в БД ${proj.lessonIds.length}`,
     );
   }
   return dirs.map((dirName, i) => {
     const dbLesson = lessons.find((l) => l.uuid === proj.lessonIds[i]);
-    if (!dbLesson) throw new Error(`В БД нет урока ${proj.lessonIds[i]}`);
     const old = parseOldLesson(
       readText(`${job.sourceDir}/${dirName}/lesson.md`),
     );
@@ -436,10 +444,10 @@ async function buildOldLessons(job: Job): Promise<Lesson[]> {
     return {
       key: `p${job.newP}-l${i + 1}`,
       dirName: newName,
-      title: old.title || dbLesson.title,
-      summary: old.summary || dbLesson.additional,
-      minutes: dbLesson.estimatedMinutes,
-      timeLine: undefined,
+      title: old.title || dbLesson?.title || '',
+      summary: old.summary || dbLesson?.additional || '',
+      minutes: dbLesson?.estimatedMinutes,
+      timeLine: old.timeLine,
       topics: steps.map((s) => s.name).map((n) => `- ${n}`),
       steps,
       summaryMd,

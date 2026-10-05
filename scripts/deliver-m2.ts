@@ -2,7 +2,7 @@
  * deliver-m2.ts — укладка md-исходников «Алгоритмики» (m2) в БД.
  *
  * ## Назначение
- * Читает сгенерированные md-уроки из `data/fullstack-js/m2-algorithm`
+ * Читает сгенерированные md-уроки из `data/fullstack-js/m2-algorithm-core`
  * и переносит их в `data/courses/*.json` двумя способами:
  *   - `--create pN,…` — создаёт НОВЫЕ проекты (П6–П8) через боевые UC:
  *     `add-project` → `create-lesson` → `create-step`, затем публикация
@@ -30,9 +30,9 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createApp, NUR_UUID, resolveActor } from './_app-factory';
 
 const COURSES_DIR = 'data/courses';
-const SRC_DIR = 'data/fullstack-js/m2-algorithm';
+const SRC_DIR = 'data/fullstack-js/m2-algorithm-core';
 const DRAFT_DIR = '/tmp/redesign-m2';
-const MODULE_TITLE = 'Алгоритмика';
+const MODULE_TITLE = 'Алгоритмика: ядро';
 
 // новый проект → uuid старого (архивного) проекта в БД; для П9–П14
 const OLD_PROJECT_UUID: Record<number, string> = {
@@ -655,9 +655,10 @@ async function runUpdate(
           dbLesson.status = 'published';
           dbLesson.updatedAt = now;
         }
+        const stepIds = dbLesson.stepIds;
         mdLesson.steps.forEach((s, si) => {
-          const dbStep = db.steps.find((x) => x.uuid === dbLesson.stepIds[si]);
-          if (!dbStep) throw new Error(`Нет шага ${dbLesson.stepIds[si]}`);
+          const dbStep = db.steps.find((x) => x.uuid === stepIds[si]);
+          if (!dbStep) throw new Error(`Нет шага ${stepIds[si]}`);
           const stepChanged =
             dbStep.description !== s.name ||
             dbStep.content !== s.body ||

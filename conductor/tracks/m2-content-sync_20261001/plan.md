@@ -8,16 +8,19 @@
 ## ⏸ Текущее состояние (для продолжения после сжатия контекста)
 
 - Ветка: `track/m2-content-sync`; `main` не тронут.
-- **Фазы 1–7 закрыты.** П1–П11 в json и md.
-- **П12 уложен в БД как 8 уроков / 61 шаг (`published`)** — в Фазе 8 откатывается к прод-версии
-  (`v0.1.13`: 6 уроков / 32 шага, `archived`), md `p12-*` переносятся в `m3-algorithm-applied`.
-- Незакоммиченные правки П12 (`p12-l6`/`p12-l7`), `.gitignore`, `generate-m2-sources.ts` —
-  сохранить при `git mv`. `ARCADE-SKETCH.md` — не трогать.
-- Бэкап перед правкой БД: копия `data/courses/{modules,lessons,steps}.json`.
-- Инструменты: `scripts/generate-m2-sources.ts`, `scripts/deliver-m2.ts`.
+- **Фазы 1–8 закрыты.** П1–П11 в json и md.
+- **П12 выведен из m2:** проект `7af9f0e5` — прод-версия (`v0.1.13`: 6 уроков / 32 шага,
+  `archived`); md `p12-*` перенесены в `m3-algorithm-applied/` (8 уроков).
+- **Каталоги:** `m2-algorithm-core`, `m3-algorithm-applied`, `m4-html-css`, `m5-dom`.
+- `title` m2 — «Алгоритмика: ядро»; добавлен модуль-пустышка «Алгоритмика: прикладное»
+  (3-я позиция, `draft`, `projects: []`, вне `course.phases`).
+- Бэкап `data/courses/*.json` не делали (решение Нурболата): источник отката — коммиты git.
+- Инструменты: `scripts/generate-m2-sources.ts`, `scripts/deliver-m2.ts`
+  (`MODULE_TITLE` = «Алгоритмика: ядро», пути → `m2-algorithm-core`).
 - Источники в `/tmp` не переживают перезагрузку: `/tmp/redesign-m2`, `/tmp/m2-algorithm-old`.
+- **Следующий шаг:** Фаза 9 — П13 (папки `p12`, 7 уроков / 37 шагов).
 
-## Закрытые фазы (1–7) — сводка
+## Закрытые фазы (1–8) — сводка
 
 - **Фаза 1 «Подготовка»** (checkpoint `eeff217`): старое в `/tmp`; генератор md и инструмент
   укладки; проверка маппинга `list-lessons`.
@@ -27,25 +30,30 @@
 - **Фаза 5 «П8»** (`7928520`): 9 / 21, новые uuid `714946eb`.
 - **Фаза 6 «П9–П10»** (`bc786f4`): старые uuid `0452b677`, `c92bf9c2`.
 - **Фаза 7 «П11»** (`c8b76986`): старые uuid `4da5dc6c`.
+- **Фаза 8 «Вывод П12»** (см. коммит Фазы 8): откат П12 к `v0.1.13`; md `p12-*` →
+  `m3-algorithm-applied`; переименование каталогов и `title`; модуль-пустышка; тесты снапшотов.
 
 ## Фаза 8: Вывод П12, переименования, модуль-пустышка, снапшоты
 
-- [ ] Task: Бэкап `data/courses/*.json`; откат проекта `7af9f0e5` к `v0.1.13` (6 уроков / 32 шага,
-      `archived`, прод-`title` финала); удаление 2 уроков и их шагов; откат `stepIds`/статусов
-      общих уроков
-- [ ] Task: Перенести md `p12-*` → `m3-algorithm-applied` (`git mv`, сохранить правки)
-- [ ] Task: Переименовать каталоги `git mv`: `m2-algorithm`→`m2-algorithm-core`,
+- [x] Task: Откат проекта `7af9f0e5` к `v0.1.13` (6 уроков / 32 шага, `archived`,
+      финал «Финальный PR и полный прогон проекта 10»); удаление 2 уроков и их шагов.
+      Бэкап `data/courses/*.json` не делали — по решению Нурболата источник отката git.
+      Разовый скрипт `rollback-p12.ts` использован и удалён
+- [x] Task: Перенести md `p12-*` → `m3-algorithm-applied` (`git mv`)
+- [x] Task: Переименовать каталоги `git mv`: `m2-algorithm`→`m2-algorithm-core`,
       `m3-html-css`→`m4-html-css`, `m4-dom`→`m5-dom`
-- [ ] Task: Перенумеровать папки m2: `p13-*`→`p12-*`, `p14-*`→`p13-*`
-- [ ] Task: Переименовать `title` модуля `16b9026b` → «Алгоритмика: ядро»
-- [ ] Task: Создать модуль-пустышку «Алгоритмика: прикладное» (`draft`, `projects: []`, позиция 3,
+- [x] Task: Перенумерация `p13/p14` — неактуальна: папки ещё не созданы (П13/П14 — Фазы 9–10),
+      генерируются сразу в `p12`/`p13` (подтверждено Нурболатом)
+- [x] Task: Переименовать `title` модуля `16b9026b` → «Алгоритмика: ядро»
+      (+ `MODULE_TITLE`/пути в `generate-m2-sources.ts`, `deliver-m2.ts`)
+- [x] Task: Создать модуль-пустышку «Алгоритмика: прикладное» (`draft`, `projects: []`, позиция 3,
       вне `course.phases`)
-- [ ] Task: Тесты снапшотов: `buildSnapshot` исключает `archived`; сохранённый `contentSnapshot`
-      не ломается
-- [ ] Task: Проверить `list-lessons 2` (13 проектов), `list-lessons 3` (без проектов),
-      `distribute-mentor` dry-run
-- [ ] Task: Коммит
-- [ ] Task: Conductor - User Manual Verification 'Фаза 8' (Protocol in workflow.md)
+- [x] Task: Тесты снапшотов: `buildSnapshot` исключает `archived`; сохранённый `contentSnapshot`
+      не пересобирается
+- [x] Task: Проверки: `list-lessons 2` (П1–П11; итог 13 после Фаз 9–10), `list-lessons 3`
+      (пустышка без проектов), `list-lessons 4`, сопоставление `distribute-mentor`
+- [x] Task: Коммит
+- [x] Task: Conductor - User Manual Verification 'Фаза 8' (Protocol in workflow.md)
 
 ## Фаза 9: П13 — Сортировка и бинарный поиск (папки `p12`, 7 уроков / 37 шагов)
 

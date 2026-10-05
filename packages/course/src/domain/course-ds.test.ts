@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import type { ContentSnapshot } from './content-snapshot';
 import { CourseDs } from './course-ds';
+import type { Lesson } from './lesson/entity';
+import type { Module } from './module/entity';
+import { Status } from './status';
 
 /** Тестовый ContentSnapshot: 2 проекта, 2 урока в первом, 1 во втором */
 function makeSnapshot(): ContentSnapshot {
@@ -105,6 +108,77 @@ describe('CourseDs', () => {
 
     test('возвращает 0 для пустого снапшота', () => {
       expect(ds.countTotalSteps([])).toBe(0);
+    });
+  });
+
+  describe('buildSnapshot', () => {
+    // Снимок контента собирается только из published-контента: archived-проект
+    // (например, выведенный из модуля П12) не попадает в снапшоты новых потоков
+    // и не ломает обратную совместимость старых.
+    function makeModule(projects: Module['projects']): Module {
+      return {
+        uuid: 'module-uuid',
+        title: 'Модуль',
+        description: 'Описание',
+        authorId: 'author-uuid',
+        status: 'published',
+        projects,
+        createdAt: '2026-01-01T00:00',
+      } as unknown as Module;
+    }
+
+    function makeLesson(uuid: string, status: Status): Lesson {
+      return {
+        uuid,
+        moduleId: 'module-uuid',
+        title: `Урок ${uuid}`,
+        status,
+        stepIds: [`${uuid}-s1`],
+        mentorStepIds: [],
+        createdAt: '2026-01-01T00:00',
+      } as unknown as Lesson;
+    }
+
+    test('исключает archived-проект', () => {
+      const module = makeModule([
+        {
+          uuid: 'p1',
+          title: 'П1',
+          status: Status.PUBLISHED,
+          lessonIds: ['l1'],
+        },
+        {
+          uuid: 'p2',
+          title: 'П2',
+          status: Status.ARCHIVED,
+          lessonIds: ['l2'],
+        },
+      ]);
+      const snapshot = ds.buildSnapshot(module, [
+        makeLesson('l1', Status.PUBLISHED),
+        makeLesson('l2', Status.PUBLISHED),
+      ]);
+
+      expect(snapshot.map((p) => p.projectId)).toEqual(['p1']);
+      expect(snapshot[0]?.lessons.map((l) => l.lessonId)).toEqual(['l1']);
+    });
+
+    test('исключает archived-урок опубликованного проекта', () => {
+      const module = makeModule([
+        {
+          uuid: 'p1',
+          title: 'П1',
+          status: Status.PUBLISHED,
+          lessonIds: ['l1', 'l2'],
+        },
+      ]);
+      const snapshot = ds.buildSnapshot(module, [
+        makeLesson('l1', Status.PUBLISHED),
+        makeLesson('l2', Status.ARCHIVED),
+      ]);
+
+      expect(snapshot).toHaveLength(1);
+      expect(snapshot[0]?.lessons.map((l) => l.lessonId)).toEqual(['l1']);
     });
   });
 });

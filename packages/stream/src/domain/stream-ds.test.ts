@@ -1415,3 +1415,33 @@ describe('StreamDs.getStepLessonProgress', () => {
     expect(progress).toEqual({ completed: 0, total: 0, percent: 0 });
   });
 });
+
+describe('сохранённый contentSnapshot', () => {
+  test('поток работает по сохранённому снапшоту, не пересобирая его из модуля', () => {
+    // Поток создаётся до архивации проекта: снапшот сохраняется как есть,
+    // поэтому последующая архивация проекта в модуле его не ломает.
+    const stream = StreamAr.create(mockCreateCmd, multiSnapshot);
+
+    expect(stream.state.contentSnapshot).toEqual(multiSnapshot);
+
+    const student = StudentAr.enroll(
+      stream.state.uuid,
+      mockUserId,
+      '77777777-7777-4777-8777-777777777777',
+      mockModuleId,
+    );
+
+    // Операции идут по сохранённому снапшоту: 2 проекта, 4 шага.
+    const progress = StreamDs.computeProgress(
+      stream.state.contentSnapshot,
+      student.state,
+    );
+    expect(progress.total).toBe(4);
+
+    const position = StreamDs.getStepPosition(
+      stream.state.contentSnapshot,
+      'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    );
+    expect(position?.projectIndex).toBe(2);
+  });
+});
