@@ -84,7 +84,7 @@
 - `scripts/generate-m2-sources.ts` (новый), `scripts/deliver-m2.ts` (новый).
 - `packages/course/src/domain/course-ds.test.ts`, `packages/stream/src/domain/stream-ds.test.ts`
   — тесты снапшотов.
-- `conductor/tracks.md`, `conductor/tracks/m2-content-sync_20261001/*`.
+- `conductor/tracks.md`, `conductor/archive/m2-content-sync_20261001/*`.
 - `conductor/code_styleguides/troubleshoots/registry.json` — запись про `bun run backup`.
 
 ## Тесты

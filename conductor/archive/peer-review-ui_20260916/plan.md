@@ -6,7 +6,7 @@
 > `subjectOutcome`/`myOutcome`/`authorOutcome`, async-`menuButtons` в core, batch-UC
 > `get-users-by-ids`); план обновлён его Фазой 7.
 > **Предусловия:** завершён трек [peer-review-campaign_20260918](../../archive/peer-review-campaign_20260918/plan.md);
-> пагинатор готов треком [pagination_20260919](../archive/pagination_20260919/plan.md)
+> пагинатор готов треком [pagination_20260919](../pagination_20260919/plan.md)
 > (Фаза 1 старого плана — хелпер пагинации — перенесена туда).
 
 ## Фаза 1. Контроллер и стори кампании (S03–S06) [checkpoint: b8f257f]

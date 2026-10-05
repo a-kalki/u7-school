@@ -4,6 +4,6 @@
 - [План реализации](./plan.md)
 - [Итоги](./summary.md)
 - [Метаданные](./metadata.json)
-- Зависимость-потребитель: [трек UI отзывов](../../tracks/peer-review-ui_20260916/index.md) (разблокирован завершением этого трека)
+- Зависимость-потребитель: [трек UI отзывов](../peer-review-ui_20260916/index.md) (разблокирован завершением этого трека)
 - Спека экранов (обновлена 2026-09-20): [ui-spec.md](../../../apps/u7-bot/src/controllers/peer-review/ui-spec.md)
 - Концепция peer-review: [peer-review-system.md](../../roadmap/metrics/peer-review-system.md)
