@@ -12,6 +12,9 @@
  *   - `--recreate pN,…` — пересоздаёт проект полностью: старый проект отвязывается
  *     от модуля (его уроки/шаги остаются в БД published — для старых снапшотов),
  *     новый проект/уроки/шаги создаются со свежими uuid из тех же md.
+ *   - `--recreate-lesson <подстрока>` (вместе с `--update`) — уроки, чьё название
+ *     содержит подстроку, пересоздаются со свежими uuid; старый урок отвязывается
+ *     от проекта (остаётся в БД published).
  *
  * Проекты адресуются **позицией** (1-based) в порядке программы модуля — она же
  * номер папок `pN-…` и номер в `list-lessons 2-N` (сортировка = 12, сложность = 13).
@@ -22,6 +25,7 @@
  *   bun run scripts/deliver-m2.ts --check p9              # сверка md ↔ json
  *   bun run scripts/deliver-m2.ts --check p12             # позиция 12 = сортировка
  *   bun run scripts/deliver-m2.ts --recreate p12 --apply  # пересоздать (свежие uuid)
+ *   bun run scripts/deliver-m2.ts --update p13 --recreate-lesson "смотрим назад" --apply
  *   bun run scripts/deliver-m2.ts --update p9 --apply     # запись
  *
  * ## Перед --apply
@@ -480,10 +484,12 @@ async function runUpdate(
   projects: number[],
   apply: boolean,
   onlyLesson?: string,
+  recreateLesson?: string,
 ): Promise<void> {
   const db = await loadDb();
   const now = nowStamp();
   const onlyLessonNeedle = onlyLesson?.toLowerCase();
+  const recreateLessonNeedle = recreateLesson?.toLowerCase();
   let changedLessons = 0;
   let changedSteps = 0;
 
@@ -569,6 +575,16 @@ async function runUpdate(
         !onlyLessonNeedle ||
         mdLesson.title.toLowerCase().includes(onlyLessonNeedle);
       let dbLesson = matchOldLesson(mdLesson.title);
+
+      // Принудительное пересоздание урока (свежие uuid): старый остаётся в БД
+      // published, но отвязывается от проекта — его увидят только старые снапшоты.
+      if (
+        dbLesson &&
+        recreateLessonNeedle &&
+        mdLesson.title.toLowerCase().includes(recreateLessonNeedle)
+      ) {
+        dbLesson = undefined;
+      }
 
       if (!dbLesson) {
         if (onlyLessonNeedle) {
@@ -814,6 +830,9 @@ async function main() {
   const check = parseProjects(args, '--check');
   const lessonIdx = args.indexOf('--lesson');
   const onlyLesson = lessonIdx >= 0 ? args[lessonIdx + 1] : undefined;
+  const recreateLessonIdx = args.indexOf('--recreate-lesson');
+  const recreateLesson =
+    recreateLessonIdx >= 0 ? args[recreateLessonIdx + 1] : undefined;
 
   if (
     create.length === 0 &&
@@ -822,7 +841,7 @@ async function main() {
     check.length === 0
   ) {
     console.error(
-      'Использование: deliver-m2.ts (--create | --update | --recreate | --check) pN[,pN] [--lesson <подстрока>] [--apply]',
+      'Использование: deliver-m2.ts (--create | --update | --recreate | --check) pN[,pN] [--lesson <подстрока>] [--recreate-lesson <подстрока>] [--apply]',
     );
     process.exit(1);
   }
@@ -839,7 +858,7 @@ async function main() {
     if (!allOk) process.exit(2);
   }
   if (create.length) await runCreate(create, apply);
-  if (update.length) await runUpdate(update, apply, onlyLesson);
+  if (update.length) await runUpdate(update, apply, onlyLesson, recreateLesson);
   for (const p of recreate) await runRecreate(p, apply);
 }
 

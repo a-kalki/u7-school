@@ -2001,7 +2001,7 @@
     "additional": "O(1), O(n), O(n²), O(log n), O(n log n). Анализ своих функций. Правила оценки.",
     "status": "published",
     "createdAt": "2026-08-18T13:43",
-    "updatedAt": "2026-08-18T13:43",
+    "updatedAt": "2026-10-05T18:56",
     "estimatedMinutes": 20,
     "stepIds": [
       "56d855cf-f9c9-45d1-a9ea-ac34365f13c7",
@@ -2014,7 +2014,8 @@
       "5efab8e6-8e04-456d-a055-c007f3110b44",
       "c0a00f2c-ce6c-41d5-9e9b-6092d62a0dd8",
       "f07274aa-3e9c-41d4-afdc-6bb693e7c224",
-      "0091dbf7-6ba6-4f2a-b657-9696c6d14edb"
+      "0091dbf7-6ba6-4f2a-b657-9696c6d14edb",
+      "799b0b9b-a055-48d6-8109-64e8f160633f"
     ],
     "mentorStepIds": []
   },
@@ -2025,17 +2026,18 @@
     "additional": "Задачи A–J, поиск ошибок, когда константа перевешивает порядок роста.",
     "status": "published",
     "createdAt": "2026-08-18T13:43",
-    "updatedAt": "2026-08-18T13:43",
+    "updatedAt": "2026-10-05T18:56",
     "estimatedMinutes": 18,
     "stepIds": [
       "5aad083d-c2b4-4446-9dc5-f2ede866940a",
       "c12b834f-0d1d-4369-ab0c-89ef8a6e4833",
       "19d6a764-4bea-481b-a443-41a39917cc00",
-      "48ea21bf-d889-4be1-9940-db252dbbf075",
+      "b3c9c457-23f2-4feb-a79d-9e240d099423",
       "70fece17-b550-43e8-9614-f5bfd6e28b5a",
       "9b5d8dcc-9431-4dd1-96ac-b148d2719309",
       "b7a00b90-6bdb-47a2-b77d-fee3d9856d9b",
-      "f39cce5c-9324-4b69-9bdc-7f13ec76ed3f"
+      "f39cce5c-9324-4b69-9bdc-7f13ec76ed3f",
+      "8375879d-5e54-4657-88a2-e8fe792f480b"
     ],
     "mentorStepIds": []
   },
@@ -2046,7 +2048,7 @@
     "additional": "Массив, связанный список, BST — компромиссы, выбор под задачу.",
     "status": "published",
     "createdAt": "2026-08-18T13:43",
-    "updatedAt": "2026-08-18T13:43",
+    "updatedAt": "2026-10-05T18:56",
     "estimatedMinutes": 20,
     "stepIds": [
       "b35515af-7397-49c6-86b5-76f87cd0d570",
@@ -2055,7 +2057,8 @@
       "48afc02e-4a19-482c-9562-cff2890b0160",
       "e5ea439b-69f6-4822-a0bf-af7f3c0629c7",
       "7339bb02-aebb-4965-bdc8-e8d99492b4e4",
-      "c731060d-af76-4056-9dbd-43ee26c10edf"
+      "c731060d-af76-4056-9dbd-43ee26c10edf",
+      "f85c912f-838b-4d32-8983-6481b1f049bc"
     ],
     "mentorStepIds": []
   },
@@ -3853,6 +3856,23 @@
       "cc53d206-dfc8-46d0-9ecc-4bec6887f3cf",
       "b8cda14d-1332-46dd-a3d0-73bcf86a146e",
       "d9982d84-d973-42ef-9094-a6e491c1d165"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "f449423e-f059-45cd-8e86-dede0e163f9d",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Сложность всего модуля: смотрим назад",
+    "additional": "Сложность всех ~60 функций. Узкие места. Итоги модуля.",
+    "estimatedMinutes": 20,
+    "status": "published",
+    "createdAt": "2026-10-05T18:56",
+    "updatedAt": "2026-10-05T18:56",
+    "stepIds": [
+      "9b32a6f0-59b8-4172-b0c0-de27eda9889f",
+      "12792f27-d9f3-4d4d-889a-d024712314cd",
+      "855d5363-31b9-4d28-991c-e1699f50bedb",
+      "1d5dc523-7c42-4085-8c25-2099530984a1"
     ],
     "mentorStepIds": []
   }
