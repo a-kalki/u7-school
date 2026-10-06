@@ -102,6 +102,18 @@ function saveRegistry(reg: Registry): void {
     REGISTRY_PATH,
     `${JSON.stringify({ policy: reg.policy, entries: sorted }, null, 2)}\n`,
   );
+  // JSON.stringify разворачивает короткие массивы, а biome — схлопывает.
+  // Приводим файл к формату проекта, иначе `bun run lint` падает на этом JSON.
+  const res = Bun.spawnSync(
+    ['bunx', 'biome', 'format', '--write', REGISTRY_PATH],
+    {
+      stdout: 'pipe',
+      stderr: 'pipe',
+    },
+  );
+  if (res.exitCode !== 0) {
+    throw new Error(`biome format ${REGISTRY_PATH}: ${res.stderr.toString()}`);
+  }
 }
 
 // --- Статусы (policy чистки) -------------------------------------------------

@@ -53,6 +53,31 @@ bash scripts/backup.sh --verify data/backup/<снимок>
 `bash scripts/backup.sh scheduled` каждые 4 часа; раз в сутки `data/backup/`
 вывозится за пределы сервера через restic (служба `offsite-backup`).
 
+## Системные и ad-hoc бэкапы
+
+Два разных каталога — не путать:
+
+| | Системные (постоянные) | Ad-hoc («на всякий случай») |
+|---|---|---|
+| Каталог | `data/backup/` | `data/backup-adhoc/` |
+| Кто делает | `backup-orchestrator` (server-ops) по расписанию/событиям | человек/агент вручную перед рискованной правкой |
+| Ротация | да (`--prune`, daily/weekly/monthly) | нет — чистится вручную |
+| Offsite-вывоз | да (restic, раз в сутки) | нет |
+| Команда | `bun run backup` | `bun run backup:adhoc <причина> <путь...>` |
+
+Оба каталога **вне git** (см. `.gitignore`). Системный — источник истины для
+восстановления. Ad-hoc — временная подстраховка перед массовой правкой; в ротацию
+и offsite не попадает, поэтому на него нельзя полагаться при восстановлении с нуля.
+
+```bash
+# ad-hoc: копия контента перед правкой
+bun run backup:adhoc before-content-edit data/courses
+bun run backup:adhoc --courses before-content-edit
+
+# переопределить хранилище (например, вне репозитория)
+ADHOC_BACKUP_DIR=~/u7-backups bun run backup:adhoc before-x data/courses
+```
+
 ## Восстановление
 
 1. Остановить бота: `pm2 stop u7-school-bot`.

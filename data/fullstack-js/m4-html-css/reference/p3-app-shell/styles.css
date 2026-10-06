@@ -85,7 +85,7 @@ body {
   padding: var(--space-2) var(--space-3);
 }
 
-/* Активный пункт — в М3 только у первого, статично */
+/* Активный пункт — пока только у первого, статично */
 .menu-item.active {
   background: var(--color-accent-soft);
   font-weight: bold;
