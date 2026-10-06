@@ -2,67 +2,52 @@
 
 ---
 
-### Бизнес-сценарий: утилиты в связке
+### Задание: вернуть заказ по входящему запросу
 
 **kind:** `text`
 
-Пришло время почувствовать настоящую инженерную силу! Все утилиты, которые ты реализовал, объединяются в законченный сценарий обработки заказов интернет-магазина.
+Сервис интернет-магазина принимает HTTP-запросы, а данные о заказах хранит в виде текста нашего формата. Тебе нужно написать функцию, которая по входящему запросу отдаёт клиенту нужный заказ. Всё необходимое у тебя уже есть — это пять утилит проекта.
 
-Создай файл `business-utils/scenario.js` (или запусти через `bun`):
+**Задача:** реализуй функцию `getOrderByUrl(...)` которая принимает на входе URL строку и возвращает JSON объект заказа по входящему `id`.
 
-```javascript
-import { getQueryParams } from './get-query-params.js';
-import { parseUrl } from './parse-url.js';
-import { groupBy } from './group-by.js';
-import { toCSV } from './to-csv.js';
-import { fromCSV } from './from-csv.js';
+На вход приходят **две строки**.
 
-// 1. Пришёл входящий URL запроса от фронтенда
-const requestUrl = 'https://store.example.com/api/orders?status=all&priority=high';
+**1. URL запроса** (его формирует фронтенд):
 
-// 2. Разбираем URL и параметры
-const urlParts = parseUrl(requestUrl);
-const params = getQueryParams(requestUrl);
-console.log('Запрос к сервису:', urlParts.host, urlParts.path);
-console.log('Параметры фильтрации:', params);
-
-// 3. Данные заказов из базы (обрати внимание на типы, 0 и многострочный отзыв!)
-const orders = [
-  { id: 101, customer: 'Иван', amount: 3500, isPaid: true, status: 'completed', review: 'Отличный сервис!\nКурьеру спасибо.' },
-  { id: 102, customer: 'Ольга', amount: 0, isPaid: false, status: 'pending', review: 'Жду подтверждения' },
-  { id: 103, customer: 'Анна', amount: 7200, isPaid: true, status: 'completed', review: 'Всё в срок' },
-  { id: 104, customer: 'Денис', amount: 1500, isPaid: false, status: 'canceled', review: 'Передумал.\nПрошу вернуть средства.' },
-];
-
-// 4. Группируем заказы по статусу через groupBy
-const groups = groupBy(orders, 'status');
-console.log('Статусы в обработке:', Object.keys(groups));
-
-// 5. Сериализуем группу completed в текст нашего формата
-const csv = toCSV(groups.completed);
-console.log('--- Текст нашего формата ---');
-console.log(csv);
-// Ровно 3 строки: 1 строка заголовков + 2 заказа! Заказ Ивана не порвал таблицу.
-
-// 6. Читаем отчёт обратно через fromCSV
-const restored = fromCSV(csv);
-console.log('Восстановлено заказов:', restored.length);
-console.log('Отзыв Ивана в памяти:', JSON.stringify(restored[0].review));
-// В памяти снова реальный перенос строки: 'Отличный сервис!\nКурьеру спасибо.'!
-
-console.log('Данные совпадают после round-trip:', JSON.stringify(restored) === JSON.stringify(groups.completed));
-
-console.log('Сценарий успешно выполнен! Все утилиты работают как часы.');
+```text
+https://store.example.com/api/order?id=103
 ```
 
-Запусти сценарий:
-```bash
-bun business-utils/scenario.js
+**2. Строка заказов в нашем формате** ( ):
+
+В своем коде запиши его в переменную. Заметь для перевод строки внутри строки-значения мы экранировал двойным бэкслешем `\\n`, потому что это сохранится в коде, а не файле;
+
+```text
+id,customer,amount,isPaid,status,review
+101,"Иван",3500,true,"completed","Отличный сервис!\\nКурьеру спасибо."
+102,"Ольга",0,false,"pending","Жду подтверждения"
+103,"Анна",7200,true,"completed","Всё в срок"
+104,"Денис",1500,false,"canceled","Передумал.\\nПрошу вернуть средства."
 ```
 
-Посмотри, как органично они работают вместе: парсинг URL → группировка → сериализация → десериализация с восстановлением всех типов и переносов строк.
+**Что нужно вернуть.** Заказ, который просит клиент, в виде JSON-строки. Для `id=103` результат такой:
 
-Удали `business-utils/scenario.js` после проверки или добавь как демонстрационный пример.
+```json
+{"id":103,"customer":"Анна","amount":7200,"isPaid":true,"status":"completed","review":"Всё в срок"}
+```
+
+Если заказа с запрошенным `id` нет — верни `null`.
+
+Реализация через TDD.
+
+**Критерии приёмки:**
+
+- функция принимает один аргумент: строку URL;
+- определяет запрошенный `id` из URL и возвращает соответствующий заказ;
+- результат — валидная JSON-строка объекта;
+- если заказ не найден — `null`;
+- если в URL нет ключа-значения `id=value` — `null`;
+- используются только твои утилиты и разрешённые глобальные функции `JSON.stringify`.
 
 ---
 

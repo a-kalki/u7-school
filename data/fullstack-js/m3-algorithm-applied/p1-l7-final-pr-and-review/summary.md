@@ -1,11 +1,11 @@
 # Финал проекта: прогон, PR и код-ревью — краткая выжимка
 
-- Сквозной сценарий: URL → parseUrl/getQueryParams → groupBy → toCSV → fromCSV (round-trip в памяти)
-- Полный прогон `bun test` — все тесты репозитория зелёные
-- Проверка JSDoc на 5 бизнес-утилитах: `getQueryParams`, `parseUrl`, `groupBy`, `toCSV`, `fromCSV`
-- **Ветка:** `feat/business-utils`
-- Пуш: `git push -u origin feat/business-utils`
-- PR-шаблон: заголовок «Проект «Бизнес-утилиты»: query, URL, группировка, CSV»
+- Финальное задание: по URL `https://store.example.com/api/order?id=103` и CSV-строке заказов вернуть запрошенный заказ в виде JSON
+- Пайплайн: `parseUrl` + `getQueryParams` → `fromCSV` → поиск по `id` → `JSON.stringify`
+- Ловушка типов: query даёт строку `'103'`, а в CSV `id` — число
+- Если заказ не найден — вернуть `null`
+- Полный прогон `bun test`; проверка JSDoc на 5 бизнес-утилитах
+- **Ветка:** `feat/business-utils`; PR «Проект «Бизнес-утилиты»: query, URL, группировка, CSV»
 - 2 ревьюера + сообщение в чат; ревью-цикл и мерж — по накатанной
 - Дальше — проект «HTTP-сервис»: файлы и собственный сервер
 
