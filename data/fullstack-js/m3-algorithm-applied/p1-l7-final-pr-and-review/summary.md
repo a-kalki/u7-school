@@ -1,11 +1,12 @@
-# Финальный прогон, PR и сообщение в чат — краткая выжимка
+# Финал проекта: прогон, PR и код-ревью — краткая выжимка
 
-- Сквозной бизнес-сценарий «Магия функций»: URL → groupBy → saveToFile → loadFromFile
-- Полный прогон `bun test` — все ~55 функций модуля 2 зелёные
-- Проверка JSDoc на 6 бизнес-утилитах: `getQueryParams`, `parseUrl`, `groupBy`, `toCSV`, `fromCSV`, `saveToFile`/`loadFromFile`
+- Сквозной сценарий: URL → parseUrl/getQueryParams → groupBy → toCSV → fromCSV (round-trip в памяти)
+- Полный прогон `bun test` — все тесты репозитория зелёные
+- Проверка JSDoc на 5 бизнес-утилитах: `getQueryParams`, `parseUrl`, `groupBy`, `toCSV`, `fromCSV`
 - **Ветка:** `feat/business-utils`
 - Пуш: `git push -u origin feat/business-utils`
-- PR-шаблон: заголовок «Проект 12: Бизнес-утилиты — query, URL, CSV, файлы, группировка»
-- 2 ревьюера + сообщение в чат; ревью-цикл и мерж — по накатанной (проект 4)
+- PR-шаблон: заголовок «Проект «Бизнес-утилиты»: query, URL, группировка, CSV»
+- 2 ревьюера + сообщение в чат; ревью-цикл и мерж — по накатанной
+- Дальше — проект «HTTP-сервис»: файлы и собственный сервер
 
 [Полный конспект](./lesson.md)
