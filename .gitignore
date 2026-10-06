@@ -43,3 +43,9 @@ data/*
 !data/sources/
 !data/fullstack-js/
 data/fixtures/
+
+# Бэкапы — вне git. Системные и ad-hoc живут в разных каталогах:
+#   data/backup/       — системные (server-ops: ротация, offsite)
+#   data/backup-adhoc/ — ручные «на всякий случай» (scripts/backup-adhoc.sh)
+data/backup/
+data/backup-adhoc/

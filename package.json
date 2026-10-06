@@ -20,6 +20,7 @@
     "test": "bun test",
     "test:bot": "bun test apps/u7-bot/",
     "backup": "bash scripts/backup.sh",
+    "backup:adhoc": "bash scripts/backup-adhoc.sh",
     "release": "bash scripts/release.sh",
     "deploy": "bash scripts/deploy.sh",
     "seed:fixtures": "bun run apps/u7-bot/scripts/seed-fixtures.ts",
