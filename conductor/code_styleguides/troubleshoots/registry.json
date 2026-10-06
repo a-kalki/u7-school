@@ -31,11 +31,11 @@
       ],
       "file": "backup-no-server-ops-sdk.md",
       "created_at": "2026-10-01",
-      "shown": 1,
-      "opened": 1,
-      "helped": 1,
-      "last_shown_at": "2026-10-05",
-      "last_used_at": "2026-10-05"
+      "shown": 4,
+      "opened": 2,
+      "helped": 2,
+      "last_shown_at": "2026-10-06",
+      "last_used_at": "2026-10-06"
     },
     "biome-json-stringify-expand": {
       "tags": ["biome", "json", "format", "scripts"],
@@ -47,10 +47,10 @@
       "file": "biome-json-stringify-expand.md",
       "created_at": "2026-10-02",
       "shown": 0,
-      "opened": 1,
-      "helped": 1,
+      "opened": 2,
+      "helped": 2,
       "last_shown_at": null,
-      "last_used_at": "2026-10-05"
+      "last_used_at": "2026-10-06"
     },
     "bot-controller-response-prefix": {
       "tags": ["core", "bot-ui", "prefix"],

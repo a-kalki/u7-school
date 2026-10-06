@@ -5,11 +5,13 @@
 - **Причина:** `scripts/backup.sh` подключает внешний SDK бэкапов из `~/server-ops`
   (`BACKUP_SDK_DIR`, по умолчанию `$HOME/server-ops`). Каталог есть на сервере, но не в dev-окружении.
 - **Решение:** В dev `bun run backup` недоступен. Для git-защищённого контента (`data/courses/*.json`)
-  откат обеспечивает git; перед массовой записью сделай ручную копию:
+  откат обеспечивает git; перед массовой записью сделай копию штатным инструментом
+  (не в `/tmp`, а в постоянное место `data/backup-adhoc/`):
 
   ```bash
-  BK="/tmp/backup-$(date -u +%Y%m%dT%H%M%SZ)"; mkdir -p "$BK"
-  cp data/courses/{modules,lessons,steps}.json "$BK/"
+  bun run backup:adhoc --courses before-content-edit
+  # или произвольные пути:
+  bun run backup:adhoc before-x data/courses/steps.json
   ```
 
   Если нужен именно контрактный бэкап — задай `BACKUP_SDK_DIR` на каталог с `lib/backup-contract.sh`
