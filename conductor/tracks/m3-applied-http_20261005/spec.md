@@ -42,11 +42,11 @@ m2 в `data/courses/*.json`, md `p12-*` перенесены в `m3-algorithm-ap
 | 1 | `p2-l1-architecture` | Постановка задачи сервиса → уровни ответственности → слои, дерево, зависимости, поток. Без кода | — |
 | 2 | `p2-l2-order-entity` | `app/entity/order.js` (фабрика `createOrder`) + `app/entity/validator.js` (доменные правила) | студент |
 | 3 | `p2-l3-mocks` | `infra/file-storage.js` (выдаётся, как шаги); round-trip на диске; инструменты мокирования `bun:test` (`mock`, `spyOn`, `mock.module`, гигиена) | студент |
-| 4 | `p2-l4-order-repo` | `app/repo/order-repo.js`: проблема путей к данным (2 варианта), Read-Modify-Write, автоинкремент ID; полный CRUD (`getOrder`, `list`, `add`, `update`, `delete`) без валидации | студент |
-| 5 | `p2-l5-server-intro` | HTTP, `Bun.serve`; `server/server.js` (выдаётся) + `server/route.js` (заготовка) + `server/main.js` | server — выдаётся, route — студент |
+| 4 | `p2-l4-order-repo` | `app/repo/order-repo.js`: проблема путей к данным (2 варианта), Read-Modify-Write, автоинкремент ID; полный CRUD без валидации; PR 1 (слой данных) | студент |
+| 5 | `p2-l5-server-intro` | HTTP, `Bun.serve`; ветка `feat/http-service`; `server/server.js` (выдаётся) + `server/route.js` (заготовка) + `server/main.js` | server — выдаётся, route — студент |
 | 6 | `p2-l6-handler-get-order` | Первый обработчик `handleGetOrder`: бизнес-ТЗ, модульный тест с моками, регистрация роута; теория юнит vs интеграция, заготовка интеграционного теста без моков, уборка `cleanup` | студент |
 | 7 | `p2-l7-handlers-crud` | Самостоятельная реализация четырёх обработчиков (`list`, `create`, `update`, `delete`): по одному шагу на роут по бизнес-ТЗ, без подсказок | студент |
-| 8 | `p2-l8-final-pr-and-review` | Финал П2: прогон + PR + code review + merge; объяснение CRUD | студент |
+| 8 | `p2-l8-final-pr-and-review` | Финал П2: прогон + PR 2 + code review + merge; объяснение CRUD | студент |
 
 ### 2.2 Серверная заготовка и контракт
 
@@ -64,7 +64,7 @@ m2 в `data/courses/*.json`, md `p12-*` перенесены в `m3-algorithm-ap
   - `server/route.js` — **заготовка** таблицы «path → обработчик» (студент вставляет роуты);
   - `server/main.js` — регистрация роутов и запуск сервера.
 - **Пишет студент** (бизнес-логика, без типов):
-  - `app/entity/order.js` — фабрика `createOrder` (сборка валидного заказа для обработчиков);
+  - `app/entity/order.js` — фабрика `createOrder` (нормализация, валидация и приведение типов переданных полей заказа для обработчиков);
   - `app/entity/validator.js` — доменные валидаторы (приведение типа + проверка правил + выброс `OrderValidationError`) и класс `OrderValidationError`;
   - `app/repo/order-repo.js` — простое CRUD-хранилище заказов поверх `infra`; `id` назначает repo; сохраняет и выдаёт то, что передали (без валидации);
   - `app/handler/` — тонкие обработчики-оркестраторы пяти роутов: по файлу на роут (`list-orders.js`, `get-order.js`, `create-order.js`, `update-order.js`, `delete-order.js`), рядом с каждым — тест; класс `NotFoundError` в `errors.js`.
@@ -188,7 +188,7 @@ fullstack-js/
 - При ошибке — **бросает `OrderValidationError(message)`**. Никаких промежуточных объектов `{ isValid, error }`.
 
 **Фабрика (`app/entity/order.js`):**
-- `createOrder(data)` — вызывается в обработчиках (`create`, `update`). Принимает сырой объект параметров, прогоняет поля через валидаторы, отсекает посторонние поля и возвращает валидный объект заказа. Если передан `data.id`, валидирует его через `validateId`.
+- `createOrder(data)` — вызывается в обработчиках (`create`, `update`). Принимает сырой объект параметров, прогоняет переданные поля через валидаторы, приводит типы, отсекает посторонние поля и возвращает объект с проверенными свойствами. Не навязывает полный состав полей, сохраняя отсутствие непереданных свойств.
 
 **Репозиторий (`app/repo/order-repo.js`):**
 - Простое CRUD-хранилище данных поверх файла, без валидации:

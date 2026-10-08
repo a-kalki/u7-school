@@ -285,7 +285,7 @@ function addOrder(overrides = {}) {
     amount: 1500,
     isPaid: true,
     status: 'new',
-    comment: 'Тестовый заказ',
+    review: 'Тестовый заказ',
     ...overrides,
   };
 
@@ -330,7 +330,7 @@ describe('Интеграционный тест: сервер + роутер + g
       amount: 2500,
       isPaid: true,
       status: 'new',
-      comment: 'Тестовый заказ',
+      review: 'Тестовый заказ',
     };
 
     expect(response.status).toBe(200);

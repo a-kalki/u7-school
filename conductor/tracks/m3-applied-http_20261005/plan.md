@@ -59,11 +59,11 @@
 | `p2-l1-architecture` | Теория слоёв и архитектуры, без кода |
 | `p2-l2-order-entity` | `app/entity/order.js` (тип + фабрика `createOrder`) + `app/entity/validator.js` (правила) |
 | `p2-l3-mocks` | `infra/file-storage.js` (шаги) + моки + `getOrder` |
-| `p2-l4-order-repo` | `app/repo/order-repo.js`: `list`/`add`/`update`/`delete` |
-| `p2-l5-server-intro` | HTTP, `Bun.serve`, `server.js` + заготовка `route.js` |
+| `p2-l4-order-repo` | `app/repo/order-repo.js`: `list`/`add`/`update`/`delete` + PR 1 (слой данных) |
+| `p2-l5-server-intro` | HTTP, `Bun.serve`, `server.js` + заготовка `route.js` (ветка `feat/http-service`) |
 | `p2-l6-handler-get-order` | Первый обработчик `get-order`, юнит- и интеграционные тесты |
 | `p2-l7-handlers-crud` | Самостоятельная реализация обработчиков: `list`, `create`, `update`, `delete` |
-| `p2-l8-final-pr-and-review` | Прогон + PR + code review + merge; CRUD |
+| `p2-l8-final-pr-and-review` | Прогон + PR 2 + code review + merge; CRUD |
 
 **Кросс-ссылки для правки в md:** «проект 12» → «проект «Бизнес-утилиты» (П1)» /
 «проект «HTTP-сервис» (П2)»; видео-имена `p12-lN` → `pN-lM`; «этап 1/2» → П1/П2;
@@ -106,11 +106,11 @@
       - `p2-l2-order-entity` — `order.js` (фабрика `createOrder` для обработчиков) + `validator.js` (доменные валидаторы: приведение + правила + throw);
         все поля обязательны кроме `review`; задания человеческим языком, контракты, крайние случаи, критерии приёмки, TDD
       - `p2-l3-mocks` — шаги про `infra`/`file-storage.js` (выдаётся); подробное погружение в моки: Stub vs Spy vs Mock, API `bun:test` (`mock`, `spyOn`, `mock.module`, `mockClear`, `mockRestore`), матрица выбора; практическое закрепление инструментов в тестах
-      - `p2-l4-order-repo` — проблема путей к данным (2 варианта), Read-Modify-Write, автоинкремент ID; полный CRUD (`getOrder`, `list`, `add`, `update`, `delete`) без валидации; тесты через моки хранилища
-      - `p2-l5-server-intro` — HTTP, `Bun.serve`; `server.js` (выдаётся с централизованной обработкой ошибок: `NotFoundError` -> 404, `OrderValidationError` -> 400), заготовка `route.js`
+      - `p2-l4-order-repo` — проблема путей к данным (2 варианта), Read-Modify-Write, автоинкремент ID; полный CRUD (`getOrder`, `list`, `add`, `update`, `delete`) без валидации; тесты через моки хранилища; оформление PR 1 (слой данных) и слияние в `main`
+      - `p2-l5-server-intro` — старт ветки `feat/http-service` от `main`; HTTP, `Bun.serve`; `server.js` (выдаётся с централизованной обработкой ошибок: `NotFoundError` -> 404, `OrderValidationError` -> 400), заготовка `route.js`
       - `p2-l6-handler-get-order` — первый обработчик-оркестратор: бизнес-ТЗ, юнит-тест с моками repo, регистрация `/get`, ручной запуск; теория юнит vs интеграционные тесты, заготовка интеграционного теста без моков с реальным файлом, подсказки по уборке (`beforeEach`/`afterEach`)
       - `p2-l7-handlers-crud` — самостоятельная реализация оставшихся четырёх обработчиков (`list`, `create`, `update`, `delete`) по одному шагу на каждый; без подсказок; регистрация в `route.js`
-      - `p2-l8-final-pr-and-review` — прогон, PR, code review, merge; объяснение CRUD
+      - `p2-l8-final-pr-and-review` — прогон всех тестов, PR 2, code review, merge; объяснение CRUD
 - [ ] Task: Вычитка и правки md всего П2 владельцем (ручное)
 - [ ] Task: Уложить **весь П2 разом** в json (проект + 8 уроков + шаги): dry-run → запись
 - [ ] Task: Коммит контента П2 (временные скрипты укладки в коммит не включать)
