@@ -118,9 +118,9 @@
 
 ## Фаза 4: Финал трека
 
-- [ ] Task: Ревизия мусора: временные/черновые файлы, мёртвые ссылки, хвосты `.gitignore` —
+- [x] Task: Ревизия мусора: временные/черновые файлы, мёртвые ссылки, хвосты `.gitignore` —
       лишнее удалить
-- [ ] Task: Сверка md ↔ json по П1/П2 (состав уроков/шагов, заголовки, номера)
-- [ ] Task: `bun run list-lessons 3`; `bun run check` зелёный
-- [ ] Task: Написать `summary.md` трека, обновить `tracks.md`
-- [ ] Task: Conductor - User Manual Verification 'Финал' (Protocol in workflow.md)
+- [x] Task: Сверка md ↔ json по П1/П2 (состав уроков/шагов, заголовки, номера)
+- [x] Task: `bun run list-lessons 3`; `bun run check` зелёный
+- [x] Task: Написать `summary.md` трека, обновить `tracks.md`
+- [x] Task: Conductor - User Manual Verification 'Финал' (Protocol in workflow.md)
