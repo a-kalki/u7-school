@@ -114,7 +114,7 @@
 - [x] Task: Вычитка и правки md всего П2 владельцем (ручное)
 - [x] Task: Уложить **весь П2 разом** в json (проект + 8 уроков + шаги): dry-run → запись
 - [x] Task: Коммит контента П2 (временные скрипты укладки в коммит не включать)
-- [ ] Task: Conductor - User Manual Verification 'П2' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'П2' (Protocol in workflow.md)
 
 ## Фаза 4: Финал трека
 
