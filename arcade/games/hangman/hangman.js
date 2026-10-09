@@ -39,6 +39,14 @@ export function update(state, event) {
     return createState({ lang: nextLang });
   }
 
+  if (event.type === 'RESTART') {
+    return createState({ lang: state.lang });
+  }
+
+  if (event.type === 'ACTION_CONFIRM' && state.status !== 'PLAYING') {
+    return createState({ lang: state.lang });
+  }
+
   if (state.status !== 'PLAYING') {
     return state;
   }

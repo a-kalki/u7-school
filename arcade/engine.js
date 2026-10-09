@@ -110,8 +110,8 @@ export function startEngine(options) {
 
     const rawStr = chunk.toString();
 
-    // Системный выход: Ctrl+C (\u0003)
-    if (rawStr === '\u0003') {
+    // Системный выход: Ctrl+C (\u0003) или Esc (\x1b)
+    if (rawStr === '\u0003' || rawStr === '\x1b') {
       stop();
       return;
     }

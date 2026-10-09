@@ -73,6 +73,26 @@ describe('games/hangman: hangman.js', () => {
     expect(state.lang).toBe('ru');
   });
 
+  it('угадывание букв Q и R корректно работает', () => {
+    let state = createState({ word: 'QUEUE', lang: 'en' });
+    state = update(state, { type: 'GUESS', char: 'Q' });
+
+    expect(state.guessedLetters).toContain('Q');
+    expect(state.wrongLetters).toHaveLength(0);
+  });
+
+  it('ACTION_CONFIRM после окончания игры перезапускает раунд', () => {
+    let state = createState({ word: 'ХЕШ', lang: 'ru' });
+    state = update(state, { type: 'GUESS', char: 'Х' });
+    state = update(state, { type: 'GUESS', char: 'Е' });
+    state = update(state, { type: 'GUESS', char: 'Ш' });
+    expect(state.status).toBe('WON');
+
+    state = update(state, { type: 'ACTION_CONFIRM' });
+    expect(state.status).toBe('PLAYING');
+    expect(state.guessedLetters).toHaveLength(0);
+  });
+
   it('getView формирует маскированное слово и данные для рендера', () => {
     let state = createState({ word: 'СТЕК' });
     state = update(state, { type: 'GUESS', char: 'С' });

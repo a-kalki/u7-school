@@ -102,10 +102,10 @@ describe('arcade: engine.js', () => {
     handle.stop();
   });
 
-  it('останавливает движок по нажатию Ctrl+C', () => {
+  it('останавливает движок по нажатию Ctrl+C и Esc', () => {
     const { stdin, stdout } = createMockIo();
 
-    const handle = startEngine({
+    let handle = startEngine({
       createState: () => ({}),
       update: (s) => s,
       getView: () => 'ИГРА',
@@ -115,6 +115,22 @@ describe('arcade: engine.js', () => {
     });
 
     stdin.emit('data', Buffer.from('\u0003'));
+    expect(stdout.output).toContain('\x1b[?25h');
+    expect(stdout.output).toContain('\x1b[?1049l');
+    expect(handle.isRunning()).toBe(false);
+
+    // Проверяем Esc
+    stdout.clearOutput();
+    handle = startEngine({
+      createState: () => ({}),
+      update: (s) => s,
+      getView: () => 'ИГРА',
+      render: (v) => [v],
+      stdin,
+      stdout,
+    });
+
+    stdin.emit('data', Buffer.from('\x1b'));
     expect(stdout.output).toContain('\x1b[?25h');
     expect(stdout.output).toContain('\x1b[?1049l');
     expect(handle.isRunning()).toBe(false);

@@ -81,27 +81,27 @@ const STAGES = [
  * @returns {object | null}
  */
 export function inputAdapter(rawStr) {
-  // Системные клавиши оставляем ядру
-  if (
-    rawStr === '\u0003' ||
-    rawStr === 'r' ||
-    rawStr === 'R' ||
-    rawStr === 'к' ||
-    rawStr === 'К' ||
-    rawStr === 'q' ||
-    rawStr === 'Q' ||
-    rawStr === 'й' ||
-    rawStr === 'Й'
-  ) {
+  // Системный выход (Ctrl+C и Esc) оставляем ядру
+  if (rawStr === '\u0003' || rawStr === '\x1b') {
     return null;
   }
 
-  // Переключение языка
-  if (rawStr === '\t' || rawStr === ' ') {
+  // Перезапуск игры комбинацией Ctrl+R
+  if (rawStr === '\u0012') {
+    return { type: 'RESTART' };
+  }
+
+  // Переключение языка по Tab
+  if (rawStr === '\t') {
     return { type: 'TOGGLE_LANG' };
   }
 
-  // Буквы русского или английского алфавита
+  // Подтверждение/новая игра по Enter или пробелу
+  if (rawStr === '\r' || rawStr === '\n' || rawStr === ' ') {
+    return { type: 'ACTION_CONFIRM' };
+  }
+
+  // Буквы русского или английского алфавита (включая Q, R, К, Й)
   if (/^[a-zA-Zа-яА-ЯёЁ]$/.test(rawStr)) {
     return { type: 'GUESS', char: rawStr.toUpperCase() };
   }
@@ -132,7 +132,7 @@ export function renderHangman(view) {
     '========================================',
     '      🎮 ВИСЕЛИЦА: ТЕРМИНЫ КУРСА        ',
     '========================================',
-    ` [ Язык: ${lang} ]  (Tab / Пробел — сменить язык)`,
+    ` [ Язык: ${lang} ]  (Tab — сменить язык)`,
     '',
     ...art,
     '',
@@ -147,13 +147,17 @@ export function renderHangman(view) {
 
   if (status === 'WON') {
     lines.push(' 🎉 ПОБЕДА! Ты отгадал термин курса! Отличная работа!');
-    lines.push(' Нажми [ r ] чтобы сыграть снова, или [ q ] для выхода.');
+    lines.push(
+      ' Нажми [ Enter / Пробел ] для новой игры, или [ Esc ] для выхода.',
+    );
   } else if (status === 'LOST') {
     lines.push(` 💀 ВЫ ПРОИГРАЛИ! Загаданное слово было: ${word}`);
-    lines.push(' Нажми [ r ] чтобы попробовать снова, или [ q ] для выхода.');
+    lines.push(
+      ' Нажми [ Enter / Пробел ] чтобы попробовать снова, или [ Esc ] для выхода.',
+    );
   } else {
-    lines.push(' Управление: Нажимай буквы на клавиатуре');
-    lines.push(' [ r ] — заново  |  [ q ] — выход');
+    lines.push(' Управление: Вводи буквы с клавиатуры');
+    lines.push(' [ Esc ] — выход  |  [ Tab ] — язык  |  [ Ctrl+R ] — заново');
   }
 
   lines.push('========================================');
