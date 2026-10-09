@@ -2641,11 +2641,12 @@
     "additional": "Запрос повторного ревью и ожидание: ревьюер проверяет исправления, новый коммит сам попадает в PR, 2 апрува — зелёный свет к мержу.",
     "status": "published",
     "createdAt": "2026-09-25T06:49",
-    "updatedAt": "2026-09-25T06:49",
-    "estimatedMinutes": 10,
+    "updatedAt": "2026-10-09T04:26",
+    "estimatedMinutes": 20,
     "stepIds": [
       "689b57f2-503f-4561-8ed8-104ee7135174",
-      "1ce3aeb2-3616-45f1-b2a1-e81d5bef445f"
+      "1ce3aeb2-3616-45f1-b2a1-e81d5bef445f",
+      "153c2c12-8d01-41e8-a0b3-d3612ebad9d4"
     ],
     "mentorStepIds": []
   },
