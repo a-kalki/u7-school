@@ -85,12 +85,12 @@ describe('ProgressStory', () => {
     const text = String(response.screen?.text);
     expect(text).toContain('Мой прогресс');
     expect(text).toContain('Python Basic');
-    expect(text).toContain('Общий:');
-    expect(text).toContain('Основы');
-    expect(text).toContain('Всего шагов завершено');
+    expect(text).toContain('Общий прогресс:');
+    expect(text).toContain('Пройдено шагов:');
+    expect(text).toContain('Проекты курса:');
   });
 
-  test('progress:{streamId} — прогресс по проектам и урокам', async () => {
+  test('progress:{streamId} — подробные метрики студента (текущий этап и темп)', async () => {
     const { story } = makeStory();
 
     const response = await story.handleCallback(
@@ -98,10 +98,13 @@ describe('ProgressStory', () => {
       studentActor,
       session,
     );
+    assertDialogResponseMarkdownSafe(response);
 
     const text = String(response.screen?.text);
-    expect(text).toContain('Проект 1:');
+    expect(text).toContain('Текущий этап:');
+    expect(text).toContain('Основы');
     expect(text).toContain('Введение');
+    expect(text).toContain('Темп и усидчивость:');
   });
 
   test('progress:{streamId} — кнопки «Назад к учёбе» и «Главное меню»', async () => {

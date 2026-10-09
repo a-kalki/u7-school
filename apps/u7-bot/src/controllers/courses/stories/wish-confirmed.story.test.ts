@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import type { MdText } from '@u7-scl/core/shared';
+import { assertMarkdownV2Safe, type MdText } from '@u7-scl/core/shared';
 import type { WishConfirmedEvent } from '@u7-scl/wish/domain';
 import { WishConfirmedStory } from './wish-confirmed.story';
 
@@ -131,6 +131,7 @@ describe('WishConfirmedStory', () => {
     // Ментор 2 без telegramId, автор-ментор исключается, дубль MENTOR_1 — один
     expect(notifies).toHaveLength(1);
     expect(notifies[0]!.telegramId).toBe(2001);
+    assertMarkdownV2Safe(notifies[0]!.payload.text);
     const text = String(notifies[0]!.payload.text);
     expect(text).toContain('Иван');
     expect(text).toContain('Fullstack JS');
@@ -143,6 +144,7 @@ describe('WishConfirmedStory', () => {
     await handle(makeConfirmedEvent() as never);
 
     expect(notifies).toHaveLength(1);
+    assertMarkdownV2Safe(notifies[0]!.payload.text);
     // uuid экранируется MarkdownV2 (дефисы) — снимаем экранирование
     const text = String(notifies[0]!.payload.text).replaceAll('\\-', '-');
     expect(text).toContain(COURSE_ID);

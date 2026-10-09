@@ -7,11 +7,12 @@ import {
   md,
   setGlobalLogger,
 } from '@u7-scl/core/shared';
-import type {
-  BotSession,
-  CommandReaction,
-  CommandUpdate,
-  DialogResponse,
+import {
+  assertDialogResponseMarkdownSafe,
+  type BotSession,
+  type CommandReaction,
+  type CommandUpdate,
+  type DialogResponse,
 } from '@u7-scl/core/ui';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
 import { AppController } from '../controllers/app/app-controller';
@@ -274,6 +275,7 @@ describe('U7BotUiApp — дефолты команд', () => {
     );
 
     expect(String(response?.notify?.text)).toContain('Неизвестная команда');
+    assertDialogResponseMarkdownSafe(response!);
     expect(response?.screen).toBeUndefined();
     expect(session.dialog?.seq).toBe(2);
   });

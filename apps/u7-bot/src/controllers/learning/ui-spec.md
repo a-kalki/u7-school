@@ -250,19 +250,30 @@ _Шаги урока:_
 ```
 📊 *Мой прогресс* — {StreamTitle}
 
-📊 Общий: [████░░] {completed}/{total}
+———
+*Общий прогресс:*
+📊 Пройдено шагов: [████░░░░░░] {completed}/{total} | {percent}%
+📁 Проекты курса: {completedProjects} из {totalProjects} завершено
 
-✅ *Проект 1: {ProjectTitle}* — [████░░] {completed}/{total}
-    ✅ {LessonTitle} — [████░░] {completed}/{total}
-    ▶️ {LessonTitle} — [██░░░░] {completed}/{total}
-    🔒 {LessonTitle} — [░░░░░░] 0/{total}
-▶️ *Проект 2: {ProjectTitle}* — ...
-🔒 *Проект 3: {ProjectTitle}* — ...
+———
+*Текущий этап:*
+📁 Проект: «{CurrentProjectTitle}»
+📝 Урок: «{CurrentLessonTitle}»
+📊 Прогресс по проекту: [██████░░░░] {projCompleted}/{projTotal} | {projPercent}%
 
-📝 Всего шагов завершено: {completed} из {total}
+———
+*Темп и усидчивость:*
+⏱ Типичное время на шаг: {medianMinutes} мин.
+🏃 Бегун (< 1 мин.): {runnerCount} шаг(ов)
+⚡ Спринтер (< 5 мин.): {fastCount} шаг(ов)
+🐢 Вдумчивый (< 15 мин.): {normalCount} шаг(ов)
+📚 Исследователь (> 15 мин.): {deepCount} шаг(ов)
+
+———
+📅 В обучении: с {EnrolledDate} ({daysInStudy} дн.)
 ```
 
-> Иконки статуса: ✅ completed, ▶️ current, 🔒 locked — по проектам и урокам.
+> Источник метрик: `StreamDs.computeStudentCard` и `StreamDs.computeStreamProjectProgress`. Структура уроков доступна через раздел оглавления (`nav-tree`, S05b).
 
 **Ошибки:** чужой streamId → `⚠️ Этот прогресс не соответствует вашему текущему потоку.`; снапшот не найден → `⚠️ Программа потока не найдена.`
 

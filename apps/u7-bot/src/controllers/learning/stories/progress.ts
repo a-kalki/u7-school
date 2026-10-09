@@ -1,6 +1,6 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import { type MdText, md, mdConcat, mdJoin } from '@u7-scl/core/shared';
+import { type MdText, md, mdConcat, mdJoin, mdRaw } from '@u7-scl/core/shared';
 import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
 import { StreamDs } from '@u7-scl/stream/domain';
@@ -9,7 +9,7 @@ import { formatProgressBar, getStudent } from '../shared';
 
 /**
  * Прогресс студента (S06).
- * Показывает общую статистику прохождения потока.
+ * Показывает детальные персональные метрики прохождения потока.
  */
 export class ProgressStory extends U7BotUiStory {
   readonly name = 'progress';
@@ -52,8 +52,8 @@ export class ProgressStory extends U7BotUiStory {
       return this.screen(md`⚠️ Программа потока не найдена\\.`);
     }
 
-    const tree = StreamDs.buildNavigationTree(stream.contentSnapshot, student);
-    const moduleProgress = StreamDs.computeProgress(
+    const card = StreamDs.computeStudentCard(stream.contentSnapshot, student);
+    const projectProgress = StreamDs.computeStreamProjectProgress(
       stream.contentSnapshot,
       student,
     );
@@ -61,59 +61,85 @@ export class ProgressStory extends U7BotUiStory {
     const lines: MdText[] = [
       md`📊 *Мой прогресс* — ${stream.title}`,
       md``,
-      mdConcat(
-        md`📊 Общий: `,
-        formatProgressBar(moduleProgress.completed, moduleProgress.total),
-      ),
+      mdRaw('———'),
       md``,
+      md`*Общий прогресс:*`,
+      mdConcat(
+        md`📊 Пройдено шагов: `,
+        formatProgressBar(
+          card.moduleProgress.completed,
+          card.moduleProgress.total,
+        ),
+        md` \\| ${card.moduleProgress.percent}%`,
+      ),
+      md`📁 Проекты курса: ${projectProgress.completed} из ${projectProgress.total} завершено`,
     ];
 
-    // Прогресс по проектам
-    let pi = 0;
-    for (const project of stream.contentSnapshot) {
-      pi++;
-      const projProgress = StreamDs.computeProgress([project], student);
-      const projectNode = tree.projects[pi - 1];
-      const icon =
-        projectNode?.status === 'completed'
-          ? '✅'
-          : projectNode?.status === 'current'
-            ? '▶️'
-            : '🔒';
+    if (card.currentProject) {
+      lines.push(
+        md``,
+        mdRaw('———'),
+        md``,
+        md`*Текущий этап:*`,
+        md`📁 Проект: «${card.currentProject.title}»`,
+      );
+      if (card.currentLesson) {
+        lines.push(md`📝 Урок: «${card.currentLesson.title}»`);
+      }
       lines.push(
         mdConcat(
-          md`${icon} *Проект ${pi}: ${project.projectTitle}* — `,
-          formatProgressBar(projProgress.completed, projProgress.total),
+          md`📊 Прогресс по проекту: `,
+          formatProgressBar(
+            card.currentProject.progress.completed,
+            card.currentProject.progress.total,
+          ),
+          md` \\| ${card.currentProject.progress.percent}%`,
         ),
       );
-
-      for (const lesson of project.lessons) {
-        const lessonProgress = StreamDs.computeProgress(
-          [{ ...project, lessons: [lesson] }],
-          student,
-        );
-        const lessonNode = projectNode?.lessons.find(
-          (l) => l.lessonId === lesson.lessonId,
-        );
-        const lIcon =
-          lessonNode?.status === 'completed'
-            ? '  ✅'
-            : lessonNode?.status === 'current'
-              ? '  ▶️'
-              : '  🔒';
-        lines.push(
-          mdConcat(
-            md`    ${lIcon} ${lesson.lessonTitle} — `,
-            formatProgressBar(lessonProgress.completed, lessonProgress.total),
-          ),
-        );
-      }
     }
 
-    lines.push(
-      md``,
-      md`📝 Всего шагов завершено: ${moduleProgress.completed} из ${moduleProgress.total}`,
-    );
+    lines.push(md``, mdRaw('———'), md``, md`*Темп и усидчивость:*`);
+
+    if (card.medianTimeMinutes !== null) {
+      lines.push(md`⏱ Типичное время на шаг: ${card.medianTimeMinutes} мин\\.`);
+    }
+
+    const catDescs: Record<string, string> = {
+      Бегун: '< 1 мин\\.',
+      Спринтер: '< 5 мин\\.',
+      Вдумчивый: '< 15 мин\\.',
+      Исследователь: '\\> 15 мин\\.',
+    };
+    for (const c of card.timeCategories) {
+      const desc = catDescs[c.name] ?? '';
+      lines.push(
+        mdConcat(
+          md`${c.emoji} ${c.name} `,
+          mdRaw(`\\(${desc}\\)`),
+          md`: ${c.count} шаг\\(ов\\)`,
+        ),
+      );
+    }
+
+    if (student.enrolledAt) {
+      const enrolledDate = new Date(student.enrolledAt);
+      const day = String(enrolledDate.getDate()).padStart(2, '0');
+      const month = String(enrolledDate.getMonth() + 1).padStart(2, '0');
+      const year = enrolledDate.getFullYear();
+      const dateStr = `${day}.${month}.${year}`;
+      const days = Math.max(
+        1,
+        Math.floor(
+          (Date.now() - enrolledDate.getTime()) / (1000 * 60 * 60 * 24),
+        ),
+      );
+      lines.push(
+        md``,
+        mdRaw('———'),
+        md``,
+        md`📅 В обучении: с ${dateStr} \\(${days} дн\\.\\)`,
+      );
+    }
 
     return this.screen(
       mdJoin(lines),

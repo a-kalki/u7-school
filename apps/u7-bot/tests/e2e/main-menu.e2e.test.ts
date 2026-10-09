@@ -353,9 +353,9 @@ describe('E2E: Студент — «Моя учёба» (learning)', () => {
     );
   });
 
-  test('студент: хаб → Мой прогресс → детализация проектов и уроков', async () => {
+  test('студент: хаб → Мой прогресс → детализация метрик студента', async () => {
     const tgId = student.telegramId;
-    const hubResp = await openHub();
+    const _hubResp = await openHub();
 
     // 2. Нажимаем «📊 Мой прогресс»
     const progressResp = await transport.handleCallback(
@@ -367,14 +367,11 @@ describe('E2E: Студент — «Моя учёба» (learning)', () => {
     const text = String(progressResp.screen?.text);
     // Заголовок
     expect(text).toContain('Мой прогресс');
-    // Общий прогресс
-    expect(text).toContain('Общий:');
-    // Проекты
-    expect(text).toContain('Введение');
-    // Уроки с индикаторами статуса (✅/▶️/🔒)
-    expect(text).toContain('Переменные и типы');
-    // Счётчик шагов
-    expect(text).toContain('Всего шагов завершено');
+    // Метрики
+    expect(text).toContain('Общий прогресс:');
+    expect(text).toContain('Пройдено шагов:');
+    expect(text).toContain('Проекты курса:');
+    expect(text).toContain('Темп и усидчивость:');
     // Кнопка «Главное меню»
     const menuBtn = progressResp.screen?.keyboard?.rows
       .flat()

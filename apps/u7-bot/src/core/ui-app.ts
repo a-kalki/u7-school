@@ -109,7 +109,7 @@ export class U7BotUiApp extends BotUiApp<
     }
     if (response) return response;
 
-    return notify(md`Неизвестная команда\. Наберите /help — справка\.`);
+    return notify(md`Неизвестная команда\\. Наберите /help — справка\\.`);
   }
 
   /**

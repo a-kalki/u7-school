@@ -175,8 +175,9 @@ describe('LearningController (интеграционный)', () => {
     const text = String(response.screen?.text);
     expect(text).toContain('Мой прогресс');
     expect(text).toContain('JS Core');
-    expect(text).toContain('Общий:');
-    expect(text).toContain('Всего шагов завершено');
+    expect(text).toContain('Общий прогресс:');
+    expect(text).toContain('Пройдено шагов:');
+    expect(text).toContain('Проекты курса:');
   });
 
   // ── Выход из потока ──

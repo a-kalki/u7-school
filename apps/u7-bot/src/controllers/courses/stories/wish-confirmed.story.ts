@@ -46,7 +46,7 @@ export class WishConfirmedStory extends U7BotUiStory {
 
     const mentors = await this.#courseMentors(courseId);
     const text = mdJoin([
-      md`📗 *${user.name}* подтвердил желание проходить курс *${course?.title ?? courseId}*.`,
+      md`📗 *${user.name}* подтвердил желание проходить курс *${course?.title ?? courseId}*\\.`,
     ]);
 
     for (const mentor of mentors) {
