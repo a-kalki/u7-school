@@ -15,6 +15,7 @@ const ANSI = {
   SHOW_CURSOR: '\x1b[?25h',
   CLEAR_SCREEN: '\x1b[2J',
   CURSOR_HOME: '\x1b[H',
+  CLEAR_TO_END: '\x1b[J',
 };
 
 /**
@@ -48,6 +49,7 @@ export function startEngine(options) {
   let state = createState();
   let running = true;
   let timerId = null;
+  let isFirstFrame = true;
 
   // Инициализация терминала
   if (typeof stdin.setRawMode === 'function') {
@@ -56,11 +58,6 @@ export function startEngine(options) {
   if (typeof stdin.resume === 'function') {
     stdin.resume();
   }
-
-  const titleSeq = title ? `\x1b]0;${title}\x07` : '';
-  stdout.write(
-    `${titleSeq}${ANSI.ENTER_ALT_SCREEN}${ANSI.HIDE_CURSOR}${ANSI.CLEAR_SCREEN}`,
-  );
 
   // Отрисовка текущего кадра
   function draw() {
@@ -71,7 +68,16 @@ export function startEngine(options) {
       ? rendered.join('\n')
       : String(rendered);
 
-    stdout.write(`${ANSI.CURSOR_HOME}${content}\n`);
+    if (isFirstFrame) {
+      isFirstFrame = false;
+      const titleSeq = title ? `\x1b]0;${title}\x07` : '';
+      // Атомарно переключаем буфер терминала, очищаем и выводим первый кадр целиком
+      stdout.write(
+        `${titleSeq}${ANSI.ENTER_ALT_SCREEN}${ANSI.HIDE_CURSOR}${ANSI.CLEAR_SCREEN}${ANSI.CURSOR_HOME}${content}\n`,
+      );
+    } else {
+      stdout.write(`${ANSI.CURSOR_HOME}${ANSI.CLEAR_TO_END}${content}\n`);
+    }
   }
 
   // Остановка движка и возврат терминала в обычный режим
