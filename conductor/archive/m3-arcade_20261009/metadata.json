@@ -1,0 +1,6 @@
+track_id: m3-arcade_20261009
+type: feature
+status: completed
+created_at: "2026-10-09T17:00:00Z"
+updated_at: "2026-10-10T12:00:00Z"
+description: "Проект «Аркада» (m3-arcade): консольные игры в TUI (3 слоя, функции без ООП, чистый Bun, Виселица demo, Черепашка PR1, пошаговые PR2, тики/Змейка PR3; сборка в JSON только после полной вычитки)"
