@@ -7,37 +7,37 @@
 // Список терминов на русском языке (закодирован в base64)
 const RAW_RU_BASE64 = [
   '0KDQldCa0KPQoNCh0JjQrw==', // РЕКУРСИЯ
-  '0JzQkNCh0KHQmNCS', // МАССИВ
-  '0J7Qp9CV0KDQldCU0Kw=', // ОЧЕРЕДЬ
-  '0KHQotCV0Jo=', // СТЕК
-  '0KHQm9Ce0JLQkNCg0Kw=', // СЛОВАРЬ
-  '0JDQm9CT0J7QoNCY0KLQnA==', // АЛГОРИТМ
-  '0JzQkNCi0KDQmNCm0JA=', // МАТРИЦА
-  '0JPQoNCQ0KQ=', // ГРАФ
-  '0JHQmNCd0JDQoNCd0KvQmQ==', // БИНАРНЫЙ
-  '0KHQntCg0KLQmNCg0J7QktCa0JA=', // СОРТИРОВКА
-  '0KXQldCo', // ХЕШ
-  '0KHQn9CY0KHQntCa', // СПИСОК
-  '0JjQotCV0KDQkNCi0J7QoA==', // ИТЕРАТОР
-  '0KHQm9Ce0JbQndCe0KHQotCs', // СЛОЖНОСТЬ
+  '0JzQkNCh0KHQmNCS',
+  '0J7Qp9CV0KDQldCU0Kw=',
+  '0KHQotCV0Jo=',
+  '0KHQm9Ce0JLQkNCg0Kw=',
+  '0JDQm9CT0J7QoNCY0KLQnA==',
+  '0JzQkNCi0KDQmNCm0JA=',
+  '0JPQoNCQ0KQ=',
+  '0JHQmNCd0JDQoNCd0KvQmQ==',
+  '0KHQntCg0KLQmNCg0J7QktCa0JA=',
+  '0KXQldCo',
+  '0KHQn9CY0KHQntCa',
+  '0JjQotCV0KDQkNCi0J7QoA==',
+  '0KHQm9Ce0JbQndCe0KHQotCs',
 ];
 
 // Список терминов на английском языке (закодирован в base64)
 const RAW_EN_BASE64 = [
-  'UkVDVVJTSU9O', // RECURSION
-  'QVJSQVk=', // ARRAY
-  'UVVFVUU=', // QUEUE
-  'U1RBQ0s=', // STACK
-  'RElDVElPTkFSWQ==', // DICTIONARY
-  'QUxHT1JJVEhN', // ALGORITHM
-  'TUFUUklY', // MATRIX
-  'R1JBUEg=', // GRAPH
-  'QklOQVJZ', // BINARY
-  'U09SVElORw==', // SORTING
-  'SEFTSA==', // HASH
-  'TElTVA==', // LIST
-  'SVRFUkFUT1I=', // ITERATOR
-  'Q09NUExFWElUWQ==', // COMPLEXITY
+  'UkVDVVJTSU9O',
+  'QVJSQVk=',
+  'UVVFVUU=',
+  'U1RBQ0s=',
+  'RElDVElPTkFSWQ==',
+  'QUxHT1JJVEhN',
+  'TUFUUklY',
+  'R1JBUEg=',
+  'QklOQVJZ',
+  'U09SVElORw==',
+  'SEFTSA==',
+  'TElTVA==',
+  'SVRFUkFUT1I=',
+  'Q09NUExFWElUWQ==',
 ];
 
 function decodeBase64List(list) {

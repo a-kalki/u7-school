@@ -1,5 +1,5 @@
 /**
- * arcade/render/hangman.js — Рендерер и адаптер ввода для Виселицы (Слой 2)
+ * arcade/tui/hangman.js — Рендерер и адаптер ввода для Виселицы (Слой 2)
  */
 
 const STAGES = [

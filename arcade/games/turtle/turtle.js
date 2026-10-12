@@ -14,10 +14,10 @@ const DELTAS = {
 };
 
 const ICONS = {
-  N: '^',
-  E: '>',
-  S: 'v',
-  W: '<',
+  N: '▲',
+  E: '►',
+  S: '▼',
+  W: '◄',
 };
 
 /**
@@ -28,7 +28,7 @@ const ICONS = {
  * @param {number} [options.x=0]
  * @param {number} [options.y=0]
  * @param {'N'|'E'|'S'|'W'} [options.direction='E']
- * @param {boolean} [options.penDown=true]
+ * @param {boolean} [options.penDown=false]
  * @returns {object}
  */
 export function createState(options = {}) {
@@ -37,7 +37,7 @@ export function createState(options = {}) {
   const x = options.x ?? 0;
   const y = options.y ?? 0;
   const direction = options.direction ?? 'E';
-  const penDown = options.penDown ?? true;
+  const penDown = options.penDown ?? false;
 
   const trail = penDown ? [`${x},${y}`] : [];
 

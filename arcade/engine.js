@@ -19,6 +19,16 @@ const ANSI = {
 };
 
 /**
+ * Системные звуковые сигналы терминала (ASCII Bell \x07)
+ */
+export const SOUNDS = {
+  BEEP: 'beep', // 1 сигнал (успешное действие, подбор бонуса, ввод)
+  HIT: 'hit', // 2 быстрых сигнала (ошибка, удар о стену, неверная клавиша)
+  ALARM: 'alarm', // 3 сигнала (Game Over, взрыв, поражение)
+  WIN: 'win', // победная трель (победа в раунде/игре)
+};
+
+/**
  * Запуск игрового движка
  *
  * @param {object} options
@@ -46,10 +56,59 @@ export function startEngine(options) {
     stdout = process.stdout,
   } = options;
 
-  let state = createState();
   let running = true;
   let timerId = null;
   let isFirstFrame = true;
+  let lastContent = null;
+  let tickCounter = 0;
+  const soundTimers = [];
+
+  function triggerSound(soundType) {
+    if (!stdout || typeof stdout.write !== 'function') return;
+
+    const playBeep = () => {
+      if (running) {
+        stdout.write('\x07');
+      }
+    };
+
+    switch (soundType) {
+      case SOUNDS.BEEP:
+        playBeep();
+        break;
+      case SOUNDS.HIT:
+        playBeep();
+        soundTimers.push(setTimeout(playBeep, 90));
+        break;
+      case SOUNDS.ALARM:
+        playBeep();
+        soundTimers.push(setTimeout(playBeep, 80));
+        soundTimers.push(setTimeout(playBeep, 160));
+        break;
+      case SOUNDS.WIN:
+        playBeep();
+        soundTimers.push(setTimeout(playBeep, 120));
+        soundTimers.push(setTimeout(playBeep, 240));
+        break;
+      default:
+        playBeep();
+        break;
+    }
+  }
+
+  function applySound(s) {
+    if (!s || typeof s !== 'object') return s;
+    if (s.sound) {
+      triggerSound(s.sound);
+      if (Object.isFrozen(s)) {
+        return { ...s, sound: null };
+      }
+      s.sound = null;
+    }
+    return s;
+  }
+
+  let state = applySound(createState());
 
   // Инициализация терминала
   if (typeof stdin.setRawMode === 'function') {
@@ -67,6 +126,12 @@ export function startEngine(options) {
     const content = Array.isArray(rendered)
       ? rendered.join('\n')
       : String(rendered);
+
+    // Оптимизация: если кадр идентичен предыдущему — не пишем лишний раз в терминал
+    if (content === lastContent) {
+      return;
+    }
+    lastContent = content;
 
     if (isFirstFrame) {
       isFirstFrame = false;
@@ -89,6 +154,11 @@ export function startEngine(options) {
       clearInterval(timerId);
       timerId = null;
     }
+
+    for (const t of soundTimers) {
+      clearTimeout(t);
+    }
+    soundTimers.length = 0;
 
     if (typeof stdin.removeListener === 'function') {
       stdin.removeListener('data', onData);
@@ -128,7 +198,9 @@ export function startEngine(options) {
         rawStr === 'К'
       ) {
         // Рестарт игры
-        state = createState();
+        state = applySound(createState());
+        tickCounter = 0;
+        lastContent = null;
         draw();
         return;
       }
@@ -145,8 +217,11 @@ export function startEngine(options) {
     }
 
     if (event) {
-      state = update(state, event);
-      draw();
+      const nextState = update(state, event);
+      if (nextState !== state) {
+        state = applySound(nextState);
+        draw();
+      }
     }
   }
 
@@ -157,7 +232,10 @@ export function startEngine(options) {
   if (tickRateMs > 0) {
     timerId = setInterval(() => {
       if (!running) return;
-      state = update(state, { type: 'TICK' });
+      tickCounter += 1;
+      const nextState = update(state, { type: 'TICK', tickCounter });
+      if (nextState === state) return;
+      state = applySound(nextState);
       draw();
     }, tickRateMs);
   }

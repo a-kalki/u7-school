@@ -1,5 +1,5 @@
 /**
- * arcade/render/turtle.js — Рендерер и адаптер ввода для Черепашки (Слой 2)
+ * arcade/tui/turtle.js — Рендерер и адаптер ввода для Черепашки (Слой 2)
  */
 
 const DIR_LABELS = {

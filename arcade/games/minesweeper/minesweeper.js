@@ -4,6 +4,8 @@
  * Чистые функции: createState, update, getView
  */
 
+import { SOUNDS } from '../../engine.js';
+
 /**
  * Возвращает координаты 8 соседей для ячейки (x, y)
  * @param {number} x
@@ -215,6 +217,7 @@ export function update(state, action) {
       ...state,
       cells: newCells,
       flagsCount: newFlagsCount,
+      sound: SOUNDS.BEEP,
     };
   }
 
@@ -240,6 +243,7 @@ export function update(state, action) {
         ...state,
         cells: newCells,
         status: 'LOST',
+        sound: SOUNDS.ALARM,
       };
     }
 
@@ -252,6 +256,7 @@ export function update(state, action) {
       ...state,
       cells: newCells,
       status: isWon ? 'WON' : 'PLAYING',
+      sound: isWon ? SOUNDS.WIN : SOUNDS.BEEP,
     };
   }
 

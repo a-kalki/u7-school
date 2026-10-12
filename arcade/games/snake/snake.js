@@ -4,6 +4,8 @@
  * Чистые функции: createState, update, getView, spawnFood, isOppositeDirection
  */
 
+import { SOUNDS } from '../../engine.js';
+
 const OPPOSITE_DIRECTIONS = {
   UP: 'DOWN',
   DOWN: 'UP',
@@ -150,6 +152,7 @@ export function update(state, action) {
         ...state,
         direction: activeDirection,
         status: 'GAME_OVER',
+        sound: SOUNDS.ALARM,
       };
     }
 
@@ -168,6 +171,7 @@ export function update(state, action) {
         ...state,
         direction: activeDirection,
         status: 'GAME_OVER',
+        sound: SOUNDS.ALARM,
       };
     }
 
@@ -184,6 +188,7 @@ export function update(state, action) {
         score: newScore,
         food: nextFood,
         status: nextFood ? 'PLAYING' : 'WON', // Если вся сетка заполнена — победа
+        sound: nextFood ? SOUNDS.BEEP : SOUNDS.WIN,
       };
     }
 

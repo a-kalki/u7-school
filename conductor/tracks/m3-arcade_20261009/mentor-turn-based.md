@@ -1,4 +1,4 @@
-# Шпаргалка ментора: Выдача пошаговых игр (PR 2, Урок 3)
+# Шпаргалка ментора: Выдача пошаговых игр (Урок 3, PR)
 
 В Уроке 3 студент выбирает одну из четырёх пошаговых игр и запрашивает пакет у ментора в чате.
 У ментора в репозитории есть **100% полный рабочий комплект** каждой игры. Ментор выдаёт студенту только заготовки, чтобы студент самостоятельно реализовал логику правил и тесты.
@@ -9,10 +9,10 @@
 
 | Игра | Что скинуть студенту в чат | Что пишет студент | Где эталон ментора для сверки |
 |---|---|---|---|
-| **2048** | 1. ТЗ из `arcade/games/2048/README.md`<br>2. `arcade/games/2048/run.js`<br>3. Убедиться, что у студента есть `render/grid.js` | `games/2048/game-2048.js`<br>`games/2048/game-2048.test.js` | `arcade/games/2048/` |
-| **Сокобан** | 1. ТЗ из `arcade/games/sokoban/README.md`<br>2. `arcade/games/sokoban/run.js`<br>3. `render/grid.js` | `games/sokoban/sokoban.js`<br>`games/sokoban/sokoban.test.js` | `arcade/games/sokoban/` |
-| **Сапёр** | 1. ТЗ из `arcade/games/minesweeper/README.md`<br>2. `arcade/games/minesweeper/run.js`<br>3. `render/grid.js` | `games/minesweeper/minesweeper.js`<br>`games/minesweeper/minesweeper.test.js` | `arcade/games/minesweeper/` |
-| **Крестики-нолики** | 1. ТЗ из `arcade/games/tictactoe/README.md`<br>2. `arcade/games/tictactoe/run.js`<br>3. `render/grid.js` | `games/tictactoe/tictactoe.js`<br>`games/tictactoe/tictactoe.test.js` | `arcade/games/tictactoe/` |
+| **2048** | 1. ТЗ из `arcade/games/2048/README.md`<br>2. `arcade/games/2048/run.js`<br>3. Убедиться, что у студента есть `tui/grid.js` | `games/2048/game-2048.js`<br>`games/2048/game-2048.test.js` | `arcade/games/2048/` |
+| **Сокобан** | 1. ТЗ из `arcade/games/sokoban/README.md`<br>2. `arcade/games/sokoban/run.js`<br>3. `tui/grid.js` | `games/sokoban/sokoban.js`<br>`games/sokoban/sokoban.test.js` | `arcade/games/sokoban/` |
+| **Сапёр** | 1. ТЗ из `arcade/games/minesweeper/README.md`<br>2. `arcade/games/minesweeper/run.js`<br>3. `tui/grid.js` | `games/minesweeper/minesweeper.js`<br>`games/minesweeper/minesweeper.test.js` | `arcade/games/minesweeper/` |
+| **Крестики-нолики** | 1. ТЗ из `arcade/games/tictactoe/README.md`<br>2. `arcade/games/tictactoe/run.js`<br>3. `tui/grid.js` | `games/tictactoe/tictactoe.js`<br>`games/tictactoe/tictactoe.test.js` | `arcade/games/tictactoe/` |
 
 ---
 
@@ -33,7 +33,7 @@
 - В ветке `feature/2048` создать файл `game-2048.js` с функциями createState, update, getView;
 - Написать юнит-тесты в `game-2048.test.js` и запустить их через `bun test games/2048/`;
 - Проверить игру в терминале: `bun games/2048/run.js`;
-- Открыть Pull Request 2 и прислать ссылку сюда!
+- Открыть Pull Request и отправить ссылку сокурсникам в чат на peer-review!
 ```
 
 ### Вариант 2: Студент выбрал «Сокобан»
@@ -50,7 +50,7 @@
 3. Твоя задача:
 - В ветке `feature/sokoban` реализовать логику склада в `sokoban.js`;
 - Покрыть тестами в `sokoban.test.js` (проверь удар в стену и двойные коллизии ящиков);
-- Запустить игру через `bun games/sokoban/run.js` и сдать PR 2.
+- Запустить игру через `bun games/sokoban/run.js`, открыть Pull Request и отправить сокурсникам на peer-review.
 ```
 
 ### Вариант 3: Студент выбрал «Сапёр»
@@ -67,7 +67,7 @@
 3. Твоя задача:
 - В ветке `feature/minesweeper` реализовать `minesweeper.js`;
 - Написать тесты на подсчет соседей, флаги, взрыв и каскадное открытие;
-- Проверить в терминале и открыть PR 2.
+- Проверить в терминале, открыть Pull Request и отправить сокурсникам на peer-review.
 ```
 
 ### Вариант 4: Студент выбрал «Крестики-нолики»
@@ -84,14 +84,14 @@
 3. Твоя задача:
 - В ветке `feature/tictactoe` реализовать `tictactoe.js`;
 - Написать тесты на смену игроков, горизонтали/диагонали и ничью;
-- Сыграть в терминале вдвоём и сдать PR 2.
+- Сыграть в терминале вдвоём, открыть Pull Request и отправить сокурсникам на peer-review.
 ```
 
 ---
 
-## 3. Чек-лист проверки PR 2 ментором
+## 3. Чек-лист проверки PR (для ментора и peer-review)
 
-При проверке Pull Request студента ментор обращает внимание на:
+При проверке Pull Request студента сокурсники и ментор обращают внимание на:
 1. **Иммутабельность и чистота функций:** функции `createState`, `update` и `getView` не используют глобальные переменные и классы.
 2. **Декомпозиция алгоритма:**
    - В 2048: сдвиг строки вынесен в отдельную функцию `slideRow`.

@@ -1,5 +1,5 @@
 import { startEngine } from '../../engine.js';
-import { createDirectionAdapter, renderNumberGrid } from '../../render/grid.js';
+import { createDirectionAdapter, renderNumberGrid } from '../../tui/grid.js';
 import { createState, getView, update } from './game-2048.js';
 
 startEngine({

@@ -1,5 +1,5 @@
 import { startEngine } from '../../engine.js';
-import { createDirectionAdapter, renderGrid } from '../../render/grid.js';
+import { createDirectionAdapter, renderGrid } from '../../tui/grid.js';
 import { createState, getView, update } from './dodger.js';
 
 startEngine({

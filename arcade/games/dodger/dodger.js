@@ -4,6 +4,8 @@
  * Чистые функции: createState, update, getView, checkCollision
  */
 
+import { SOUNDS } from '../../engine.js';
+
 /**
  * Проверяет столкновение корабля с любым из астероидов
  * @param {number} playerX
@@ -62,6 +64,7 @@ export function update(state, action, randomFn = Math.random) {
       ...state,
       playerX: nextX,
       status: hit ? 'GAME_OVER' : state.status,
+      sound: hit ? SOUNDS.ALARM : null,
     };
   }
 
@@ -75,6 +78,7 @@ export function update(state, action, randomFn = Math.random) {
       ...state,
       playerX: nextX,
       status: hit ? 'GAME_OVER' : state.status,
+      sound: hit ? SOUNDS.ALARM : null,
     };
   }
 
@@ -95,6 +99,7 @@ export function update(state, action, randomFn = Math.random) {
         ...state,
         asteroids: movedAsteroids,
         status: 'GAME_OVER',
+        sound: SOUNDS.ALARM,
       };
     }
 
@@ -112,6 +117,7 @@ export function update(state, action, randomFn = Math.random) {
         ...state,
         asteroids: newAsteroids,
         status: 'GAME_OVER',
+        sound: SOUNDS.ALARM,
       };
     }
 

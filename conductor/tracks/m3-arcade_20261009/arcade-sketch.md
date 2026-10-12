@@ -60,7 +60,7 @@
 ```js
 // games/turtle/run.js — запуск: bun games/turtle/run.js
 import { startEngine } from '../../engine.js';
-import { renderTurtle, inputAdapter } from '../../render/turtle.js';
+import { renderTurtle, inputAdapter } from '../../tui/turtle.js';
 import { createState, update, getView } from './turtle.js';
 
 startEngine({
@@ -77,7 +77,7 @@ startEngine({
 ```
 arcade/
 ├── engine.js                # Слой 1: игровое ядро (чёрный ящик, выдается в уроке 1)
-├── render/                  # Слой 2: рендереры (псевдографика экранов)
+├── tui/                     # Слой 2: интерфейсный слой TUI (адаптеры ввода и экраны)
 │   ├── hangman.js           # Рендерер виселицы (урок 1)
 │   ├── turtle.js            # Рендерер черепашки (урок 2)
 │   ├── grid.js              # Универсальный 2D-рендер сетки (для 2048, сокобана, сапера, змейки)
@@ -186,10 +186,10 @@ arcade/
 1. **Урок 1 (Теория + Виселица):**
    - концепция трех слоев (движок, адаптер/рендер, игра), терминальный буфер;
    - блок кода ядра `engine.js`;
-   - полные блоки кода Виселицы: `render/hangman.js`, `games/hangman/words.js`, `games/hangman/hangman.js`, `games/hangman/run.js`;
+   - полные блоки кода Виселицы: `tui/hangman.js`, `games/hangman/words.js`, `games/hangman/hangman.js`, `games/hangman/run.js`;
    - студент копирует файлы, запускает `bun games/hangman/run.js`, играет и пушит изменения в репозиторий без PR.
 2. **Урок 2 (Черепашка):**
-   - рендерер `render/turtle.js` (блок кода);
+   - TUI модуль `tui/turtle.js` (блок кода);
    - раннер `games/turtle/run.js` (блок кода);
    - ТЗ и контракты функций для `games/turtle/turtle.js`.
    Студент пишет саму игру и тесты, сдает **PR 1**.

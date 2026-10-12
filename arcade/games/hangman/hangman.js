@@ -4,6 +4,7 @@
  * Чистые функции, только POJO структуры данных.
  */
 
+import { SOUNDS } from '../../engine.js';
 import { getRandomWord } from './words.js';
 
 /**
@@ -60,7 +61,7 @@ export function update(state, event) {
       state.guessedLetters.includes(char) ||
       state.wrongLetters.includes(char)
     ) {
-      return state;
+      return { ...state, sound: SOUNDS.HIT };
     }
 
     if (state.word.includes(char)) {
@@ -75,6 +76,7 @@ export function update(state, event) {
         ...state,
         guessedLetters: nextGuessed,
         status: isWon ? 'WON' : 'PLAYING',
+        sound: isWon ? SOUNDS.WIN : SOUNDS.BEEP,
       };
     }
 
@@ -86,6 +88,7 @@ export function update(state, event) {
       ...state,
       wrongLetters: nextWrong,
       status: isLost ? 'LOST' : 'PLAYING',
+      sound: isLost ? SOUNDS.ALARM : SOUNDS.HIT,
     };
   }
 

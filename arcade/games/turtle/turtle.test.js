@@ -2,13 +2,19 @@ import { describe, expect, it } from 'bun:test';
 import { createState, getView, update } from './turtle.js';
 
 describe('games/turtle: turtle.js', () => {
-  it('createState инициализирует начальные параметры', () => {
+  it('createState инициализирует начальные параметры с поднятым пером', () => {
     const state = createState({ width: 10, height: 10, x: 2, y: 3 });
     expect(state.width).toBe(10);
     expect(state.height).toBe(10);
     expect(state.x).toBe(2);
     expect(state.y).toBe(3);
     expect(state.direction).toBe('E');
+    expect(state.penDown).toBe(false);
+    expect(state.trail).toEqual([]);
+  });
+
+  it('createState поддерживает инициализацию с опущенным пером', () => {
+    const state = createState({ x: 2, y: 3, penDown: true });
     expect(state.penDown).toBe(true);
     expect(state.trail).toEqual(['2,3']);
   });
@@ -81,11 +87,12 @@ describe('games/turtle: turtle.js', () => {
       x: 1,
       y: 1,
       direction: 'N',
+      penDown: true,
     });
     state = update(state, { type: 'FORWARD' }); // переместился в 1, 0
 
     const view = getView(state);
-    expect(view.grid[0][1]).toBe('^'); // черепашка на (1, 0)
+    expect(view.grid[0][1]).toBe('▲'); // черепашка на (1, 0)
     expect(view.grid[1][1]).toBe('.'); // след на (1, 1)
     expect(view.stepsCount).toBe(1);
   });
