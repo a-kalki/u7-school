@@ -1,15 +1,17 @@
 // 01-declaration-styles.js
-// Три стиля объявления функций
+// Три стиля объявления функций (русские термины из видео ↔ английские)
 
-// 1. Function Declaration — именованная функция
+// 1. Именованная функция (Function Declaration)
 function add(a, b) {
   return a + b;
 }
 
-// 2. Function Expression — анонимная функция в переменной
-const subtract = (a, b) => a - b;
+// 2. Анонимная функция в переменной (Function Expression)
+const subtract = function (a, b) {
+  return a - b;
+};
 
-// 3. Arrow Function — стрелочная функция
+// 3. Стрелочная функция (Arrow Function)
 const multiply = (a, b) => {
   return a * b;
 };

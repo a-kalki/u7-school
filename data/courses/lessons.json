@@ -294,14 +294,15 @@
     "uuid": "1b251809-225b-4c0c-bbc4-fb29f87715e9",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
     "title": "Циклы: концепция и основы for",
-    "additional": "Синтаксис for (инициализация; условие; обновление), поток выполнения, когда количество итераций известно",
+    "additional": "Синтаксис for (инициализация; условие; обновление), поток выполнения, управление циклом через break и continue",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "updatedAt": "2026-06-04T13:30",
-    "estimatedMinutes": 13,
+    "estimatedMinutes": 15,
     "stepIds": [
       "bbe9160f-c3b0-4295-a01c-9c600e33acff",
       "3b5f8fbd-6f6b-4688-8862-6cf1a79c57ab",
+      "84bfd8cc-87bd-4850-911f-5e28bbe90816",
       "c367fd4f-16f6-4341-b7c2-9f3e66fc395a",
       "654bff87-1e71-474a-89e4-434800c51252"
     ],
@@ -380,7 +381,7 @@
     "uuid": "0f2c505f-9429-4f62-9b02-42ce1f82f4a2",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
     "title": "Функция: синтаксис, параметры и return",
-    "additional": "Объявление функции, параметры (гибкость), return (значение + завершение), предикаты, параметры по умолчанию",
+    "additional": "Объявление функции, параметры (гибкость), return (значение + завершение), параметры по умолчанию",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 22,
@@ -389,7 +390,7 @@
       "59504287-3591-4d88-b021-9ca77354d64c",
       "a5c2a8f6-f8a4-4a48-818f-89051a99b3a5",
       "10992767-81da-43a1-81ef-af5aa1ba9c48",
-      "3243752c-9f00-4977-973d-96ba980667ca"
+      "f19c8973-37a2-4f04-aeb4-6b34376ceda4"
     ],
     "mentorStepIds": []
   },
@@ -400,12 +401,13 @@
     "additional": "Досрочный return для валидации, неявный undefined, предикаты-вопросы (isSomething)",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 20,
+    "estimatedMinutes": 22,
     "stepIds": [
       "d79cea8b-aa77-4f15-a9e7-027c36d1d47a",
       "599b049a-6be4-452c-8e2a-f59ad2986376",
       "58612131-3e04-4e54-ad7a-ddc68c5bfc68",
-      "9a9ff87f-f376-4f01-b62c-92a4a09a6b64"
+      "9a9ff87f-f376-4f01-b62c-92a4a09a6b64",
+      "3243752c-9f00-4977-973d-96ba980667ca"
     ],
     "mentorStepIds": []
   },
@@ -639,9 +641,7 @@
     "createdAt": "2026-06-16T12:00",
     "updatedAt": "2026-06-16T12:00",
     "estimatedMinutes": 45,
-    "stepIds": [
-      "0537679d-a582-443b-a34e-c89d72b81d28"
-    ],
+    "stepIds": ["0537679d-a582-443b-a34e-c89d72b81d28"],
     "mentorStepIds": []
   },
   {
@@ -2226,9 +2226,7 @@
     "createdAt": "2026-09-21T13:37",
     "updatedAt": "2026-09-21T13:37",
     "estimatedMinutes": 30,
-    "stepIds": [
-      "fb2b5117-410a-4a02-8197-8c7cf23f3475"
-    ],
+    "stepIds": ["fb2b5117-410a-4a02-8197-8c7cf23f3475"],
     "mentorStepIds": []
   },
   {

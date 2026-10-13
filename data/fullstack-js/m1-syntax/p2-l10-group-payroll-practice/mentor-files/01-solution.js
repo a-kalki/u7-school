@@ -67,7 +67,7 @@ for (const name of employees) {
   totalIpn += ipn;
   totalPay += pay;
 
-  if (workDays[name] === WORK_DAYS_IN_MONTH) {
+  if (workDays[name] >= WORK_DAYS_IN_MONTH) {
     fullMonthCount++;
   }
 }

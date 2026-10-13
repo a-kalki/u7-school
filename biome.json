@@ -74,6 +74,9 @@
       "includes": ["data/fullstack-js/**/mentor-files/**/*.js"],
       "linter": {
         "rules": {
+          "complexity": {
+            "useArrowFunction": "off"
+          },
           "suspicious": {
             "noAssignInExpressions": "off",
             "noSelfCompare": "off",
