@@ -6,14 +6,15 @@
     "additional": "Код, программа, интерпретатор, поток выполнения — что такое программирование и зачем учить JavaScript",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-08-16T15:33",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 11,
     "stepIds": [
       "fab2ab88-eb17-4c0e-850a-795dfb9fadb9",
       "210c7922-1ea0-41da-af23-cfd002f6aff2",
       "4890a068-1335-4115-931a-b6f4ee5ea7e5",
       "255b3046-e46a-4e27-8794-5bf704691dc7",
-      "1809238e-2942-4a09-96a4-c582a09097e1"
+      "1809238e-2942-4a09-96a4-c582a09097e1",
+      "00e676fa-3a05-4ba3-8a56-397977f30d6f"
     ],
     "mentorStepIds": []
   },
@@ -24,13 +25,14 @@
     "additional": "Создание переменных через let и const, присваивание, область видимости, предпочтение const",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-05-31T20:16",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 13,
     "stepIds": [
       "838f72ea-fb3f-4165-b43f-f3c7d3182e22",
       "889872d5-0fc8-4dc4-a0ab-8b803d79927c",
       "5c443053-4784-4a0d-a0a1-6be99790f533",
-      "d1e96ebd-9e4c-4a77-b797-b3c4819e8eea"
+      "d1e96ebd-9e4c-4a77-b797-b3c4819e8eea",
+      "3ac1d572-26e1-4ff0-a0ca-6f8c84469417"
     ],
     "mentorStepIds": []
   },
@@ -41,14 +43,15 @@
     "additional": "Базовые и дополнительные операторы: +, -, *, /, %, **, сокращённый синтаксис, инкремент/декремент",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-02T16:31",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 14,
     "stepIds": [
       "c0ec0938-0600-47e5-b363-b21eda469e7d",
       "f033237c-e51e-4f3f-b175-e79ca0953c7a",
       "37eb9fea-b4ec-42f7-b5c9-0ea5e74ee0de",
       "6d2200a1-3463-4fd3-a513-952d93b73ec3",
-      "ccb8d815-617d-4f1d-bacc-96be9738686f"
+      "ccb8d815-617d-4f1d-bacc-96be9738686f",
+      "8eabe19e-7157-427f-b6e6-fc5902ad1058"
     ],
     "mentorStepIds": []
   },
@@ -59,14 +62,15 @@
     "additional": "Основные типы JS: number, string, boolean, object, null, undefined; оператор typeof, интерполяция строк",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-02T16:31",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 19,
     "stepIds": [
       "c7e7afbb-a97f-42b1-a5fc-f47f5f132e6d",
       "f6b252fc-cc8c-4b22-96e0-71a7ceead03f",
       "e1a29ce7-2653-45ec-b863-0ca585e62e02",
       "35eb70f1-13a2-4aaa-b066-d60603505e5b",
-      "d6745add-0842-42a2-aa12-1502e24b68f1"
+      "d6745add-0842-42a2-aa12-1502e24b68f1",
+      "2dce714d-3846-4fd7-9951-ac4215ff3953"
     ],
     "mentorStepIds": []
   },
@@ -77,14 +81,15 @@
     "additional": "Конкатенация строк через +, арифметика со строками, TypeError при несовместимых операциях",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-02T16:31",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 11,
     "stepIds": [
       "b6a8a0be-7d63-49d0-a43b-fc4315dbee7b",
       "9a8edd25-b1da-46e7-bfcb-f0247de71ed5",
       "1b1021c2-0e9e-41ec-80e7-3dd4ae64c9fe",
       "3ad71cd2-22ed-4f4f-a037-7f3ed564a42c",
-      "33f82348-b3dd-424c-8253-047be1d7e1b3"
+      "33f82348-b3dd-424c-8253-047be1d7e1b3",
+      "1432d17c-b51e-4135-9bc6-28b56836cdd2"
     ],
     "mentorStepIds": []
   },
@@ -95,14 +100,15 @@
     "additional": "Строгое === и нестрогое == равенство, операторы < > <= >=, отрицание !; всегда используйте ===",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-02T16:31",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 9,
     "stepIds": [
       "105d9c41-a895-4dd4-882d-04384a767c9d",
       "00efb694-a917-4a11-8698-964440491169",
       "6ab959df-498e-41a5-b0f1-8b62a01aad56",
       "54996992-d801-4b62-97c7-5ae211487e76",
-      "001dbdbb-649b-41d2-917c-e231e9465fbd"
+      "001dbdbb-649b-41d2-917c-e231e9465fbd",
+      "ec412c3b-c572-4ba9-87bf-78dc9c4f9308"
     ],
     "mentorStepIds": []
   },
@@ -113,13 +119,14 @@
     "additional": "ИЛИ ||, И &&, таблицы истинности, составные условия, практическое применение в проверках",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-02T16:31",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 17,
     "stepIds": [
       "6e6b63e3-32b3-49b9-b075-c214062223d2",
       "dc626cec-82f1-4597-bf55-5822b8728e88",
       "1f7b6291-5adc-4f4a-a2ca-d451a3b4de5f",
-      "53df1181-366c-48d6-8f17-e38e08fe65cc"
+      "53df1181-366c-48d6-8f17-e38e08fe65cc",
+      "f6cfe79d-a813-4ad9-b58f-fec168eaefb0"
     ],
     "mentorStepIds": []
   },
@@ -130,14 +137,15 @@
     "additional": "if / else if / else, цепочки условий, однострочный синтаксис, выполнение только первого истинного блока",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-02T16:31",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 21,
     "stepIds": [
       "58a9d484-e6f0-4000-b860-bc9a860f74ca",
       "108e5446-3d3e-44bb-aabc-0fc7fd779dd9",
       "2b0d5ae7-69ae-4ff3-be48-3deb5c6b1484",
       "c187ccc4-650d-4b0e-b538-506fcb8373d6",
-      "e6bda4c1-59a4-4930-98f4-d2d064d4b937"
+      "e6bda4c1-59a4-4930-98f4-d2d064d4b937",
+      "6edd7c7d-6b77-484f-9ae6-4e736656a226"
     ],
     "mentorStepIds": []
   },
@@ -148,13 +156,14 @@
     "additional": "Компактная замена if-else: условие ? значениеЕслиДа : значениеЕслиНет",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T11:13",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 12,
     "stepIds": [
       "480d9bc2-b7b1-415b-9b29-021c1919047e",
       "03401d6c-9e96-4574-90c5-158acd303d23",
       "6d73cd0c-2da9-4983-9eee-b9fccea0c93b",
-      "42e1f374-0701-407f-b713-47e61305ee76"
+      "42e1f374-0701-407f-b713-47e61305ee76",
+      "20128c46-5a89-4c5e-a52e-e32ef5dcc395"
     ],
     "mentorStepIds": []
   },
@@ -165,12 +174,13 @@
     "additional": "Автоматическое приведение типов (coercion) в математике и условиях, falsy-значения, опасность ==",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T11:14",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 8,
     "stepIds": [
       "35ca17ea-3a7c-445b-ac23-b1c9d9b296d4",
       "6d04a894-cb14-41c0-874f-48aa715e2aec",
-      "5074ee40-5157-48f0-abf7-258a8b514bf6"
+      "5074ee40-5157-48f0-abf7-258a8b514bf6",
+      "2c4ac0ab-c792-41d2-98e0-cba0a89cb3b7"
     ],
     "mentorStepIds": []
   },
@@ -181,13 +191,14 @@
     "additional": "Преобразование в строку (String, .toString), в число (Number, parseInt), в boolean (!!, Boolean); 6 falsy-значений",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T11:13",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 15,
     "stepIds": [
       "134a218c-6d72-445e-af0b-1a83334c7679",
       "491e9e3d-f988-4e16-80d7-b2277a59dbc3",
       "97253c78-739e-473f-97e2-f932f7371092",
-      "e14689af-20e9-43c3-bf6b-ee3f51a3566a"
+      "e14689af-20e9-43c3-bf6b-ee3f51a3566a",
+      "46cf72b5-349f-4382-9dba-b22b1846b4ff"
     ],
     "mentorStepIds": []
   },
@@ -213,13 +224,14 @@
     "additional": "Поведение || и && с небулевыми значениями, короткое замыкание, оператор ?? (нулевое слияние) и его отличие от ||",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T11:30",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 12,
     "stepIds": [
       "cb4b397e-96b7-41e7-9536-215719c19cf9",
       "a76055d1-ffc4-4bfe-ab5e-d5c26b462ba0",
       "6fa06a5f-3387-4818-a2e7-9b28a5425d01",
-      "88b8d422-818a-41da-8eff-a4627bc6a062"
+      "88b8d422-818a-41da-8eff-a4627bc6a062",
+      "29008767-4f3c-4db3-a5d2-2cf5282987b5"
     ],
     "mentorStepIds": []
   },
@@ -230,13 +242,14 @@
     "additional": "Таблица приоритетов от () до присваивания, ассоциативность, рекомендации по скобкам и разбивке выражений",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T12:00",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 17,
     "stepIds": [
       "3d56934c-32a3-43b1-b309-edaaef875be1",
       "489cfe6f-6a67-4beb-9cad-4b8472ff0d39",
       "002293aa-017c-4a54-8068-b660f5860fd3",
-      "05b240e9-a0be-45f2-8a83-2987899ee46f"
+      "05b240e9-a0be-45f2-8a83-2987899ee46f",
+      "12dadbd3-8763-48ab-88ad-efa9286b47d4"
     ],
     "mentorStepIds": []
   },
@@ -247,13 +260,14 @@
     "additional": "Массивы: создание, методы push/pop/shift/unshift, перебор",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T12:30",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 15,
     "stepIds": [
       "0f8b08d8-1aa8-42a9-aa56-a1552460abfd",
       "ced1559c-c4ac-4262-9770-631df6120c36",
       "989b5634-e1ab-41c2-84a0-710c629dd825",
-      "9058da50-2a57-400d-8fa1-cc48d8e4ff26"
+      "9058da50-2a57-400d-8fa1-cc48d8e4ff26",
+      "0ce192fe-364f-480f-bd6e-d2d7ca75690a"
     ],
     "mentorStepIds": []
   },
@@ -264,13 +278,14 @@
     "additional": "Объекты: создание, доступ через точку и скобки, перебор свойств",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T13:00",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 15,
     "stepIds": [
       "7c60fa67-801c-453d-bde3-0b9b4614b941",
       "5951c89e-98a8-4e12-8714-baa559db1030",
       "d3b550f2-f3e2-4b2d-b518-0cc47a9f6f52",
-      "9d9958a6-c770-4986-a7ae-e29cd2b619ce"
+      "9d9958a6-c770-4986-a7ae-e29cd2b619ce",
+      "c9c4a2d6-28c9-4ef8-adc8-8bc0a53a0665"
     ],
     "mentorStepIds": []
   },
@@ -281,12 +296,14 @@
     "additional": "Map (ключ-значение с любыми ключами) и Set (коллекция уникальных значений)",
     "status": "published",
     "createdAt": "2026-06-04T15:00",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 30,
     "stepIds": [
       "ae9c1467-f772-4624-99ef-4733e0f69c9f",
       "04cefc9e-10c6-41f5-8809-5c5531c875fc",
       "59037452-2328-4b39-872f-df4d0ff1ded6",
-      "8701de55-25d0-4953-84b0-50e9119a3c5f"
+      "8701de55-25d0-4953-84b0-50e9119a3c5f",
+      "4bd1d091-11b5-47fc-833f-416f56f1e4a0"
     ],
     "mentorStepIds": []
   },
@@ -297,14 +314,15 @@
     "additional": "Синтаксис for (инициализация; условие; обновление), поток выполнения, управление циклом через break и continue",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T13:30",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 15,
     "stepIds": [
       "bbe9160f-c3b0-4295-a01c-9c600e33acff",
       "3b5f8fbd-6f6b-4688-8862-6cf1a79c57ab",
       "84bfd8cc-87bd-4850-911f-5e28bbe90816",
       "c367fd4f-16f6-4341-b7c2-9f3e66fc395a",
-      "654bff87-1e71-474a-89e4-434800c51252"
+      "654bff87-1e71-474a-89e4-434800c51252",
+      "6fb6840f-2346-47af-bcd4-a052316648d8"
     ],
     "mentorStepIds": []
   },
@@ -315,13 +333,14 @@
     "additional": "Строка как коллекция символов с доступом по индексу, свойство length, стандартный паттерн for для посимвольного анализа",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T13:30",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 11,
     "stepIds": [
       "abb26249-f069-4e9b-a0b3-a48a1fec27a8",
       "e03b00d0-91ca-4854-a88b-eb34f360a023",
       "049d3a91-83fe-4923-87ae-d18c25bac2d1",
-      "0eea84f0-929c-4c35-81a0-2ec247e6b0fa"
+      "0eea84f0-929c-4c35-81a0-2ec247e6b0fa",
+      "f64536e2-c0be-49c8-b127-e82d5d65e2ff"
     ],
     "mentorStepIds": []
   },
@@ -332,13 +351,14 @@
     "additional": "While с предусловием, do-while с постусловием, выбор цикла по семантике, опасность бесконечных циклов",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T13:30",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 11,
     "stepIds": [
       "5281a902-3c37-4849-8dcd-61b5b78eda4c",
       "c72cd020-2d06-4afd-af9e-ce98439db3d1",
       "96668db2-ddb6-49de-acc2-86114510fc7b",
-      "1220c276-da6a-4d3b-8df5-0700faedb991"
+      "1220c276-da6a-4d3b-8df5-0700faedb991",
+      "ae7d0b65-250c-4492-b94b-7b091f26d0ee"
     ],
     "mentorStepIds": []
   },
@@ -349,13 +369,14 @@
     "additional": "Проверка свойств через in, перебор ключей for...in (для объектов), перебор значений for...of (для массивов/строк/Map/Set)",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T13:30",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 15,
     "stepIds": [
       "987feb27-9278-48e9-95c1-56643a677ec7",
       "2ef8c97e-c6af-479d-8d36-40a848d1a74e",
       "bbafb6a6-6904-46f5-a50f-08ab6842a646",
-      "0f9136e0-5fc5-4a4f-a00c-5af2a918f1f1"
+      "0f9136e0-5fc5-4a4f-a00c-5af2a918f1f1",
+      "10f9f5a9-aacc-4292-820f-36b76a1264ef"
     ],
     "mentorStepIds": []
   },
@@ -384,13 +405,15 @@
     "additional": "Объявление функции, параметры (гибкость), return (значение + завершение), параметры по умолчанию",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 22,
     "stepIds": [
       "edd602f9-d5e6-4385-bb04-b3a700b73ce7",
       "59504287-3591-4d88-b021-9ca77354d64c",
       "a5c2a8f6-f8a4-4a48-818f-89051a99b3a5",
       "10992767-81da-43a1-81ef-af5aa1ba9c48",
-      "f19c8973-37a2-4f04-aeb4-6b34376ceda4"
+      "f19c8973-37a2-4f04-aeb4-6b34376ceda4",
+      "373c5a70-e2ae-46ca-8971-8a76f188df03"
     ],
     "mentorStepIds": []
   },
@@ -401,13 +424,15 @@
     "additional": "Досрочный return для валидации, неявный undefined, предикаты-вопросы (isSomething)",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 22,
     "stepIds": [
       "d79cea8b-aa77-4f15-a9e7-027c36d1d47a",
       "599b049a-6be4-452c-8e2a-f59ad2986376",
       "58612131-3e04-4e54-ad7a-ddc68c5bfc68",
       "9a9ff87f-f376-4f01-b62c-92a4a09a6b64",
-      "3243752c-9f00-4977-973d-96ba980667ca"
+      "3243752c-9f00-4977-973d-96ba980667ca",
+      "867c503f-3c2d-42be-8e7d-79663f1085cd"
     ],
     "mentorStepIds": []
   },
@@ -418,11 +443,13 @@
     "additional": "Принцип чёрного ящика, контракт функции (имя + параметры + возврат), декомпозиция сложной задачи на подзадачи",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 12,
     "stepIds": [
       "75d0daf2-1f94-445b-9703-a836e10d63a1",
       "f5df7378-742f-455d-9362-3694d24e2635",
-      "78cdd485-7e09-47d0-acda-2bc68bc1963f"
+      "78cdd485-7e09-47d0-acda-2bc68bc1963f",
+      "2b65514f-1dcd-4dd9-923b-82e8664b5d48"
     ],
     "mentorStepIds": []
   },
@@ -433,12 +460,14 @@
     "additional": "Функции как объекты, три стиля (Function Declaration, Expression, Arrow), first-class citizens, хоистинг",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 12,
     "stepIds": [
       "02feb345-e538-4bd0-9242-d52a1fb1c1b2",
       "203e3603-89cc-4a95-a5ce-15e3d60ef1cd",
       "7dff7703-c1d2-4d64-8e9c-61ba2f9bcff8",
-      "d676d81a-0c6f-4a7c-81ca-05c3c5233215"
+      "d676d81a-0c6f-4a7c-81ca-05c3c5233215",
+      "ac62cad6-5807-4e85-9570-4023c55cd3f0"
     ],
     "mentorStepIds": []
   },
@@ -470,7 +499,7 @@
     "additional": "Глобальная, функциональная и блочная область видимости. Время жизни переменных. Разница let, const и var. Сборщик мусора.",
     "status": "published",
     "createdAt": "2026-06-23T10:00",
-    "updatedAt": "2026-06-23T10:00",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 15,
     "stepIds": [
       "12a19f57-8058-4ddc-a72e-1bb287400b61",
@@ -481,7 +510,8 @@
       "52c9df06-8b91-4a92-9489-cac3710a5d56",
       "a5aad89b-66fb-458d-8692-7c2f24035a5e",
       "a97daf76-2d97-414e-934f-b6f180098372",
-      "f99100d6-4d87-402b-a0b7-5190447d452c"
+      "f99100d6-4d87-402b-a0b7-5190447d452c",
+      "ddd8d086-624c-473c-8c0a-92cff238407b"
     ],
     "mentorStepIds": []
   },
@@ -492,13 +522,14 @@
     "additional": "Параметры vs аргументы, пропущенные аргументы → undefined, простые типы по значению, сложные по ссылке",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-16T12:00",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 14,
     "stepIds": [
       "d1654fe3-26c1-4c1b-bb22-eaa6e074435b",
       "aea423d0-ebad-4fc4-a252-98700861b5c6",
       "23904826-d5b1-4550-adfe-7e2dd0d20273",
-      "a0b97391-cd87-4462-b7d3-c5407ecdf9d2"
+      "a0b97391-cd87-4462-b7d3-c5407ecdf9d2",
+      "2fa326e7-6686-4587-a5ec-eb1126a9f22f"
     ],
     "mentorStepIds": []
   },
@@ -509,13 +540,14 @@
     "additional": "Вложенные функции, замыкания (closures), колбэки, функция возвращающая функцию, ленивые вычисления",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-16T12:00",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 15,
     "stepIds": [
       "daddb826-35ca-4e99-808a-fbf27ac9bc8c",
       "af0e556b-1f84-4b39-b854-e05d5d41b45d",
       "09ff2763-0153-4d53-baf7-448b14963946",
-      "49fb9123-8dfe-4aad-b870-79f377508f3b"
+      "49fb9123-8dfe-4aad-b870-79f377508f3b",
+      "53fd6256-3529-4c2a-afee-5cdbed8bd12f"
     ],
     "mentorStepIds": []
   },
@@ -526,7 +558,7 @@
     "additional": "Синхронные колбэки (map, filter, forEach), асинхронные (setTimeout), error-first callback, Callback Hell",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-16T12:00",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 15,
     "stepIds": [
       "2164cc63-dfa5-4c18-a086-1a1895299d5a",
@@ -538,7 +570,8 @@
       "f4c5f087-97a0-4906-9ccb-b2a9bc627da3",
       "2c2a1df4-0124-4a1b-81c2-d7eacf80e1df",
       "e5903541-cd46-45e9-978e-0ae7abff2989",
-      "b2db7822-44f8-4045-97c5-cf909b22160d"
+      "b2db7822-44f8-4045-97c5-cf909b22160d",
+      "ebeb59a6-5803-4a82-b086-0a66cb7acfbb"
     ],
     "mentorStepIds": []
   },
@@ -549,12 +582,13 @@
     "additional": "База и шаг рекурсии, контекст выполнения и стек вызовов, рекурсивный обход вложенных структур, итеративно vs рекурсивно",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-16T12:00",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 15,
     "stepIds": [
       "0b3acca3-d8e6-4339-a3c6-aaa066cfc26c",
       "f181d6d6-3725-4785-a397-0b9f35098399",
-      "4b7323cc-c499-46f6-999f-82eb530fbb41"
+      "4b7323cc-c499-46f6-999f-82eb530fbb41",
+      "c578b71c-ad41-468d-b3f9-d1d987297abe"
     ],
     "mentorStepIds": []
   },
@@ -565,7 +599,7 @@
     "additional": "Разделение кода на модули, синтаксис export/import, default vs named exports, реэкспорт",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-16T12:00",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 45,
     "stepIds": [
       "8879e4c2-6631-4f57-9854-f5a1acfc26e6",
@@ -576,7 +610,8 @@
       "9acec175-aee1-40e1-912b-17a4e978ee67",
       "db0b8d59-b360-46cc-bfb1-768aafe2e3c3",
       "b71aa2bc-af0c-4b23-9890-14f19a1dbd22",
-      "b9845386-61fd-4846-bfca-598e5eea0077"
+      "b9845386-61fd-4846-bfca-598e5eea0077",
+      "d9dd31f5-9633-495f-9c59-5f5c7215d5f4"
     ],
     "mentorStepIds": []
   },
@@ -1840,7 +1875,7 @@
     "additional": "Что такое редактор кода, выбор и установка (VS Code или Zed), папка для проектов и первый файл",
     "status": "published",
     "createdAt": "2026-08-16T15:33",
-    "updatedAt": "2026-08-16T15:33",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 35,
     "stepIds": [
       "bcf61045-55e2-43a4-80d8-60b7576558c8",
@@ -1848,7 +1883,8 @@
       "4118cf76-b2b7-4837-8e1f-552720ce43a7",
       "a6009727-96ab-4add-8fa2-a669b0c87b0c",
       "f63215f6-bda1-4591-af33-0d924bdcfef4",
-      "6500df2b-3b84-46e2-ad05-e5d6e50a3010"
+      "6500df2b-3b84-46e2-ad05-e5d6e50a3010",
+      "637fe4e0-f383-4e65-b55c-1b793849c0db"
     ],
     "mentorStepIds": []
   },
@@ -1859,12 +1895,13 @@
     "additional": "Что такое Bun, как установить и запустить первый файл из терминала редактора",
     "status": "published",
     "createdAt": "2026-08-16T15:33",
-    "updatedAt": "2026-08-16T15:33",
+    "updatedAt": "2026-10-13T16:46",
     "estimatedMinutes": 25,
     "stepIds": [
       "ce25ace9-22e1-4f10-ba7b-87941b4436d0",
       "74c3e502-d8e8-4fea-8cfa-1481b945bdad",
-      "a5fef85f-7d43-4820-be41-4da9beb39941"
+      "a5fef85f-7d43-4820-be41-4da9beb39941",
+      "3c5e18e7-4983-4d15-9a7c-d7ee69d5975f"
     ],
     "mentorStepIds": []
   },
