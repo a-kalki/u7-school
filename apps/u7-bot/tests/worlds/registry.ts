@@ -1,6 +1,8 @@
+import { CORE_EDUCATION_WORLD } from './core-education';
 import type { WorldDefinition } from './types';
 
 const WORLDS = new Map<string, WorldDefinition>();
+WORLDS.set('core-education', CORE_EDUCATION_WORLD);
 
 /**
  * Регистрирует декларацию мира по имени или дефиниции.

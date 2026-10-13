@@ -1,5 +1,7 @@
 import type { Api, Composer } from 'grammy';
 import type { BotContext } from '../src/context';
+import { CORE_EDUCATION_WORLD } from '../tests/worlds/core-education';
+import { extractDevPersonasFromWorld } from '../tests/worlds/dev-persona-loader';
 
 /**
  * Dev-режим «театр одного актёра»: подмена личности на входе транспорта.
@@ -32,46 +34,27 @@ export interface DevPersona {
   telegramId: number;
 }
 
-/** Персонажи dev-мира (users.json фикстур). Порядок = персона по умолчанию. */
-export const DEV_PERSONAS: readonly DevPersona[] = [
-  {
-    key: 'dev',
-    name: 'Dev',
-    about: 'ментор Потока 2 и остальных потоков JS Core',
-    telegramId: 1004,
-  },
-  {
-    key: 'andrey',
-    name: 'Андрей',
-    about: 'студент Потока 2 (active), субъект живой кампании отзывов',
-    telegramId: 1003,
-  },
-  {
-    key: 'marina',
-    name: 'Марина',
-    about: 'студент Потока 2 (advanced), одногруппница',
-    telegramId: 1007,
-  },
-  {
-    key: 'oleg',
-    name: 'Олег',
-    about: 'студент Потока 2 (not_advanced), одногруппник',
-    telegramId: 1008,
-  },
-];
+/** Персонажи dev-мира. Инициализируются из продуктового мира core-education. */
+export const DEV_PERSONAS: readonly DevPersona[] =
+  extractDevPersonasFromWorld(CORE_EDUCATION_WORLD);
 
 /** Переключатель персон: входящая подмена + исходящий редирект. */
 export class DevPersonaSwitch {
   #current: DevPersona;
+  readonly #personas: readonly DevPersona[];
   /** Фикстурные tg персон → dev-чат (исходящий редирект). */
   readonly redirects: ReadonlyMap<number, number>;
 
-  constructor(readonly devTelegramId: number) {
-    const first = DEV_PERSONAS[0];
+  constructor(
+    readonly devTelegramId: number,
+    personas: readonly DevPersona[] = DEV_PERSONAS,
+  ) {
+    this.#personas = personas;
+    const first = personas[0];
     if (!first) throw new Error('DEV_PERSONAS пуст — некому подменять');
     this.#current = first;
     this.redirects = new Map(
-      DEV_PERSONAS.map((p) => [p.telegramId, devTelegramId]),
+      personas.map((p) => [p.telegramId, devTelegramId]),
     );
   }
 
@@ -81,7 +64,7 @@ export class DevPersonaSwitch {
 
   /** Список персон (текущая роль + все ключи) — для лога и чата. */
   listText(): string {
-    const lines = DEV_PERSONAS.map(
+    const lines = this.#personas.map(
       (p) => `• /persona ${p.key} — ${p.name}: ${p.about}`,
     );
     return `Текущая роль: ${this.#current.name} (${this.#current.about})\n${lines.join('\n')}`;
@@ -98,7 +81,7 @@ export class DevPersonaSwitch {
     }
     const key = trimmed.split(/\s+/)[1];
     if (!key) return this.listText();
-    const found = DEV_PERSONAS.find((p) => p.key === key);
+    const found = this.#personas.find((p) => p.key === key);
     if (!found) return `Не знаю роль «${key}».\n\n${this.listText()}`;
     this.#current = found;
     return `🎭 Теперь ты — ${found.name}: ${found.about}.\nВсе следующие сообщения — от его имени.`;

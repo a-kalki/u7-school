@@ -8,6 +8,14 @@ export {
   student,
 } from './constructors';
 export {
+  CORE_EDUCATION_ANCHOR,
+  CORE_EDUCATION_WORLD,
+} from './core-education';
+export {
+  type DevPersona,
+  extractDevPersonasFromWorld,
+} from './dev-persona-loader';
+export {
   assertWorldInvariants,
   checkWorldInvariants,
   type InvariantViolation,
