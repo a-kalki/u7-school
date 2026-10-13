@@ -24,6 +24,7 @@
     "release": "bash scripts/release.sh",
     "deploy": "bash scripts/deploy.sh",
     "seed:fixtures": "bun run apps/u7-bot/scripts/seed-fixtures.ts",
+    "world:check": "bun run apps/u7-bot/scripts/world-check.ts",
     "dev:fixtures": "bun run seed:fixtures && DB_DIR=./data/fixtures NODE_ENV=development bun run apps/u7-bot/src/main.ts",
     "test:p": "bash -c 'bun run --cwd \"packages/${0}\" test'",
     "test:a": "bash -c 'bun run --cwd \"apps/${0}\" test'",

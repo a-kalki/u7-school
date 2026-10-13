@@ -60,7 +60,10 @@ function assertCampaignStudentFateInvariant(
 /**
  * Собирает типизированный WorldState из декларативного описания мира.
  */
-export function buildWorldState(def: WorldDefinition): WorldState {
+export function buildWorldState(
+  def: WorldDefinition,
+  options?: { skipAssert?: boolean },
+): WorldState {
   const anchorDate = def.anchorDate ?? new Date();
 
   // Реестры сопоставления key -> UUID
@@ -358,10 +361,12 @@ export function buildWorldState(def: WorldDefinition): WorldState {
       };
 
       // Проверка инварианта судьба кампании == исход студента
-      const st = students.find(
-        (s) => s.streamId === scopeId && s.userId === subjectId,
-      );
-      assertCampaignStudentFateInvariant(campaignEntity, st);
+      if (!options?.skipAssert) {
+        const st = students.find(
+          (s) => s.streamId === scopeId && s.userId === subjectId,
+        );
+        assertCampaignStudentFateInvariant(campaignEntity, st);
+      }
 
       return campaignEntity;
     },
@@ -423,7 +428,9 @@ export function buildWorldState(def: WorldDefinition): WorldState {
   };
 
   // Валидация всех инвариантов мира
-  assertWorldInvariants(state);
+  if (!options?.skipAssert) {
+    assertWorldInvariants(state);
+  }
 
   return state;
 }
