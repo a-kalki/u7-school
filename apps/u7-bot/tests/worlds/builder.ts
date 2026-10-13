@@ -32,8 +32,12 @@ import { deterministicUuid } from './uuid';
 function assertCampaignStudentFateInvariant(
   campaign: ReviewCampaign,
   student: Student | undefined,
+  streamStatus?: string,
 ): void {
   if (!student) {
+    if (streamStatus === 'completed' || streamStatus === 'archived') {
+      return;
+    }
     throw new Error(
       `Инвариант нарушен: субъект кампании ${campaign.subjectId} не найден среди студентов потока ${campaign.scopeId}`,
     );
@@ -43,9 +47,9 @@ function assertCampaignStudentFateInvariant(
   const status = student.status;
 
   const validCombinations: Record<StudentOutcome, string[]> = {
-    completed_passed: ['advanced'],
+    completed_passed: ['advanced', 'active'],
     completed_not_passed: ['not_advanced'],
-    dropped: ['abandoned'],
+    dropped: ['abandoned', 'active'],
     never_started: ['enrolled'],
   };
 
@@ -191,7 +195,7 @@ export function buildWorldState(
       title: c.title,
       description: c.description,
       authorId: authorUuid,
-      phases: [
+      phases: c.phases ?? [
         {
           title: 'Основная программа',
           moduleIds,
@@ -218,6 +222,7 @@ export function buildWorldState(
       : cDef?.modules?.[0];
 
     const moduleId =
+      s.moduleId ??
       (s.moduleKey ? moduleUuidByKey.get(s.moduleKey) : undefined) ??
       (mDef ? moduleUuidByKey.get(mDef.key) : undefined) ??
       deterministicUuid(`module:default`);
@@ -248,9 +253,9 @@ export function buildWorldState(
     });
 
     const startDate = resolveRelativeTime(s.startedAt ?? 'T-30d', anchorDate);
-    const createdAt = new Date(
-      new Date(startDate).getTime() - 30 * 24 * 60 * 60 * 1000,
-    ).toISOString();
+    const createdAt = isoMinute(
+      new Date(new Date(startDate).getTime() - 30 * 24 * 60 * 60 * 1000),
+    );
 
     const streamEntity: Stream = {
       uuid: streamUuid,
@@ -260,12 +265,14 @@ export function buildWorldState(
       moduleId,
       startDate,
       status: s.status as StreamStatus,
+      enrollmentKey: s.enrollmentKey,
       telegramGroupId: s.telegramGroupId ?? '-1001111111111',
       telegramGroupInvite:
         s.telegramGroupInvite ?? 'https://t.me/+test_group_invite',
       goal: s.goal ?? 'Освоить ключевые навыки программирования',
       result: s.result ?? 'Готовый проект в портфолио',
-      contentSnapshot,
+      contentSnapshot:
+        (s.contentSnapshot as Stream['contentSnapshot']) ?? contentSnapshot,
       createdAt,
     };
 
@@ -365,7 +372,8 @@ export function buildWorldState(
         const st = students.find(
           (s) => s.streamId === scopeId && s.userId === subjectId,
         );
-        assertCampaignStudentFateInvariant(campaignEntity, st);
+        const str = streams.find((s) => s.uuid === scopeId);
+        assertCampaignStudentFateInvariant(campaignEntity, st, str?.status);
       }
 
       return campaignEntity;

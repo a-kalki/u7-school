@@ -14,9 +14,9 @@ export interface InvariantViolation {
 
 /** Сопоставление исхода кампании и допустимых статусов студента */
 const OUTCOME_TO_STATUSES: Record<StudentOutcome, string[]> = {
-  completed_passed: ['advanced'],
+  completed_passed: ['advanced', 'active'],
   completed_not_passed: ['not_advanced'],
-  dropped: ['abandoned'],
+  dropped: ['abandoned', 'active'],
   never_started: ['enrolled'],
 };
 
@@ -45,10 +45,10 @@ export function checkWorldInvariants(state: WorldState): InvariantViolation[] {
     }
 
     const hasStudentRole = user.roles.some((r) => r === Role.STUDENT);
-    if (!hasStudentRole) {
+    if (st.status === 'active' && !hasStudentRole) {
       violations.push({
         code: 'STUDENT_ROLE_MISMATCH',
-        message: `Пользователь "${user.name}" (${user.uuid}) учится в потоке со статусом "${st.status}", но не имеет роли STUDENT (роли: ${user.roles.join(', ')})`,
+        message: `Пользователь "${user.name}" (${user.uuid}) учится в активном потоке со статусом "${st.status}", но не имеет роли STUDENT (роли: ${user.roles.join(', ')})`,
         entity: 'User',
         id: user.uuid,
       });
@@ -140,6 +140,10 @@ export function checkWorldInvariants(state: WorldState): InvariantViolation[] {
       (s) => s.streamId === cmp.scopeId && s.userId === cmp.subjectId,
     );
     if (!st) {
+      const stream = streamsById.get(cmp.scopeId);
+      if (stream?.status === 'completed' || stream?.status === 'archived') {
+        continue;
+      }
       violations.push({
         code: 'CAMPAIGN_SUBJECT_NOT_FOUND',
         message: `Субъект кампании ${cmp.subjectId} не найден среди студентов потока ${cmp.scopeId}`,

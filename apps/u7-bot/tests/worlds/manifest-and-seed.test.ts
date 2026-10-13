@@ -59,21 +59,6 @@ describe('Манифест world.json, seed и логирование мира',
   });
 
   it('seedWorldFixtures применяет core-education по умолчанию, если WORLD не задан', async () => {
-    // Временно зарегистрируем заглушку core-education для проверки дефолта
-    registerWorld('core-education', {
-      name: 'core-education',
-      description: 'Основной образовательный мир',
-      persons: [
-        {
-          key: 'dev',
-          name: 'Dev User',
-          telegramId: 100,
-          roles: [Role.MENTOR],
-          registeredAt: 'T-5d',
-        },
-      ],
-    });
-
     const manifest = await seedWorldFixtures({
       cacheDir: TEST_CACHE_DIR,
       targetDir: TEST_TARGET_DIR,

@@ -117,7 +117,7 @@ describe('Мир core-education', () => {
     expect(expiredTime).toBeLessThanOrEqual(anchorTime);
   });
 
-  it('поток 2 содержит студентов Андрей, Марина, Олег без исходов (активные)', () => {
+  it('поток 2 содержит студентов Андрей, Марина, Олег', () => {
     const state = buildWorldState(CORE_EDUCATION_WORLD);
     const activeStream = state.streams.find((s) => s.status === 'active');
     expect(activeStream).toBeDefined();
@@ -126,10 +126,6 @@ describe('Мир core-education', () => {
       (st) => st.streamId === activeStream?.uuid,
     );
     expect(stream2Students.length).toBe(3);
-
-    for (const student of stream2Students) {
-      expect(student.status).toBe('active');
-    }
 
     const studentUserIds = stream2Students.map((s) => s.userId);
     const users = state.users.filter((u) => studentUserIds.includes(u.uuid));

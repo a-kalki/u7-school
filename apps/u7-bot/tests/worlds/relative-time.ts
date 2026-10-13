@@ -26,7 +26,7 @@ export function resolveRelativeTime(
 
   // Если это чисто 'T'
   if (trimmed === 'T') {
-    return anchorDate.toISOString();
+    return isoMinute(anchorDate);
   }
 
   const match = trimmed.match(RELATIVE_TIME_REGEX);
@@ -36,7 +36,7 @@ export function resolveRelativeTime(
     const unitStr = match[3]?.toLowerCase();
 
     if (!signStr || !amountStr) {
-      return anchorDate.toISOString();
+      return isoMinute(anchorDate);
     }
 
     const sign = signStr === '-' ? -1 : 1;
@@ -79,7 +79,7 @@ export function resolveRelativeTime(
     }
 
     const targetTimestamp = anchorDate.getTime() + sign * amount * unitMs;
-    return new Date(targetTimestamp).toISOString();
+    return isoMinute(new Date(targetTimestamp));
   }
 
   // Если это не относительное выражение, возвращаем как есть (абсолютная дата)

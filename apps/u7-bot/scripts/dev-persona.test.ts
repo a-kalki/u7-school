@@ -26,7 +26,7 @@ describe('DevPersonaSwitch', () => {
   test('/persona без аргумента — список с текущей ролью', () => {
     const sw = new DevPersonaSwitch(DEV_TG);
     const reply = sw.handleCommand('/persona');
-    expect(reply).toContain('Текущая роль: Dev');
+    expect(reply).toContain(`Текущая роль: ${sw.current.name}`);
     expect(reply).toContain('/persona marina');
     // роль не сменилась
     expect(sw.current.key).toBe('dev');

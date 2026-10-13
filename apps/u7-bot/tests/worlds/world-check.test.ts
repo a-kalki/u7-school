@@ -106,13 +106,20 @@ describe('world:check — валидатор мира', () => {
     const logs: string[] = [];
     const worldDef = createValidWorldDef();
 
-    // Вносим нарушение роли: студент имеет только GUEST
+    // Вносим нарушение роли: студент активен, но имеет только GUEST
     worldDef.persons[1] = person({
       key: 'andrey',
       name: 'Андрей',
       telegramId: 1003,
       roles: ['GUEST'],
       registeredAt: 'T-60d',
+    });
+    worldDef.students[0] = student({
+      key: 'student-andrey',
+      personKey: 'andrey',
+      streamKey: 'stream-1',
+      enrolledAt: 'T-50d',
+      status: 'active',
     });
 
     const result = checkWorld(worldDef, {

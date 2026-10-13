@@ -33,8 +33,8 @@ apps/u7-bot/tests/
 ├── helpers/
 │   ├── test-app.ts            # createTestApp() — ApiApp с временными репозиториями
 │   ├── test-bot-transport.ts  # TestBotTransport — BotTransport + мок Api + сессии
-│   └── fixture-loader.ts      # loadFixtures() — copy-on-write из templates/
-├── fixtures/templates/        # эталонные JSON-фикстуры (один набор на все тесты)
+│   └── fixture-loader.ts      # loadFixtures() — copy-on-write из кеша материализации миров
+├── worlds/                    # декларативные тестовые миры (core-education, minimal, world-kit)
 ├── <module>/                  # интеграционные тесты модулей (courses/, streams/, learning/, mentor/)
 └── e2e/                       # E2E сценарии
 ```

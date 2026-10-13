@@ -192,7 +192,7 @@ describe('world-kit: каркас и базовые инварианты', () =>
         key: 'mentor',
         name: 'Dev Mentor',
         telegramId: 1004,
-        roles: ['MENTOR'],
+        roles: ['MENTOR', 'AUTHOR'],
         registeredAt: 'T-90d',
       });
 
@@ -221,13 +221,13 @@ describe('world-kit: каркас и базовые инварианты', () =>
         startedAt: 'T-50d',
       });
 
-      // Студент учится (active), а кампания утверждает что он completed_passed
+      // Студент зачислен (enrolled), а кампания утверждает что он completed_passed
       const stStudent = student({
         key: 'student-andrey',
         personKey: 'andrey',
         streamKey: 'stream-1',
         enrolledAt: 'T-50d',
-        status: 'active',
+        status: 'enrolled',
       });
 
       const cmp = campaign({
@@ -259,7 +259,7 @@ describe('world-kit: каркас и базовые инварианты', () =>
         key: 'mentor',
         name: 'Dev Mentor',
         telegramId: 1004,
-        roles: ['MENTOR'],
+        roles: ['MENTOR', 'AUTHOR'],
         registeredAt: 'T-90d',
       });
 

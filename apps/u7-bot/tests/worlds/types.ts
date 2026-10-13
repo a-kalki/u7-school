@@ -95,6 +95,7 @@ export interface CourseDef {
   description: string;
   authorKey: string;
   modules?: ModuleDef[];
+  phases?: { title: string; moduleIds: string[] }[];
 }
 
 /** Декларативное описание потока */
@@ -105,6 +106,7 @@ export interface StreamDef {
   description: string;
   courseKey: string;
   moduleKey?: string;
+  moduleId?: string;
   mentorKey: string;
   status: StreamStatus | `${StreamStatus}`;
   startedAt?: string;
@@ -112,6 +114,8 @@ export interface StreamDef {
   telegramGroupInvite?: string;
   goal?: string;
   result?: string;
+  enrollmentKey?: string;
+  contentSnapshot?: unknown[];
 }
 
 /** Запись о прохождении шага студентом */
