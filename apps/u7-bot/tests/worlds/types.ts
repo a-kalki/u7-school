@@ -163,9 +163,18 @@ export interface ReviewDef {
   createdAt?: string;
 }
 
+/** Манифест материализованного мира */
+export interface WorldManifest {
+  name: string;
+  hash: string;
+  generatedAt: string;
+  sourceHash?: string;
+}
+
 /** Полная декларация тестового мира */
 export interface WorldDefinition {
   name?: string;
+  description?: string;
   anchorDate?: Date;
   persons?: PersonDef[];
   courses?: CourseDef[];

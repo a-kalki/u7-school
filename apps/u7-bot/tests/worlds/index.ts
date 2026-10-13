@@ -12,6 +12,16 @@ export {
   checkWorldInvariants,
   type InvariantViolation,
 } from './invariants';
+export {
+  cleanupWorldFixtures,
+  computeSourceHash,
+  getPathsForDbDir,
+  getWorldFixtures,
+  type MaterializeOptions,
+  materializeWorld,
+  type WorldFixturePaths,
+  type WorldMaterializationResult,
+} from './materializer';
 export { getWorld, listWorlds, registerWorld } from './registry';
 export { isoMinute, resolveRelativeTime } from './relative-time';
 export * from './types';
