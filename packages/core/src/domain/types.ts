@@ -32,8 +32,10 @@ export interface AppResolver {
  * Базовый резолвер модуля.
  * Каждый модуль расширяет его своими специфичными зависимостями.
  */
-export interface ModuleResolver {
-  appResolver: AppResolver;
+export interface ModuleResolver<
+  TAppResolver extends AppResolver = AppResolver,
+> {
+  appResolver: TAppResolver;
   eventBus: EventBus;
 }
 
