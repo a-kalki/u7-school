@@ -7,12 +7,12 @@
 
 ## Фаза 1: Core — generic `ModuleResolver`
 
-- [ ] Task: Написать тест типов: `ModuleResolver<TAppResolver>` принимает расширенный
-      `AppResolver`, а `ModuleResolver` без параметра остаётся совместим со старым кодом.
-    - [ ] Тест-файл в `packages/core/src/domain/types.test.ts` (или type-check сценарий).
-- [ ] Task: Реализовать `ModuleResolver<TAppResolver extends AppResolver = AppResolver>`.
-- [ ] Task: Прогнать `bun run tslint` и тесты core — убедиться в отсутствии регрессов типов.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 1: Core generic ModuleResolver' (Protocol in workflow.md)
+- [x] Task: Написать тест типов: `ModuleResolver<TAppResolver>` принимает расширенный
+      `AppResolver`, а `ModuleResolver` без параметра остаётся совместим со старым кодом. (18f8f68)
+    - [x] Тест-файл в `packages/core/src/domain/types.test.ts` (или type-check сценарий). (18f8f68)
+- [x] Task: Реализовать `ModuleResolver<TAppResolver extends AppResolver = AppResolver>`. (18f8f68)
+- [x] Task: Прогнать `bun run tslint` и тесты core — убедиться в отсутствии регрессов типов. (18f8f68)
+- [x] Task: Conductor - User Manual Verification 'Фаза 1: Core generic ModuleResolver' (Protocol in workflow.md) (18f8f68)
 
 ## Фаза 2: App — тип `School` и резолверы
 
