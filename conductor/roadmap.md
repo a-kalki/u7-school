@@ -35,7 +35,7 @@
 | 3 | **Модуль сессий** (sessions): реестр взаимодействий людей (парное программирование, код-ревью, ...) → событие `session.completed` → анкеты peer-review | концепция готова; треки — при планировании | [sessions-system.md](./roadmap/sessions-system.md) |
 | 4 | **Модуль досье** (dossier, бывш. metrics; Релиз 4): `packages/dossier` — агрегация по модулю учёбы (объект для паспорта: метрики и отзывы по сессиям и по модулю) + досье студента, порог достоверности | 📋 запланирован; пакет-заготовка создан (схемы навыков), агрегация — при треке | [metrics-pipeline-and-modules.md](./roadmap/metrics/metrics-pipeline-and-modules.md) |
 | 5 | **Модуль вклада** (contribution): балл вклада из кросс-анкет командных задач + явные фиксации вклада; блок «член сообщества» в профиле | концепция (не начат), после п. 4 | [contribution-system.md](./roadmap/contribution-system.md) |
-| 6 | **DMG** — декларативные манифесты домена, сквозная типизация, `Result` вместо исключений, политики доступа, каузальный анализ | концепция (не начата) | [domain-manifest-graph.md](./roadmap/domain-manifest-graph.md) |
+| 6 | **DMG** — декларативные манифесты домена, сквозная типизация, `Result` вместо исключений, политики доступа, каузальный анализ | контур утверждён, треки — см. план перехода | [architecture/](./architecture/index.md), [migration.md](./architecture/migration.md) |
 | 7 | **Контент, Релиз 5**: `basedOn`, visibility, CRUD, `contentSnapshot` → чистое UUID-дерево | не начат | [content-management.md](./roadmap/content-management.md), треки 1–2 |
 | 8 | **Контент, Релиз 6**: Import/Export, Fork, publish-replace, gating | не начат | [content-management.md](./roadmap/content-management.md), треки 3–4 |
 | 9 | **Модуль отзывов peer-review** (этап «отзывы»): кампании `stream_completed` («студент завершил поток») + текстовые отзывы; далее анкеты в кампании (техдолг) | 🔥 треки созданы: статусы студента, домен+API, UI | [peer-review-system.md](./roadmap/metrics/peer-review-system.md) |
@@ -85,5 +85,5 @@
 | [digital-passport.md](./roadmap/metrics/digital-passport.md) | цифровой паспорт: витрина профиля, PDF+QR, портфолио, рекомендация |
 | [contribution-system.md](./roadmap/contribution-system.md) | вклад: кросс-анкеты командных задач, явные фиксации, блок «член сообщества» |
 | [content-management.md](./roadmap/content-management.md) | управление контентом: basedOn, frozen snapshots, Import/Export, Fork |
-| [domain-manifest-graph.md](./roadmap/domain-manifest-graph.md) | DMG: декларации, Result, политики, каузальный анализ |
+| [architecture/](./architecture/index.md) | DMG: декларации, Result, политики, каузальный анализ (перенесено из roadmap/) |
 | [schools-system.md](./roadmap/schools-system.md) | система школ: множественность, активная школа, связка автор–школа–ментор, эволюция хабов |
