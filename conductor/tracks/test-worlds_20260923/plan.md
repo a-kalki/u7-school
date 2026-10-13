@@ -45,10 +45,10 @@
 
 ## Фаза 4. Мир minimal
 
-- [ ] Task: Мир `minimal` (только dev-персона, пустые модульные данные) для дымовых прогонов
-    - [ ] Red: тесты (сборка, инварианты, материализация)
-    - [ ] Green: реализация
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
+- [x] Task: Мир `minimal` (только dev-персона, пустые модульные данные) для дымовых прогонов
+    - [x] Red: тесты (сборка, инварианты, материализация)
+    - [x] Green: реализация
+- [x] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
 
 ## Фаза 5. Миграция тестов на миры
 

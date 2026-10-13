@@ -1,8 +1,31 @@
-import { CORE_EDUCATION_WORLD } from './core-education';
 import type { WorldDefinition } from './types';
 
 const WORLDS = new Map<string, WorldDefinition>();
-WORLDS.set('core-education', CORE_EDUCATION_WORLD);
+let defaultsLoaded = false;
+
+function ensureDefaults(): void {
+  if (defaultsLoaded) return;
+  defaultsLoaded = true;
+
+  // Ленивый импорт встроенных миров для предотвращения циклических зависимостей
+  try {
+    const { CORE_EDUCATION_WORLD } = require('./core-education');
+    if (!WORLDS.has('core-education')) {
+      WORLDS.set('core-education', CORE_EDUCATION_WORLD);
+    }
+  } catch {
+    // В процессе инициализации
+  }
+
+  try {
+    const { MINIMAL_WORLD } = require('./minimal');
+    if (!WORLDS.has('minimal')) {
+      WORLDS.set('minimal', MINIMAL_WORLD);
+    }
+  } catch {
+    // В процессе инициализации
+  }
+}
 
 /**
  * Регистрирует декларацию мира по имени или дефиниции.
@@ -27,6 +50,7 @@ export function registerWorld(
  * Возвращает зарегистрированный мир по имени.
  */
 export function getWorld(name: string): WorldDefinition | undefined {
+  ensureDefaults();
   return WORLDS.get(name);
 }
 
@@ -34,6 +58,7 @@ export function getWorld(name: string): WorldDefinition | undefined {
  * Возвращает список имён зарегистрированных миров.
  */
 export function listWorldNames(): string[] {
+  ensureDefaults();
   return Array.from(WORLDS.keys());
 }
 
@@ -41,6 +66,7 @@ export function listWorldNames(): string[] {
  * Возвращает список зарегистрированных миров с их определениями.
  */
 export function listWorlds(): { name: string; definition: WorldDefinition }[] {
+  ensureDefaults();
   return Array.from(WORLDS.entries()).map(([name, definition]) => ({
     name,
     definition,

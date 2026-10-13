@@ -37,6 +37,7 @@ export {
   type WorldFixturePaths,
   type WorldMaterializationResult,
 } from './materializer';
+export { MINIMAL_WORLD } from './minimal';
 export {
   getWorld,
   listWorldNames,

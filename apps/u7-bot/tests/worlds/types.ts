@@ -185,3 +185,8 @@ export interface WorldDefinition {
   wishes?: Wish[];
   questionnaires?: Questionnaire[];
 }
+
+/** Зарегистрированный мир с готовой функцией сборки состояния */
+export interface RegisteredWorld extends WorldDefinition {
+  buildState(): WorldState;
+}
