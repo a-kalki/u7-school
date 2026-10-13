@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { CompositeLogger } from '@u7-scl/app/infra';
 import {
   ConsoleLogger,
@@ -29,6 +30,20 @@ setGlobalLogger(loggers);
 
 // TelegramLogger создадим после createBot, но пока есть только consoleLogger
 const logger = loggers;
+
+// ══ Логирование активного тестового мира (при наличии world.json в dbDir) ══
+try {
+  const worldRaw = await readFile(`${config.dbDir}/world.json`, 'utf-8');
+  const worldManifest = JSON.parse(worldRaw);
+  if (worldManifest?.name && worldManifest?.hash) {
+    logger.info(
+      'main',
+      `[world] Активный мир: ${worldManifest.name} (хеш: ${worldManifest.hash})`,
+    );
+  }
+} catch {
+  // На проде или без тестового мира — файла нет, это ожидаемо
+}
 
 const bot = createBot(config.botToken);
 

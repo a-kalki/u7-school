@@ -100,6 +100,8 @@ async function writeWorldFiles(
   state: WorldState,
   manifest: WorldManifest,
 ): Promise<void> {
+  await mkdir(path.join(targetDir, 'users'), { recursive: true });
+  await mkdir(path.join(targetDir, 'streams'), { recursive: true });
   await mkdir(path.join(targetDir, 'courses'), { recursive: true });
   await mkdir(path.join(targetDir, 'peer-review'), { recursive: true });
   await mkdir(path.join(targetDir, 'wish'), { recursive: true });
@@ -108,15 +110,28 @@ async function writeWorldFiles(
 
   const paths = getPathsForDbDir(targetDir);
 
-  await writeFile(paths.users, JSON.stringify(state.users, null, 2), 'utf-8');
+  const usersJson = JSON.stringify(state.users, null, 2);
+  const streamsJson = JSON.stringify(state.streams, null, 2);
+  const studentsJson = JSON.stringify(state.students, null, 2);
+
+  await writeFile(paths.users, usersJson, 'utf-8');
   await writeFile(
-    paths.streams,
-    JSON.stringify(state.streams, null, 2),
+    path.join(targetDir, 'users', 'users.json'),
+    usersJson,
     'utf-8',
   );
+
+  await writeFile(paths.streams, streamsJson, 'utf-8');
   await writeFile(
-    paths.students,
-    JSON.stringify(state.students, null, 2),
+    path.join(targetDir, 'streams', 'streams.json'),
+    streamsJson,
+    'utf-8',
+  );
+
+  await writeFile(paths.students, studentsJson, 'utf-8');
+  await writeFile(
+    path.join(targetDir, 'streams', 'students.json'),
+    studentsJson,
     'utf-8',
   );
 

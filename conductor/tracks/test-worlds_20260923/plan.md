@@ -25,10 +25,10 @@
 - [x] Task: Кеш материализации: ключ (имя мира + хеш исходников); повторный запрос без изменений мира не пересобирает; copy-on-write раздача копий по тегу (наследует механизм fixture-loader)
     - [x] Red: тесты (второй вызов без пересборки; правка исходников → пересборка; копии изолированы)
     - [x] Green: реализация
-- [ ] Task: Манифест `world.json` (имя, хеш) в `data/fixtures/` + `world:list`; seed: `WORLD=<имя>` (дефолт `core-education`), бот логирует мир при старте
-    - [ ] Red: тесты (манифест создан; дефолт применяется; лог)
-    - [ ] Green: реализация
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
+- [x] Task: Манифест `world.json` (имя, хеш) в `data/fixtures/` + `world:list`; seed: `WORLD=<имя>` (дефолт `core-education`), бот логирует мир при старте
+    - [x] Red: тесты (манифест создан; дефолт применяется; лог)
+    - [x] Green: реализация
+- [x] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
 ## Фаза 3. Мир core-education (продуктовый контент)
 
