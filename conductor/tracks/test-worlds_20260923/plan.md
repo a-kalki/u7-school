@@ -15,7 +15,7 @@
 - [x] Task: `world:check` — валидатор мира (CLI-функция + скрипт): собирает мир, печатает нарушения, ненулевой exit при ошибках
     - [x] Red: тесты (валидный мир проходит; каждый инвариант ловится)
     - [x] Green: реализация
-- [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
 ## Фаза 2. Материализация, кеш, запуск
 
