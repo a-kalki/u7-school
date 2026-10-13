@@ -13,6 +13,7 @@ import type {
 } from '@u7-scl/peer-review/domain';
 import type { Stream, StreamStatus, Student } from '@u7-scl/stream/domain';
 import type { Role, User } from '@u7-scl/user/domain';
+import { assertWorldInvariants } from './invariants';
 import { isoMinute, resolveRelativeTime } from './relative-time';
 import type {
   CampaignDef,
@@ -244,10 +245,9 @@ export function buildWorldState(def: WorldDefinition): WorldState {
     });
 
     const startDate = resolveRelativeTime(s.startedAt ?? 'T-30d', anchorDate);
-    const createdAt = resolveRelativeTime(
-      s.startedAt ? `${s.startedAt}-30d` : 'T-60d',
-      anchorDate,
-    );
+    const createdAt = new Date(
+      new Date(startDate).getTime() - 30 * 24 * 60 * 60 * 1000,
+    ).toISOString();
 
     const streamEntity: Stream = {
       uuid: streamUuid,
@@ -406,7 +406,7 @@ export function buildWorldState(def: WorldDefinition): WorldState {
     return reviewEntity;
   });
 
-  return {
+  const state: WorldState = {
     users,
     streams,
     students,
@@ -421,4 +421,9 @@ export function buildWorldState(def: WorldDefinition): WorldState {
     sessions: [],
     shortIds: [],
   };
+
+  // Валидация всех инвариантов мира
+  assertWorldInvariants(state);
+
+  return state;
 }
