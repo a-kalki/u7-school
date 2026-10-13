@@ -39,5 +39,5 @@
 
 ```
 git add string-utils/trim.js string-utils/trim.test.js
-git commit -m "Реализована trim — удаление пробелов с начала и конца строки"
+git commit -m "Реализовать trim — удаление пробелов с начала и конца строки"
 ```

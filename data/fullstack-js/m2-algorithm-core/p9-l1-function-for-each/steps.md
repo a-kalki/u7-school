@@ -61,5 +61,5 @@ test('должна вызвать callback для каждого элемент�
 
 ```
 git add array-utils/for-each.js array-utils/for-each.test.js
-git commit -m "Реализована forEach — перебор массива с callback"
+git commit -m "Реализовать forEach — перебор массива с callback"
 ```

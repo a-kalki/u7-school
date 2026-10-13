@@ -105,7 +105,7 @@
 
 ```bash
 git add sorting/bubble-sort.js sorting/bubble-sort.test.js
-git commit -m "Реализована bubbleSort — сортировка пузырьком"
+git commit -m "Реализовать bubbleSort — сортировка пузырьком"
 ```
 
 ---

@@ -68,7 +68,7 @@
 
 ```bash
 git add sorting/quick-sort.js sorting/quick-sort.test.js
-git commit -m "Реализована quickSort — быстрая сортировка"
+git commit -m "Реализовать quickSort — быстрая сортировка"
 ```
 
 ---

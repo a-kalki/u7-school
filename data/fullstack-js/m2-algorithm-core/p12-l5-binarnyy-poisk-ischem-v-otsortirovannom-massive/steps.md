@@ -64,7 +64,7 @@
 
 ```bash
 git add sorting/binary-search.js sorting/binary-search.test.js
-git commit -m "Реализован binarySearch — бинарный поиск"
+git commit -m "Реализовать binarySearch — бинарный поиск"
 ```
 
 ---

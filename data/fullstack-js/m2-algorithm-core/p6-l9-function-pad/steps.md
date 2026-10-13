@@ -53,5 +53,5 @@
 
 ```
 git add string-utils/pad.js string-utils/pad.test.js
-git commit -m "Реализована pad — дополнение строки символами до заданной длины"
+git commit -m "Реализовать pad — дополнение строки символами до заданной длины"
 ```

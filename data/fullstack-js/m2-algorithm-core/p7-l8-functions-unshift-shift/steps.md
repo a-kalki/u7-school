@@ -33,7 +33,7 @@
 
 ```
 git add array-utils/unshift.js array-utils/unshift.test.js
-git commit -m "Реализована unshift — добавление в начало со сдвигом"
+git commit -m "Реализовать unshift — добавление в начало со сдвигом"
 ```
 
 ---
@@ -72,5 +72,5 @@ git commit -m "Реализована unshift — добавление в нач
 
 ```
 git add array-utils/shift.js array-utils/shift.test.js
-git commit -m "Реализована shift — удаление первого элемента со сдвигом"
+git commit -m "Реализовать shift — удаление первого элемента со сдвигом"
 ```

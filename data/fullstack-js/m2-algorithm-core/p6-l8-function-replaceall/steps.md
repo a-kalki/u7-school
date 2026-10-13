@@ -46,5 +46,5 @@
 
 ```
 git add string-utils/replace-all.js string-utils/replace-all.test.js
-git commit -m "Реализована replaceAll — замена всех вхождений подстроки"
+git commit -m "Реализовать replaceAll — замена всех вхождений подстроки"
 ```

@@ -34,7 +34,7 @@
 
 ```
 git add array-utils/last-index-of.js array-utils/last-index-of.test.js
-git commit -m "Реализована lastIndexOf — поиск последнего вхождения"
+git commit -m "Реализовать lastIndexOf — поиск последнего вхождения"
 ```
 
 ---
@@ -74,5 +74,5 @@ git commit -m "Реализована lastIndexOf — поиск последн�
 
 ```
 git add array-utils/includes.js array-utils/includes.test.js
-git commit -m "Реализована includes для массивов — через композицию с indexOf"
+git commit -m "Реализовать includes для массивов — через композицию с indexOf"
 ```

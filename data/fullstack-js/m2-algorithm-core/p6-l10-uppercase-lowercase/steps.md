@@ -41,7 +41,7 @@
 
 ```
 git add string-utils/upper-case.js string-utils/upper-case.test.js
-git commit -m "Реализована upperCase — перевод латиницы и кириллицы в верхний регистр"
+git commit -m "Реализовать upperCase — перевод латиницы и кириллицы в верхний регистр"
 ```
 
 ---
@@ -81,5 +81,5 @@ git commit -m "Реализована upperCase — перевод латини�
 
 ```
 git add string-utils/lower-case.js string-utils/lower-case.test.js
-git commit -m "Реализована lowerCase — перевод латиницы и кириллицы в нижний регистр"
+git commit -m "Реализовать lowerCase — перевод латиницы и кириллицы в нижний регистр"
 ```

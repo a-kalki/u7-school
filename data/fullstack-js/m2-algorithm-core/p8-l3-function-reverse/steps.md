@@ -44,5 +44,5 @@
 
 ```
 git add array-utils/reverse.js array-utils/reverse.test.js
-git commit -m "Реализован reverse — переворот массива на месте"
+git commit -m "Реализовать reverse — переворот массива на месте"
 ```

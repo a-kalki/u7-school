@@ -37,7 +37,7 @@ pull — забрать чужие коммиты с удалённого реп
 - Нажми **+** → **New repository**
 - Имя: `js-algorithms`
 - Выбери **Public** (или Private — как хочешь)
-- **НЕ** добавляй README, .gitignore и license (у тебя уже есть файлы)
+- **НЕ** добавляй README, .gitignore и license
 - Нажми **Create repository**
 
 **2. Привяжи локальный репозиторий:**

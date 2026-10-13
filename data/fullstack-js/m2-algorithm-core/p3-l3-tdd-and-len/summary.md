@@ -6,6 +6,6 @@
 - Заглушка `len()` возвращает `undefined` — гарантированно падает на первом тесте
 - Граничные случаи: `''` → 0, `'   '` → 3, кириллица `'привет'` → 6
 - Исключения: `TypeError` на `123`, `null`, `undefined` — по циклу RED→GREEN для каждого
-- Коммит: `git add string-utils/len.js string-utils/len.test.js` → «Реализована функция len(str) через TDD»
+- Коммит: `git add string-utils/len.js string-utils/len.test.js` → «Реализовать функцию len(str) через TDD»
 
 [Полный конспект](./lesson.md)

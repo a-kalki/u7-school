@@ -88,5 +88,5 @@ for (let i = 0; i < len(objEntries); i++) {
 
 ```bash
 git add object-utils/values.js object-utils/values.test.js object-utils/entries.js object-utils/entries.test.js
-git commit -m "Реализованы values(obj) и entries(obj) через композицию с keys"
+git commit -m "Реализовать values(obj) и entries(obj) через композицию с keys"
 ```

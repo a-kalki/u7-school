@@ -50,5 +50,5 @@
 
 ```
 git add array-utils/len.js array-utils/len.test.js
-git commit -m "Реализована len для массивов — подсчёт элементов"
+git commit -m "Реализовать len для массивов — подсчёт элементов"
 ```

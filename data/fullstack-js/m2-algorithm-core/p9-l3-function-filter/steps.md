@@ -39,5 +39,5 @@
 
 ```
 git add array-utils/filter.js array-utils/filter.test.js
-git commit -m "Реализована filter — фильтрация массива через предикат"
+git commit -m "Реализовать filter — фильтрация массива через предикат"
 ```

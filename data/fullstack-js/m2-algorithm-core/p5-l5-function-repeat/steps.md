@@ -42,5 +42,5 @@
 
 ```
 git add string-utils/repeat.js string-utils/repeat.test.js
-git commit -m "Реализована repeat — повторение строки"
+git commit -m "Реализовать repeat — повторение строки"
 ```

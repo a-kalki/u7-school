@@ -45,5 +45,5 @@
 
 ```
 git add array-utils/at.js array-utils/at.test.js
-git commit -m "Реализована at — доступ по индексу с отрицательными индексами"
+git commit -m "Реализовать at — доступ по индексу с отрицательными индексами"
 ```

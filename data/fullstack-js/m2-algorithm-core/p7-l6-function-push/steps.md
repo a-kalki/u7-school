@@ -83,5 +83,5 @@ test('push добавляет элемент в конец', () => {
 
 ```
 git add array-utils/push.js array-utils/push.test.js
-git commit -m "Реализована push — добавление в конец массива"
+git commit -m "Реализовать push — добавление в конец массива"
 ```

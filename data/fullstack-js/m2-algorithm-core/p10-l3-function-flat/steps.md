@@ -46,5 +46,5 @@
 
 ```
 git add array-utils/flat.js array-utils/flat.test.js
-git commit -m "Реализована flat — разглаживание вложенных массивов"
+git commit -m "Реализовать flat — разглаживание вложенных массивов"
 ```

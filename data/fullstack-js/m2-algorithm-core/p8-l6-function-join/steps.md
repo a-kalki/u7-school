@@ -51,5 +51,5 @@
 
 ```
 git add array-utils/join.js array-utils/join.test.js
-git commit -m "Реализован join — склеивание массива в строку"
+git commit -m "Реализовать join — склеивание массива в строку"
 ```

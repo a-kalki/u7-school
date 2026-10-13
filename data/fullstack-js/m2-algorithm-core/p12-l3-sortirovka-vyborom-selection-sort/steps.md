@@ -67,7 +67,7 @@
 
 ```bash
 git add sorting/selection-sort.js sorting/selection-sort.test.js
-git commit -m "Реализована selectionSort — сортировка выбором"
+git commit -m "Реализовать selectionSort — сортировка выбором"
 ```
 
 ---

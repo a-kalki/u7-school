@@ -61,5 +61,5 @@
 
 ```bash
 git add object-utils/is-equal-deep.js object-utils/is-equal-deep.test.js
-git commit -m "Реализована isEqualDeep — глубокое структурное сравнение"
+git commit -m "Реализовать isEqualDeep — глубокое структурное сравнение"
 ```

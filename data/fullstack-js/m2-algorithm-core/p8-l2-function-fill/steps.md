@@ -57,5 +57,5 @@
 
 ```
 git add array-utils/fill.js array-utils/fill.test.js
-git commit -m "Реализована fill — заполнение массива значением"
+git commit -m "Реализовать fill — заполнение массива значением"
 ```

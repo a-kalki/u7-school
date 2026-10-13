@@ -58,5 +58,5 @@
 
 ```
 git add string-utils/index-of.js string-utils/index-of.test.js
-git commit -m "Реализована indexOf — наивный поиск подстроки"
+git commit -m "Реализовать indexOf — наивный поиск подстроки"
 ```

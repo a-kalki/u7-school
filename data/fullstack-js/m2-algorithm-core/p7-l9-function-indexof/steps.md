@@ -45,5 +45,5 @@
 
 ```
 git add array-utils/index-of.js array-utils/index-of.test.js
-git commit -m "Реализована indexOf для массивов — поиск элемента"
+git commit -m "Реализовать indexOf для массивов — поиск элемента"
 ```

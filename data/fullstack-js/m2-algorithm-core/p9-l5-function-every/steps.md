@@ -34,5 +34,5 @@
 
 ```
 git add array-utils/every.js array-utils/every.test.js
-git commit -m "Реализована every — проверка «все» с ранним выходом"
+git commit -m "Реализовать every — проверка «все» с ранним выходом"
 ```

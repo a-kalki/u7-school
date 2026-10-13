@@ -42,7 +42,7 @@ rest-параметр — сбор остальных аргументов фу�
 
 ```
 git add array-utils/splice.js array-utils/splice.test.js
-git commit -m "Реализована splice, часть 1 — удаление элементов"
+git commit -m "Реализовать splice, часть 1 — удаление элементов"
 ```
 
 ---
@@ -77,5 +77,5 @@ function splice(arr, start, deleteCount, ...items)
 
 ```
 git add array-utils/splice.js array-utils/splice.test.js
-git commit -m "Реализован splice — удаление и вставка элементов в массив"
+git commit -m "Реализовать splice — удаление и вставка элементов в массив"
 ```

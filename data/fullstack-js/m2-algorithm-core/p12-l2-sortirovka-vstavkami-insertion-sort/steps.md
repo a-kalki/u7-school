@@ -68,7 +68,7 @@
 
 ```bash
 git add sorting/insertion-sort.js sorting/insertion-sort.test.js
-git commit -m "Реализована insertionSort — сортировка вставками"
+git commit -m "Реализовать insertionSort — сортировка вставками"
 ```
 
 ---

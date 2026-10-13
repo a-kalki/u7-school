@@ -35,5 +35,5 @@
 
 ```
 git add array-utils/map.js array-utils/map.test.js
-git commit -m "Реализована map — трансформация массива через callback"
+git commit -m "Реализовать map — трансформация массива через callback"
 ```

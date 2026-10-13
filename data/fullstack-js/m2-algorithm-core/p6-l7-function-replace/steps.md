@@ -43,5 +43,5 @@
 
 ```
 git add string-utils/replace.js string-utils/replace.test.js
-git commit -m "Реализована replace — замена первого вхождения подстроки"
+git commit -m "Реализовать replace — замена первого вхождения подстроки"
 ```

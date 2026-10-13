@@ -160,7 +160,7 @@ expect(() => len(123)).toThrow('Аргумент должен быть стро�
 ```
 git add string-utils/len.js string-utils/len.test.js
 git status
-git commit -m "Реализована функция len(str) через TDD"
+git commit -m "Реализовать функцию len(str) через TDD"
 ```
 
 Сообщения коммитов — по правилам из урока 3 проекта 1: глагол, до 72 символов, понятно что сделано. Проверь историю: `git log --oneline` — появился осмысленный коммит.

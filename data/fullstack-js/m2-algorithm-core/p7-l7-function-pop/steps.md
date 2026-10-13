@@ -82,5 +82,5 @@ delete b[1];          // индекс убран — дырка
 
 ```
 git add array-utils/pop.js array-utils/pop.test.js
-git commit -m "Реализована pop — удаление последнего элемента"
+git commit -m "Реализовать pop — удаление последнего элемента"
 ```

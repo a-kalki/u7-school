@@ -88,5 +88,5 @@ console.log('original.address.city:', original.address.city); // ?
 
 ```bash
 git add object-utils/clone-deep.js object-utils/clone-deep.test.js
-git commit -m "Реализована cloneDeep — глубокое рекурсивное копирование"
+git commit -m "Реализовать cloneDeep — глубокое рекурсивное копирование"
 ```

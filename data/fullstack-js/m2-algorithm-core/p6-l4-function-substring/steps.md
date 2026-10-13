@@ -61,5 +61,5 @@
 
 ```
 git add string-utils/substring.js string-utils/substring.test.js
-git commit -m "Реализована substring — извлечение подстроки с нормализацией"
+git commit -m "Реализовать substring — извлечение подстроки с нормализацией"
 ```

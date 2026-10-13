@@ -50,5 +50,5 @@ test('должна остановиться при первом true', () => {
 
 ```
 git add array-utils/some.js array-utils/some.test.js
-git commit -m "Реализована some — проверка «хотя бы один» с ранним выходом"
+git commit -m "Реализовать some — проверка «хотя бы один» с ранним выходом"
 ```

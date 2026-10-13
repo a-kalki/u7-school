@@ -96,5 +96,5 @@
 
 ```
 git add string-utils/includes.js string-utils/includes.test.js string-utils/starts-with.js string-utils/starts-with.test.js string-utils/ends-with.js string-utils/ends-with.test.js
-git commit -m "Реализованы includes, startsWith, endsWith — проверки наличия подстроки"
+git commit -m "Реализовать includes, startsWith, endsWith — проверки наличия подстроки"
 ```

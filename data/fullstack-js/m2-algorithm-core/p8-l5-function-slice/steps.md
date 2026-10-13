@@ -52,5 +52,5 @@
 
 ```
 git add array-utils/slice.js array-utils/slice.test.js
-git commit -m "Реализован slice — копирование подмассива"
+git commit -m "Реализовать slice — копирование подмассива"
 ```

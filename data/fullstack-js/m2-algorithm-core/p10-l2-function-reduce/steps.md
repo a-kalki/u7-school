@@ -48,5 +48,5 @@
 
 ```
 git add array-utils/reduce.js array-utils/reduce.test.js
-git commit -m "Реализована reduce — свёртка массива в одно значение"
+git commit -m "Реализовать reduce — свёртка массива в одно значение"
 ```

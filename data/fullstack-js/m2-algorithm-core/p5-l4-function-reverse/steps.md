@@ -38,5 +38,5 @@
 
 ```
 git add string-utils/reverse.js string-utils/reverse.test.js
-git commit -m "Реализована reverse — переворот строки"
+git commit -m "Реализовать reverse — переворот строки"
 ```

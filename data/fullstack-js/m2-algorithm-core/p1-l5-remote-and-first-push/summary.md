@@ -1,7 +1,7 @@
 # Удалённый репозиторий и первый push — краткая выжимка
 
 - `git remote add origin git@github.com:<user>/<repo>.git` — связь с GitHub; проверка: `git remote -v`
-- Новый репозиторий на GitHub: **без** README/.gitignore/license — они уже есть локально
+- Новый репозиторий на GitHub: **без** README/.gitignore/license
 - Контрольная точка перед push: `git branch --show-current` → должно быть `main`
 - `git push -u origin main` — первый push; `-u` запоминает связь ветки с remote (дальше — просто `git push`)
 - push = отправка коммитов на GitHub, pull = забирание с GitHub

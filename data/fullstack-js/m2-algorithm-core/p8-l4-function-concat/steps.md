@@ -46,5 +46,5 @@ spread-синтаксис — разворачивание массива чер
 
 ```
 git add array-utils/concat.js array-utils/concat.test.js
-git commit -m "Реализован concat — объединение двух массивов"
+git commit -m "Реализовать concat — объединение двух массивов"
 ```

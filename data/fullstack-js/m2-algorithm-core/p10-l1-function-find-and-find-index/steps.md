@@ -70,5 +70,5 @@
 
 ```
 git add array-utils/find.js array-utils/find.test.js array-utils/find-index.js array-utils/find-index.test.js
-git commit -m "Реализованы find и findIndex — поиск элемента и индекса с ранним выходом"
+git commit -m "Реализовать find и findIndex — поиск элемента и индекса с ранним выходом"
 ```

@@ -105,5 +105,5 @@ delete Object.prototype.custom;
 
 ```bash
 git add object-utils/keys.js object-utils/keys.test.js
-git commit -m "Реализована keys(obj) — получение собственных ключей объекта"
+git commit -m "Реализовать keys(obj) — получение собственных ключей объекта"
 ```
