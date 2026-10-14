@@ -544,9 +544,7 @@ describe('E2E: Витрина для любопытного', () => {
       await transport.handleStart(transport.makeBotContext(tgId));
       // Крафтовый код с АКТУАЛЬНЫМ штампом экрана: по форме валиден,
       // но поток не существует — экран ошибки, без падений
-      const stamp = pressedCode(transport, tgId, 'Курсы')
-        .split(':')
-        .pop();
+      const stamp = pressedCode(transport, tgId, 'Курсы').split(':').pop();
       const response = await transport.handleCallback(
         transport.makeBotContext(tgId, {
           callbackData: `stream:view-stream:view:ffffffff-ffff-ffff-ffff-ffffffffffff:${stamp}`,
