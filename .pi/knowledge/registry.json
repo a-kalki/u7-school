@@ -5,6 +5,48 @@
     "stale_days": 365
   },
   "entries": {
+    "R-20261014-1813": {
+      "kind": "fact",
+      "tags": ["контент", "снапшот", "архив", "бд", "uuid"],
+      "description": "Снапшоты потоков ссылаются на uuid уроков/шагов — контент нельзя удалять физически",
+      "symptoms": ["физически удалённый шаг молча выпадает из пути студента"],
+      "file": "R-20261014-1813.md",
+      "created_at": "2026-10-14",
+      "updated_at": "2026-10-14",
+      "shown": 0,
+      "opened": 0,
+      "helped": 0,
+      "last_shown_at": null,
+      "last_used_at": null
+    },
+    "R-20261014-1813-2": {
+      "kind": "decision",
+      "tags": ["контент", "модули", "именование"],
+      "description": "Ссылки на учебные модули — по имени, без номера",
+      "symptoms": [],
+      "file": "R-20261014-1813-2.md",
+      "created_at": "2026-10-14",
+      "updated_at": "2026-10-14",
+      "shown": 0,
+      "opened": 0,
+      "helped": 0,
+      "last_shown_at": null,
+      "last_used_at": null
+    },
+    "R-20261014-1813-3": {
+      "kind": "practice",
+      "tags": ["скрипты", "git", "контент"],
+      "description": "Одноразовые скрипты укладки/генерации контента не коммитим",
+      "symptoms": [],
+      "file": "R-20261014-1813-3.md",
+      "created_at": "2026-10-14",
+      "updated_at": "2026-10-14",
+      "shown": 0,
+      "opened": 0,
+      "helped": 0,
+      "last_shown_at": null,
+      "last_used_at": null
+    },
     "R-api-app-execute-actor-object": {
       "kind": "problem",
       "tags": ["api-app", "actor", "scripts", "execute"],
@@ -150,10 +192,10 @@
       "file": "R-git-archive-gitignore.md",
       "created_at": "2026-07-08",
       "updated_at": "2026-07-08",
-      "shown": 1,
+      "shown": 3,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": "2026-10-07",
+      "last_shown_at": "2026-10-14",
       "last_used_at": null
     },
     "R-markdown-to-telegram-hard-break": {
@@ -168,7 +210,7 @@
       "file": "R-markdown-to-telegram-hard-break.md",
       "created_at": "2026-09-23",
       "updated_at": "2026-09-23",
-      "shown": 2,
+      "shown": 3,
       "opened": 0,
       "helped": 0,
       "last_shown_at": "2026-10-14",
@@ -208,10 +250,10 @@
       "file": "R-pi-antigravity-verify-account-403.md",
       "created_at": "2026-10-07",
       "updated_at": "2026-10-07",
-      "shown": 0,
+      "shown": 1,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": null,
+      "last_shown_at": "2026-10-14",
       "last_used_at": null
     },
     "R-pi-edit-bash-race-empty-commit": {
@@ -292,7 +334,7 @@
       "file": "R-telegram-editmessagetext-keyboard-not-removed.md",
       "created_at": "2026-09-21",
       "updated_at": "2026-09-21",
-      "shown": 2,
+      "shown": 3,
       "opened": 0,
       "helped": 0,
       "last_shown_at": "2026-10-14",
@@ -334,10 +376,10 @@
       "file": "R-valibot-isoDateTime-format.md",
       "created_at": "2026-05-08",
       "updated_at": "2026-05-08",
-      "shown": 1,
+      "shown": 2,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": "2026-09-14",
+      "last_shown_at": "2026-10-14",
       "last_used_at": null
     },
     "R-wish-getbyuserandtarget-createdAt-tie": {
