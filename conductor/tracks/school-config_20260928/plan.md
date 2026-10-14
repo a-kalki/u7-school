@@ -60,15 +60,15 @@
 
 ## Фаза 6: Env-файлы, CHANGELOG, документация
 
-- [ ] Task: Обновить `.env.development`: удалить legacy `SCHOOL_GROUP_*`, оставить только
+- [x] Task: Обновить `.env.development`: удалить legacy `SCHOOL_GROUP_*`, оставить только
       `COMMUNITY_GROUP_*`/`STUDENT_GROUP_*` и `NODE_ENV=development` (код и env меняются
-      в одном релизе `0.2.0`, дубли имён не нужны).
-- [ ] Task: `CHANGELOG`: секция Migration — перенос `SCHOOL_GROUP_*` → `COMMUNITY_GROUP_*`,
+      в одном релизе `0.2.0`, дубли имён не нужны). (9aae380)
+- [x] Task: `CHANGELOG`: секция Migration — перенос `SCHOOL_GROUP_*` → `COMMUNITY_GROUP_*`,
       новые `STUDENT_GROUP_*` (прод-значения), `NODE_ENV=production`, порядок «env → выкат
-      кода», корректный перезапуск pm2 под `production`.
-- [ ] Task: Обновить conductor-документацию (`architecture.md` / `domain-boundaries.md`) про
-      `AppResolver.school` и generic `ModuleResolver`.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 6: Миграция и документация' (Protocol in workflow.md)
+      кода», корректный перезапуск pm2 под `production`. (9aae380)
+- [x] Task: Обновить conductor-документацию (`architecture.md` / `domain-boundaries.md`) про
+      `AppResolver.school` и generic `ModuleResolver`. (9aae380)
+- [x] Task: Conductor - User Manual Verification 'Фаза 6: Миграция и документация' (Protocol in workflow.md) (9aae380)
 
 ## Фаза 7: Финал — гейт качества и итоги
 
