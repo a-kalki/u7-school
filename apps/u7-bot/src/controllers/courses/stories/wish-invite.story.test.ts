@@ -178,6 +178,8 @@ describe('WishInviteStory', () => {
     expect(text).toContain('[Dev](https://t.me/devnick)');
     // Подсказка записи с явным именем потока (поток без ключа — запись свободная)
     expect(text).toContain('Запись свободная');
+    expect(text).toContain('🏫 Школа → 📚 Потоки');
+    expect(text).not.toContain('📚 Потоки курсов');
     expect(text).not.toContain('нужен ключ');
     expect(text).toContain('📝 Записаться');
 
