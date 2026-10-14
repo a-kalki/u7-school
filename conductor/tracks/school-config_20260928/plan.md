@@ -32,16 +32,16 @@
 
 ## Фаза 3: apps/u7-bot — env → config → резолвер, `mode`
 
-- [ ] Task: Обновить тесты `loadConfig`: новые обязательные переменные, `mode` из `NODE_ENV`,
-      падение при отсутствии/невалидности `NODE_ENV` (дефолта нет).
-- [ ] Task: Обновить `BotConfigSchema`: `communityGroupId`/`communityGroupUrl`,
-      `studentGroupId`/`studentGroupInvite`, поле `mode`.
-- [ ] Task: Собрать `School` (статика + config) в `create-api-app.ts`, положить в
-      `appResolver.school`; выставить `mode` из config.
-- [ ] Task: Прокинуть `school` и `adminTelegramIds` в `U7BotUiAppResolve`;
-      `create-ui-app.ts` перестаёт принимать `BotConfig` (FR-4).
-- [ ] Task: Обновить `config.test.ts` и моки `appResolver` в тестах под новые типы.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3: env → config → резолвер' (Protocol in workflow.md)
+- [x] Task: Обновить тесты `loadConfig`: новые обязательные переменные, `mode` из `NODE_ENV`,
+      падение при отсутствии/невалидности `NODE_ENV` (дефолта нет). (b85f47d)
+- [x] Task: Обновить `BotConfigSchema`: `communityGroupId`/`communityGroupUrl`,
+      `studentGroupId`/`studentGroupInvite`, поле `mode`. (b85f47d)
+- [x] Task: Собрать `School` (статика + config) в `create-api-app.ts`, положить в
+      `appResolver.school`; выставить `mode` из config. (b85f47d)
+- [x] Task: Прокинуть `school` и `adminTelegramIds` в `U7BotUiAppResolve`;
+      `create-ui-app.ts` перестаёт принимать `BotConfig` (FR-4). (b85f47d)
+- [x] Task: Обновить `config.test.ts` и моки `appResolver` в тестах под новые типы. (b85f47d)
+- [x] Task: Conductor - User Manual Verification 'Фаза 3: env → config → резолвер' (Protocol in workflow.md) (b85f47d)
 
 ## Фаза 4: Потребители — убрать прямые `config.schoolGroup*`
 
