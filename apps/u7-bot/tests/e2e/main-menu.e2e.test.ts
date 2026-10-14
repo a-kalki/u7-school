@@ -90,6 +90,27 @@ describe('Главное меню (интеграционные)', () => {
     await app.cleanup();
   });
 
+  test('состав меню гостя: «🏫 Школа» (10), «📖 Курсы» (12), нет «📚 Потоки курсов» и «💬 Сообщество школы»', async () => {
+    const menu = await transport.collectMainMenu(guest);
+
+    const schoolBtn = menu.find((i) => i.text === '🏫 Школа');
+    expect(schoolBtn).toBeDefined();
+    expect(schoolBtn?.priority).toBe(10);
+    if (schoolBtn?.kind === 'callback') {
+      expect(schoolBtn.action).toBe('school:hub:open');
+    }
+
+    const courseBtn = menu.find((i) => i.text === '📖 Курсы');
+    expect(courseBtn).toBeDefined();
+    expect(courseBtn?.priority).toBe(12);
+    if (courseBtn?.kind === 'callback') {
+      expect(courseBtn.action).toBe('course:course-catalog:list');
+    }
+
+    expect(menu.some((i) => i.text.includes('Потоки курсов'))).toBe(false);
+    expect(menu.some((i) => i.text.includes('Сообщество школы'))).toBe(false);
+  });
+
   // ── Кнопка «Сообщество школы» ──
 
   test('в главном меню нет кнопки «Сообщество школы» (перенесена в хаб школы)', async () => {

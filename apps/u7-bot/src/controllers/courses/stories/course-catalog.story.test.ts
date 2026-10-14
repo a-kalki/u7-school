@@ -121,14 +121,14 @@ describe('CourseCatalogStory', () => {
 
   // ── Главное меню (декларативные menuButtons) ──
 
-  test('menuButtons возвращает кнопку главного меню (приоритет 10)', async () => {
+  test('menuButtons возвращает кнопку главного меню (приоритет 12, «📖 Курсы»)', async () => {
     const story = new CourseCatalogStory();
     const items = await story.menuButtons(actor);
     expect(items).toHaveLength(1);
     const item = items[0];
     expect(item?.kind).toBe('callback');
-    expect(item?.text).toContain('Программы курсов');
-    expect(item?.priority).toBe(10);
+    expect(item?.text).toBe('📖 Курсы');
+    expect(item?.priority).toBe(12);
     if (item?.kind === 'callback') {
       expect(item.action).toBe('course-catalog:list');
     }
@@ -137,8 +137,9 @@ describe('CourseCatalogStory', () => {
   test('menuButtons содержит описание для help', async () => {
     const story = new CourseCatalogStory();
     const items = await story.menuButtons(actor);
-    expect(items[0]?.description).toContain('Программы курсов');
-    expect(items[0]?.description).toContain('каталог');
+    expect(items[0]?.description).toBe(
+      '📖 Курсы — каталог учебных курсов и их структура',
+    );
   });
 
   // ── Уровень 0: Курсы + этапы inline ──

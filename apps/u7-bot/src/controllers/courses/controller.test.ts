@@ -42,7 +42,7 @@ describe('CoursesController (реестр)', () => {
 
     expect(items.length).toBeGreaterThanOrEqual(1);
     const texts = items.map((i) => i.text);
-    expect(texts).toContain('📖 Программы курсов');
+    expect(texts).toContain('📖 Курсы');
     const callback = items.find((i) => i.kind === 'callback');
     if (callback?.kind === 'callback') {
       expect(callback.action).toBe('course:course-catalog:list');
