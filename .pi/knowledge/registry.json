@@ -5,7 +5,8 @@
     "stale_days": 365
   },
   "entries": {
-    "api-app-execute-actor-object": {
+    "R-api-app-execute-actor-object": {
+      "kind": "problem",
       "tags": ["api-app", "actor", "scripts", "execute"],
       "description": "ApiApp.execute принимает готовый actor-объект, а не UUID — скрипты с NUR_UUID падают на actor.roles",
       "symptoms": [
@@ -13,15 +14,17 @@
         "undefined is not an object",
         "ошибка: undefined is not an object"
       ],
-      "file": "api-app-execute-actor-object.md",
+      "file": "R-api-app-execute-actor-object.md",
       "created_at": "2026-09-24",
+      "updated_at": "2026-09-24",
       "shown": 1,
       "opened": 0,
       "helped": 0,
       "last_shown_at": "2026-10-05",
       "last_used_at": null
     },
-    "backup-no-server-ops-sdk": {
+    "R-backup-no-server-ops-sdk": {
+      "kind": "problem",
       "tags": ["backup", "dev-environment", "server-ops"],
       "description": "bun run backup падает вне сервера: нет ~/server-ops/lib/backup-contract.sh",
       "symptoms": [
@@ -29,30 +32,34 @@
         "script \"backup\" exited with code 1",
         "пропущено (данные не менялись)"
       ],
-      "file": "backup-no-server-ops-sdk.md",
+      "file": "R-backup-no-server-ops-sdk.md",
       "created_at": "2026-10-01",
-      "shown": 4,
+      "updated_at": "2026-10-01",
+      "shown": 5,
       "opened": 2,
       "helped": 2,
-      "last_shown_at": "2026-10-06",
+      "last_shown_at": "2026-10-14",
       "last_used_at": "2026-10-06"
     },
-    "biome-json-stringify-expand": {
+    "R-biome-json-stringify-expand": {
+      "kind": "problem",
       "tags": ["biome", "json", "format", "scripts"],
       "description": "JSON.stringify(…,2) разворачивает массивы — biome схлопывает, lint падает на JSON",
       "symptoms": [
         "formatter would have printed the following content",
         "josn.json format"
       ],
-      "file": "biome-json-stringify-expand.md",
+      "file": "R-biome-json-stringify-expand.md",
       "created_at": "2026-10-02",
+      "updated_at": "2026-10-02",
       "shown": 0,
       "opened": 2,
       "helped": 2,
       "last_shown_at": null,
       "last_used_at": "2026-10-06"
     },
-    "bot-controller-response-prefix": {
+    "R-bot-controller-response-prefix": {
+      "kind": "problem",
       "tags": ["core", "bot-ui", "prefix"],
       "description": "Экраны из handleMessage/команд без префикса контроллера — кнопки дают «Неизвестная команда»",
       "symptoms": [
@@ -63,15 +70,17 @@
         "fill:answer",
         "кнопка не работает"
       ],
-      "file": "bot-controller-response-prefix.md",
+      "file": "R-bot-controller-response-prefix.md",
       "created_at": "2026-09-11",
+      "updated_at": "2026-09-11",
       "shown": 1,
       "opened": 0,
       "helped": 0,
       "last_shown_at": "2026-09-14",
       "last_used_at": null
     },
-    "bun-test-time-dependent-fixture-expiry": {
+    "R-bun-test-time-dependent-fixture-expiry": {
+      "kind": "problem",
       "tags": ["bun-test", "time", "fixtures", "peer-review", "now"],
       "description": "e2e-тест на фикстурах с абсолютным expiresAt протухает по календарю — заморозь now() через spyOn(Shared, now)",
       "symptoms": [
@@ -81,15 +90,17 @@
         "received: false",
         "e2e smoke протух"
       ],
-      "file": "bun-test-time-dependent-fixture-expiry.md",
+      "file": "R-bun-test-time-dependent-fixture-expiry.md",
       "created_at": "2026-09-28",
-      "shown": 0,
+      "updated_at": "2026-09-28",
+      "shown": 1,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": null,
+      "last_shown_at": "2026-10-14",
       "last_used_at": null
     },
-    "deploy-migration-updatedAt-format": {
+    "R-deploy-migration-updatedAt-format": {
+      "kind": "problem",
       "tags": ["deploy", "valibot", "isoDateTime"],
       "description": "Миграция пишет updatedAt с пробелом вместо T — невалидный isoDateTime",
       "symptoms": [
@@ -99,15 +110,17 @@
         "миграция",
         "replace('T', ' ')"
       ],
-      "file": "deploy-migration-updatedAt-format.md",
+      "file": "R-deploy-migration-updatedAt-format.md",
       "created_at": "2026-07-09",
+      "updated_at": "2026-07-09",
       "shown": 2,
       "opened": 0,
       "helped": 0,
       "last_shown_at": "2026-09-23",
       "last_used_at": null
     },
-    "deploy-ssh-path-bun-not-found": {
+    "R-deploy-ssh-path-bun-not-found": {
+      "kind": "problem",
       "tags": ["deploy", "ssh", "path", "bun", "pm2"],
       "description": "ssh-деплой: bun/pm2 не найдены в неинтерактивной сессии — export PATH=$HOME/.bun/bin; деплой выполняется на сервере в /srv/u7-school",
       "symptoms": [
@@ -115,15 +128,17 @@
         "bun: command not found",
         "pm2: команда не найдена"
       ],
-      "file": "deploy-ssh-path-bun-not-found.md",
+      "file": "R-deploy-ssh-path-bun-not-found.md",
       "created_at": "2026-09-23",
-      "shown": 0,
+      "updated_at": "2026-09-23",
+      "shown": 1,
       "opened": 1,
       "helped": 1,
-      "last_shown_at": null,
+      "last_shown_at": "2026-10-14",
       "last_used_at": "2026-09-28"
     },
-    "git-archive-gitignore": {
+    "R-git-archive-gitignore": {
+      "kind": "problem",
       "tags": ["git", "gitignore"],
       "description": "conductor/archive/ в .gitignore — git add отказывается добавлять",
       "symptoms": [
@@ -132,15 +147,17 @@
         "git add conductor/archive",
         "gitignore"
       ],
-      "file": "git-archive-gitignore.md",
+      "file": "R-git-archive-gitignore.md",
       "created_at": "2026-07-08",
+      "updated_at": "2026-07-08",
       "shown": 1,
       "opened": 0,
       "helped": 0,
       "last_shown_at": "2026-10-07",
       "last_used_at": null
     },
-    "markdown-to-telegram-hard-break": {
+    "R-markdown-to-telegram-hard-break": {
+      "kind": "problem",
       "tags": ["markdown-to-telegram", "telegram", "markdownv2", "bot-ui"],
       "description": "hard break превращается в голый \\ перед переносом — fail-fast валидатор роняет рендер экрана; фикс: unescapeLineBreaks в safeConvert",
       "symptoms": [
@@ -148,15 +165,17 @@
         "markdownv2 validation failed",
         "assertdialogresponsemarkdownsafe"
       ],
-      "file": "markdown-to-telegram-hard-break.md",
+      "file": "R-markdown-to-telegram-hard-break.md",
       "created_at": "2026-09-23",
-      "shown": 1,
+      "updated_at": "2026-09-23",
+      "shown": 2,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": "2026-10-08",
+      "last_shown_at": "2026-10-14",
       "last_used_at": null
     },
-    "markdownv2-unescaped-parens-around-link": {
+    "R-markdownv2-unescaped-parens-around-link": {
+      "kind": "problem",
       "tags": ["telegram", "markdownv2", "proactive"],
       "description": "Неэкранированные скобки вокруг t.me-ссылки ломают разбор MarkdownV2 — проактивное сообщение не доставляется",
       "symptoms": [
@@ -166,15 +185,17 @@
         "Bad Request",
         "ProactiveSender"
       ],
-      "file": "markdownv2-unescaped-parens-around-link.md",
+      "file": "R-markdownv2-unescaped-parens-around-link.md",
       "created_at": "2026-08-28",
-      "shown": 2,
+      "updated_at": "2026-08-28",
+      "shown": 3,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": "2026-10-08",
+      "last_shown_at": "2026-10-14",
       "last_used_at": null
     },
-    "pi-antigravity-verify-account-403": {
+    "R-pi-antigravity-verify-account-403": {
+      "kind": "problem",
       "tags": ["pi-antigravity", "google", "oauth", "403", "antigravity"],
       "description": "403 VALIDATION_REQUIRED у Antigravity: Google требует верификацию аккаунта; достать validation_url и пройти проверку",
       "symptoms": [
@@ -184,15 +205,17 @@
         "403 permission_denied",
         "antigravity api error"
       ],
-      "file": "pi-antigravity-verify-account-403.md",
+      "file": "R-pi-antigravity-verify-account-403.md",
       "created_at": "2026-10-07",
+      "updated_at": "2026-10-07",
       "shown": 0,
       "opened": 0,
       "helped": 0,
       "last_shown_at": null,
       "last_used_at": null
     },
-    "pi-edit-bash-race-empty-commit": {
+    "R-pi-edit-bash-race-empty-commit": {
+      "kind": "problem",
       "tags": ["pi", "git", "race"],
       "description": "edit + зависимый git-коммит в одном parallel-блоке — в коммит попадает пустой файл",
       "symptoms": [
@@ -202,15 +225,17 @@
         "parallel-блок",
         "git add && git commit"
       ],
-      "file": "pi-edit-bash-race-empty-commit.md",
+      "file": "R-pi-edit-bash-race-empty-commit.md",
       "created_at": "2026-09-12",
+      "updated_at": "2026-09-12",
       "shown": 0,
       "opened": 0,
       "helped": 0,
       "last_shown_at": null,
       "last_used_at": null
     },
-    "pi-tsubstitution-edit": {
+    "R-pi-tsubstitution-edit": {
+      "kind": "problem",
       "tags": ["pi", "edit"],
       "description": "$T-подстановка ломает edit на skill-файлах — oldText не совпадает",
       "symptoms": [
@@ -220,15 +245,17 @@
         "контекст-компрессия",
         "подстановка"
       ],
-      "file": "pi-tsubstitution-edit.md",
+      "file": "R-pi-tsubstitution-edit.md",
       "created_at": "2026-07-08",
+      "updated_at": "2026-07-08",
       "shown": 3,
       "opened": 0,
       "helped": 0,
       "last_shown_at": "2026-10-05",
       "last_used_at": null
     },
-    "telegram-editmessagetext-dev-persona-chat-not-found": {
+    "R-telegram-editmessagetext-dev-persona-chat-not-found": {
+      "kind": "problem",
       "tags": [
         "telegram",
         "dev-persona",
@@ -242,15 +269,17 @@
         "ошибка telegram api (editmessagetext)",
         "bad request: chat not found"
       ],
-      "file": "telegram-editmessagetext-dev-persona-chat-not-found.md",
+      "file": "R-telegram-editmessagetext-dev-persona-chat-not-found.md",
       "created_at": "2026-09-22",
-      "shown": 0,
+      "updated_at": "2026-09-22",
+      "shown": 1,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": null,
+      "last_shown_at": "2026-10-14",
       "last_used_at": null
     },
-    "telegram-editmessagetext-keyboard-not-removed": {
+    "R-telegram-editmessagetext-keyboard-not-removed": {
+      "kind": "problem",
       "tags": ["telegram", "keyboard", "editMessage", "questionnaire"],
       "description": "editMessageText без reply_markup не удаляет инлайн-клавиатуру — живые кнопки старых вопросов анкеты дают лавину «Некорректный ответ»",
       "symptoms": [
@@ -260,15 +289,17 @@
         "инлайн-клавиатура",
         "старые кнопки анкеты"
       ],
-      "file": "telegram-editmessagetext-keyboard-not-removed.md",
+      "file": "R-telegram-editmessagetext-keyboard-not-removed.md",
       "created_at": "2026-09-21",
-      "shown": 1,
+      "updated_at": "2026-09-21",
+      "shown": 2,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": "2026-09-22",
+      "last_shown_at": "2026-10-14",
       "last_used_at": null
     },
-    "testbot-api-log-chronology": {
+    "R-testbot-api-log-chronology": {
+      "kind": "problem",
       "tags": ["bun-test", "test-stand", "edit"],
       "description": "Склейка Api-записей [...edited, ...sent] даёт неверную хронологию экранов при edit/send-чередовании",
       "symptoms": [
@@ -279,15 +310,17 @@
         "screensNewFirst",
         "pressedCode"
       ],
-      "file": "testbot-api-log-chronology.md",
+      "file": "R-testbot-api-log-chronology.md",
       "created_at": "2026-09-09",
-      "shown": 1,
+      "updated_at": "2026-09-09",
+      "shown": 2,
       "opened": 0,
       "helped": 0,
-      "last_shown_at": "2026-09-14",
+      "last_shown_at": "2026-10-14",
       "last_used_at": null
     },
-    "valibot-isoDateTime-format": {
+    "R-valibot-isoDateTime-format": {
+      "kind": "problem",
       "tags": ["valibot", "test", "date"],
       "description": "isoDateTime принимает только YYYY-MM-DDTHH:mm, отклоняет миллисекунды и Z",
       "symptoms": [
@@ -298,15 +331,17 @@
         "миллисекунды",
         "Z"
       ],
-      "file": "valibot-isoDateTime-format.md",
+      "file": "R-valibot-isoDateTime-format.md",
       "created_at": "2026-05-08",
+      "updated_at": "2026-05-08",
       "shown": 1,
       "opened": 0,
       "helped": 0,
       "last_shown_at": "2026-09-14",
       "last_used_at": null
     },
-    "wish-getbyuserandtarget-createdAt-tie": {
+    "R-wish-getbyuserandtarget-createdAt-tie": {
+      "kind": "problem",
       "tags": ["wish", "repo", "createdAt"],
       "description": "getByUserAndTarget при равных createdAt возвращает недетерминированную запись — конфликты не срабатывают",
       "symptoms": [
@@ -316,8 +351,9 @@
         "сортировка createdAt",
         "getByUserAndTarget"
       ],
-      "file": "wish-getbyuserandtarget-createdAt-tie.md",
+      "file": "R-wish-getbyuserandtarget-createdAt-tie.md",
       "created_at": "2026-08-28",
+      "updated_at": "2026-08-28",
       "shown": 1,
       "opened": 0,
       "helped": 0,
