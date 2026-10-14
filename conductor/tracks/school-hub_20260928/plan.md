@@ -55,8 +55,8 @@
       (`scope-reviews.story`, передаёт `[scopeId]`) и его тесты. [b7df9dc]
 - [x] Task: Тесты сбора отзывов по потокам школы (student→mentor): непустой/пустой срез,
       пагинация. [d6b549a]
-- [ ] Task: Реализовать экран «Отзывы»: `list-streams({ schoolId })` → `scopeIds` →
-      `list-scope-reviews`.
+- [x] Task: Реализовать экран «Отзывы»: `list-streams({ schoolId })` → `scopeIds` →
+      `list-scope-reviews`. [02717bc]
 - [ ] Task: Conductor - User Manual Verification 'Фаза 5: Отзывы' (Protocol in workflow.md)
 
 ## Фаза 6: Главное меню и название «Курсы»
