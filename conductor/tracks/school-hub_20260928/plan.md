@@ -12,7 +12,7 @@
 - [x] Task: Создать `apps/u7-bot/src/controllers/school/` — `SchoolController`
       и `SchoolHubStory` (карточка SH01, кнопки `📚 Потоки · 💬 Отзывы ·
       ℹ️ Инфо · 💬 Сообщество · ↩️ Главное меню`). [42ff340]
-- [ ] Task: Зарегистрировать `SchoolController` в сборке приложения (`create-ui-app`).
+- [x] Task: Зарегистрировать `SchoolController` в сборке приложения (`create-ui-app`). [52c1c91]
 - [ ] Task: Взять данные из `school` резолвера; экспорт `ui-spec.md` контроллера.
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1: Контроллер school и карточка' (Protocol in workflow.md)
 
