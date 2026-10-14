@@ -101,6 +101,58 @@ describe('CreateStreamUc', () => {
     expect(mockRepo.save).toHaveBeenCalled();
   });
 
+  test('при создании потока проставляет schoolId из appResolver.school.id', async () => {
+    const expectedSchoolId = 'a0000000-0000-4000-8000-000000000001';
+    let savedStream: any = null;
+    const mockRepo = {
+      save: mock((stream: any) => {
+        savedStream = stream;
+        return Promise.resolve();
+      }),
+      getByUuid: mock(() => Promise.resolve(undefined)),
+      getAll: mock(() => Promise.resolve([])),
+    };
+    const mockCourseFacade = {
+      getModuleSnapshot: mock(() => Promise.resolve([])),
+    };
+    const mockUserFacade = {
+      getUserByUuid: mock(() =>
+        Promise.resolve({
+          uuid: 'm1',
+          name: 'Mentor',
+          telegramId: 1,
+          roles: [Role.MENTOR],
+          createdAt: isoNow(),
+        }),
+      ),
+      userExists: mock(() => Promise.resolve(true)),
+      addRoleToUser: mock(() => Promise.resolve(undefined)),
+      updateUserRole: mock(() => Promise.resolve(undefined)),
+      getUserByTelegramId: mock(() => Promise.resolve(undefined)),
+      removeRoleFromUser: mock(() => Promise.resolve(undefined)),
+      registerGuest: mock(() => Promise.resolve({} as any)),
+    };
+
+    const uc = new CreateStreamUc();
+    uc.init({
+      app: {
+        school: {
+          id: expectedSchoolId,
+        },
+      },
+      streamRepo: mockRepo,
+      courseFacade: mockCourseFacade,
+      userFacade: mockUserFacade,
+      streamStudentRepo: {},
+    } as unknown as StreamApiModuleResolver);
+
+    const cmd = makeCreateCmd();
+    const result = await uc.execute(cmd, makeActor('m1'));
+
+    expect(result.schoolId).toBe(expectedSchoolId);
+    expect(savedStream?.schoolId).toBe(expectedSchoolId);
+  });
+
   test('бросает ошибку, если GUEST пытается создать поток', async () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>

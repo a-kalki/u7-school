@@ -62,6 +62,16 @@ describe('StreamAr', () => {
       expect(ar.state.contentSnapshot).toEqual(validContentSnapshot);
     });
 
+    test('сохраняет schoolId при создании потока', () => {
+      const customSchoolId = '12345678-1234-4234-8234-123456789abc';
+      const ar = StreamAr.create(
+        mockCreateCmd,
+        validContentSnapshot,
+        customSchoolId,
+      );
+      expect(ar.state.schoolId).toBe(customSchoolId);
+    });
+
     test('поля-снимки копируются', () => {
       const ar = StreamAr.create(mockCreateCmd, validContentSnapshot);
       expect(ar.state.goal).toBe(mockCreateCmd.goal);

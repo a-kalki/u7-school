@@ -23,6 +23,7 @@ const validContentSnapshot = [
 
 const validStream = {
   uuid: '550e8400-e29b-41d4-a716-446655440001',
+  schoolId: 'a0000000-0000-4000-8000-000000000001',
   title: 'Поток JS-1',
   description: 'Основной поток курса JavaScript',
   mentorId: '660e8400-e29b-41d4-a716-446655440002',
@@ -124,6 +125,20 @@ describe('StreamSchema', () => {
     const result = v.safeParse(StreamSchema, {
       ...validStream,
       moduleId: 'bad-uuid',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  test('отклоняет поток без schoolId', () => {
+    const { schoolId, ...noSchoolId } = validStream;
+    const result = v.safeParse(StreamSchema, noSchoolId);
+    expect(result.success).toBe(false);
+  });
+
+  test('отклоняет некорректный UUID для schoolId', () => {
+    const result = v.safeParse(StreamSchema, {
+      ...validStream,
+      schoolId: 'bad-uuid',
     });
     expect(result.success).toBe(false);
   });
