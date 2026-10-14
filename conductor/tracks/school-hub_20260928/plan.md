@@ -50,9 +50,9 @@
       запустить с `--env production` (на работающем старом коде мигрировать нельзя:
       valibot отбрасывает неизвестные поля). Порядок и способ выполнения — на усмотрение
       агента деплоя; запуск с подтверждением владельца. [b32ba33]
-- [ ] Task: Расширить `list-scope-reviews`: `scopeId` → `scopeIds: string[]` (+ фильтр
+- [x] Task: Расширить `list-scope-reviews`: `scopeId` → `scopeIds: string[]` (+ фильтр
       `direction`), `scopeId` в DTO отзыва; обновить существующего потребителя
-      (`scope-reviews.story`, передаёт `[scopeId]`) и его тесты.
+      (`scope-reviews.story`, передаёт `[scopeId]`) и его тесты. [b7df9dc]
 - [ ] Task: Тесты сбора отзывов по потокам школы (student→mentor): непустой/пустой срез,
       пагинация.
 - [ ] Task: Реализовать экран «Отзывы»: `list-streams({ schoolId })` → `scopeIds` →
