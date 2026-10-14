@@ -8,13 +8,12 @@ import type {
   CommandUpdate,
   DialogResponse,
 } from '@u7-scl/core/ui';
-import { CommunityStory } from './stories/community.story';
 
 /**
  * Контроллер уровня приложения для системных сценариев:
  * - `/log_level` — скрытая админ-команда (handleCommand-override);
- * - кнопки «❓ Помощь» (menuButtons) и «Сообщество школы» (CommunityStory);
- * - callback'и стори (community).
+ * - кнопка «❓ Помощь» (menuButtons);
+ * - callback'и стори.
  *
  * Меню и общий help собирает U7BotUiApp (menuButtons — декларативные
  * данные); welcome/main-help-тексты — там же.
@@ -24,20 +23,18 @@ export class AppController extends U7BotController {
   readonly #adminTelegramIds?: number[];
 
   /**
-   * @param schoolGroupUrl — опциональный URL группы школы (по умолчанию берётся из school в resolve)
+   * @param _schoolGroupUrl — устаревший параметр для совместимости (сообщество перенесено в SchoolController)
    * @param adminTelegramIds — tgId администраторов (доступ к /log_level, по умолчанию из resolve)
    */
-  constructor(schoolGroupUrl?: string, adminTelegramIds?: number[]) {
+  constructor(_schoolGroupUrl?: string, adminTelegramIds?: number[]) {
     super();
     this.#adminTelegramIds = adminTelegramIds;
-    this.stories.push(new CommunityStory(schoolGroupUrl));
   }
 
   // ── Главное меню (декларативные кнопки) ──
 
-  override async menuButtons(actor: User): Promise<MenuButton[]> {
+  override async menuButtons(_actor: User): Promise<MenuButton[]> {
     return [
-      ...(await super.menuButtons(actor)), // сообщество школы (CommunityStory, 90)
       {
         kind: 'callback',
         text: '❓ Помощь',

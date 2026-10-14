@@ -23,13 +23,14 @@ describe('SchoolController (реестр)', () => {
     expect(controller.name).toBe('school');
   });
 
-  test('содержит SchoolHubStory и SchoolInfoStory', () => {
+  test('содержит SchoolHubStory, SchoolInfoStory и CommunityStory', () => {
     const controller = new SchoolController();
     const stories = (
       controller as unknown as { stories: Array<{ name: string }> }
     ).stories;
     expect(stories.some((s) => s.name === 'hub')).toBe(true);
     expect(stories.some((s) => s.name === 'info')).toBe(true);
+    expect(stories.some((s) => s.name === 'community')).toBe(true);
   });
 
   test('menuButtons агрегирует кнопку «🏫 Школа» с префиксом контроллера', async () => {

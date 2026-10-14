@@ -89,23 +89,19 @@ describe('Главное меню (интеграционные)', () => {
 
   // ── Кнопка «Сообщество школы» ──
 
-  test('гость видит кнопку «Сообщество школы» в главном меню', async () => {
-    const menu = await transport.collectMainMenu(guest);
-    const btn = menu.find((i) => i.text === '💬 Сообщество школы');
-    expect(btn).toBeDefined();
-    expect(btn!.kind).toBe('url');
-    expect((btn as { url: string }).url).toBe(SCHOOL_GROUP_URL);
-    expect(btn!.priority).toBe(90);
-  });
+  test('в главном меню нет кнопки «Сообщество школы» (перенесена в хаб школы)', async () => {
+    const menuGuest = await transport.collectMainMenu(guest);
+    expect(menuGuest.some((i) => i.text === '💬 Сообщество школы')).toBe(false);
 
-  test('студент видит кнопку «Сообщество школы»', async () => {
-    const menu = await transport.collectMainMenu(student);
-    expect(menu.some((i) => i.text === '💬 Сообщество школы')).toBe(true);
-  });
+    const menuStudent = await transport.collectMainMenu(student);
+    expect(menuStudent.some((i) => i.text === '💬 Сообщество школы')).toBe(
+      false,
+    );
 
-  test('ментор видит кнопку «Сообщество школы»', async () => {
-    const menu = await transport.collectMainMenu(mentor);
-    expect(menu.some((i) => i.text === '💬 Сообщество школы')).toBe(true);
+    const menuMentor = await transport.collectMainMenu(mentor);
+    expect(menuMentor.some((i) => i.text === '💬 Сообщество школы')).toBe(
+      false,
+    );
   });
 
   test('кнопка «Помощь» в конце меню (самый низкий приоритет)', async () => {
@@ -156,7 +152,6 @@ describe('Главное меню (интеграционные)', () => {
     expect(text).toContain('Как со мной работать?');
     expect(text).toContain('Программы курсов');
     expect(text).toContain('Потоки курсов');
-    expect(text).toContain('Сообщество школы');
     expect(text).toContain('/cancel');
     // Реплика не захватывает экран — клавиатуры у notify нет
     expect(response.screen).toBeUndefined();

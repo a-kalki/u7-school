@@ -170,7 +170,6 @@ describe('U7BotUiApp — /start', () => {
       r.map((b) => [b.code, b.url]),
     );
     expect(codes).toContainEqual(['app:help', undefined]);
-    expect(codes).toContainEqual(['', SCHOOL_URL]);
     // reopen: seq++ даже с чужого пути
     expect(session.dialog?.path).toBe('app/menu');
     expect(session.dialog?.seq).toBe(5);
@@ -215,7 +214,16 @@ describe('U7BotUiApp — /start', () => {
 describe('U7BotUiApp — дефолты команд', () => {
   test('/help при пустом pipe → общий help: инструкция + описания menuButtons', async () => {
     setGlobalLogger(makeLogger());
-    const uiApp = makeUiApp();
+    const dummy = new MenuController('dummy', async () => [
+      {
+        kind: 'callback',
+        text: 'Тест',
+        action: 'test:act',
+        priority: 10,
+        description: 'Тестовая кнопка — для проверки справки',
+      },
+    ]);
+    const uiApp = makeUiApp({ extra: [dummy] });
     const session = { dialog: { path: 'app/menu', seq: 2 } } as BotSession;
 
     const response = await uiApp.handleCommand(
@@ -225,8 +233,8 @@ describe('U7BotUiApp — дефолты команд', () => {
     );
 
     expect(String(response?.notify?.text)).toContain('Как со мной работать');
-    // описание кнопки сообщества — из menuButtons
-    expect(String(response?.notify?.text)).toContain('Сообщество школы');
+    // описание кнопки — из menuButtons
+    expect(String(response?.notify?.text)).toContain('Тестовая кнопка');
     expect(response?.screen).toBeUndefined();
     // диалог не тронут
     expect(session.dialog?.seq).toBe(2);
@@ -517,9 +525,8 @@ describe('U7BotUiApp — сбор menuButtons', () => {
 
     // кнопки app-контроллера остались, упавший ничего не внёс
     const texts = buttons.map((b) => b.text);
-    expect(texts).toContain('💬 Сообщество школы');
     expect(texts).toContain('❓ Помощь');
-    expect(texts).toHaveLength(2);
+    expect(texts).toHaveLength(1);
     expect(logger.warn).toHaveBeenCalledTimes(1);
   });
 });

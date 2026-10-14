@@ -5,9 +5,10 @@ import { md } from '@u7-scl/core/shared';
 import type { BotSession, BotUpdate, DialogResponse } from '@u7-scl/core/ui';
 
 /**
- * US: Кнопка «Сообщество школы» в главном меню.
- * Ведёт на URL группы школы в Telegram.
- * Доступна всем ролям.
+ * CommunityStory: Стори сообщества школы.
+ *
+ * Перенесена из AppController в SchoolController (FR-7).
+ * Кнопка сообщества вынесена из главного меню в хаб школы (SH01).
  */
 export class CommunityStory extends U7BotUiStory {
   readonly name = 'community';
@@ -18,17 +19,15 @@ export class CommunityStory extends U7BotUiStory {
     this.#groupUrl = groupUrl;
   }
 
+  get groupUrl(): string {
+    return this.#groupUrl ?? this.resolve.school.communityGroup.url;
+  }
+
+  /**
+   * Кнопка из главного меню убрана (FR-7: вход через карточку школы SH01).
+   */
   override async menuButtons(_actor: User): Promise<MenuButton[]> {
-    const url = this.#groupUrl ?? this.resolve.school.communityGroup.url;
-    return [
-      {
-        kind: 'url',
-        text: '💬 Сообщество школы',
-        priority: 90,
-        url,
-        description: '💬 Сообщество школы — ссылка на Telegram-группу школы',
-      },
-    ];
+    return [];
   }
 
   async handleCallback(

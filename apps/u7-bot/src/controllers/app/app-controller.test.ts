@@ -1,7 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { TEST_SCHOOL, type User } from '@u7-scl/app/domain';
+import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
-import type { MenuButton } from '@u7-scl/bot/u7-menu';
 import { type Logger, LogLevel, setGlobalLogger } from '@u7-scl/core/shared';
 import type { CommandReaction, CommandUpdate } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
@@ -41,40 +40,16 @@ function makeCommand(
 }
 
 describe('AppController — menuButtons', () => {
-  test('берёт URL сообщества из school в resolve при создании без аргументов', async () => {
-    const ctrl = new AppController();
-    ctrl.init({
-      school: {
-        ...TEST_SCHOOL,
-        communityGroup: {
-          id: -100777,
-          url: 'https://t.me/resolve_school_group',
-        },
-      },
-    } as any);
-
-    const buttons = await ctrl.menuButtons(actor);
-    expect(buttons).toHaveLength(2);
-    expect((buttons[0]! as { url?: string }).url).toBe(
-      'https://t.me/resolve_school_group',
-    );
-  });
-
-  test('две кнопки: Сообщество (url, 90) и Помощь (callback, 100) — по приоритету', async () => {
+  test('кнопка Помощь (callback, 100) — префиксована контроллером', async () => {
     const ctrl = makeCtrl();
 
     const buttons = await ctrl.menuButtons(actor);
 
-    expect(buttons).toHaveLength(2);
-    expect(buttons[0]!.text).toBe('💬 Сообщество школы');
-    expect(buttons[0]!.kind).toBe('url');
-    expect((buttons[0]! as { url?: string }).url).toBe(SCHOOL_URL);
-    expect(buttons[0]!.priority).toBe(90);
-    expect(buttons[1]!.text).toBe('❓ Помощь');
-    expect(buttons[1]!.kind).toBe('callback');
-    expect(buttons[1]!.priority).toBe(100);
-    // код кнопки Помощь — префиксован контроллером
-    expect((buttons[1]! as { action?: string }).action).toBe('app:help');
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]!.text).toBe('❓ Помощь');
+    expect(buttons[0]!.kind).toBe('callback');
+    expect(buttons[0]!.priority).toBe(100);
+    expect((buttons[0]! as { action?: string }).action).toBe('app:help');
   });
 });
 
@@ -147,7 +122,7 @@ describe('AppController — handleCommand: /log_level', () => {
 });
 
 describe('AppController — handleCommand: прочее', () => {
-  test('прочая команда → super (свои стори): community pass → pass', async () => {
+  test('прочая команда → super: pass', async () => {
     const ctrl = makeCtrl();
 
     const reaction: CommandReaction = await ctrl.handleCommand(
@@ -158,38 +133,9 @@ describe('AppController — handleCommand: прочее', () => {
 
     expect(reaction).toEqual({ reaction: 'pass' });
   });
-
-  test('кнопка сообщества в menuButtons — код url, описание для /help', async () => {
-    const ctrl = makeCtrl();
-    ctrl.init({
-      appApi: {},
-      eventBus: {},
-      actorResolver: async () => actor,
-    } as never);
-
-    const buttons: MenuButton[] = await ctrl.menuButtons(actor);
-    const community = buttons.find((b) => b.text.includes('Сообщество'));
-
-    expect(community?.description).toBeDefined();
-  });
 });
 
-describe('AppController — handleCallback (стори-роутинг)', () => {
-  test('community:* → делегируется в стори', async () => {
-    const ctrl = makeCtrl();
-    ctrl.init({
-      appApi: {} as never,
-      eventBus: {} as never,
-      actorResolver: async () => actor,
-    } as never);
-
-    const response = await ctrl.handleCallback('community:any', actor, {
-      dialog: { path: 'app/community', seq: 1 },
-    });
-
-    expect(String(response.screen?.text)).toContain('Неизвестная');
-  });
-
+describe('AppController — handleCallback', () => {
   test('неизвестный префикс → экран неизвестной команды', async () => {
     const ctrl = makeCtrl();
     ctrl.init({
