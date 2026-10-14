@@ -53,8 +53,8 @@
 - [x] Task: Расширить `list-scope-reviews`: `scopeId` → `scopeIds: string[]` (+ фильтр
       `direction`), `scopeId` в DTO отзыва; обновить существующего потребителя
       (`scope-reviews.story`, передаёт `[scopeId]`) и его тесты. [b7df9dc]
-- [ ] Task: Тесты сбора отзывов по потокам школы (student→mentor): непустой/пустой срез,
-      пагинация.
+- [x] Task: Тесты сбора отзывов по потокам школы (student→mentor): непустой/пустой срез,
+      пагинация. [d6b549a]
 - [ ] Task: Реализовать экран «Отзывы»: `list-streams({ schoolId })` → `scopeIds` →
       `list-scope-reviews`.
 - [ ] Task: Conductor - User Manual Verification 'Фаза 5: Отзывы' (Protocol in workflow.md)
