@@ -25,6 +25,7 @@ describe('CompleteStepUc', () => {
           description: 'Desc',
           mentorId: '22222222-2222-4222-8222-222222222222',
           moduleId: '33333333-3333-4333-8333-333333333333',
+          schoolId: 'a0000000-0000-4000-8000-000000000001',
           startDate: mockDate,
           status: 'active',
           contentSnapshot: [

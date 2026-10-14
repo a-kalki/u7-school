@@ -61,6 +61,7 @@ function makeResolve(opts: MakeOptions): {
 } {
   const stream: Stream = {
     uuid: STREAM_ID,
+    schoolId: 'a0000000-0000-4000-8000-000000000001',
     title: 'JS Core — Поток 2',
     description: 'Второй поток',
     mentorId: MENTOR_USER_ID,

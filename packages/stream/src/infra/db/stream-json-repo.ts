@@ -34,6 +34,7 @@ export class StreamJsonRepo implements StreamRepo {
   async getAll(filter?: {
     status?: string;
     mentorId?: string;
+    schoolId?: string;
   }): Promise<Stream[]> {
     let streams = await this.#repo.readAll();
 
@@ -42,6 +43,9 @@ export class StreamJsonRepo implements StreamRepo {
     }
     if (filter?.mentorId) {
       streams = streams.filter((s) => s.mentorId === filter.mentorId);
+    }
+    if (filter?.schoolId) {
+      streams = streams.filter((s) => s.schoolId === filter.schoolId);
     }
 
     return streams;

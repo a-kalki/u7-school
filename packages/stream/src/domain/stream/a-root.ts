@@ -1,3 +1,4 @@
+import { U7_SCHOOL_ID } from '@u7-scl/app/domain';
 import { Aggregate } from '@u7-scl/core/domain';
 import { isoNow } from '@u7-scl/core/shared';
 import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
@@ -27,9 +28,11 @@ export class StreamAr extends Aggregate<StreamArMeta> {
   static create(
     cmd: CreateStreamCmd,
     contentSnapshot: ContentSnapshot,
+    schoolId: string = U7_SCHOOL_ID,
   ): StreamAr {
     const candidate: Stream = {
       uuid: crypto.randomUUID(),
+      schoolId: cmd.schoolId ?? schoolId,
       title: cmd.title,
       description: cmd.description,
       mentorId: cmd.mentorId,

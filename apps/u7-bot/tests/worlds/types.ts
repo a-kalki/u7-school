@@ -102,6 +102,7 @@ export interface CourseDef {
 export interface StreamDef {
   key: string;
   uuid?: string;
+  schoolId?: string;
   title: string;
   description: string;
   courseKey: string;

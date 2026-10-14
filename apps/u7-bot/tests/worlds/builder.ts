@@ -1,3 +1,4 @@
+import { U7_SCHOOL_ID } from '@u7-scl/app/domain';
 import type {
   Course,
   Lesson,
@@ -259,6 +260,7 @@ export function buildWorldState(
 
     const streamEntity: Stream = {
       uuid: streamUuid,
+      schoolId: s.schoolId ?? U7_SCHOOL_ID,
       title: s.title,
       description: s.description,
       mentorId,

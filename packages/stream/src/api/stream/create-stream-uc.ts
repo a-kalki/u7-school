@@ -33,7 +33,8 @@ export class CreateStreamUc extends StreamUseCase<CreateStreamCmdMeta> {
 
     const snapshot = await courseFacade.getModuleSnapshot(command.moduleId);
 
-    const ar = StreamAr.create(command, snapshot);
+    const schoolId = command.schoolId ?? this.resolve.appResolver?.school?.id;
+    const ar = StreamAr.create(command, snapshot, schoolId);
     await repo.save(ar.state);
 
     // Публикация доменного события stream.created (подписчики: ER invite-wishers)

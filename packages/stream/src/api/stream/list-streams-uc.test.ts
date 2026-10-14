@@ -1,8 +1,8 @@
 import { describe, expect, mock, test } from 'bun:test';
 import * as v from 'valibot';
 import type { StreamApiModuleResolver } from '#domain/module';
-import { ListStreamsCmdSchema } from '#domain/stream/commands/list-streams-cmd';
 import { StreamStatus } from '#domain/status';
+import { ListStreamsCmdSchema } from '#domain/stream/commands/list-streams-cmd';
 import type { Stream } from '#domain/stream/entity';
 import { ListStreamsUc } from './list-streams-uc';
 
@@ -15,7 +15,9 @@ describe('ListStreamsCmdSchema', () => {
     const result = v.safeParse(ListStreamsCmdSchema, input);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.output.schoolId).toBe('a0000000-0000-4000-8000-000000000001');
+      expect(result.output.schoolId).toBe(
+        'a0000000-0000-4000-8000-000000000001',
+      );
     }
   });
 

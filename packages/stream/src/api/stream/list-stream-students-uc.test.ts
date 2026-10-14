@@ -24,6 +24,7 @@ const mockStream = {
   description: 'Описание',
   mentorId,
   moduleId: modId,
+  schoolId: 'a0000000-0000-4000-8000-000000000001',
   startDate: '2026-06-01T12:00',
   status: StreamStatus.ACTIVE,
   contentSnapshot: [],

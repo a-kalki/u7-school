@@ -7,6 +7,7 @@ import type { StreamCompletedEvent, StreamCreatedEvent } from './events';
 /** Схема сущности потока курсов */
 export const StreamSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID потока')),
+  schoolId: v.pipe(v.string(), v.uuid('Некорректный формат UUID школы')),
   title: v.pipe(
     v.string(),
     v.trim(),

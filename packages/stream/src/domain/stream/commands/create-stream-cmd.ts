@@ -6,6 +6,7 @@ import { StreamSchema } from '../entity';
 
 /** Схема валидации команды создания потока */
 export const CreateStreamCmdSchema = v.object({
+  schoolId: v.optional(StreamSchema.entries.schoolId),
   title: StreamSchema.entries.title,
   description: StreamSchema.entries.description,
   mentorId: StreamSchema.entries.mentorId,

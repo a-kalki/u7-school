@@ -135,7 +135,7 @@ describe('CreateStreamUc', () => {
 
     const uc = new CreateStreamUc();
     uc.init({
-      app: {
+      appResolver: {
         school: {
           id: expectedSchoolId,
         },

@@ -54,6 +54,7 @@ describe('ActivateStreamUc', () => {
           description: 'Test Description',
           mentorId: '66666666-6666-4666-8666-666666666666',
           moduleId: '33333333-3333-4333-8333-333333333333',
+          schoolId: 'a0000000-0000-4000-8000-000000000001',
           startDate: mockDate,
           status: 'enrollment',
           contentSnapshot: [
@@ -159,6 +160,7 @@ describe('ActivateStreamUc', () => {
           description: 'Test Description',
           mentorId: '66666666-6666-4666-8666-666666666666',
           moduleId: '33333333-3333-4333-8333-333333333333',
+          schoolId: 'a0000000-0000-4000-8000-000000000001',
           startDate: mockDate,
           status: 'enrollment',
           contentSnapshot: [

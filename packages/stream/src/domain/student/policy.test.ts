@@ -12,6 +12,7 @@ const STUDENT_USER_ID = 'u1';
 
 const mockStream: Stream = {
   uuid: 's1',
+  schoolId: 'a0000000-0000-4000-8000-000000000001',
   title: 'Поток',
   description: 'Описание',
   mentorId: MENTOR_ID,
