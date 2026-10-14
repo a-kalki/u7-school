@@ -41,12 +41,12 @@
 
 ---
 
-- [x] **Track: Школа как конфигурация уровня приложения (school-config)** — сущность `School` с `id` в модуле app (имя, описание, адрес, контакты, community- и student-группы); generic `ModuleResolver` в core + закрытие резолверов уровня app (`U7AppResolver`, `U7ModuleResolver`, дефолты в `U7UseCase`/`U7ApiModule`); резолв школы из env и проброс в API/UI; замена прямых `config.schoolGroup*`; единые имена env `COMMUNITY_GROUP_*`/`STUDENT_GROUP_*` без fallback; падение при отсутствии `NODE_ENV`; pre-fill wizard студенческой группой; Migration-инструкция в CHANGELOG. Видение продолжения — [schools-system.md](./roadmap/schools-system.md)
-*Link: [./tracks/school-config_20260928/](./tracks/school-config_20260928/)*
+- [x] **Track: Школа как конфигурация уровня приложения (school-config)** — сущность `School` с `id` в модуле app (имя, описание, адрес, контакты, community- и student-группы); generic `ModuleResolver` в core + закрытие резолверов уровня app (`U7AppResolver`, `U7ModuleResolver`, дефолты в `U7UseCase`/`U7ApiModule`); резолв школы из env и проброс в API/UI; замена прямых `config.schoolGroup*`; единые имена env `COMMUNITY_GROUP_*`/`STUDENT_GROUP_*` без fallback; падение при отсутствии `NODE_ENV`; pre-fill wizard студенческой группой; Migration-инструкция в CHANGELOG. Видение продолжения — [schools-system.md](./roadmap/schools-system.md). Завершён 2026-10-14 (гейт: 2713 pass / 0 fail), итоги — в [summary](./archive/school-config_20260928/summary.md).
+*Link: [./archive/school-config_20260928/](./archive/school-config_20260928/)*
 
 ---
 
-- [ ] **Track: Хаб «Школа» (school-hub)** — разделение осей «🏫 Школа» (место) и «📖 Курсы» (материалы авторов); контроллер `school` с карточкой школы и «Наши менторы»; экран «Инфо»; перенос в хаб кнопок «Сообщество» и «Потоки курсов»; `Stream.schoolId` и экран «Отзывы» (только чтение, отзывы по потокам школы); переименование «Программы курсов» → «Курсы». Общая концепция школ — [schools-system.md](./roadmap/schools-system.md)
+- [~] **Track: Хаб «Школа» (school-hub)** — разделение осей «🏫 Школа» (место) и «📖 Курсы» (материалы авторов); контроллер `school` с карточкой школы и «Наши менторы»; экран «Инфо»; перенос в хаб кнопок «Сообщество» и «Потоки курсов»; `Stream.schoolId` и экран «Отзывы» (только чтение, отзывы по потокам школы); переименование «Программы курсов» → «Курсы». Общая концепция школ — [schools-system.md](./roadmap/schools-system.md)
 Зависит от `school-config_20260928` (тип `School`, `appResolver.school`).
 *Link: [./tracks/school-hub_20260928/](./tracks/school-hub_20260928/)*
 

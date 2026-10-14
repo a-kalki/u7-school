@@ -13,7 +13,7 @@
 «💬 Отзывы» и «ℹ️ Инфо». Каталог курсов
 переименовывается «📖 Программы курсов» → «📖 Курсы».
 
-Опирается на трек [school-config](../school-config_20260928/spec.md) — считаем
+Опирается на трек [school-config](../../archive/school-config_20260928/spec.md) — считаем
 реализованным: есть тип `School`, `appResolver.school`, `U7BotUiAppResolve.school`.
 Общая концепция множественных школ — [schools-system](../../roadmap/schools-system.md).
 
