@@ -8,6 +8,42 @@
 (наличие секции проверяет `scripts/release.sh`). Группировка:
 Added / Changed / Fixed / Migration.
 
+## [0.2.5] — 2026-10-14
+
+Хаб школы (`school-hub`): карточка школы SH01, экраны «Инфо», перенос входов
+в сообщество и каталог потоков в карточку школы, привязка потоков к школе (`Stream.schoolId`).
+
+### Added
+
+- **Поле `Stream.schoolId` (`@u7-scl/stream`)**: связка каждого потока со школой
+  (`U7_SCHOOL_ID`), валидация в `StreamSchema`, автозаполнение из `appResolver.school.id`
+  при создании потока (`CreateStreamUc`), фильтрация по `schoolId` в `ListStreamsUc` и `StreamJsonRepo`.
+- **Скрипт миграции `scripts/migrate-streams-school-id.ts`** (`bun run migrate:streams-school-id`):
+  идемпотентно проставляет `schoolId` существующим потокам в `data/streams/streams.json`.
+
+### Migration
+
+> **КРИТИЧНО:** На работающем старом коде мигрировать **нельзя**: valibot отбрасывает
+> неизвестные поля и затрёт `schoolId` при следующей записи в БД.
+> Порядок и способ выполнения — на усмотрение агента деплоя; запуск с явным подтверждением владельца (Нурболата).
+
+1. **Остановить бота:**
+   ```bash
+   bun run start:prod:stop
+   ```
+2. **Сделать бэкап данных потоков:**
+   ```bash
+   bun run backup before-stream-school-id-migration
+   ```
+3. **Прогнать миграцию:**
+   ```bash
+   bun run migrate:streams-school-id
+   ```
+4. **Запустить бота с актуальным окружением:**
+   ```bash
+   pm2 restart pm2.config.cjs --env production --update-env
+   ```
+
 ## [0.2.4] — 2026-10-14
 
 Школа как конфигурация уровня приложения (`school-config`): сущность `School`,

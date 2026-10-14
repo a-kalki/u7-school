@@ -23,6 +23,7 @@
     "backup:adhoc": "bash scripts/backup-adhoc.sh",
     "release": "bash scripts/release.sh",
     "deploy": "bash scripts/deploy.sh",
+    "migrate:streams-school-id": "bun run scripts/migrate-streams-school-id.ts",
     "seed:fixtures": "bun run apps/u7-bot/scripts/seed-fixtures.ts",
     "world:check": "bun run apps/u7-bot/scripts/world-check.ts",
     "world:list": "bun run apps/u7-bot/scripts/world-list.ts",
