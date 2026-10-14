@@ -24,7 +24,7 @@
 
 ## Фаза 3: «Сообщество» (перенос)
 
-- [ ] Task: Тесты: кнопка сообщества в хабе ведёт по `school.communityGroup.url`.
+- [x] Task: Тесты: кнопка сообщества в хабе ведёт по `school.communityGroup.url`. [1d7b8f6]
 - [ ] Task: Перенести `CommunityStory` из `AppController` в `SchoolController`
       (убрать кнопку из главного меню).
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3: Сообщество' (Protocol in workflow.md)
