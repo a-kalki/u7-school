@@ -5,6 +5,7 @@ import { LearningController } from './controllers/learning/controller';
 import { MentorController } from './controllers/mentor/controller';
 import { PeerReviewController } from './controllers/peer-review/controller';
 import { QuestionnaireController } from './controllers/questionnaire/controller';
+import { SchoolController } from './controllers/school/controller';
 import { StreamsController } from './controllers/streams/controller';
 import { UserController } from './controllers/user/controller';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './core/u7-bot-app-meta';
@@ -18,6 +19,7 @@ export interface UiAppBundle {
   uiApp: U7BotUiApp;
   resolve: U7BotUiAppResolve;
   appController: AppController;
+  schoolController: SchoolController;
   streamController: StreamsController;
   userController: UserController;
   courseController: CoursesController;
@@ -54,12 +56,14 @@ export async function createUiApp(
   const questionnaireController = new QuestionnaireController();
   const peerReviewController = new PeerReviewController();
   const userController = new UserController();
+  const schoolController = new SchoolController();
   // Админ-гейт /log_level и сообщество школы — app-контроллер (данные из resolve)
   const appController = new AppController();
 
   // Гост-регистрация /start — uiApp через resolve (ФР-4)
   const uiApp = new U7BotUiApp([
     appController,
+    schoolController,
     streamController,
     userController,
     courseController,
@@ -98,6 +102,7 @@ export async function createUiApp(
     uiApp,
     resolve,
     appController,
+    schoolController,
     streamController,
     userController,
     courseController,
