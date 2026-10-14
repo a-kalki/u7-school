@@ -74,8 +74,8 @@
 
 ## Фаза 7: Финал — гейт и документация
 
-- [ ] Task: Полный прогон `bun run check` (lint + tslint + test), триаж красных.
-- [ ] Task: Обновить conductor-документацию (`schools-system.md`, `tracks.md`,
-      `streams/ui-spec.md` — новый вход).
+- [x] Task: Полный прогон `bun run check` (lint + tslint + test), триаж красных.
+- [x] Task: Обновить conductor-документацию (`schools-system.md`, `tracks.md`,
+      `streams/ui-spec.md` — новый вход). [6ead66f]
 - [ ] Task: `summary.md` трека.
 - [ ] Task: Conductor - User Manual Verification 'Фаза 7: Финал' (Protocol in workflow.md)
