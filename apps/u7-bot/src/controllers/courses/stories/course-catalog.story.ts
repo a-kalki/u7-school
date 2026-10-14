@@ -40,11 +40,10 @@ export class CourseCatalogStory extends U7BotUiStory {
     return [
       {
         kind: 'callback',
-        text: '📖 Программы курсов',
+        text: '📖 Курсы',
         action: this.cb('list'),
-        priority: 10,
-        description:
-          '📖 Программы курсов — каталог учебных курсов и их структура',
+        priority: 12,
+        description: '📖 Курсы — каталог учебных курсов и их структура',
       },
     ];
   }
