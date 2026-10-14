@@ -263,7 +263,7 @@ describe('E2E: Пагинация (S03 + каталог уровня 3)', () => 
   test('Каталог 3: длинный модуль — полный цикл листания, edit на месте', async () => {
     const tgId = guest.telegramId;
     await transport.handleStart(transport.makeBotContext(tgId));
-    await press(tgId, 'Программы курсов');
+    await press(tgId, 'Курсы');
     await press(tgId, 'Длинный курс (пагинация)');
     await press(tgId, 'Полный трек');
 
@@ -278,7 +278,7 @@ describe('E2E: Пагинация (S03 + каталог уровня 3)', () => 
   test('Каталог 3: проекты распределены по страницам без потерь и дублей', async () => {
     const tgId = guest.telegramId;
     await transport.handleStart(transport.makeBotContext(tgId));
-    await press(tgId, 'Программы курсов');
+    await press(tgId, 'Курсы');
     await press(tgId, 'Длинный курс (пагинация)');
     await press(tgId, 'Полный трек');
     const first = await press(tgId, 'Длинный модуль (пагинация)');

@@ -174,7 +174,7 @@ describe('Главное меню (интеграционные)', () => {
     );
     const text = response.notify?.text ?? '';
     expect(text).toContain('Как со мной работать?');
-    expect(text).toContain('Программы курсов');
+    expect(text).toContain('Курсы');
     expect(text).toContain('Школа');
     expect(text).not.toContain('Потоки курсов');
     expect(text).toContain('/cancel');
@@ -189,7 +189,7 @@ describe('Главное меню (интеграционные)', () => {
     const text = response.notify?.text ?? '';
     // Справочник собирается из menuButtons актора: сюда входят
     // и пункты домена learning (см. describe learning ниже).
-    expect(text).toContain('Программы курсов');
+    expect(text).toContain('Курсы');
     expect(text).toContain('Школа');
     expect(text).not.toContain('Потоки курсов');
     expect(text).toContain('Моя учёба');

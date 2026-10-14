@@ -149,12 +149,12 @@ describe('Questionnaire UX (e2e)', () => {
     throw new Error('apply-кнопка анкетного курса не найдена — открой каталог');
   }
 
-  /** /start → «Программы курсов» (уровень 0 с apply-кнопками). */
+  /** /start → «Курсы» (уровень 0 с apply-кнопками). */
   async function openCatalog(tgId: number): Promise<void> {
     await transport.handleStart(transport.makeBotContext(tgId));
     await transport.handleCallback(
       transport.makeBotContext(tgId, {
-        callbackData: pressedCode(transport, tgId, 'Программы курсов'),
+        callbackData: pressedCode(transport, tgId, 'Курсы'),
       }),
     );
   }

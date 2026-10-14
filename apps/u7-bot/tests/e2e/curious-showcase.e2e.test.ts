@@ -133,9 +133,9 @@ describe('E2E: Витрина для любопытного', () => {
 
   // ── Главное меню ──
   describe('Главное меню гостя', () => {
-    test('содержит «🏫 Школа» и «📖 Программы курсов»', async () => {
+    test('содержит «🏫 Школа» и «📖 Курсы»', async () => {
       const menu = await transport.collectMainMenu(guest);
-      const courseBtn = findMenuItem(menu, 'Программы курсов');
+      const courseBtn = findMenuItem(menu, 'Курсы');
       expect(courseBtn.action).toStartWith('course:');
       const schoolBtn = findMenuItem(menu, 'Школа');
       expect(schoolBtn.action).toStartWith('school:');
@@ -145,14 +145,14 @@ describe('E2E: Витрина для любопытного', () => {
     });
   });
 
-  // ── «Программы курсов»: 5-уровневый drill-down ──
-  describe('«Программы курсов» — drill-down', () => {
+  // ── «Курсы»: 5-уровневый drill-down ──
+  describe('«Курсы» — drill-down', () => {
     test('уровень 0: курсы + этапы inline', async () => {
       const tgId = guest.telegramId;
       await transport.handleStart(transport.makeBotContext(tgId));
       const response = await transport.handleCallback(
         transport.makeBotContext(tgId, {
-          callbackData: pressedCode(transport, tgId, 'Программы курсов'),
+          callbackData: pressedCode(transport, tgId, 'Курсы'),
         }),
       );
       const text = response.screen?.text ?? '';
@@ -171,7 +171,7 @@ describe('E2E: Витрина для любопытного', () => {
       await transport.handleStart(transport.makeBotContext(tgId));
       await transport.handleCallback(
         transport.makeBotContext(tgId, {
-          callbackData: pressedCode(transport, tgId, 'Программы курсов'),
+          callbackData: pressedCode(transport, tgId, 'Курсы'),
         }),
       );
       const response = await transport.handleCallback(
@@ -194,7 +194,7 @@ describe('E2E: Витрина для любопытного', () => {
       await transport.handleStart(transport.makeBotContext(tgId));
       await transport.handleCallback(
         transport.makeBotContext(tgId, {
-          callbackData: pressedCode(transport, tgId, 'Программы курсов'),
+          callbackData: pressedCode(transport, tgId, 'Курсы'),
         }),
       );
       await transport.handleCallback(
@@ -222,7 +222,7 @@ describe('E2E: Витрина для любопытного', () => {
       await transport.handleStart(transport.makeBotContext(tgId));
       await transport.handleCallback(
         transport.makeBotContext(tgId, {
-          callbackData: pressedCode(transport, tgId, 'Программы курсов'),
+          callbackData: pressedCode(transport, tgId, 'Курсы'),
         }),
       );
       await transport.handleCallback(
@@ -255,7 +255,7 @@ describe('E2E: Витрина для любопытного', () => {
       await transport.handleStart(transport.makeBotContext(tgId));
       await transport.handleCallback(
         transport.makeBotContext(tgId, {
-          callbackData: pressedCode(transport, tgId, 'Программы курсов'),
+          callbackData: pressedCode(transport, tgId, 'Курсы'),
         }),
       );
       await transport.handleCallback(
@@ -387,8 +387,8 @@ describe('E2E: Витрина для любопытного', () => {
     });
   });
 
-  // ── «Программы курсов» — drill-up (обратная навигация) ──
-  describe('«Программы курсов» — обратная навигация', () => {
+  // ── «Курсы» — drill-up (обратная навигация) ──
+  describe('«Курсы» — обратная навигация', () => {
     test('drill-down 5 уровней → drill-up 4 уровня обратно', async () => {
       const tgId = guest.telegramId;
       await transport.handleStart(transport.makeBotContext(tgId));
@@ -399,7 +399,7 @@ describe('E2E: Витрина для любопытного', () => {
           }),
         );
 
-      await press('Программы курсов');
+      await press('Курсы');
       await press('Основы');
       await press('Синтаксис');
       await press('JavaScript');
@@ -433,7 +433,7 @@ describe('E2E: Витрина для любопытного', () => {
           }),
         );
 
-      await press('Программы курсов');
+      await press('Курсы');
       await press('Основы');
       const l2 = await press('Синтаксис');
       expect(l2.screen?.text).toContain('Синтаксис');
@@ -451,7 +451,7 @@ describe('E2E: Витрина для любопытного', () => {
       await transport.handleStart(transport.makeBotContext(tgId));
       await transport.handleCallback(
         transport.makeBotContext(tgId, {
-          callbackData: pressedCode(transport, tgId, 'Программы курсов'),
+          callbackData: pressedCode(transport, tgId, 'Курсы'),
         }),
       );
       const mainResp = await transport.handleCallback(
@@ -544,7 +544,7 @@ describe('E2E: Витрина для любопытного', () => {
       await transport.handleStart(transport.makeBotContext(tgId));
       // Крафтовый код с АКТУАЛЬНЫМ штампом экрана: по форме валиден,
       // но поток не существует — экран ошибки, без падений
-      const stamp = pressedCode(transport, tgId, 'Программы курсов')
+      const stamp = pressedCode(transport, tgId, 'Курсы')
         .split(':')
         .pop();
       const response = await transport.handleCallback(
@@ -568,7 +568,7 @@ describe('E2E: Витрина для любопытного', () => {
           }),
         );
 
-      const courses = await press('Программы курсов');
+      const courses = await press('Курсы');
       expect(courses.screen?.text).toContain('Курсы');
 
       const main1 = await press('Главное меню');
@@ -592,7 +592,7 @@ describe('E2E: Витрина для любопытного', () => {
       );
       const text = response.notify?.text ?? '';
       expect(text).toContain('Как со мной работать');
-      expect(text).toContain('Программы курсов');
+      expect(text).toContain('Курсы');
       expect(text).toContain('Школа');
       expect(text).not.toContain('Потоки курсов');
       // /help — реплика, экран не захватывает
