@@ -16,19 +16,19 @@
 
 ## Фаза 2: App — тип `School` и резолверы
 
-- [ ] Task: Тесты `SchoolSchema` (валидный объект с `id`; отсутствие обязательного поля; опциональный `site`).
-- [ ] Task: Реализовать `packages/app/src/domain/school.ts` — сущность (entity)
+- [x] Task: Тесты `SchoolSchema` (валидный объект с `id`; отсутствие обязательного поля; опциональный `site`). (3a87a72)
+- [x] Task: Реализовать `packages/app/src/domain/school.ts` — сущность (entity)
       + valibot-схема, константа `id` + статические значения школы (`name`, `description`,
-      `address`, `contacts.phone`).
-- [ ] Task: Перенести `U7AppResolver` в `packages/app/src/domain`, добавить `school: School`.
-- [ ] Task: Ввести `U7ModuleResolver extends ModuleResolver<U7AppResolver>`.
-- [ ] Task: Закрыть резолвер в `U7UseCase`/`U7ApiModule`
+      `address`, `contacts.phone`). (3a87a72)
+- [x] Task: Перенести `U7AppResolver` в `packages/app/src/domain`, добавить `school: School`. (3a87a72)
+- [x] Task: Ввести `U7ModuleResolver extends ModuleResolver<U7AppResolver>`. (3a87a72)
+- [x] Task: Закрыть резолвер в `U7UseCase`/`U7ApiModule`
       (`TResolve extends U7ModuleResolver = U7ModuleResolver`) и перевести **все** доменные
-      `*ApiModuleResolver` со core-`ModuleResolver` на `U7ModuleResolver`.
-- [ ] Task: Удалить пустой `U7AppResolver` из `apps/u7-bot/src/core/u7-bot-app-meta.ts`,
-      заменить импортом из `@u7-scl/app/domain`.
-- [ ] Task: Экспортировать новые типы из `@u7-scl/app/domain` (barrel `index.ts`).
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2: App — тип School и резолверы' (Protocol in workflow.md)
+      `*ApiModuleResolver` со core-`ModuleResolver` на `U7ModuleResolver`. (3a87a72)
+- [x] Task: Удалить пустой `U7AppResolver` из `apps/u7-bot/src/core/u7-bot-app-meta.ts`,
+      заменить импортом из `@u7-scl/app/domain`. (3a87a72)
+- [x] Task: Экспортировать новые типы из `@u7-scl/app/domain` (barrel `index.ts`). (3a87a72)
+- [x] Task: Conductor - User Manual Verification 'Фаза 2: App — тип School и резолверы' (Protocol in workflow.md) (3a87a72)
 
 ## Фаза 3: apps/u7-bot — env → config → резолвер, `mode`
 
