@@ -27,7 +27,7 @@
 - [x] Task: Тесты: кнопка сообщества в хабе ведёт по `school.communityGroup.url`. [1d7b8f6]
 - [x] Task: Перенести `CommunityStory` из `AppController` в `SchoolController`
       (убрать кнопку из главного меню). [b4e9ad8]
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3: Сообщество' (Protocol in workflow.md)
+- [x] Conductor - User Manual Verification 'Фаза 3: Сообщество' [56f586c9]
 
 ## Фаза 4: «Потоки» (перенос каталога)
 
