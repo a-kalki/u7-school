@@ -36,7 +36,7 @@
       скорректировать кнопку возврата каталога. [08f3e34]
 - [x] Task: Обновить тексты путей записи (`wish-invite.story.ts`,
       `streams/ui-spec.md` S11) на `🏫 Школа → 📚 Потоки` + тесты. [46ea977]
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4: Потоки' (Protocol in workflow.md)
+- [x] Conductor - User Manual Verification 'Фаза 4: Потоки' [b3aaec8e]
 
 ## Фаза 5: Потоки школы и «Отзывы»
 
