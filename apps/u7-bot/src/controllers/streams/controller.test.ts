@@ -55,19 +55,12 @@ describe('StreamsController (реестр)', () => {
     expect(stories.length).toBe(3);
   });
 
-  test('menuButtons агрегирует кнопки от stories с префиксом контроллера', async () => {
+  test('menuButtons пуст (сторис не экспортируют кнопок в главное меню)', async () => {
     const controller = makeController();
     controller.init({ appApi: mockAppApi } as never);
 
     const items = await controller.menuButtons(guestActor);
-
-    expect(items.length).toBeGreaterThanOrEqual(1);
-    const texts = items.map((i) => i.text);
-    expect(texts).toContain('📚 Потоки курсов');
-    const callback = items.find((i) => i.kind === 'callback');
-    if (callback?.kind === 'callback') {
-      expect(callback.action).toBe('stream:catalog:list');
-    }
+    expect(items).toHaveLength(0);
   });
 
   test('handleCallback форвардит catalog:list', async () => {

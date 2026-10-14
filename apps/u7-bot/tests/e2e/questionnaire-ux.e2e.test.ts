@@ -9,6 +9,7 @@ import {
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
+import { SchoolController } from '@u7-scl/bot/school/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
 import { createTestApp } from '@u7-scl/test-helpers/test-app';
@@ -54,6 +55,7 @@ describe('Questionnaire UX (e2e)', () => {
     app = await createTestApp('questionnaire-ux-e2e');
     transport = createTestBotTransport(app, [
       new AppController(SCHOOL_GROUP_URL),
+      new SchoolController(),
       new CoursesController(),
       new StreamsController(),
       new QuestionnaireController(),
@@ -333,11 +335,12 @@ describe('Questionnaire UX (e2e)', () => {
     await transport.handleStart(transport.makeBotContext(fillGuest.telegramId));
     await transport.handleCallback(
       transport.makeBotContext(fillGuest.telegramId, {
-        callbackData: pressedCode(
-          transport,
-          fillGuest.telegramId,
-          'Потоки курсов',
-        ),
+        callbackData: pressedCode(transport, fillGuest.telegramId, 'Школа'),
+      }),
+    );
+    await transport.handleCallback(
+      transport.makeBotContext(fillGuest.telegramId, {
+        callbackData: pressedCode(transport, fillGuest.telegramId, 'Потоки'),
       }),
     );
     await transport.handleCallback(

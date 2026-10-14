@@ -11,6 +11,7 @@ import { AppController } from '@u7-scl/bot/app/app-controller';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
 import { LearningController } from '@u7-scl/bot/learning/controller';
 import { MentorController } from '@u7-scl/bot/mentor/controller';
+import { SchoolController } from '@u7-scl/bot/school/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
 import type { CbMenuButton, MenuButton } from '@u7-scl/bot/u7-menu';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
@@ -108,10 +109,12 @@ describe('E2E: Витрина для любопытного', () => {
     const streamController = new StreamsController();
     const courseController = new CoursesController();
     const appController = new AppController(SCHOOL_GROUP_URL);
+    const schoolController = new SchoolController();
     const learningController = new LearningController();
     const mentorController = new MentorController();
     transport = createTestBotTransport(app, [
       appController,
+      schoolController,
       streamController,
       courseController,
       learningController,
@@ -130,12 +133,13 @@ describe('E2E: Витрина для любопытного', () => {
 
   // ── Главное меню ──
   describe('Главное меню гостя', () => {
-    test('содержит «📖 Программы курсов» и «📚 Потоки курсов»', async () => {
+    test('содержит «🏫 Школа» и «📖 Программы курсов»', async () => {
       const menu = await transport.collectMainMenu(guest);
       const courseBtn = findMenuItem(menu, 'Программы курсов');
       expect(courseBtn.action).toStartWith('course:');
-      const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      expect(streamBtn.action).toStartWith('stream:');
+      const schoolBtn = findMenuItem(menu, 'Школа');
+      expect(schoolBtn.action).toStartWith('school:');
+      expect(menu.some((i) => i.text.includes('Потоки курсов'))).toBe(false);
       expect(menu.some((i) => i.text.includes('Моя учёба'))).toBe(false);
       expect(menu.some((i) => i.text.includes('Создать поток'))).toBe(false);
     });
@@ -291,9 +295,14 @@ describe('E2E: Витрина для любопытного', () => {
     test('гость открывает каталог потоков (S01)', async () => {
       const tgId = guest.telegramId;
       await transport.handleStart(transport.makeBotContext(tgId));
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Школа'),
+        }),
+      );
       const response = await transport.handleCallback(
         transport.makeBotContext(tgId, {
-          callbackData: pressedCode(transport, tgId, 'Потоки курсов'),
+          callbackData: pressedCode(transport, tgId, 'Потоки'),
         }),
       );
       const text = response.screen?.text ?? '';
@@ -301,7 +310,7 @@ describe('E2E: Витрина для любопытного', () => {
       const btns =
         response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('🟡') || t.includes('🔵'))).toBe(true);
-      expect(btns.some((t) => t.includes('↩️ Главное меню'))).toBe(true);
+      expect(btns.some((t) => t.includes('Назад в школу'))).toBe(true);
     });
 
     test('гость → enrollment-поток: карточка без менторских кнопок (S02)', async () => {
@@ -309,7 +318,12 @@ describe('E2E: Витрина для любопытного', () => {
       await transport.handleStart(transport.makeBotContext(tgId));
       await transport.handleCallback(
         transport.makeBotContext(tgId, {
-          callbackData: pressedCode(transport, tgId, 'Потоки курсов'),
+          callbackData: pressedCode(transport, tgId, 'Школа'),
+        }),
+      );
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Потоки'),
         }),
       );
       const response = await transport.handleCallback(
@@ -353,7 +367,12 @@ describe('E2E: Витрина для любопытного', () => {
       await transport.handleStart(transport.makeBotContext(tgId));
       await transport.handleCallback(
         transport.makeBotContext(tgId, {
-          callbackData: pressedCode(transport, tgId, 'Потоки курсов'),
+          callbackData: pressedCode(transport, tgId, 'Школа'),
+        }),
+      );
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Потоки'),
         }),
       );
       const response = await transport.handleCallback(
@@ -456,7 +475,8 @@ describe('E2E: Витрина для любопытного', () => {
           }),
         );
 
-      const catalog = await press('Потоки курсов');
+      await press('Школа');
+      const catalog = await press('Потоки');
       expect(catalog.screen?.text).toContain('Потоки курсов');
 
       const card = await press('JS Core — Поток 1');
@@ -489,7 +509,8 @@ describe('E2E: Витрина для любопытного', () => {
           }),
         );
 
-      await press('Потоки курсов');
+      await press('Школа');
+      await press('Потоки');
       const card = await press('JS Core — Поток 2');
       expect(card.screen?.text).toContain('Поток 2');
 
@@ -504,16 +525,17 @@ describe('E2E: Витрина для любопытного', () => {
     test('каталог → Главное меню', async () => {
       const tgId = guest.telegramId;
       await transport.handleStart(transport.makeBotContext(tgId));
-      await transport.handleCallback(
-        transport.makeBotContext(tgId, {
-          callbackData: pressedCode(transport, tgId, 'Потоки курсов'),
-        }),
-      );
-      const mainResp = await transport.handleCallback(
-        transport.makeBotContext(tgId, {
-          callbackData: pressedCode(transport, tgId, 'Главное меню'),
-        }),
-      );
+      const press = (label: string) =>
+        transport.handleCallback(
+          transport.makeBotContext(tgId, {
+            callbackData: pressedCode(transport, tgId, label),
+          }),
+        );
+
+      await press('Школа');
+      await press('Потоки');
+      await press('Назад в школу');
+      const mainResp = await press('Главное меню');
       expect(mainResp.screen?.text).toContain('Главное меню');
     });
 
@@ -553,7 +575,8 @@ describe('E2E: Витрина для любопытного', () => {
       expect(main1.screen?.text).toContain('Главное меню');
 
       // Кнопки меню есть на экране короткого меню — pressedCode их найдёт
-      const catalog = await press('Потоки курсов');
+      await press('Школа');
+      const catalog = await press('Потоки');
       expect(catalog.screen?.text).toContain('Потоки курсов');
 
       const card = await press('JS Core — Поток 1');
@@ -570,7 +593,8 @@ describe('E2E: Витрина для любопытного', () => {
       const text = response.notify?.text ?? '';
       expect(text).toContain('Как со мной работать');
       expect(text).toContain('Программы курсов');
-      expect(text).toContain('Потоки курсов');
+      expect(text).toContain('Школа');
+      expect(text).not.toContain('Потоки курсов');
       // /help — реплика, экран не захватывает
       expect(response.screen).toBeUndefined();
     });

@@ -18,7 +18,13 @@ export const Routes = {
   app: {
     mainMenu: APP_CODES.mainMenu,
   },
+  school: {
+    /** Хаб школы: карточка школы */
+    hub: 'school:hub:open',
+  },
   stream: {
+    /** Каталог потоков: список потоков */
+    catalogList: 'stream:catalog:list',
     /** Экран потока: обработчик в view-stream стори streams-контроллера */
     view: (streamId: string) => `stream:view-stream:view:${streamId}`,
     /** Запись на поток: обработчик в view-stream стори streams-контроллера */

@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
+import { SchoolController } from '@u7-scl/bot/school/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
 import { createTestApp } from '@u7-scl/test-helpers/test-app';
@@ -37,7 +38,12 @@ describe('ViewStreamStory (интеграционный)', () => {
     app = await createTestApp('streams-view-int');
     const streamController = new StreamsController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    transport = createTestBotTransport(app, [appController, streamController]);
+    const schoolController = new SchoolController();
+    transport = createTestBotTransport(app, [
+      appController,
+      schoolController,
+      streamController,
+    ]);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
   });
@@ -157,7 +163,8 @@ describe('ViewStreamStory (интеграционный)', () => {
       );
 
     // 1. Каталог потоков
-    const catalogResp = await press('Потоки курсов');
+    await press('Школа');
+    const catalogResp = await press('Потоки');
     expect(catalogResp.screen?.text).toContain('Потоки курсов');
 
     // 2-3. Enrollment-поток (🟡) → карточка
@@ -178,7 +185,12 @@ describe('ViewStreamStory (интеграционный)', () => {
     await transport.handleStart(transport.makeBotContext(tgId));
     await transport.handleCallback(
       transport.makeBotContext(tgId, {
-        callbackData: pressedCode(transport, tgId, 'Потоки курсов'),
+        callbackData: pressedCode(transport, tgId, 'Школа'),
+      }),
+    );
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Потоки'),
       }),
     );
 

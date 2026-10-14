@@ -31,16 +31,7 @@ export class CatalogStory extends U7BotUiStory {
   readonly name = 'catalog';
 
   override async menuButtons(_actor: User): Promise<MenuButton[]> {
-    return [
-      {
-        kind: 'callback',
-        text: '📚 Потоки курсов',
-        action: this.cb('list'),
-        priority: 15,
-        description:
-          '📚 Потоки курсов — просмотр каталога учебных потоков школы',
-      },
-    ];
+    return [];
   }
 
   async handleCallback(
@@ -100,12 +91,12 @@ export class CatalogStory extends U7BotUiStory {
           this.btn('⚫ Вкл. архивированные', this.cb('list-with-all')),
         ]);
       }
-      if (toggleRows.length > 0) {
-        toggleRows.push([this.#mainMenuButton()]);
+      toggleRows.push([this.#backToSchoolButton()]);
+      if (hasCompleted || hasArchived) {
         return this.screen(md`📚 *Нет активных потоков*`, this.kb(toggleRows));
       }
 
-      return this.screen(md`📚 Нет доступных потоков`);
+      return this.screen(md`📚 Нет доступных потоков`, this.kb(toggleRows));
     }
 
     // Кросс-стори колбэки: ссылаемся на ViewStreamStory
@@ -140,8 +131,8 @@ export class CatalogStory extends U7BotUiStory {
       rows.push(toggles);
     }
 
-    // Кнопка «↩️ Главное меню» последней строкой
-    rows.push([this.#mainMenuButton()]);
+    // Кнопка «⬅️ Назад в школу» последней строкой
+    rows.push([this.#backToSchoolButton()]);
 
     return this.screen(this.#catalogTitle(), this.kb(rows));
   }
@@ -151,8 +142,8 @@ export class CatalogStory extends U7BotUiStory {
     return mdConcat(md`📚 *Потоки курсов*`, LEGEND);
   }
 
-  /** Кнопка «↩️ Главное меню» — мост на системный код приложения. */
-  #mainMenuButton(): { text: string; code: string } {
-    return buttons.mainMenu();
+  /** Кнопка «⬅️ Назад в школу» — возврат в хаб школы. */
+  #backToSchoolButton(): { text: string; code: string } {
+    return buttons.backToSchool();
   }
 }

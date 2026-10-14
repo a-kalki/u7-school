@@ -10,6 +10,7 @@ import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
 import { LearningController } from '@u7-scl/bot/learning/controller';
+import { SchoolController } from '@u7-scl/bot/school/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
 import type { DialogResponse } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
@@ -67,9 +68,11 @@ describe('Главное меню (интеграционные)', () => {
     const streamController = new StreamsController();
     const courseController = new CoursesController();
     const appController = new AppController(SCHOOL_GROUP_URL);
+    const schoolController = new SchoolController();
     const learningController = new LearningController();
     transport = createTestBotTransport(app, [
       appController,
+      schoolController,
       streamController,
       courseController,
       learningController,
@@ -151,7 +154,8 @@ describe('Главное меню (интеграционные)', () => {
     const text = response.notify?.text ?? '';
     expect(text).toContain('Как со мной работать?');
     expect(text).toContain('Программы курсов');
-    expect(text).toContain('Потоки курсов');
+    expect(text).toContain('Школа');
+    expect(text).not.toContain('Потоки курсов');
     expect(text).toContain('/cancel');
     // Реплика не захватывает экран — клавиатуры у notify нет
     expect(response.screen).toBeUndefined();
@@ -165,7 +169,8 @@ describe('Главное меню (интеграционные)', () => {
     // Справочник собирается из menuButtons актора: сюда входят
     // и пункты домена learning (см. describe learning ниже).
     expect(text).toContain('Программы курсов');
-    expect(text).toContain('Потоки курсов');
+    expect(text).toContain('Школа');
+    expect(text).not.toContain('Потоки курсов');
     expect(text).toContain('Моя учёба');
   });
 
@@ -174,10 +179,20 @@ describe('Главное меню (интеграционные)', () => {
   test('app:main-menu из каталога возвращает короткое меню без приветствия', async () => {
     const tgId = guest.telegramId;
     await transport.handleStart(transport.makeBotContext(tgId));
-    // Реальный путь: меню → каталог потоков → «↩️ Главное меню»
+    // Реальный путь: меню → школа → каталог потоков → назад в школу → Главное меню
     await transport.handleCallback(
       transport.makeBotContext(tgId, {
-        callbackData: pressedCode(transport, tgId, 'Потоки курсов'),
+        callbackData: pressedCode(transport, tgId, 'Школа'),
+      }),
+    );
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Потоки'),
+      }),
+    );
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Назад в школу'),
       }),
     );
     const response = await transport.handleCallback(

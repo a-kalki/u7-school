@@ -4,6 +4,7 @@ import type { MenuButton } from '@u7-scl/bot/u7-menu';
 import { type MdText, md, mdJoin } from '@u7-scl/core/shared';
 import type { BotSession, DialogResponse, KbButton } from '@u7-scl/core/ui';
 import { buttons } from '../../shared/buttons';
+import { Routes } from '../../shared/routes';
 
 interface MentorProfile {
   uuid: string;
@@ -40,6 +41,9 @@ export class SchoolHubStory extends U7BotUiStory {
     if (action === 'open') {
       return this.#renderHub();
     }
+    if (action === 'streams') {
+      return { delegate: { path: Routes.stream.catalogList } };
+    }
 
     return this.unknownCommand(action, actor, session);
   }
@@ -69,7 +73,7 @@ export class SchoolHubStory extends U7BotUiStory {
     }
 
     const rows: KbButton[][] = [
-      [this.btn('📚 Потоки', this.cb('streams'))],
+      [this.btn('📚 Потоки', Routes.stream.catalogList)],
       [this.btn('💬 Отзывы', this.cb('reviews'))],
       [this.btn('ℹ️ Инфо', this.cbFor('info', 'view'))],
       [this.btnUrl('💬 Сообщество', school.communityGroup.url)],

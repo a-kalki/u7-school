@@ -11,6 +11,7 @@ import { AppController } from '@u7-scl/bot/app/app-controller';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
 import { LearningController } from '@u7-scl/bot/learning/controller';
 import { MentorController } from '@u7-scl/bot/mentor/controller';
+import { SchoolController } from '@u7-scl/bot/school/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
 import { assertDialogResponseMarkdownSafe } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
@@ -51,6 +52,7 @@ describe('E2E: Пагинация (S03 + каталог уровня 3)', () => 
     app = await createTestApp('e2e-pagination');
     const controllers = [
       new AppController(SCHOOL_GROUP_URL),
+      new SchoolController(),
       new StreamsController(),
       new CoursesController(),
       new LearningController(),
@@ -219,7 +221,8 @@ describe('E2E: Пагинация (S03 + каталог уровня 3)', () => 
   test('S03: длинная программа — полный цикл листания, edit на месте', async () => {
     const tgId = guest.telegramId;
     await transport.handleStart(transport.makeBotContext(tgId));
-    await press(tgId, 'Потоки курсов');
+    await press(tgId, 'Школа');
+    await press(tgId, 'Потоки');
     const card = await press(tgId, 'JS Core — Длинная программа');
     expect(card.screen?.text).toContain('Длинная программа');
 
@@ -236,7 +239,8 @@ describe('E2E: Пагинация (S03 + каталог уровня 3)', () => 
   test('S03: страницы не повторяют шапку-разделитель и целы по проектам', async () => {
     const tgId = guest.telegramId;
     await transport.handleStart(transport.makeBotContext(tgId));
-    await press(tgId, 'Потоки курсов');
+    await press(tgId, 'Школа');
+    await press(tgId, 'Потоки');
     await press(tgId, 'JS Core — Длинная программа');
     const program = await press(tgId, 'Программа курса');
     const total = pageOf(String(program.screen?.text ?? ''))!.total;

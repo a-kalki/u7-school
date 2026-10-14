@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
+import { SchoolController } from '@u7-scl/bot/school/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
 import { createTestApp } from '@u7-scl/test-helpers/test-app';
@@ -35,7 +36,12 @@ describe('CatalogStory (интеграционный)', () => {
     app = await createTestApp('streams-catalog-int');
     const streamController = new StreamsController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    transport = createTestBotTransport(app, [appController, streamController]);
+    const schoolController = new SchoolController();
+    transport = createTestBotTransport(app, [
+      appController,
+      streamController,
+      schoolController,
+    ]);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
   });
 
@@ -65,8 +71,8 @@ describe('CatalogStory (интеграционный)', () => {
     // В фикстурах есть enrollment (JS Core) и active (JS Core 2)
     expect(btns.some((t) => t.includes('JS Core — Поток 1'))).toBe(true);
     expect(btns.some((t) => t.includes('JS Core — Поток 2'))).toBe(true);
-    // Кнопка Главное меню в конце
-    expect(btns.some((t) => t.includes('Главное меню'))).toBe(true);
+    // Кнопка «Назад в школу» в конце
+    expect(btns.some((t) => t.includes('Назад в школу'))).toBe(true);
   });
 
   test('list: скрывает completed и archived по умолчанию', async () => {
@@ -93,16 +99,11 @@ describe('CatalogStory (интеграционный)', () => {
     ).toBe(true);
   });
 
-  test('handleStart: кнопка «📚 Потоки курсов» в главном меню', async () => {
+  test('handleStart: кнопка «📚 Потоки курсов» отсутствует в главном меню', async () => {
     await transport.handleStart(transport.makeBotContext(guest.telegramId));
     const menu = await transport.collectMainMenu(guest);
     const streamBtn = menu.find((i) => i.text === '📚 Потоки курсов');
-    expect(streamBtn).toBeDefined();
-    expect(streamBtn!.kind).toBe('callback');
-    if (streamBtn!.kind === 'callback') {
-      expect(streamBtn!.action).toBe('stream:catalog:list');
-    }
-    expect(streamBtn!.priority).toBe(15);
+    expect(streamBtn).toBeUndefined();
   });
 
   test('легенда цветных кружков', async () => {
@@ -119,7 +120,12 @@ describe('CatalogStory (интеграционный)', () => {
     await transport.handleStart(transport.makeBotContext(tgId));
     await transport.handleCallback(
       transport.makeBotContext(tgId, {
-        callbackData: pressedCode(transport, tgId, 'Потоки курсов'),
+        callbackData: pressedCode(transport, tgId, 'Школа'),
+      }),
+    );
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Потоки'),
       }),
     );
     const response = await transport.handleCallback(
