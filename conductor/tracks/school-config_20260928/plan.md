@@ -53,10 +53,10 @@
 
 ## Фаза 5: Wizard — pre-fill студенческой группы
 
-- [ ] Task: Тесты wizard: шаги 9–10 предзаполнены `school.studentGroup`, доступны «Оставить»,
-      «Пропустить» и ручной ввод другого значения.
-- [ ] Task: Реализовать дефолт из `school.studentGroup` в `CreateStreamStory`.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 5: Wizard pre-fill' (Protocol in workflow.md)
+- [x] Task: Тесты wizard: шаги 9–10 предзаполнены `school.studentGroup`, доступны «Оставить»,
+      «Пропустить» и ручной ввод другого значения. (ae9c339)
+- [x] Task: Реализовать дефолт из `school.studentGroup` в `CreateStreamStory`. (ae9c339)
+- [x] Task: Conductor - User Manual Verification 'Фаза 5: Wizard pre-fill' (Protocol in workflow.md) (ae9c339)
 
 ## Фаза 6: Env-файлы, CHANGELOG, документация
 
