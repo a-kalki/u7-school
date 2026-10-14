@@ -155,9 +155,19 @@ export class CreateStreamStory extends U7BotUiStory {
       return this.#handleSkipEnrollmentKey(session);
     }
 
+    // Оставить дефолтную инвайт-ссылку группы школы
+    if (action === 'accept-invite') {
+      return this.#handleAcceptInvite(session);
+    }
+
     // Пропуск инвайт-ссылки
     if (action === 'skip-invite') {
       return this.#handleSkipInvite(session);
+    }
+
+    // Оставить дефолтный ID группы школы
+    if (action === 'accept-group') {
+      return this.#handleAcceptGroup(session);
     }
 
     // Пропуск необязательного поля (группа)
@@ -588,19 +598,68 @@ export class CreateStreamStory extends U7BotUiStory {
   // ── Группа: показ шагов и инвайт-ссылка ──
 
   #showGroupStep(ctx: CreateStreamWizardContext): DialogResponse {
-    return this.ask(
+    const defaultGroup = this.resolve?.school?.studentGroup;
+    const defaultId = defaultGroup ? String(defaultGroup.id) : undefined;
+    const lines: MdText[] = [
       md`🔗 Введите ID или username Telegram\\-группы потока — по нему бот сможет исключать \\(кикать\\) студентов \\(необязательно\\)\\:`,
-      ctx,
-      this.kb([[this.btn('⏭️ Пропустить', this.cb('skip-group'))]]),
-    );
+    ];
+    const buttons: KbButton[] = [];
+    if (defaultId) {
+      lines.push(
+        md`\n_По умолчанию \\(студенческая группа школы\\)\\:_ ${mdInlineCode(defaultId)}`,
+      );
+      buttons.push(this.btn('✅ Оставить', this.cb('accept-group')));
+    }
+    buttons.push(this.btn('⏭️ Пропустить', this.cb('skip-group')));
+
+    return this.ask(mdJoin(lines), ctx, this.kb([buttons]));
+  }
+
+  #handleAcceptGroup(session: BotSession): DialogResponse {
+    const ctx = session.dialog?.input?.context as
+      | CreateStreamWizardContext
+      | undefined;
+    if (!ctx) return this.#lostContext();
+    const defaultGroup = this.resolve?.school?.studentGroup;
+    const telegramGroupId = defaultGroup ? String(defaultGroup.id) : '';
+    const nextCtx: CreateStreamWizardContext = {
+      ...ctx,
+      step: 10,
+      telegramGroupId,
+    };
+    return this.#showInviteStep(nextCtx);
   }
 
   #showInviteStep(ctx: CreateStreamWizardContext): DialogResponse {
-    return this.ask(
+    const defaultGroup = this.resolve?.school?.studentGroup;
+    const defaultInvite = defaultGroup?.inviteUrl;
+    const lines: MdText[] = [
       md`🔗 Введите инвайт\\-ссылку на группу потока — по ней студенты попадут в группу \\(необязательно\\)\\:`,
-      ctx,
-      this.kb([[this.btn('⏭️ Пропустить', this.cb('skip-invite'))]]),
-    );
+    ];
+    const buttons: KbButton[] = [];
+    if (defaultInvite) {
+      lines.push(
+        md`\n_По умолчанию \\(студенческая группа школы\\)\\:_ ${defaultInvite}`,
+      );
+      buttons.push(this.btn('✅ Оставить', this.cb('accept-invite')));
+    }
+    buttons.push(this.btn('⏭️ Пропустить', this.cb('skip-invite')));
+
+    return this.ask(mdJoin(lines), ctx, this.kb([buttons]));
+  }
+
+  #handleAcceptInvite(session: BotSession): DialogResponse {
+    const ctx = session.dialog?.input?.context as
+      | CreateStreamWizardContext
+      | undefined;
+    if (!ctx) return this.#lostContext();
+    const defaultGroup = this.resolve?.school?.studentGroup;
+    const telegramGroupInvite = defaultGroup?.inviteUrl ?? '';
+    return this.#showEnrollmentKeyStep({
+      ...ctx,
+      step: 11,
+      telegramGroupInvite,
+    });
   }
 
   #handleInviteInput(

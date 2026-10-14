@@ -1,5 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { User } from '@u7-scl/app/domain';
+import { TEST_SCHOOL, type User } from '@u7-scl/app/domain';
 import type {
   BotSession,
   CommandUpdate,
@@ -76,7 +76,10 @@ function createStory(apiOverrides?: Record<string, unknown>) {
     }),
   };
   // Второй аргумент — имя контроллера (для isActive в pipe-командах)
-  story.init({ appApi } as never, { name: 'mentor' } as never);
+  story.init(
+    { appApi, school: TEST_SCHOOL } as never,
+    { name: 'mentor' } as never,
+  );
   return { story, appApi };
 }
 
@@ -450,6 +453,67 @@ describe('CreateStreamStory (US-6) — контракт «Диалог и Экр
   });
 
   // ── Шаги 9-11: группа, инвайт, кодовое слово ──
+
+  test('шаг 9: предзаполнен studentGroup.id, кнопки Оставить и Пропустить', async () => {
+    const { story } = createStory();
+    const session = wizardSession(8, {
+      title: 'Поток',
+      goal: 'Цель',
+      additional: 'Доп',
+    });
+    const response = await story.handleCallback(
+      'skip-additional',
+      mentorActor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain(
+      String(TEST_SCHOOL.studentGroup.id),
+    );
+    const buttons = response.screen?.keyboard?.rows.flat() ?? [];
+    expect(buttons.some((b) => b.code.endsWith(':accept-group'))).toBe(true);
+    expect(buttons.some((b) => b.code.endsWith(':skip-group'))).toBe(true);
+  });
+
+  test('accept-group → шаг 10 с telegramGroupId = default studentGroup.id', async () => {
+    const { story } = createStory();
+    const session = wizardSession(9, {
+      title: 'Поток',
+      goal: 'Цель',
+      additional: 'Доп',
+    });
+    const response = await story.handleCallback(
+      'accept-group',
+      mentorActor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain('инвайт');
+    const ctx = ctxOf(response);
+    expect(ctx.step).toBe(10);
+    expect(ctx.telegramGroupId).toBe(String(TEST_SCHOOL.studentGroup.id));
+    const buttons = response.screen?.keyboard?.rows.flat() ?? [];
+    expect(buttons.some((b) => b.code.endsWith(':accept-invite'))).toBe(true);
+    expect(buttons.some((b) => b.code.endsWith(':skip-invite'))).toBe(true);
+  });
+
+  test('accept-invite → шаг 11 с telegramGroupInvite = default studentGroup.inviteUrl', async () => {
+    const { story } = createStory();
+    const session = wizardSession(10, {
+      title: 'Поток',
+      telegramGroupId: String(TEST_SCHOOL.studentGroup.id),
+    });
+    const response = await story.handleCallback(
+      'accept-invite',
+      mentorActor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain('кодовое слово');
+    const ctx = ctxOf(response);
+    expect(ctx.step).toBe(11);
+    expect(ctx.telegramGroupInvite).toBe(TEST_SCHOOL.studentGroup.inviteUrl);
+  });
 
   test('skip-group → шаг 10 (инвайт-ссылка)', async () => {
     const { story } = createStory();
