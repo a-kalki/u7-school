@@ -45,11 +45,11 @@
 
 ## Фаза 4: Потребители — убрать прямые `config.schoolGroup*`
 
-- [ ] Task: Тесты `AppController`/`CommunityStory` — URL сообщества берётся из `school`.
-- [ ] Task: `AppController`/`CommunityStory` получают `school.communityGroup.url` из resolve.
-- [ ] Task: `group-handler` получает `school.communityGroup.id` (через резолвер), не из `config`.
-- [ ] Task: Убрать прямые `config.schoolGroup*` из `main.ts` и `create-ui-app.ts`.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4: Потребители school' (Protocol in workflow.md)
+- [x] Task: Тесты `AppController`/`CommunityStory` — URL сообщества берётся из `school`. (a795a76)
+- [x] Task: `AppController`/`CommunityStory` получают `school.communityGroup.url` из resolve. (a795a76)
+- [x] Task: `group-handler` получает `school.communityGroup.id` (через резолвер), не из `config`. (a795a76)
+- [x] Task: Убрать прямые `config.schoolGroup*` из `main.ts` и `create-ui-app.ts`. (a795a76)
+- [x] Task: Conductor - User Manual Verification 'Фаза 4: Потребители school' (Protocol in workflow.md) (a795a76)
 
 ## Фаза 5: Wizard — pre-fill студенческой группы
 
