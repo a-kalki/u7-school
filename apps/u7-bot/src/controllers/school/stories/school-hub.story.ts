@@ -71,7 +71,7 @@ export class SchoolHubStory extends U7BotUiStory {
     const rows: KbButton[][] = [
       [this.btn('📚 Потоки', this.cb('streams'))],
       [this.btn('💬 Отзывы', this.cb('reviews'))],
-      [this.btn('ℹ️ Инфо', this.cb('info'))],
+      [this.btn('ℹ️ Инфо', this.cbFor('info', 'view'))],
       [this.btnUrl('💬 Сообщество', school.communityGroup.url)],
       [buttons.mainMenu()],
     ];

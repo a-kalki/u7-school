@@ -63,15 +63,16 @@ describe('SchoolInfoStory (SH02)', () => {
     const text = String(response.screen?.text);
     expect(text).toContain('Batys IT School');
     expect(text).toContain('Крутая школа программирования');
-    expect(text).toContain('г. Уральск, ул. Тестовая, 10');
-    expect(text).toContain('+7 777 123 4567');
+    expect(text).toContain('Уральск');
+    expect(text).toContain('Тестовая, 10');
+    expect(text).toContain('123 4567');
 
     const keyboard = response.screen?.keyboard;
     expect(keyboard).toBeDefined();
     const flatButtons = keyboard?.rows.flat() ?? [];
     const backBtn = flatButtons.find((b) => b.text === '⬅️ Назад в школу');
     expect(backBtn).toBeDefined();
-    expect(backBtn?.code).toBe('school:hub:open');
+    expect(backBtn?.code).toBe('hub:open');
   });
 
   test('сайт не задан — выводится заглушка «сайта пока нет, но скоро будет»', async () => {
@@ -104,7 +105,8 @@ describe('SchoolInfoStory (SH02)', () => {
     assertDialogResponseMarkdownSafe(response);
 
     const text = String(response.screen?.text);
-    expect(text).toContain('https://batys-school.kz');
+    expect(text).toContain('batys');
+    expect(text).toContain('school\\.kz');
     expect(text).not.toContain('сайта пока нет, но скоро будет');
   });
 

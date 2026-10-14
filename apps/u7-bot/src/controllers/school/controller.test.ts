@@ -23,12 +23,13 @@ describe('SchoolController (реестр)', () => {
     expect(controller.name).toBe('school');
   });
 
-  test('содержит SchoolHubStory', () => {
+  test('содержит SchoolHubStory и SchoolInfoStory', () => {
     const controller = new SchoolController();
     const stories = (
       controller as unknown as { stories: Array<{ name: string }> }
     ).stories;
     expect(stories.some((s) => s.name === 'hub')).toBe(true);
+    expect(stories.some((s) => s.name === 'info')).toBe(true);
   });
 
   test('menuButtons агрегирует кнопку «🏫 Школа» с префиксом контроллера', async () => {
@@ -70,8 +71,36 @@ describe('SchoolController (реестр)', () => {
     expect(rows[0]![0]!.text).toBe('📚 Потоки');
     expect(rows[1]![0]!.text).toBe('💬 Отзывы');
     expect(rows[2]![0]!.text).toBe('ℹ️ Инфо');
+    expect(rows[2]![0]!.code).toBe('school:info:view');
     expect(rows[3]![0]!.text).toBe('💬 Сообщество');
     expect(rows[3]![0]!.url).toBe(TEST_SCHOOL.communityGroup.url);
     expect(rows[4]![0]!.text).toBe('↩️ Главное меню');
+  });
+
+  test('handleCallback форвардит info:view в SchoolInfoStory и возвращает экран SH02 с кнопкой возврата', async () => {
+    const controller = new SchoolController();
+    controller.init({
+      school: TEST_SCHOOL,
+      appApi: { execute: mock(async () => []) },
+    } as any);
+
+    const response = await controller.handleCallback(
+      'info:view',
+      actor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    const text = String(response.screen?.text);
+    expect(text).toContain(TEST_SCHOOL.name);
+    expect(text).toContain('Развиваем не только хард');
+    expect(text).toContain('BatysHub');
+    expect(text).toContain('Исатая');
+    expect(text).toContain('777 287 8182');
+
+    const rows = response.screen?.keyboard?.rows ?? [];
+    expect(rows).toHaveLength(1);
+    expect(rows[0]![0]!.text).toBe('⬅️ Назад в школу');
+    expect(rows[0]![0]!.code).toBe('school:hub:open');
   });
 });
