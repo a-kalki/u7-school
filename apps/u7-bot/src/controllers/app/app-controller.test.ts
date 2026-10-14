@@ -1,5 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { User } from '@u7-scl/app/domain';
+import { TEST_SCHOOL, type User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import type { MenuButton } from '@u7-scl/bot/u7-menu';
 import { type Logger, LogLevel, setGlobalLogger } from '@u7-scl/core/shared';
@@ -41,6 +41,25 @@ function makeCommand(
 }
 
 describe('AppController — menuButtons', () => {
+  test('берёт URL сообщества из school в resolve при создании без аргументов', async () => {
+    const ctrl = new AppController();
+    ctrl.init({
+      school: {
+        ...TEST_SCHOOL,
+        communityGroup: {
+          id: -100777,
+          url: 'https://t.me/resolve_school_group',
+        },
+      },
+    } as any);
+
+    const buttons = await ctrl.menuButtons(actor);
+    expect(buttons).toHaveLength(2);
+    expect((buttons[0]! as { url?: string }).url).toBe(
+      'https://t.me/resolve_school_group',
+    );
+  });
+
   test('две кнопки: Сообщество (url, 90) и Помощь (callback, 100) — по приоритету', async () => {
     const ctrl = makeCtrl();
 

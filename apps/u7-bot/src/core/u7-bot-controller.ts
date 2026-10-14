@@ -65,11 +65,14 @@ export abstract class U7BotController extends BotController<
     return getGlobalLogger();
   }
 
+  protected resolve!: U7BotUiAppResolve;
+
   override init(
     resolve: U7BotUiAppResolve,
     proactiveSender?: ProactiveSender,
     dialogCache?: DialogCache,
   ): void {
+    this.resolve = resolve;
     super.init(resolve, proactiveSender, dialogCache);
   }
 }

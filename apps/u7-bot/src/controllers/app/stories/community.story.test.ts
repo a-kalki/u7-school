@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { User } from '@u7-scl/app/domain';
+import { TEST_SCHOOL, type User } from '@u7-scl/app/domain';
 import { CommunityStory } from '@u7-scl/bot/app/stories/community.story';
 import { Role } from '@u7-scl/user/domain';
 
@@ -11,6 +11,25 @@ describe('CommunityStory', () => {
     roles: [Role.GUEST],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
+
+  test('menuButtons берёт URL сообщества из school в resolve при пустом конструкторе', async () => {
+    const story = new CommunityStory();
+    story.init({
+      school: {
+        ...TEST_SCHOOL,
+        communityGroup: {
+          id: -100555,
+          url: 'https://t.me/from_school_resolve',
+        },
+      },
+    } as any);
+
+    const buttons = await story.menuButtons(actor);
+    expect(buttons).toHaveLength(1);
+    expect((buttons[0] as { url?: string }).url).toBe(
+      'https://t.me/from_school_resolve',
+    );
+  });
 
   test('menuButtons возвращает кнопку «Сообщество школы» с URL и описанием', async () => {
     const story = new CommunityStory('https://t.me/u7_school_group');

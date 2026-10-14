@@ -88,6 +88,10 @@ export abstract class U7BotUiStory extends BotUiStory<
     return `${this.#controllerName ?? '?'}/${this.name}`;
   }
 
+  protected get resolve(): U7BotUiAppResolve {
+    return this.resolver;
+  }
+
   /** Открыт ли диалог этой стори (активна ли она). */
   isActive(session: BotSession): boolean {
     return session.dialog?.path === this.dialogPath;

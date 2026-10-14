@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { Role } from '@u7-scl/app';
 import type { User } from '@u7-scl/app/domain';
+import { TEST_SCHOOL } from '@u7-scl/app/domain';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
 import { ConsoleLogger } from '@u7-scl/core/shared';
 import type {
@@ -91,7 +92,10 @@ async function createInactivityStand(tag: string): Promise<Stand> {
       apiApp: app.apiApp,
       transport: transport.transport,
       actor: BOT_ADMIN,
-      schoolGroupId: SCHOOL_GROUP_ID,
+      school: {
+        ...TEST_SCHOOL,
+        communityGroup: { id: SCHOOL_GROUP_ID, url: 'https://t.me/test_comm' },
+      },
     },
   );
 

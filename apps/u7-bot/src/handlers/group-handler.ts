@@ -1,4 +1,4 @@
-import type { User } from '@u7-scl/app';
+import type { School, User } from '@u7-scl/app/domain';
 import type { Logger } from '@u7-scl/core/shared';
 import { md } from '@u7-scl/core/shared';
 import type { ProactiveSender } from '@u7-scl/core/ui';
@@ -18,16 +18,15 @@ export interface GroupHandlerDeps {
   /** uuid бота (BOT_ADMIN_UUID): системный актор для регистрации гостей
    * и операций с ролями (UC требуют ADMIN) */
   actor: User;
-  /** chat id школьной группы (SCHOOL_GROUP_ID): единственная группа,
-   * события которой влияют на регистрацию гостей и роли */
-  schoolGroupId: number;
+  /** Сущность школы: события группы сообщества school.communityGroup.id влияют на регистрацию и роли */
+  school: School;
 }
 
 /**
  * Регистрирует обработчики событий группы.
  *
  * - `my_chat_member` — бот добавлен/удалён из группы.
- *   При добавлении в школьную группу (deps.schoolGroupId) — выдаёт
+ *   При добавлении в школьную группу (deps.school.communityGroup.id) — выдаёт
  *   SUBSCRIBER тому, кто добавил (регистрация и выдача роли — от имени
  *   бота, deps.actor). Остальные группы игнорируются.
  *   При удалении — ничего не делает.
@@ -57,10 +56,10 @@ export function registerGroupHandlers(
     const adderId = ctx.myChatMember.from.id;
 
     // Бота добавили в школьную группу → выдаём SUBSCRIBER тому, кто добавил.
-    // Чужие группы игнорируем: SUBSCRIBER — только для SCHOOL_GROUP_ID.
+    // Чужие группы игнорируем: SUBSCRIBER — только для группы сообщества школы.
     if (
       deps &&
-      ctx.myChatMember.chat.id === deps.schoolGroupId &&
+      ctx.myChatMember.chat.id === deps.school.communityGroup.id &&
       oldStatus === 'left' &&
       (newStatus === 'member' || newStatus === 'administrator')
     ) {
@@ -101,7 +100,7 @@ export function registerGroupHandlers(
 
     // Регистрация и роли — только для школьной группы (SCHOOL_GROUP_ID)
     const isSchoolGroup =
-      deps !== undefined && member.chat.id === deps.schoolGroupId;
+      deps !== undefined && member.chat.id === deps.school.communityGroup.id;
 
     // Пользователь присоединился к школьной группе
     if (

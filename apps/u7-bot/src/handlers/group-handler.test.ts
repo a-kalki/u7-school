@@ -1,12 +1,16 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { Role, type User } from '@u7-scl/app';
+import { Role, TEST_SCHOOL, type User } from '@u7-scl/app/domain';
 import type { Logger } from '@u7-scl/core/shared';
 import type { UserFacade } from '@u7-scl/user/domain';
 import { type GroupHandlerDeps, registerGroupHandlers } from './group-handler';
 
 // ══ Моки ══
 
-const SCHOOL_GROUP_ID = -1002222222222; // школьная группа (deps.schoolGroupId)
+const SCHOOL_GROUP_ID = -1002222222222; // школьная группа (deps.school.communityGroup.id)
+const testSchool = {
+  ...TEST_SCHOOL,
+  communityGroup: { id: SCHOOL_GROUP_ID, url: 'https://t.me/test_comm' },
+};
 const STREAM_GROUP_ID = -1003333333333; // группа потока (≠ школьной)
 const FOREIGN_GROUP_ID = -1009999999999; // посторонняя группа
 const STUDENT_TG = 1003;
@@ -169,7 +173,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
       apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
       transport: { notify } as unknown as GroupHandlerDeps['transport'],
       actor: BOT_ACTOR,
-      schoolGroupId: SCHOOL_GROUP_ID,
+      school: testSchool,
     });
 
     await handlers.chat_member?.(
@@ -223,7 +227,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
       apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
       transport: { notify } as unknown as GroupHandlerDeps['transport'],
       actor: BOT_ACTOR,
-      schoolGroupId: SCHOOL_GROUP_ID,
+      school: testSchool,
     });
 
     await handlers.chat_member?.(
@@ -260,7 +264,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
       apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
       transport: { notify } as unknown as GroupHandlerDeps['transport'],
       actor: BOT_ACTOR,
-      schoolGroupId: SCHOOL_GROUP_ID,
+      school: testSchool,
     });
 
     await handlers.chat_member?.(
@@ -293,7 +297,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
       apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
       transport: { notify } as unknown as GroupHandlerDeps['transport'],
       actor: BOT_ACTOR,
-      schoolGroupId: SCHOOL_GROUP_ID,
+      school: testSchool,
     });
 
     await handlers.chat_member?.(
@@ -339,7 +343,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
       apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
       transport: { notify } as unknown as GroupHandlerDeps['transport'],
       actor: BOT_ACTOR,
-      schoolGroupId: SCHOOL_GROUP_ID,
+      school: testSchool,
     });
 
     await handlers.chat_member?.(
@@ -378,7 +382,7 @@ describe('registerGroupHandlers — регистрация гостей', () => 
         notify: mock(async () => {}),
       } as unknown as GroupHandlerDeps['transport'],
       actor: BOT_ACTOR,
-      schoolGroupId: SCHOOL_GROUP_ID,
+      school: testSchool,
     });
 
     await handlers.chat_member?.(
@@ -425,7 +429,7 @@ describe('registerGroupHandlers — регистрация гостей', () => 
         notify: mock(async () => {}),
       } as unknown as GroupHandlerDeps['transport'],
       actor: BOT_ACTOR,
-      schoolGroupId: SCHOOL_GROUP_ID,
+      school: testSchool,
     });
 
     await handlers.chat_member?.(
@@ -472,7 +476,7 @@ describe('registerGroupHandlers — регистрация гостей', () => 
         notify: mock(async () => {}),
       } as unknown as GroupHandlerDeps['transport'],
       actor: BOT_ACTOR,
-      schoolGroupId: SCHOOL_GROUP_ID,
+      school: testSchool,
     });
 
     await handlers.chat_member?.(
@@ -511,7 +515,7 @@ describe('registerGroupHandlers — регистрация гостей', () => 
         notify: mock(async () => {}),
       } as unknown as GroupHandlerDeps['transport'],
       actor: BOT_ACTOR,
-      schoolGroupId: SCHOOL_GROUP_ID,
+      school: testSchool,
     });
 
     await handlers.my_chat_member?.(
@@ -554,7 +558,7 @@ describe('registerGroupHandlers — регистрация гостей', () => 
         notify: mock(async () => {}),
       } as unknown as GroupHandlerDeps['transport'],
       actor: BOT_ACTOR,
-      schoolGroupId: SCHOOL_GROUP_ID,
+      school: testSchool,
     });
 
     await handlers.my_chat_member?.(

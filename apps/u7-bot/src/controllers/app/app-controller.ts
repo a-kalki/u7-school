@@ -21,13 +21,13 @@ import { CommunityStory } from './stories/community.story';
  */
 export class AppController extends U7BotController {
   readonly name = 'app';
-  readonly #adminTelegramIds: number[];
+  readonly #adminTelegramIds?: number[];
 
   /**
-   * @param schoolGroupUrl — URL группы школы (обязателен)
-   * @param adminTelegramIds — tgId администраторов (доступ к /log_level)
+   * @param schoolGroupUrl — опциональный URL группы школы (по умолчанию берётся из school в resolve)
+   * @param adminTelegramIds — tgId администраторов (доступ к /log_level, по умолчанию из resolve)
    */
-  constructor(schoolGroupUrl: string, adminTelegramIds: number[] = []) {
+  constructor(schoolGroupUrl?: string, adminTelegramIds?: number[]) {
     super();
     this.#adminTelegramIds = adminTelegramIds;
     this.stories.push(new CommunityStory(schoolGroupUrl));
@@ -65,8 +65,10 @@ export class AppController extends U7BotController {
   }
 
   #logLevelResponse(update: CommandUpdate): DialogResponse {
+    const adminIds =
+      this.#adminTelegramIds ?? this.resolve?.adminTelegramIds ?? [];
     // Не-админ: тихий терминал — команда обработана, но без реплики.
-    if (!this.#adminTelegramIds.includes(update.telegramId)) {
+    if (!adminIds.includes(update.telegramId)) {
       return {};
     }
 

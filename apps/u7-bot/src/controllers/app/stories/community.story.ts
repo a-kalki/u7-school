@@ -11,20 +11,21 @@ import type { BotSession, BotUpdate, DialogResponse } from '@u7-scl/core/ui';
  */
 export class CommunityStory extends U7BotUiStory {
   readonly name = 'community';
-  readonly #groupUrl: string;
+  readonly #groupUrl?: string;
 
-  constructor(groupUrl: string) {
+  constructor(groupUrl?: string) {
     super();
     this.#groupUrl = groupUrl;
   }
 
   override async menuButtons(_actor: User): Promise<MenuButton[]> {
+    const url = this.#groupUrl ?? this.resolve.school.communityGroup.url;
     return [
       {
         kind: 'url',
         text: '💬 Сообщество школы',
         priority: 90,
-        url: this.#groupUrl,
+        url,
         description: '💬 Сообщество школы — ссылка на Telegram-группу школы',
       },
     ];

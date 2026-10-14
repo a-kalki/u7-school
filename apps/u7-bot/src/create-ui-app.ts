@@ -54,11 +54,8 @@ export async function createUiApp(
   const questionnaireController = new QuestionnaireController();
   const peerReviewController = new PeerReviewController();
   const userController = new UserController();
-  // Админ-гейт /log_level — app-контроллер (ФР-4)
-  const appController = new AppController(
-    bundle.school.communityGroup.url,
-    options.adminTelegramIds,
-  );
+  // Админ-гейт /log_level и сообщество школы — app-контроллер (данные из resolve)
+  const appController = new AppController();
 
   // Гост-регистрация /start — uiApp через resolve (ФР-4)
   const uiApp = new U7BotUiApp([

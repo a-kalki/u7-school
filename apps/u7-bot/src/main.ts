@@ -135,7 +135,7 @@ registerGroupHandlers(bot, apiBundle.userFacade, logger, {
   apiApp: apiBundle.apiApp,
   transport,
   actor: adminUser,
-  schoolGroupId: apiBundle.school.communityGroup.id,
+  school: apiBundle.school,
 });
 
 // ══ Приватные чаты — через filter ══
