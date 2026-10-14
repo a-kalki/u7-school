@@ -29,9 +29,12 @@ export class ListScopeReviewsUc extends U7UseCase<
   protected readonly outputSchema = ScopeReviewsSchema;
 
   async execute(command: ListScopeReviewsCmd): Promise<ScopeReviewsProjection> {
-    const reviews = await this.resolve.reviewRepo.findByScope(command.scopeId);
+    let reviews = await this.resolve.reviewRepo.findByScopes(command.scopeIds);
+    if (command.direction) {
+      reviews = reviews.filter((r) => r.direction === command.direction);
+    }
     return {
-      scopeId: command.scopeId,
+      scopeIds: command.scopeIds,
       recipients: ScopeReviewsDs.groupByRecipient(reviews),
     };
   }

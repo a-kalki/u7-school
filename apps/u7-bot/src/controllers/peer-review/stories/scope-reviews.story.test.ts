@@ -39,6 +39,7 @@ const actor: User = {
 /** Снимок отзыва — как отдаёт list-scope-reviews (scope-reviews-ds). */
 interface Snapshot {
   reviewId: string;
+  scopeId: string;
   authorId: string;
   direction: 'student_student' | 'student_mentor' | 'mentor_student';
   authorOutcome?:
@@ -66,7 +67,7 @@ function makeAppApi(groups: Group[], opts: { emptyNames?: boolean } = {}) {
     execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
       switch (ucName) {
         case 'list-scope-reviews':
-          return { scopeId: attrs.scopeId, recipients: groups };
+          return { scopeIds: attrs.scopeIds, recipients: groups };
         case 'get-stream':
           return { uuid: attrs.streamId, title: 'Поток решения' };
         case 'get-users-by-ids':
@@ -104,6 +105,7 @@ function findBtn(r: DialogResponse, needle: string) {
 function manyReviews(n: number, textPad = 700): Group[] {
   const reviews: Snapshot[] = Array.from({ length: n }, (_, i) => ({
     reviewId: `11111111-0000-0000-0000-${String(i).padStart(12, '0')}`,
+    scopeId: SCOPE_ID,
     authorId: i % 2 === 0 ? AUTHOR_1 : AUTHOR_2,
     direction: 'student_student',
     authorOutcome: 'completed_passed',
@@ -121,6 +123,7 @@ describe('ScopeReviewsStory — формат экрана S07', () => {
         reviews: [
           {
             reviewId: '11111111-0000-0000-0000-000000000001',
+            scopeId: SCOPE_ID,
             authorId: AUTHOR_1,
             direction: 'student_student',
             authorOutcome: 'completed_passed',
@@ -154,6 +157,7 @@ describe('ScopeReviewsStory — формат экрана S07', () => {
         reviews: [
           {
             reviewId: '11111111-0000-0000-0000-000000000002',
+            scopeId: SCOPE_ID,
             authorId: AUTHOR_1,
             direction: 'student_mentor',
             authorOutcome: 'never_started',
@@ -185,6 +189,7 @@ describe('ScopeReviewsStory — формат экрана S07', () => {
         reviews: [
           {
             reviewId: '11111111-0000-0000-0000-000000000003',
+            scopeId: SCOPE_ID,
             authorId: MENTOR_ID,
             direction: 'mentor_student',
             text: 'Вера глубоко разбирается в коде',
@@ -215,6 +220,7 @@ describe('ScopeReviewsStory — формат экрана S07', () => {
         reviews: [
           {
             reviewId: '11111111-0000-0000-0000-000000000004',
+            scopeId: SCOPE_ID,
             authorId: AUTHOR_1,
             direction: 'student_student',
             authorOutcome: 'dropped',
@@ -223,6 +229,7 @@ describe('ScopeReviewsStory — формат экрана S07', () => {
           },
           {
             reviewId: '11111111-0000-0000-0000-000000000005',
+            scopeId: SCOPE_ID,
             authorId: AUTHOR_2,
             direction: 'student_student',
             authorOutcome: 'completed_not_passed',
@@ -236,6 +243,7 @@ describe('ScopeReviewsStory — формат экрана S07', () => {
         reviews: [
           {
             reviewId: '11111111-0000-0000-0000-000000000006',
+            scopeId: SCOPE_ID,
             authorId: AUTHOR_1,
             direction: 'student_student',
             text: 'Отзыв о Вере',
@@ -268,6 +276,7 @@ describe('ScopeReviewsStory — формат экрана S07', () => {
         reviews: [
           {
             reviewId: '11111111-0000-0000-0000-000000000004',
+            scopeId: SCOPE_ID,
             authorId: AUTHOR_1,
             direction: 'student_student',
             text: 'текст один',
@@ -275,6 +284,7 @@ describe('ScopeReviewsStory — формат экрана S07', () => {
           },
           {
             reviewId: '11111111-0000-0000-0000-000000000005',
+            scopeId: SCOPE_ID,
             authorId: AUTHOR_1,
             direction: 'student_student',
             text: 'текст два',
@@ -287,6 +297,7 @@ describe('ScopeReviewsStory — формат экрана S07', () => {
         reviews: [
           {
             reviewId: '11111111-0000-0000-0000-000000000006',
+            scopeId: SCOPE_ID,
             authorId: AUTHOR_2,
             direction: 'student_mentor',
             text: 'текст три',
@@ -317,6 +328,7 @@ describe('ScopeReviewsStory — формат экрана S07', () => {
         reviews: [
           {
             reviewId: '11111111-0000-0000-0000-000000000007',
+            scopeId: SCOPE_ID,
             authorId: AUTHOR_1,
             direction: 'student_student',
             authorOutcome: 'completed_passed',
@@ -462,6 +474,18 @@ describe('ScopeReviewsStory — пагинация (BotPaginator + DialogCache)'
       appApi.execute.mock.calls as unknown as Array<[string]>
     ).filter(([uc]) => uc === 'list-scope-reviews');
     expect(reads).toHaveLength(1);
+  });
+
+  test('вызывает list-scope-reviews с scopeIds: [scopeId]', async () => {
+    const { story, appApi } = makeStory(manyReviews(1, 50));
+
+    await story.handleCallback(`view:${SCOPE_ID}`, actor, session);
+
+    const call = appApi.execute.mock.calls.find(
+      ([uc]) => uc === 'list-scope-reviews',
+    );
+    expect(call).toBeDefined();
+    expect(call?.[1]).toEqual({ scopeIds: [SCOPE_ID] });
   });
 
   test('одна страница коротких отзывов — без индикатора и навигации', async () => {

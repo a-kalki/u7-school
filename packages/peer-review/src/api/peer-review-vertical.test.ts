@@ -221,7 +221,7 @@ describe('Вертикаль peer-review: student.completed → ER → камп�
     // Чтение скоупа: отзывы сгруппированы по адресатам
     const scopeReviews = await module.execute(
       'list-scope-reviews',
-      { scopeId: SCOPE },
+      { scopeIds: [SCOPE] },
       ACTOR,
     );
     const byRecipient = new Map(

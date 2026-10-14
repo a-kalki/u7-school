@@ -86,6 +86,12 @@ export class ReviewJsonRepo implements ReviewRepo {
     return all.filter((r) => r.scopeId === scopeId);
   }
 
+  async findByScopes(scopeIds: string[]): Promise<Review[]> {
+    const set = new Set(scopeIds);
+    const all = await this.#repo.readAll();
+    return all.filter((r) => set.has(r.scopeId));
+  }
+
   async findByRecipient(recipientId: string): Promise<Review[]> {
     const all = await this.#repo.readAll();
     return all.filter((r) => r.recipientId === recipientId);

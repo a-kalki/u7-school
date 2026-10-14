@@ -4,6 +4,7 @@ import type { Review, ReviewDirection } from './entity';
 /** Снимок отзыва для рендера: направление и снапшот исхода автора. */
 export interface ReviewSnapshotDto {
   reviewId: string;
+  scopeId: string;
   authorId: string;
   direction: ReviewDirection;
   authorOutcome?: StudentOutcome;
@@ -19,7 +20,7 @@ export interface RecipientReviewsGroup {
 
 /** Проекция отзывов скоупа — тип данных для UI и внешних модулей. */
 export interface ScopeReviewsProjection {
-  scopeId: string;
+  scopeIds: string[];
   recipients: RecipientReviewsGroup[];
 }
 
@@ -49,6 +50,7 @@ export const ScopeReviewsDs = {
       }
       group.reviews.push({
         reviewId: r.uuid,
+        scopeId: r.scopeId,
         authorId: r.authorId,
         direction: r.direction,
         ...(r.authorOutcome ? { authorOutcome: r.authorOutcome } : {}),

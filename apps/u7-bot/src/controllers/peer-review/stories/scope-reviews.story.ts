@@ -69,7 +69,7 @@ export class ScopeReviewsStory extends U7BotUiStory {
     actor: User,
   ): Promise<{ header: MdText; blocks: string[]; payload: undefined }> {
     const [projection, stream] = await Promise.all([
-      this.appApi.execute('list-scope-reviews', { scopeId }, actor),
+      this.appApi.execute('list-scope-reviews', { scopeIds: [scopeId] }, actor),
       this.appApi.execute('get-stream', { streamId: scopeId }, actor),
     ]);
 

@@ -48,6 +48,7 @@ export class ListMyReviewsUc extends U7UseCase<
   #toSnapshot(r: Review): ListMyReviewsCmdMeta['output']['reviews'][number] {
     return {
       reviewId: r.uuid,
+      scopeId: r.scopeId,
       authorId: r.authorId,
       direction: r.direction,
       ...(r.authorOutcome ? { authorOutcome: r.authorOutcome } : {}),

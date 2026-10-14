@@ -53,6 +53,7 @@ describe('ScopeReviewsDs: группировка отзывов скоупа', (
     // снапшоты автора переносятся, uuid переименован в reviewId
     expect(bobGroup.reviews[0]).toEqual({
       reviewId: 'aaaaaaaa-aaaa-4aaa-8aaa-000000000003',
+      scopeId: SCOPE,
       authorId: MENTOR,
       direction: 'mentor_student',
       text: 'Текст отзыва достаточной длины.',
