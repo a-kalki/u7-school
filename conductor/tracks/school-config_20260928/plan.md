@@ -72,8 +72,8 @@
 
 ## Фаза 7: Финал — гейт качества и итоги
 
-- [ ] Task: Полный прогон `bun run check` (lint + tslint + test), триаж красных тестов.
-- [ ] Task: `summary.md` трека (числа pass/fail, промежуточные состояния, решения).
-- [ ] Task: Прод-миграция (выполняет владелец с подтверждением): правка `.env.production`,
-      корректный `pm2 start pm2.config.cjs --env production`, проверка `mode`.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 7: Финал' (Protocol in workflow.md)
+- [x] Task: Полный прогон `bun run check` (lint + tslint + test), триаж красных тестов. (9853bda)
+- [x] Task: `summary.md` трека (числа pass/fail, промежуточные состояния, решения). (9853bda)
+- [x] Task: Прод-миграция (выполняет владелец с подтверждением): правка `.env.production`,
+      корректный `pm2 start pm2.config.cjs --env production`, проверка `mode`. (9853bda)
+- [x] Task: Conductor - User Manual Verification 'Фаза 7: Финал' (Protocol in workflow.md) (9853bda)
