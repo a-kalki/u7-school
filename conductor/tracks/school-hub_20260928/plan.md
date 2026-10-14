@@ -20,7 +20,7 @@
 
 - [x] Task: Тесты SH02: имя, описание, адрес, телефон; сайт задан/не задан (заглушка). [5edfd25]
 - [x] Task: Реализовать экран «Инфо» и возврат в хаб. [939b50d]
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2: Экран Инфо' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 2: Экран Инфо' (Protocol in workflow.md) [008a0df]
 
 ## Фаза 3: «Сообщество» (перенос)
 
