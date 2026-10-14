@@ -57,7 +57,7 @@
       пагинация. [d6b549a]
 - [x] Task: Реализовать экран «Отзывы»: `list-streams({ schoolId })` → `scopeIds` →
       `list-scope-reviews`. [02717bc]
-- [ ] Task: Conductor - User Manual Verification 'Фаза 5: Отзывы' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 5: Отзывы' (Protocol in workflow.md) [02717bc]
 
 ## Фаза 6: Главное меню и название «Курсы»
 
