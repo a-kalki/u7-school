@@ -70,7 +70,7 @@
 - [x] Task: Обновить e2e-тесты меню (`tests/e2e/main-menu.e2e.test.ts`,
       `tests/e2e/curious-showcase.e2e.test.ts`) под `🏫 Школа` / `📖 Курсы`
       и перенесённые входы. [a8cf9e5]
-- [ ] Task: Conductor - User Manual Verification 'Фаза 6: Главное меню' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 6: Главное меню' (Protocol in workflow.md) [53fc197]
 
 ## Фаза 7: Финал — гейт и документация
 
