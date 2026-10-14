@@ -77,5 +77,5 @@
 - [x] Task: Полный прогон `bun run check` (lint + tslint + test), триаж красных.
 - [x] Task: Обновить conductor-документацию (`schools-system.md`, `tracks.md`,
       `streams/ui-spec.md` — новый вход). [6ead66f]
-- [ ] Task: `summary.md` трека.
+- [x] Task: `summary.md` трека. [e7a813d]
 - [ ] Task: Conductor - User Manual Verification 'Фаза 7: Финал' (Protocol in workflow.md)
