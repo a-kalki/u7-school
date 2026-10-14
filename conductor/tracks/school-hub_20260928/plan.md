@@ -9,9 +9,9 @@
 
 - [x] Task: Тесты `SchoolHubStory`: карточка показывает имя, описание и менторов
       (резолв uuid → имена); пустой список менторов — строка не выводится. [1557a05]
-- [ ] Task: Создать `apps/u7-bot/src/controllers/school/` — `SchoolController`
+- [x] Task: Создать `apps/u7-bot/src/controllers/school/` — `SchoolController`
       и `SchoolHubStory` (карточка SH01, кнопки `📚 Потоки · 💬 Отзывы ·
-      ℹ️ Инфо · 💬 Сообщество · ↩️ Главное меню`).
+      ℹ️ Инфо · 💬 Сообщество · ↩️ Главное меню`). [42ff340]
 - [ ] Task: Зарегистрировать `SchoolController` в сборке приложения (`create-ui-app`).
 - [ ] Task: Взять данные из `school` резолвера; экспорт `ui-spec.md` контроллера.
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1: Контроллер school и карточка' (Protocol in workflow.md)
