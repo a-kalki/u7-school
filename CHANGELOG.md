@@ -8,6 +8,67 @@
 (наличие секции проверяет `scripts/release.sh`). Группировка:
 Added / Changed / Fixed / Migration.
 
+## [0.2.4] — 2026-10-14
+
+Школа как конфигурация уровня приложения (`school-config`): сущность `School`,
+резолвер школы в `U7AppResolver`/`U7ModuleResolver`, типизация `SchoolSchema`,
+резолв групп школы из env, уход от прямых `config.schoolGroup*`, обязательный `NODE_ENV`,
+предзаполнение wizard создания потока студенческой группой школы.
+
+### Added
+
+- **Сущность `School` (`@u7-scl/app/domain`)**: канонический тип школы с valibot-схемой
+  `SchoolSchema`, статическими данными (имя, описание, адрес, контакты, менторы) и
+  динамическими группами Telegram (`communityGroup`, `studentGroup`). Экспортирована
+  фабрика `createSchool` и тестовая константа `TEST_SCHOOL`.
+- **Резолверы уровня приложения**: generic `ModuleResolver<TAppResolver>` в `core`,
+  `U7AppResolver extends AppResolver { school: School }` и `U7ModuleResolver extends ModuleResolver<U7AppResolver>` в `app`.
+- **Закрытие дефолтов `U7UseCase` и `U7ApiModule`**: по умолчанию используют `U7ModuleResolver`.
+  Все доменные резолверы (`*ApiModuleResolver`) переведены со core-`ModuleResolver` на `U7ModuleResolver`.
+- **Wizard создания потока**: шаги 9 и 10 предзаполняются значениями студенческой группы
+  школы (`school.studentGroup`) с кнопками «✅ Оставить» (`accept-group`, `accept-invite`),
+  сохранением пропуска («⏭️ Пропустить») и ручного ввода.
+
+### Changed
+
+- **Единые имена переменных env**:
+  - `SCHOOL_GROUP_ID` переименован в `COMMUNITY_GROUP_ID`;
+  - `SCHOOL_GROUP_URL` переименован в `COMMUNITY_GROUP_URL`;
+  - добавлены обязательные переменные общей студенческой группы школы: `STUDENT_GROUP_ID` и `STUDENT_GROUP_INVITE`.
+- **Обязательный `NODE_ENV`**: `mode` валидируется по схеме `test | development | production`,
+  отсутствие переменной приводит к падению при загрузке без fallback.
+- **Инвариант UI-слоя**: `createUiApp` больше не принимает `BotConfig`. Все компоненты
+  UI-слоя (`AppController`, `CommunityStory`, `CreateStreamStory`) получают параметры школы
+  через `resolve.school`, а ID администраторов — через `resolve.adminTelegramIds`.
+- **Групповые обработчики**: `registerGroupHandlers` принимает `school: School` вместо
+  прямого `schoolGroupId`.
+
+### Migration
+
+> **КРИТИЧНО:** Порядок обновления обязателен: **env правится до перезапуска / выката кода**.
+> Без обязательных переменных `NODE_ENV`, `COMMUNITY_GROUP_*` и `STUDENT_GROUP_*`
+> приложение падает при старте (fail-fast, fallback нет).
+
+1. В `.env.production` (или рабочей среде) перенести старые переменные и добавить новые:
+   ```bash
+   # Переименовать:
+   # SCHOOL_GROUP_ID -> COMMUNITY_GROUP_ID
+   # SCHOOL_GROUP_URL -> COMMUNITY_GROUP_URL
+
+   # Добавить студенческую группу школы (прод-значения):
+   STUDENT_GROUP_ID=-1003960918937
+   STUDENT_GROUP_INVITE=https://t.me/+6xeqTYm2831lODZi
+
+   # Убедиться, что задан NODE_ENV:
+   NODE_ENV=production
+   ```
+2. Удалить legacy-переменные `SCHOOL_GROUP_ID` и `SCHOOL_GROUP_URL`.
+3. Перезапустить сервис под pm2 с флагом обновления переменных окружения:
+   ```bash
+   pm2 restart pm2.config.cjs --env production --update-env
+   ```
+   (или `pm2 start pm2.config.cjs --env production --update-env`).
+
 ## [0.2.3] — 2026-10-13
 
 Учебный проект «Аркада» (модуль «Алгоритмика: прикладное»), шаги терминов для модуля «Синтаксис»,

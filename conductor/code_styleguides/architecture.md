@@ -140,11 +140,24 @@ import { UserUseCase } from "#api/user-uc";
 
 Проект следует строгой модульной архитектуре: прямое связывание между модулями минимизировано для независимости и тестируемости.
 
-### Инверсия зависимостей (DI)
+### Инверсия зависимостей (DI) и Резолверы
 
-Каждый модуль при инициализации принимает объект зависимостей — **`Resolve`** (например, `CoreResolve`). Тип `Resolve` явно определён внутри модуля, чтобы клиенты знали, какие репозитории/сервисы требуются. Модуль передаёт этот объект в Use Cases через `init()`. В тестах вместо реальных зависимостей передаются моки или In-memory реализации.
+Каждый модуль при инициализации принимает объект зависимостей — **`Resolve`** (например, `UserApiModuleResolver`).
 
-См. живой код: `packages/core/src/api/module/module.ts` (`CoreResolve`).
+Архитектура резолверов построена двухуровнево:
+1. **Core-уровень (`@u7-scl/core/domain`):**
+   - `AppResolver`: базовые сквозные зависимости (`logger`, `mode`, `eventBus`).
+   - `ModuleResolver<TAppResolver extends AppResolver = AppResolver>`: generic резолвер модуля, содержащий `appResolver: TAppResolver` и `eventBus`.
+2. **App-уровень (`@u7-scl/app/domain`):**
+   - `U7AppResolver extends AppResolver`: расширяет базовый резолвер приложения сущностью школы `school: School`.
+   - `U7ModuleResolver extends ModuleResolver<U7AppResolver>`: закрывает generic уровня приложения.
+   - `U7UseCase` и `U7ApiModule`: по умолчанию закрыты на `U7ModuleResolver` (как и на акторе `User`).
+3. **Доменные модули:**
+   - Все `*ApiModuleResolver` (`UserApiModuleResolver`, `CourseApiModuleResolver`, `StreamApiModuleResolver`, `WishApiModuleResolver`, `QuestionnaireApiModuleResolver`, `PeerReviewApiModuleResolver`) расширяют `U7ModuleResolver` и дополняют его своими репозиториями и фасадами.
+4. **UI-уровень (`apps/u7-bot`):**
+   - `U7BotUiAppResolve` содержит `school: School` и `adminTelegramIds`. Прямой импорт `BotConfig` в UI-компонентах (контроллеры, стори, `createUiApp`) запрещён — все данные берутся из `resolve.school`.
+
+Тип `Resolve` явно определён внутри модуля, чтобы клиенты знали, какие репозитории/сервисы требуются. Модуль передаёт этот объект в Use Cases через `init()`. В тестах вместо реальных зависимостей передаются моки или In-memory реализации.
 
 ### Правила взаимодействия между модулями
 
