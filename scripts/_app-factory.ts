@@ -33,6 +33,7 @@
  * NUR_UUID — автор-ментор, от имени которого выполняются запросы.
  * Для скриптов это всегда администратор с полным доступом.
  */
+import { TEST_SCHOOL, type U7AppResolver } from '@u7-scl/app/domain';
 import { ApiApp } from '@u7-scl/core/api';
 import type { AppMeta } from '@u7-scl/core/domain';
 import { type Logger, LogLevel } from '@u7-scl/core/shared';
@@ -96,10 +97,11 @@ interface ScriptAppMeta extends AppMeta {
  * 4. ApiApp регистрирует оба модуля и вызывает init()
  */
 export function createApp(silent = false): ApiApp<ScriptAppMeta> {
-  const appResolver = {
+  const appResolver: U7AppResolver = {
     logger: silent ? silentLogger : (console as unknown as Logger),
     mode: 'development' as const,
     eventBus: new InProcEventBus(),
+    school: TEST_SCHOOL,
   };
 
   const moduleRepo = new ModuleJsonRepo();

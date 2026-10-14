@@ -1,5 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { User } from '@u7-scl/app/domain';
+import { TEST_SCHOOL, type User } from '@u7-scl/app/domain';
 import {
   type Logger,
   LogLevel,
@@ -134,6 +134,8 @@ function makeUiApp(
       roles: [Role.ADMIN],
       createdAt: '2026-01-01T00:00',
     },
+    school: TEST_SCHOOL,
+    adminTelegramIds: opts.adminTelegramIds,
   } as never);
   return uiApp;
 }

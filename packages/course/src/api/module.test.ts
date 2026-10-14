@@ -13,7 +13,7 @@ import { CourseApiModule } from './module';
 
 const tmpDir = mkdtempSync('/tmp/course-api-module-test-');
 const appResolver: U7AppResolver = {
-  logger: console,
+  logger: console as any,
   mode: 'test' as const,
   eventBus: {
     publish() {},

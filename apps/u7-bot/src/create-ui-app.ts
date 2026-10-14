@@ -1,6 +1,5 @@
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import type { ApiApp } from '@u7-scl/core/api';
-import type { BotConfig } from './config';
 import { CoursesController } from './controllers/courses/controller';
 import { LearningController } from './controllers/learning/controller';
 import { MentorController } from './controllers/mentor/controller';
@@ -29,6 +28,15 @@ export interface UiAppBundle {
 }
 
 /**
+ * Параметры фабрики UiApp (только точечные UI/системные идентификаторы,
+ * не зависящие от BotConfig).
+ */
+export interface CreateUiAppOptions {
+  botAdminUuid: string;
+  adminTelegramIds?: number[];
+}
+
+/**
  * Создаёт U7BotUiApp и все контроллеры, собирает resolve для init.
  *
  * Создание и init разделены: init (с передачей transport) выполняется
@@ -37,7 +45,7 @@ export interface UiAppBundle {
 export async function createUiApp(
   apiApp: ApiApp<U7BotAppMeta>,
   bundle: ApiAppBundle,
-  config: BotConfig,
+  options: CreateUiAppOptions,
 ): Promise<UiAppBundle> {
   const streamController = new StreamsController();
   const courseController = new CoursesController();
@@ -48,8 +56,8 @@ export async function createUiApp(
   const userController = new UserController();
   // Админ-гейт /log_level — app-контроллер (ФР-4)
   const appController = new AppController(
-    config.schoolGroupUrl,
-    config.adminTelegramIds,
+    bundle.school.communityGroup.url,
+    options.adminTelegramIds,
   );
 
   // Гост-регистрация /start — uiApp через resolve (ФР-4)
@@ -68,11 +76,11 @@ export async function createUiApp(
   // actorResolver: резолвит User по telegramId через userFacade;
   // userFacade + botAdminUser — идемпотентная гост-регистрация на /start.
   const botAdminUser = await bundle.userFacade.getUserByUuid(
-    config.botAdminUuid,
+    options.botAdminUuid,
   );
   if (!botAdminUser) {
     throw new Error(
-      `BOT_ADMIN_UUID не найден: пользователь ${config.botAdminUuid} не существует`,
+      `BOT_ADMIN_UUID не найден: пользователь ${options.botAdminUuid} не существует`,
     );
   }
   const resolve: U7BotUiAppResolve = {
@@ -85,6 +93,8 @@ export async function createUiApp(
     appApi: apiApp,
     userFacade: bundle.userFacade,
     botAdminUser,
+    school: bundle.school,
+    adminTelegramIds: options.adminTelegramIds,
   };
 
   return {

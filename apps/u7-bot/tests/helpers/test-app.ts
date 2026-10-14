@@ -1,3 +1,4 @@
+import { TEST_SCHOOL, type U7AppResolver } from '@u7-scl/app/domain';
 import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { ApiApp } from '@u7-scl/core/api';
 import {
@@ -75,10 +76,12 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
   const fixtures = await loadFixtures(tag);
   const db = new BaseJsonDb();
   const logger = new ConsoleLogger();
-  const appResolver = {
+  const eventBus = new InProcEventBus();
+  const appResolver: U7AppResolver = {
     logger,
-    mode: 'development' as const,
-    eventBus: new InProcEventBus(),
+    mode: 'test' as const,
+    eventBus,
+    school: TEST_SCHOOL,
   };
 
   // ══ Репозитории с временными файлами ══
@@ -193,7 +196,7 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
     apiApp,
     streamModule,
     courseModule,
-    eventBus: appResolver.eventBus,
+    eventBus,
     wishRepo,
     reviewCampaignRepo,
     reviewRepo,

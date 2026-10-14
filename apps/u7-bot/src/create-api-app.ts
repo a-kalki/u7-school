@@ -1,3 +1,5 @@
+import type { School, U7AppResolver } from '@u7-scl/app/domain';
+import { createSchool } from '@u7-scl/app/domain';
 import { ApiApp } from '@u7-scl/core/api';
 import type { EventBus } from '@u7-scl/core/domain';
 import {
@@ -53,6 +55,8 @@ export interface ApiAppBundle {
   streamModule: StreamApiModule;
   courseModule: CourseApiModule;
   wishModule: WishApiModule;
+  school: School;
+  appResolver: U7AppResolver;
 }
 
 /**
@@ -63,11 +67,23 @@ export interface ApiAppBundle {
 export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
   const db = new BaseJsonDb();
 
+  const school = createSchool({
+    communityGroup: {
+      id: config.communityGroupId,
+      url: config.communityGroupUrl,
+    },
+    studentGroup: {
+      id: config.studentGroupId,
+      inviteUrl: config.studentGroupInvite,
+    },
+  });
+
   const appLogger = logger ?? new ConsoleLogger();
-  const appResolver = {
+  const appResolver: U7AppResolver = {
     logger: appLogger,
-    mode: 'development' as const,
+    mode: config.mode,
     eventBus: new InProcEventBus(),
+    school,
   };
 
   const userRepo = new UserJsonRepo(
@@ -201,5 +217,7 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     streamModule,
     courseModule,
     wishModule,
+    school,
+    appResolver,
   };
 }

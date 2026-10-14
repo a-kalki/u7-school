@@ -22,8 +22,11 @@ const ACTOR: User = {
 function makeConfig(dbDir: string): BotConfig {
   return v.parse(BotConfigSchema, {
     botToken: 'test-token',
-    schoolGroupUrl: 'https://t.me/test',
-    schoolGroupId: 1,
+    communityGroupUrl: 'https://t.me/test-comm',
+    communityGroupId: 1,
+    studentGroupInvite: 'https://t.me/test-stud',
+    studentGroupId: 2,
+    mode: 'test',
     botAdminUuid: '99999999-9999-4999-8999-999999999999',
     dbDir,
   });
@@ -45,6 +48,11 @@ describe('create-api-app (smoke: сборка с модулем peer-review)', (
 
     const module = bundle.apiApp.getModule('peer-review');
     expect(module).toBeDefined();
+    expect(bundle.school.communityGroup.url).toBe('https://t.me/test-comm');
+    expect(bundle.appResolver.mode).toBe('test');
+    expect(bundle.appResolver.school.studentGroup.inviteUrl).toBe(
+      'https://t.me/test-stud',
+    );
   });
 
   test('init(): подписка ER проходит, query-UC модуля отвечает', async () => {

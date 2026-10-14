@@ -1,3 +1,4 @@
+import type { AppEnvMode } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 
 /**
@@ -6,13 +7,29 @@ import * as v from 'valibot';
  */
 export const BotConfigSchema = v.object({
   botToken: v.pipe(v.string(), v.nonEmpty('BOT_TOKEN не может быть пустым')),
-  schoolGroupUrl: v.pipe(
+  communityGroupUrl: v.pipe(
     v.string(),
-    v.nonEmpty('SCHOOL_GROUP_URL не может быть пустым'),
+    v.nonEmpty('COMMUNITY_GROUP_URL не может быть пустым'),
   ),
-  schoolGroupId: v.pipe(
+  communityGroupId: v.pipe(
     v.number(),
-    v.integer('SCHOOL_GROUP_ID должен быть целым числом'),
+    v.integer('COMMUNITY_GROUP_ID должен быть целым числом'),
+  ),
+  studentGroupId: v.pipe(
+    v.number(),
+    v.integer('STUDENT_GROUP_ID должен быть целым числом'),
+  ),
+  studentGroupInvite: v.pipe(
+    v.string(),
+    v.nonEmpty('STUDENT_GROUP_INVITE не может быть пустым'),
+  ),
+  mode: v.picklist(
+    [
+      'test',
+      'development',
+      'production',
+    ] as const satisfies readonly AppEnvMode[],
+    'NODE_ENV должен быть test, development или production',
   ),
   botAdminUuid: v.pipe(
     v.string(),
@@ -68,10 +85,15 @@ export type BotConfig = v.InferOutput<typeof BotConfigSchema>;
 export function loadConfig(): BotConfig {
   const raw = {
     botToken: process.env.BOT_TOKEN,
-    schoolGroupUrl: process.env.SCHOOL_GROUP_URL,
-    schoolGroupId: process.env.SCHOOL_GROUP_ID
-      ? Number(process.env.SCHOOL_GROUP_ID)
+    communityGroupUrl: process.env.COMMUNITY_GROUP_URL,
+    communityGroupId: process.env.COMMUNITY_GROUP_ID
+      ? Number(process.env.COMMUNITY_GROUP_ID)
       : undefined,
+    studentGroupId: process.env.STUDENT_GROUP_ID
+      ? Number(process.env.STUDENT_GROUP_ID)
+      : undefined,
+    studentGroupInvite: process.env.STUDENT_GROUP_INVITE,
+    mode: process.env.NODE_ENV,
     botAdminUuid: process.env.BOT_ADMIN_UUID,
     botMode: process.env.BOT_MODE,
     webhookUrl: process.env.WEBHOOK_URL,
@@ -87,10 +109,5 @@ export function loadConfig(): BotConfig {
       : undefined,
   };
 
-  try {
-    return v.parse(BotConfigSchema, raw);
-  } catch (e) {
-    console.log(JSON.stringify(e, null, 2));
-    throw e;
-  }
+  return v.parse(BotConfigSchema, raw);
 }

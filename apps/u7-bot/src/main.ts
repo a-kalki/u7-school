@@ -48,7 +48,10 @@ try {
 const bot = createBot(config.botToken);
 
 const apiBundle = createApiApp(config, logger);
-const uiBundle = await createUiApp(apiBundle.apiApp, apiBundle, config);
+const uiBundle = await createUiApp(apiBundle.apiApp, apiBundle, {
+  botAdminUuid: config.botAdminUuid,
+  adminTelegramIds: config.adminTelegramIds,
+});
 
 // ══ BotTransport — единый слой Grammy ↔ UiApp (контракт «Диалог и Экран») ══
 // Сессии и shortId-мапа переживают рестарт (JsonBotSessionRepo, трек
@@ -132,7 +135,7 @@ registerGroupHandlers(bot, apiBundle.userFacade, logger, {
   apiApp: apiBundle.apiApp,
   transport,
   actor: adminUser,
-  schoolGroupId: config.schoolGroupId,
+  schoolGroupId: apiBundle.school.communityGroup.id,
 });
 
 // ══ Приватные чаты — через filter ══

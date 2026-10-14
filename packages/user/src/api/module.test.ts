@@ -7,7 +7,7 @@ import { UserApiModule } from './module';
 
 const NO_SEED = '/nonexistent-seed.json';
 const appResolver: U7AppResolver = {
-  logger: console,
+  logger: console as any,
   mode: 'test' as const,
   eventBus: {
     publish() {},

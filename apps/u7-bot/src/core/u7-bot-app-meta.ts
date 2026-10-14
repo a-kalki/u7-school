@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app';
-import type { U7ApiApp, U7AppResolver } from '@u7-scl/app/domain';
+import type { School, U7ApiApp, U7AppResolver } from '@u7-scl/app/domain';
 import type { AppMeta } from '@u7-scl/core/domain';
 import type { BotUiAppResolve } from '@u7-scl/core/ui';
 import type { CourseApiModuleMeta } from '@u7-scl/course/domain';
@@ -20,6 +20,10 @@ export interface U7BotUiAppResolve extends BotUiAppResolve<U7BotAppMeta, User> {
   userFacade: UserFacade;
   /** системный актор-бот (BOT_ADMIN_UUID, резолвится при старте) — регистрация гостя от его имени */
   botAdminUser: User;
+  /** сущность школы (FR-4) */
+  school: School;
+  /** telegramId администраторов для админ-команд (/log_level и др.) (FR-4) */
+  adminTelegramIds?: number[];
 }
 
 // ================= API layer ===================
