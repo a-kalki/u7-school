@@ -116,6 +116,30 @@ describe('SchoolHubStory (SH01)', () => {
     expect(text).not.toContain('Наши менторы');
   });
 
+  test('кнопка «📚 Потоки» ведёт в каталог потоков (stream:catalog:list)', async () => {
+    const { story } = makeStory({});
+
+    const response: DialogResponse = await story.handleCallback(
+      'open',
+      actor,
+      session,
+    );
+    const rows = response.screen?.keyboard?.rows ?? [];
+    const streamsRow = rows.find((row) =>
+      row.some((btn) => btn.text.includes('Потоки')),
+    );
+    expect(streamsRow).toBeDefined();
+    const btn = streamsRow?.find((b) => b.text.includes('Потоки'));
+    expect(btn?.code).toBe('stream:catalog:list');
+  });
+
+  test('callback streams возвращает delegate на stream:catalog:list', async () => {
+    const { story } = makeStory({});
+
+    const response = await story.handleCallback('streams', actor, session);
+    expect(response.delegate?.path).toBe('stream:catalog:list');
+  });
+
   test('кнопка сообщества в карточке ведёт по school.communityGroup.url', async () => {
     const { story } = makeStory({});
 

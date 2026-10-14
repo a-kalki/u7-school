@@ -29,19 +29,10 @@ describe('CatalogStory (S01)', () => {
     return { story, mockAppApi };
   }
 
-  test('menuButtons возвращает кнопку «📚 Потоки курсов» (приоритет 15)', async () => {
+  test('menuButtons возвращает пустой массив (вход из главного меню убран)', async () => {
     const { story } = makeStory([]);
     const buttons = await story.menuButtons(guestActor);
-    expect(buttons).toHaveLength(1);
-    const button = buttons[0];
-    expect(button?.kind).toBe('callback');
-    if (button?.kind === 'callback') {
-      expect(button.text).toContain('Потоки курсов');
-      expect(button.action).toBe('catalog:list');
-      expect(button.priority).toBe(15);
-    }
-    expect(button?.description).toContain('Потоки курсов');
-    expect(button?.description).toContain('каталога');
+    expect(buttons).toHaveLength(0);
   });
 
   test('list: показывает enrollment и active потоки', async () => {
@@ -169,16 +160,20 @@ describe('CatalogStory (S01)', () => {
     expect(btnTexts.some((t) => t.includes('Архивный'))).toBe(true);
   });
 
-  test('list: нет потоков и нет скрытых — заглушка без клавиатуры', async () => {
+  test('list: нет потоков и нет скрытых — заглушка с кнопкой «⬅️ Назад в школу»', async () => {
     const { story } = makeStory([]);
 
     const response = await story.handleCallback('list', guestActor, session);
     assertDialogResponseMarkdownSafe(response);
     expect(String(response.screen?.text)).toContain('Нет доступных потоков');
-    expect(response.screen?.keyboard).toBeUndefined();
+    const rows = response.screen?.keyboard?.rows ?? [];
+    expect(rows.length).toBeGreaterThan(0);
+    const lastRow = rows[rows.length - 1];
+    expect(lastRow?.[0]?.text).toContain('Назад в школу');
+    expect(lastRow?.[0]?.code).toBe('school:hub:open');
   });
 
-  test('list: нет активных, но есть завершённые — заглушка с переключателем', async () => {
+  test('list: нет активных, но есть завершённые — заглушка с переключателем и кнопкой назад', async () => {
     const { story } = makeStory([
       {
         uuid: 'c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c',
@@ -193,11 +188,13 @@ describe('CatalogStory (S01)', () => {
     const btnTexts =
       response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Вкл. завершённые'))).toBe(true);
-    // Кнопка выхода в меню
-    expect(btnTexts.some((t) => t.includes('Главное меню'))).toBe(true);
+    // Кнопка возврата в школу
+    expect(btnTexts.some((t) => t.includes('Назад в школу'))).toBe(true);
+    const lastRow = response.screen?.keyboard?.rows.slice(-1)[0];
+    expect(lastRow?.[0]?.code).toBe('school:hub:open');
   });
 
-  test('кнопка «↩️ Главное меню» — последняя строка каталога', async () => {
+  test('кнопка «⬅️ Назад в школу» — последняя строка каталога', async () => {
     const { story } = makeStory([
       {
         uuid: 'e-e-e-e-e-e-e-e-e-e-e-e-e-e-e-e',
@@ -210,7 +207,8 @@ describe('CatalogStory (S01)', () => {
     const rows = response.screen?.keyboard?.rows ?? [];
     expect(rows.length).toBeGreaterThan(0);
     const lastRow = rows[rows.length - 1];
-    expect(lastRow?.[0]?.code).toBe('app:main-menu');
+    expect(lastRow?.[0]?.text).toContain('Назад в школу');
+    expect(lastRow?.[0]?.code).toBe('school:hub:open');
   });
 
   test('неизвестная команда каталога — экран «Неизвестная команда»', async () => {
