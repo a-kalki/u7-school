@@ -43,13 +43,13 @@
 - [x] Task: `Stream.schoolId` — тесты схемы, создания потока, фильтра `list-streams`. [042a426]
 - [x] Task: Реализовать `schoolId` в домене потока (значение — `appResolver.school.id`
       при создании) и фильтр `schoolId` в `list-streams`. [ffff2c5]
-- [ ] Task: Скрипт `scripts/migrate-streams-school-id.ts` (идемпотентный) — проставляет
-      `schoolId` существующим потокам.
-- [ ] Task: Migration-секция в `CHANGELOG` для релиза `0.2.0`: что нужно сделать на
+- [x] Task: Скрипт `scripts/migrate-streams-school-id.ts` (идемпотентный) — проставляет
+      `schoolId` существующим потокам. [b32ba33]
+- [x] Task: Migration-секция в `CHANGELOG` для релиза `0.2.0`: что нужно сделать на
       проде — остановить бота, сделать бэкап `data/streams/`, прогнать миграцию,
       запустить с `--env production` (на работающем старом коде мигрировать нельзя:
       valibot отбрасывает неизвестные поля). Порядок и способ выполнения — на усмотрение
-      агента деплоя; запуск с подтверждением владельца.
+      агента деплоя; запуск с подтверждением владельца. [b32ba33]
 - [ ] Task: Расширить `list-scope-reviews`: `scopeId` → `scopeIds: string[]` (+ фильтр
       `direction`), `scopeId` в DTO отзыва; обновить существующего потребителя
       (`scope-reviews.story`, передаёт `[scopeId]`) и его тесты.
