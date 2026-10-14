@@ -40,7 +40,7 @@
 
 ## Фаза 5: Потоки школы и «Отзывы»
 
-- [ ] Task: `Stream.schoolId` — тесты схемы, создания потока, фильтра `list-streams`.
+- [x] Task: `Stream.schoolId` — тесты схемы, создания потока, фильтра `list-streams`. [042a426]
 - [ ] Task: Реализовать `schoolId` в домене потока (значение — `appResolver.school.id`
       при создании) и фильтр `schoolId` в `list-streams`.
 - [ ] Task: Скрипт `scripts/migrate-streams-school-id.ts` (идемпотентный) — проставляет
