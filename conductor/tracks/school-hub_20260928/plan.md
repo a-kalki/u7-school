@@ -67,9 +67,9 @@
       добавить `🏫 Школа`, убрать перенесённые кнопки. [4af5485]
 - [x] Task: Обновить `courses/ui-spec.md` и `courses/content-nav.md` под новый маршрут
       и название «Курсы». [02fd945]
-- [ ] Task: Обновить e2e-тесты меню (`tests/e2e/main-menu.e2e.test.ts`,
+- [x] Task: Обновить e2e-тесты меню (`tests/e2e/main-menu.e2e.test.ts`,
       `tests/e2e/curious-showcase.e2e.test.ts`) под `🏫 Школа` / `📖 Курсы`
-      и перенесённые входы.
+      и перенесённые входы. [a8cf9e5]
 - [ ] Task: Conductor - User Manual Verification 'Фаза 6: Главное меню' (Protocol in workflow.md)
 
 ## Фаза 7: Финал — гейт и документация
