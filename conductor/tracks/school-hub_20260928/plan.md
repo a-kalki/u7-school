@@ -13,7 +13,7 @@
       и `SchoolHubStory` (карточка SH01, кнопки `📚 Потоки · 💬 Отзывы ·
       ℹ️ Инфо · 💬 Сообщество · ↩️ Главное меню`). [42ff340]
 - [x] Task: Зарегистрировать `SchoolController` в сборке приложения (`create-ui-app`). [52c1c91]
-- [ ] Task: Взять данные из `school` резолвера; экспорт `ui-spec.md` контроллера.
+- [x] Task: Взять данные из `school` резолвера; экспорт `ui-spec.md` контроллера. [7449346]
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1: Контроллер school и карточка' (Protocol in workflow.md)
 
 ## Фаза 2: Экран «Инфо» (SH02)
