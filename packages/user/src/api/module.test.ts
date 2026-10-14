@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import type { AppResolver } from '@u7-scl/core/domain';
+import { TEST_SCHOOL, type U7AppResolver } from '@u7-scl/app/domain';
 import type { User } from '#domain/user/entity';
 import { Role } from '#domain/user/roles';
 import { UserJsonRepo } from '#infra/db/user-json-repo';
 import { UserApiModule } from './module';
 
 const NO_SEED = '/nonexistent-seed.json';
-const appResolver = {
+const appResolver: U7AppResolver = {
   logger: console,
   mode: 'test' as const,
   eventBus: {
@@ -15,7 +15,8 @@ const appResolver = {
       return () => {};
     },
   },
-} as unknown as AppResolver;
+  school: TEST_SCHOOL,
+};
 
 describe('UserApiModule + UserJsonRepo', () => {
   test('user.create: создаёт пользователя если есть права ADMIN', async () => {

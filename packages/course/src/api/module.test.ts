@@ -1,7 +1,8 @@
 import { afterAll, describe, expect, mock, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import type { AppResolver, NotifyKind } from '@u7-scl/core/domain';
+import { TEST_SCHOOL, type U7AppResolver } from '@u7-scl/app/domain';
+import type { NotifyKind } from '@u7-scl/core/domain';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
 import { Status } from '#domain/status';
@@ -11,7 +12,7 @@ import { StepJsonRepo } from '#infra/db/step-json-repo';
 import { CourseApiModule } from './module';
 
 const tmpDir = mkdtempSync('/tmp/course-api-module-test-');
-const appResolver = {
+const appResolver: U7AppResolver = {
   logger: console,
   mode: 'test' as const,
   eventBus: {
@@ -20,7 +21,8 @@ const appResolver = {
       return () => {};
     },
   },
-} as unknown as AppResolver;
+  school: TEST_SCHOOL,
+};
 
 /** In-memory заглушка фасада пользователей для тестов */
 class MockUserFacade implements UserFacade {

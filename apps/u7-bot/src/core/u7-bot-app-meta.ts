@@ -1,6 +1,6 @@
 import type { User } from '@u7-scl/app';
-import type { U7ApiApp } from '@u7-scl/app/domain';
-import type { AppMeta, AppResolver } from '@u7-scl/core/domain';
+import type { U7ApiApp, U7AppResolver } from '@u7-scl/app/domain';
+import type { AppMeta } from '@u7-scl/core/domain';
 import type { BotUiAppResolve } from '@u7-scl/core/ui';
 import type { CourseApiModuleMeta } from '@u7-scl/course/domain';
 import type { PeerReviewApiModuleMeta } from '@u7-scl/peer-review/domain';
@@ -40,7 +40,4 @@ export interface U7BotAppMeta extends AppMeta {
 /** Тип API-приложения U7 бота (актор закрыт на User в модуле app) */
 export type U7BotApp = U7ApiApp<U7BotAppMeta>;
 
-/**
- * Резолвер API-приложения U7.
- */
-export interface U7AppResolver extends AppResolver {}
+export type { U7AppResolver };

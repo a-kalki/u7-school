@@ -1,4 +1,5 @@
-import type { ApiModuleMeta, ModuleResolver } from '@u7-scl/core/domain';
+import type { U7ModuleResolver } from '@u7-scl/app/domain';
+import type { ApiModuleMeta } from '@u7-scl/core/domain';
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import type { UserFacade } from '@u7-scl/user/domain';
 import type { ResolveContentPathCmdMeta } from './content-path/commands/resolve-content-path-cmd';
@@ -66,7 +67,7 @@ export interface CourseApiModuleMeta extends ApiModuleMeta {
 }
 
 /** Резолвер зависимостей API-модуля курсов */
-export interface CourseApiModuleResolver extends ModuleResolver {
+export interface CourseApiModuleResolver extends U7ModuleResolver {
   db?: BaseJsonDb;
   moduleRepo: ModuleRepo;
   courseRepo: CourseRepo;

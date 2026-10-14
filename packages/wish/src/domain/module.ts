@@ -1,8 +1,5 @@
-import type {
-  ApiModuleMeta,
-  AppResolver,
-  ModuleResolver,
-} from '@u7-scl/core/domain';
+import type { U7ModuleResolver } from '@u7-scl/app/domain';
+import type { ApiModuleMeta } from '@u7-scl/core/domain';
 import type { CourseFacade } from '@u7-scl/course/domain';
 import type { QuestionnaireFacade } from '@u7-scl/questionnaire/domain';
 import type { StreamFacade } from '@u7-scl/stream/domain';
@@ -27,11 +24,10 @@ export interface WishApiModuleMeta extends ApiModuleMeta {
 }
 
 /** Резолвер зависимостей API-модуля wish. */
-export interface WishApiModuleResolver extends ModuleResolver {
+export interface WishApiModuleResolver extends U7ModuleResolver {
   wishRepo: WishRepo;
   courseFacade: CourseFacade;
   streamFacade: StreamFacade;
   questionnaireFacade: QuestionnaireFacade;
   userFacade: UserFacade;
-  appResolver: AppResolver;
 }

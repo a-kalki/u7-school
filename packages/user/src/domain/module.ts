@@ -1,4 +1,5 @@
-import type { ApiModuleMeta, ModuleResolver } from '@u7-scl/core/domain';
+import type { U7ModuleResolver } from '@u7-scl/app/domain';
+import type { ApiModuleMeta } from '@u7-scl/core/domain';
 import type { AddRoleToUserCmdMeta } from './user/commands/add-role-to-user-cmd';
 import type { CreateUserCmdMeta } from './user/commands/create-user-cmd';
 import type { GetUserByTelegramIdCmdMeta } from './user/commands/get-user-by-telegram-id-cmd';
@@ -29,6 +30,6 @@ export interface UserApiModuleMeta extends ApiModuleMeta {
 }
 
 /** Резолвер зависимостей API-модуля пользователей */
-export interface UserApiModuleResolver extends ModuleResolver {
+export interface UserApiModuleResolver extends U7ModuleResolver {
   userRepo: UserRepo;
 }

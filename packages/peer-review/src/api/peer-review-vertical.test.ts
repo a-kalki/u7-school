@@ -3,6 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { User } from '@u7-scl/app';
+import { TEST_SCHOOL } from '@u7-scl/app/domain';
 import { InProcEventBus } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
 import type {
@@ -96,6 +97,7 @@ function makeVertical() {
       logger: SILENT_LOGGER,
       mode: 'test' as const,
       eventBus,
+      school: TEST_SCHOOL,
     },
     eventBus,
   };

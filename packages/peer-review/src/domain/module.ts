@@ -1,4 +1,4 @@
-import type { ModuleResolver } from '@u7-scl/core/domain';
+import type { U7ModuleResolver } from '@u7-scl/app/domain';
 import type { StreamFacade } from '@u7-scl/stream/domain';
 import type { UserFacade } from '@u7-scl/user/domain';
 import type { CreateReviewCmdMeta } from './review/commands/create-review-cmd';
@@ -14,7 +14,7 @@ import type { ReviewCampaignRepo } from './review-campaign/repo';
 /**
  * Резолвер зависимостей API-модуля peer-review.
  */
-export interface PeerReviewApiModuleResolver extends ModuleResolver {
+export interface PeerReviewApiModuleResolver extends U7ModuleResolver {
   reviewCampaignRepo: ReviewCampaignRepo;
   reviewRepo: ReviewRepo;
   /** Состав окружения субъекта окна (ментор + студенты с исходами). */

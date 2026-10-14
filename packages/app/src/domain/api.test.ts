@@ -1,7 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import { AppException, type ModuleResolver } from '@u7-scl/core/domain';
+import { AppException } from '@u7-scl/core/domain';
 import * as v from 'valibot';
-import { U7ApiModule, U7UseCase } from './api';
+import {
+  U7ApiModule,
+  type U7AppResolver,
+  type U7ModuleResolver,
+  U7UseCase,
+} from './api';
+import { createSchool } from './school';
 import { Role } from './user';
 
 // ══ Хелперы ══
@@ -13,10 +19,22 @@ const eventBus = {
   },
 };
 
-const resolve: ModuleResolver = {
-  appResolver: { logger: console, mode: 'test', eventBus },
-  eventBus,
-} as unknown as ModuleResolver;
+const school = createSchool({
+  communityGroup: { id: -1001, url: 'https://t.me/comm' },
+  studentGroup: { id: -1002, inviteUrl: 'https://t.me/stud' },
+});
+
+const appResolver: U7AppResolver = {
+  logger: console as any,
+  mode: 'test',
+  eventBus: eventBus as any,
+  school,
+};
+
+const resolve: U7ModuleResolver = {
+  appResolver,
+  eventBus: eventBus as any,
+};
 
 const validUser = {
   uuid: '550e8400-e29b-41d4-a716-446655440000',
@@ -44,7 +62,7 @@ interface TestModuleMeta {
   ucMetas: TestCmdMeta;
 }
 
-class TestEchoUc extends U7UseCase<TestCmdMeta, ModuleResolver> {
+class TestEchoUc extends U7UseCase<TestCmdMeta> {
   protected readonly ucName = 'test-echo' as const;
   protected readonly ucLabel = 'Эхо' as const;
   protected readonly arMeta = {
@@ -62,12 +80,38 @@ class TestEchoUc extends U7UseCase<TestCmdMeta, ModuleResolver> {
   }
 }
 
-class TestModule extends U7ApiModule<TestModuleMeta, ModuleResolver> {
+class TestModule extends U7ApiModule<TestModuleMeta> {
   readonly name = 'TestModule' as const;
   readonly useCases = [new TestEchoUc()];
   readonly reactions = [];
   readonly jobs = [];
 }
+
+describe('U7UseCase — доступ к U7AppResolver и school', () => {
+  test('use-case видит school в резолвере', async () => {
+    class SchoolInspectUc extends U7UseCase<TestCmdMeta> {
+      protected readonly ucName = 'test-echo' as const;
+      protected readonly ucLabel = 'Эхо' as const;
+      protected readonly arMeta = {
+        arName: 'TestAr' as const,
+        arLabel: 'Тестовый агрегат' as const,
+      };
+      protected readonly type = 'command' as const;
+      protected readonly requiresAuth = true as const;
+      protected readonly inputSchema = v.object({ x: v.string() });
+      protected readonly outputSchema = v.object({ y: v.string() });
+
+      execute(_cmd: { x: string }) {
+        return { y: this.resolve.appResolver.school.name };
+      }
+    }
+
+    const uc = new SchoolInspectUc();
+    uc.init(resolve);
+    const result = await uc.handle({ x: 'a' }, validUser);
+    expect(result.y).toBe('U7 School');
+  });
+});
 
 describe('U7UseCase — закрытие дженерика актора на User', () => {
   test('execute получает actor-объект User', async () => {

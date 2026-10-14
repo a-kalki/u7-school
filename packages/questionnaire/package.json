@@ -12,6 +12,7 @@
     "check": "bun run lint && bun run tslint && bun test"
   },
   "dependencies": {
+    "@u7-scl/app": "workspace:*",
     "@u7-scl/core": "workspace:*",
     "@u7-scl/user": "workspace:*"
   },

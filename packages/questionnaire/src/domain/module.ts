@@ -1,8 +1,5 @@
-import type {
-  ApiModuleMeta,
-  AppResolver,
-  ModuleResolver,
-} from '@u7-scl/core/domain';
+import type { U7ModuleResolver } from '@u7-scl/app/domain';
+import type { ApiModuleMeta } from '@u7-scl/core/domain';
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import type { UserFacade } from '@u7-scl/user/domain';
 import type { AbandonCmdMeta } from './questionnaire/commands/abandon-cmd';
@@ -35,9 +32,8 @@ export interface QuestionnaireApiModuleMeta extends ApiModuleMeta {
 }
 
 /** Резолвер зависимостей API-модуля questionnaire */
-export interface QuestionnaireApiModuleResolver extends ModuleResolver {
+export interface QuestionnaireApiModuleResolver extends U7ModuleResolver {
   questionnaireRepo: QuestionnaireRepo;
   userFacade: UserFacade;
   db: BaseJsonDb;
-  appResolver: AppResolver;
 }

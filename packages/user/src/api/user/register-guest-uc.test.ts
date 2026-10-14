@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import { TEST_SCHOOL, type U7AppResolver } from '@u7-scl/app/domain';
 import { ApiApp } from '@u7-scl/core/api';
-import type { AppResolver } from '@u7-scl/core/domain';
 import {
   BaseJsonDb,
   InProcEventBus,
@@ -39,7 +39,8 @@ describe('RegisterGuestUc', () => {
         logger: console,
         mode: 'test' as const,
         eventBus: new InProcEventBus(),
-      } as unknown as AppResolver,
+        school: TEST_SCHOOL,
+      } as unknown as U7AppResolver,
     });
     apiApp = new ApiApp([mod]);
     apiApp.init(new InProcJobScheduler({ logger: new ConsoleLogger() }));
