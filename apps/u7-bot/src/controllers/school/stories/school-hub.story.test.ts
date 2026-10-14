@@ -116,6 +116,23 @@ describe('SchoolHubStory (SH01)', () => {
     expect(text).not.toContain('Наши менторы');
   });
 
+  test('кнопка сообщества в карточке ведёт по school.communityGroup.url', async () => {
+    const { story } = makeStory({});
+
+    const response: DialogResponse = await story.handleCallback(
+      'open',
+      actor,
+      session,
+    );
+    const rows = response.screen?.keyboard?.rows ?? [];
+    const communityRow = rows.find((row) =>
+      row.some((btn) => btn.text.includes('Сообщество')),
+    );
+    expect(communityRow).toBeDefined();
+    const btn = communityRow?.find((b) => b.text.includes('Сообщество'));
+    expect(btn?.url).toBe(TEST_SCHOOL.communityGroup.url);
+  });
+
   test('menuButtons возвращает кнопку «🏫 Школа» (priority 10)', async () => {
     const { story } = makeStory({});
 
