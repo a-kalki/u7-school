@@ -30,7 +30,7 @@
 | Текст | Код / Действие | Условие | Статус |
 |---|---|---|---|
 | `📚 Потоки` | `stream:catalog:list` (или `school:hub:streams` → delegate) | всегда | ✅ |
-| `💬 Отзывы` | `school:hub:reviews` | всегда | ✅ (каркас) / 📋 (экран отзывов в фазе 5) |
+| `💬 Отзывы` | `school:reviews:list` (или `school:hub:reviews` → delegate) | всегда | ✅ |
 | `ℹ️ Инфо` | `school:info:view` | всегда | ✅ |
 | `💬 Сообщество` | `URL: {School.communityGroup.url}` | всегда | ✅ |
 | `↩️ Главное меню` | `app:main-menu` | всегда | ✅ |

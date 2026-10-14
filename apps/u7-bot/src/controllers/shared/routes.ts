@@ -21,6 +21,10 @@ export const Routes = {
   school: {
     /** Хаб школы: карточка школы */
     hub: 'school:hub:open',
+    /** Экран инфо о школе */
+    info: 'school:info:view',
+    /** Отзывы о школе */
+    reviews: 'school:reviews:list',
   },
   stream: {
     /** Каталог потоков: список потоков */

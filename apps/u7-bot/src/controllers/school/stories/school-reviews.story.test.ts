@@ -32,7 +32,11 @@ function makeStory(opts?: {
       scopeId: string;
       authorId: string;
       direction: 'student_mentor';
-      authorOutcome?: 'completed_passed' | 'completed_not_passed' | 'dropped' | 'never_started';
+      authorOutcome?:
+        | 'completed_passed'
+        | 'completed_not_passed'
+        | 'dropped'
+        | 'never_started';
       text: string;
       createdAt: string;
     }>;
@@ -52,26 +56,28 @@ function makeStory(opts?: {
     ...(opts?.names ?? {}),
   };
 
-  const executeMock = mock(async (ucName: string, attrs: Record<string, unknown>) => {
-    switch (ucName) {
-      case 'list-streams':
-        return streams;
-      case 'list-scope-reviews':
-        return {
-          scopeIds: attrs.scopeIds,
-          recipients,
-        };
-      case 'get-users-by-ids': {
-        const ids = attrs.userIds as string[];
-        return ids.map((id) => ({
-          uuid: id,
-          name: namesMap[id] ?? 'Неизвестный',
-        }));
+  const executeMock = mock(
+    async (ucName: string, attrs: Record<string, unknown>) => {
+      switch (ucName) {
+        case 'list-streams':
+          return streams;
+        case 'list-scope-reviews':
+          return {
+            scopeIds: attrs.scopeIds,
+            recipients,
+          };
+        case 'get-users-by-ids': {
+          const ids = attrs.userIds as string[];
+          return ids.map((id) => ({
+            uuid: id,
+            name: namesMap[id] ?? 'Неизвестный',
+          }));
+        }
+        default:
+          throw new Error(`Unexpected UC call: ${ucName}`);
       }
-      default:
-        throw new Error(`Unexpected UC call: ${ucName}`);
-    }
-  });
+    },
+  );
 
   story.init({
     school: TEST_SCHOOL,
@@ -104,13 +110,17 @@ describe('SchoolReviewsStory (SH03)', () => {
     const text = String(response.screen?.text);
     expect(text).toContain('Пока нет отзывов о школе');
 
-    const backBtn = response.screen?.keyboard?.rows.flat().find((b) =>
-      b.text.includes('Назад в школу'),
-    );
+    const backBtn = response.screen?.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes('Назад в школу'));
     expect(backBtn).toBeDefined();
     expect(backBtn?.code).toBe('school:hub:open');
 
-    expect(executeMock).toHaveBeenCalledWith('list-streams', { schoolId: SCHOOL_ID }, actor);
+    expect(executeMock).toHaveBeenCalledWith(
+      'list-streams',
+      { schoolId: SCHOOL_ID },
+      actor,
+    );
     expect(executeMock).toHaveBeenCalledWith(
       'list-scope-reviews',
       { scopeIds: [STREAM_1, STREAM_2], direction: 'student_mentor' },
@@ -149,11 +159,11 @@ describe('SchoolReviewsStory (SH03)', () => {
     expect(text).toContain('Отзывы о школе');
     expect(text).toContain('Алексей Ментор');
     expect(text).toContain('Иван Студент');
-    expect(text).toContain('Отличный курс, ментор всегда помогал!');
+    expect(text).toContain('Отличный курс, ментор всегда помогал');
 
-    const backBtn = response.screen?.keyboard?.rows.flat().find((b) =>
-      b.text.includes('Назад в школу'),
-    );
+    const backBtn = response.screen?.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes('Назад в школу'));
     expect(backBtn).toBeDefined();
     expect(backBtn?.code).toBe('school:hub:open');
   });
@@ -165,7 +175,9 @@ describe('SchoolReviewsStory (SH03)', () => {
       authorId: STUDENT_1,
       direction: 'student_mentor' as const,
       authorOutcome: 'completed_passed' as const,
-      text: `Длинный полезный отзыв номер ${i + 1}. ` + 'Слова благодарности ментору. '.repeat(30),
+      text:
+        `Длинный полезный отзыв номер ${i + 1}. ` +
+        'Слова благодарности ментору. '.repeat(30),
       createdAt: `2026-09-2${i}T10:00`,
     }));
 
@@ -183,20 +195,20 @@ describe('SchoolReviewsStory (SH03)', () => {
       actor,
       session,
     );
-    expect(String(page0.screen?.text)).toContain('Стр. 1/');
+    expect(String(page0.screen?.text)).toContain('Стр\\. 1/');
 
-    const nextBtn = page0.screen?.keyboard?.rows.flat().find((b) =>
-      b.text.includes('След'),
-    );
+    const nextBtn = page0.screen?.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes('След'));
     expect(nextBtn).toBeDefined();
 
     // Листание на страницу 1
     const page1: DialogResponse = await story.handleCallback(
-      nextBtn!.code.split(':').slice(2).join(':'),
+      nextBtn!.code.split(':').slice(1).join(':'),
       actor,
       session,
     );
-    expect(String(page1.screen?.text)).toContain('Стр. 2/');
+    expect(String(page1.screen?.text)).toContain('Стр\\. 2/');
 
     // Проверка кеширования: повторные обращения к домену не происходят
     const scopeReviewCalls = executeMock.mock.calls.filter(

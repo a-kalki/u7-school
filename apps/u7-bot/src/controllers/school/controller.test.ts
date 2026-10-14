@@ -23,13 +23,14 @@ describe('SchoolController (реестр)', () => {
     expect(controller.name).toBe('school');
   });
 
-  test('содержит SchoolHubStory, SchoolInfoStory и CommunityStory', () => {
+  test('содержит SchoolHubStory, SchoolInfoStory, SchoolReviewsStory и CommunityStory', () => {
     const controller = new SchoolController();
     const stories = (
       controller as unknown as { stories: Array<{ name: string }> }
     ).stories;
     expect(stories.some((s) => s.name === 'hub')).toBe(true);
     expect(stories.some((s) => s.name === 'info')).toBe(true);
+    expect(stories.some((s) => s.name === 'reviews')).toBe(true);
     expect(stories.some((s) => s.name === 'community')).toBe(true);
   });
 
@@ -71,6 +72,7 @@ describe('SchoolController (реестр)', () => {
     expect(rows).toHaveLength(5);
     expect(rows[0]![0]!.text).toBe('📚 Потоки');
     expect(rows[1]![0]!.text).toBe('💬 Отзывы');
+    expect(rows[1]![0]!.code).toBe('school:reviews:list');
     expect(rows[2]![0]!.text).toBe('ℹ️ Инфо');
     expect(rows[2]![0]!.code).toBe('school:info:view');
     expect(rows[3]![0]!.text).toBe('💬 Сообщество');
@@ -98,6 +100,33 @@ describe('SchoolController (реестр)', () => {
     expect(text).toContain('BatysHub');
     expect(text).toContain('Исатая');
     expect(text).toContain('777 287 8182');
+
+    const rows = response.screen?.keyboard?.rows ?? [];
+    expect(rows).toHaveLength(1);
+    expect(rows[0]![0]!.text).toBe('⬅️ Назад в школу');
+    expect(rows[0]![0]!.code).toBe('school:hub:open');
+  });
+
+  test('handleCallback форвардит reviews:list в SchoolReviewsStory и возвращает экран SH03 с кнопкой возврата', async () => {
+    const controller = new SchoolController();
+    controller.init({
+      school: TEST_SCHOOL,
+      appApi: {
+        execute: mock(async (ucName: string) => {
+          if (ucName === 'list-streams') return [];
+          return { recipients: [] };
+        }),
+      },
+    } as any);
+
+    const response = await controller.handleCallback(
+      'reviews:list',
+      actor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    expect(String(response.screen?.text)).toContain('Пока нет отзывов о школе');
 
     const rows = response.screen?.keyboard?.rows ?? [];
     expect(rows).toHaveLength(1);

@@ -44,6 +44,9 @@ export class SchoolHubStory extends U7BotUiStory {
     if (action === 'streams') {
       return { delegate: { path: Routes.stream.catalogList } };
     }
+    if (action === 'reviews') {
+      return { delegate: { path: this.cbFor('reviews', 'list') } };
+    }
 
     return this.unknownCommand(action, actor, session);
   }
@@ -74,7 +77,7 @@ export class SchoolHubStory extends U7BotUiStory {
 
     const rows: KbButton[][] = [
       [this.btn('📚 Потоки', Routes.stream.catalogList)],
-      [this.btn('💬 Отзывы', this.cb('reviews'))],
+      [this.btn('💬 Отзывы', this.cbFor('reviews', 'list'))],
       [this.btn('ℹ️ Инфо', this.cbFor('info', 'view'))],
       [this.btnUrl('💬 Сообщество', school.communityGroup.url)],
       [buttons.mainMenu()],
