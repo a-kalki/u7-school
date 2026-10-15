@@ -171,15 +171,15 @@ describe('CourseCatalogStory', () => {
     expect(text).toContain('JS Basics');
     expect(text).toContain('Синтаксис');
     expect(text).toContain('Практика');
-    expect(text).toContain('модул');
+    expect(text).toContain('Модуль');
     // Описание НЕ показывается
     expect(text).not.toContain('Описание курса');
 
-    // Кнопка курса ведёт на phases:
+    // Кнопка этапа ведёт на phase:
     const rows = response.screen?.keyboard?.rows ?? [];
-    const courseBtn = rows.find((r) => r[0]?.text?.includes('JS Basics'));
-    expect(courseBtn).toBeDefined();
-    expect(courseBtn![0]!.code).toBe('course-catalog:phases:c1');
+    const phaseBtn = rows.find((r) => r[0]?.text?.includes('Синтаксис'));
+    expect(phaseBtn).toBeDefined();
+    expect(phaseBtn![0]!.code).toBe('course-catalog:phase:c1:0');
 
     // Кнопка «Главное меню»
     const lastRow = rows[rows.length - 1]!;
@@ -217,9 +217,9 @@ describe('CourseCatalogStory', () => {
     expect(String(response.screen?.text)).toContain('📖 *Курсы*');
   });
 
-  // ── Уровень 1: Этапы + модули inline ──
+  // ── Уровень 1: Этап + модули подуровнем ──
 
-  test('phases: этапы жирным, модули inline с числом проектов и уроков', async () => {
+  test('phase: модули жирным, проекты подуровнем', async () => {
     const courseUuid = 'c2';
     const appApi = makeAppApi(
       [
@@ -258,7 +258,7 @@ describe('CourseCatalogStory', () => {
     initStory(story, appApi);
 
     const response = await story.handleCallback(
-      `phases:${courseUuid}`,
+      `phase:${courseUuid}:0`,
       actor,
       session,
     );
@@ -266,25 +266,23 @@ describe('CourseCatalogStory', () => {
     const text = String(response.screen?.text ?? '');
 
     expect(text).toContain('Курс: Fullstack JS');
-    expect(text).toContain('Синтаксис');
-    expect(text).toContain('Алгоритмика');
+    expect(text).toContain('Этап: Синтаксис');
     expect(text).toContain('Переменные');
-    expect(text).toContain('1 проект');
-    expect(text).toContain('2 урока');
+    expect(text).toContain('Введение');
 
-    // Кнопки-этапы
+    // Кнопки-модули
     const rows = response.screen?.keyboard?.rows ?? [];
-    const syntaxBtn = rows.find((r) => r[0]?.text?.includes('Синтаксис'));
-    expect(syntaxBtn).toBeDefined();
-    expect(syntaxBtn![0]!.code).toBe(`course-catalog:modules:${courseUuid}:0`);
+    const modBtn = rows.find((r) => r[0]?.text?.includes('Переменные'));
+    expect(modBtn).toBeDefined();
+    expect(modBtn![0]!.code).toBe(`course-catalog:module:${courseUuid}:0:m-1`);
 
-    // Кнопка «Назад к курсам»
-    expect(rows.some((r) => r[0]?.text?.includes('Назад к курсам'))).toBe(true);
+    // Кнопка «Назад к курсу»
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к курсу'))).toBe(true);
   });
 
-  // ── Уровень 2: Модули + проекты inline ──
+  // ── Уровень 2: Модуль + проекты подуровнем ──
 
-  test('modules: модули жирным, проекты inline', async () => {
+  test('module: проекты жирным, уроки подуровнем', async () => {
     const courseUuid = 'c3';
     const appApi = makeAppApi(
       [
@@ -297,7 +295,7 @@ describe('CourseCatalogStory', () => {
             {
               title: 'Синтаксис',
               track: 'tech',
-              moduleIds: ['m-a', 'm-b'],
+              moduleIds: ['m-a'],
             },
           ],
           status: 'published',
@@ -309,17 +307,19 @@ describe('CourseCatalogStory', () => {
           uuid: 'm-a',
           title: 'Модуль A',
           description: '...',
-          projects: [{ uuid: 'pa', title: 'Проект 1', lessonIds: ['l1'] }],
+          projects: [],
         },
-        'm-b': {
-          uuid: 'm-b',
-          title: 'Модуль B',
-          description: '...',
-          projects: [
-            { uuid: 'pb', title: 'Проект 2', lessonIds: ['l2', 'l3'] },
-            { uuid: 'pc', title: 'Проект 3', lessonIds: ['l4'] },
-          ],
-        },
+      },
+      {
+        'm-a': [
+          {
+            projectId: 'pa',
+            projectTitle: 'Проект 1',
+            lessons: [
+              { lessonId: 'l1', lessonTitle: 'Урок 1', stepIds: ['s1'] },
+            ],
+          },
+        ],
       },
     );
 
@@ -327,7 +327,7 @@ describe('CourseCatalogStory', () => {
     initStory(story, appApi);
 
     const response = await story.handleCallback(
-      `modules:${courseUuid}:0`,
+      `module:${courseUuid}:0:m-a`,
       actor,
       session,
     );
@@ -335,27 +335,25 @@ describe('CourseCatalogStory', () => {
     const text = String(response.screen?.text ?? '');
 
     expect(text).toContain('Этап: Синтаксис');
-    expect(text).toContain('Модуль A');
-    expect(text).toContain('Модуль B');
+    expect(text).toContain('Модуль: Модуль A');
     expect(text).toContain('Проект 1');
-    expect(text).toContain('Проект 2');
-    expect(text).toContain('Проект 3');
+    expect(text).toContain('Урок 1');
 
-    // Кнопки-модули
+    // Кнопки-проекты
     const rows = response.screen?.keyboard?.rows ?? [];
-    const modABtn = rows.find((r) => r[0]?.text?.includes('Модуль A'));
-    expect(modABtn).toBeDefined();
-    expect(modABtn![0]!.code).toBe(
-      `course-catalog:projects:${courseUuid}:0:m-a`,
+    const projBtn = rows.find((r) => r[0]?.text?.includes('Проект 1'));
+    expect(projBtn).toBeDefined();
+    expect(projBtn![0]!.code).toBe(
+      `course-catalog:project:${courseUuid}:0:m-a:pa`,
     );
 
-    // Кнопка «Назад к курсу»
-    expect(rows.some((r) => r[0]?.text?.includes('Назад к курсу'))).toBe(true);
+    // Кнопка «Назад к этапу»
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к этапу'))).toBe(true);
   });
 
-  // ── Уровень 3: Проекты + уроки inline (tree-renderer) ──
+  // ── Уровень 3: Проект + уроки с шагами-заголовками подуровнем ──
 
-  test('projects: проекты жирным, уроки inline через tree-renderer', async () => {
+  test('project: уроки жирным, шаги-заголовки подуровнем', async () => {
     const courseUuid = 'c4';
     const appApi = makeAppApi(
       [
@@ -386,27 +384,20 @@ describe('CourseCatalogStory', () => {
               {
                 lessonId: 'les-a',
                 lessonTitle: 'HTML разметка',
-                stepIds: ['s1', 's2'],
+                stepIds: ['s1'],
               },
               {
                 lessonId: 'les-b',
                 lessonTitle: 'CSS стили',
-                stepIds: ['s3'],
-              },
-            ],
-          },
-          {
-            projectId: 'proj-2',
-            projectTitle: 'Chat',
-            lessons: [
-              {
-                lessonId: 'les-c',
-                lessonTitle: 'WebSocket',
-                stepIds: ['s4'],
+                stepIds: ['s2'],
               },
             ],
           },
         ],
+      },
+      {
+        'les-a': [{ uuid: 's1', description: 'Структура DOM' }],
+        'les-b': [{ uuid: 's2', description: 'Селекторы' }],
       },
     );
 
@@ -414,7 +405,7 @@ describe('CourseCatalogStory', () => {
     initStory(story, appApi);
 
     const response = await story.handleCallback(
-      `projects:${courseUuid}:0:m-x`,
+      `project:${courseUuid}:0:m-x:proj-1`,
       actor,
       session,
     );
@@ -423,31 +414,26 @@ describe('CourseCatalogStory', () => {
 
     expect(text).toContain('Модуль: Модуль X');
     expect(text).toContain('Проект: ToDo App');
-    expect(text).toContain('Урок: HTML разметка');
-    expect(text).toContain('Урок: CSS стили');
-    expect(text).toContain('Проект: Chat');
-    expect(text).toContain('Урок: WebSocket');
-    expect(text).toContain('ToDo App');
     expect(text).toContain('HTML разметка');
+    expect(text).toContain('Структура DOM');
     expect(text).toContain('CSS стили');
-    expect(text).toContain('Chat');
-    expect(text).toContain('WebSocket');
+    expect(text).toContain('Селекторы');
 
-    // Кнопки-проекты (не уроки!)
+    // Кнопки-уроки
     const rows = response.screen?.keyboard?.rows ?? [];
-    const projectBtn = rows.find((r) => r[0]?.text?.includes('ToDo App'));
-    expect(projectBtn).toBeDefined();
-    expect(projectBtn![0]!.code).toBe(
-      `course-catalog:lessons:${courseUuid}:0:m-x:0`,
+    const lessonBtn = rows.find((r) => r[0]?.text?.includes('HTML разметка'));
+    expect(lessonBtn).toBeDefined();
+    expect(lessonBtn![0]!.code).toBe(
+      `course-catalog:lesson:${courseUuid}:0:m-x:proj-1:les-a`,
     );
 
-    // Кнопка «Назад к этапу»
-    expect(rows.some((r) => r[0]?.text?.includes('Назад к этапу'))).toBe(true);
+    // Кнопка «Назад к модулю»
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к модулю'))).toBe(true);
   });
 
-  // ── Уровень 4: Уроки + заголовки шагов ──
+  // ── Уровень 4: Урок (шаги только заголовками, закрытый уровень) ──
 
-  test('lessons: урок + шаги inline, тела скрыты', async () => {
+  test('lesson: шаги только заголовками, входа в шаг нет', async () => {
     const courseUuid = 'c5';
     const appApi = makeAppApi(
       [
@@ -461,7 +447,14 @@ describe('CourseCatalogStory', () => {
           createdAt: '2026-01-01T00:00:00.000Z',
         },
       ],
-      {},
+      {
+        'm-z': {
+          uuid: 'm-z',
+          title: 'Модуль Z',
+          description: '...',
+          projects: [],
+        },
+      },
       {
         'm-z': [
           {
@@ -473,11 +466,6 @@ describe('CourseCatalogStory', () => {
                 lessonTitle: 'Урок 1',
                 stepIds: ['step-1', 'step-2'],
               },
-              {
-                lessonId: 'les-y',
-                lessonTitle: 'Урок 2',
-                stepIds: ['step-3'],
-              },
             ],
           },
         ],
@@ -487,7 +475,6 @@ describe('CourseCatalogStory', () => {
           { uuid: 'step-1', description: 'Что такое переменные' },
           { uuid: 'step-2', description: 'Типы данных' },
         ],
-        'les-y': [{ uuid: 'step-3', description: 'Область видимости' }],
       },
     );
 
@@ -495,7 +482,7 @@ describe('CourseCatalogStory', () => {
     initStory(story, appApi);
 
     const response = await story.handleCallback(
-      `lessons:${courseUuid}:0:m-z:0`,
+      `lesson:${courseUuid}:0:m-z:proj-1:les-x`,
       actor,
       session,
     );
@@ -503,18 +490,20 @@ describe('CourseCatalogStory', () => {
     const text = String(response.screen?.text ?? '');
 
     expect(text).toContain('Проект: App');
-    expect(text).toContain('Урок 1');
+    expect(text).toContain('Урок: Урок 1');
     expect(text).toContain('Что такое переменные');
     expect(text).toContain('Типы данных');
-    expect(text).toContain('Урок 2');
-    expect(text).toContain('Область видимости');
-    // Тела скрыты
-    expect(text).not.toContain('content');
-    expect(text).not.toContain('code');
 
-    // Кнопка «Назад к модулю»
+    // Кнопок шагов на клавиатуре НЕТ
     const rows = response.screen?.keyboard?.rows ?? [];
-    expect(rows.some((r) => r[0]?.text?.includes('Назад к модулю'))).toBe(true);
+    const flatBtns = rows.flat();
+    expect(flatBtns.some((b) => b.text.includes('Что такое переменные'))).toBe(
+      false,
+    );
+    expect(flatBtns.some((b) => b.text.includes('Типы данных'))).toBe(false);
+
+    // Кнопка «Назад к проекту»
+    expect(flatBtns.some((b) => b.text.includes('Назад к проекту'))).toBe(true);
   });
 
   // ── Ошибки ──
@@ -550,6 +539,15 @@ describe('CourseCatalogStory', () => {
   test('projects: несуществующий модуль — ошибка', async () => {
     const appApi = {
       execute: mock(async (ucName: string, _attrs: Record<string, unknown>) => {
+        if (ucName === 'list-courses') {
+          return [
+            {
+              uuid: 'c1',
+              title: 'C',
+              phases: [{ title: 'P', moduleIds: ['bad'] }],
+            },
+          ];
+        }
         if (ucName === 'get-module-snapshot') {
           throw Object.assign(new Error('Модуль не найден'), {
             name: 'MODULE_NOT_FOUND',
@@ -569,62 +567,6 @@ describe('CourseCatalogStory', () => {
     );
     assertDialogResponseMarkdownSafe(response);
     expect(String(response.screen?.text)).toContain('не найден');
-  });
-
-  // ── Обрезка длинных сообщений ──
-
-  // Трек pagination ФР-5: обрезка #truncate удалена — экран остаётся
-  // компактным за счёт лимита шагов урока (максимум 3 + многоточие)
-  test('lessons: длинный урок — максимум 3 шага + многоточие, экран не раздувается', async () => {
-    const courseUuid = 'c-big';
-    const manySteps = Array.from({ length: 100 }, (_, i) => ({
-      uuid: `step-${i}`,
-      description: `Шаг номер ${i + 1} — очень подробное описание которое занимает много символов`,
-    }));
-
-    const appApi = makeAppApi(
-      [
-        {
-          uuid: courseUuid,
-          title: 'Course',
-          description: '...',
-          authorId: 'a',
-          phases: [{ title: 'Phase', moduleIds: ['m-w'] }],
-          status: 'published',
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ],
-      {},
-      {
-        'm-w': [
-          {
-            projectId: 'proj-1',
-            projectTitle: 'App',
-            lessons: [
-              {
-                lessonId: 'les-q',
-                lessonTitle: 'Урок',
-                stepIds: manySteps.map((s) => s.uuid),
-              },
-            ],
-          },
-        ],
-      },
-      { 'les-q': manySteps },
-    );
-
-    const story = new CourseCatalogStory();
-    initStory(story, appApi);
-
-    const response = await story.handleCallback(
-      `lessons:${courseUuid}:0:m-w:0`,
-      actor,
-      session,
-    );
-    assertDialogResponseMarkdownSafe(response);
-    const text = String(response.screen?.text ?? '');
-    expect(text.length).toBeLessThanOrEqual(4100);
-    expect(text.endsWith('\\.\\.\\.')).toBe(true);
   });
 
   // ── Неизвестная команда ──
@@ -1103,7 +1045,7 @@ describe('CourseCatalogStory', () => {
       const yes = flat.find((b) => b.text.includes('Да'));
       expect(yes?.code).toBe(`course-catalog:cancel-confirm:${courseId}`);
       const no = flat.find((b) => b.text.includes('Отмена'));
-      expect(no?.code).toBe(`course-catalog:phases:${courseId}`);
+      expect(no?.code).toBe(`course-catalog:course:${courseId}`);
     });
 
     test('cancel-confirm: вызывает cancel-wish и сообщает об отмене', async () => {
@@ -1244,135 +1186,68 @@ describe('CourseCatalogStory', () => {
     });
   });
 
-  // ── Пагинация уровней каталога (S00, трек pagination) ──
+  // ── Навигация: листание соседних сущностей (drill-down) ──
 
-  describe('Пагинация уровней каталога (S00)', () => {
-    /** Минимальная форма ответа для поиска кнопок. */
-    interface ScreenLike {
-      screen?: {
-        text?: string;
-        keyboard?: { rows: Array<Array<{ text: string; code: string }>> };
-      };
-    }
-
-    function findBtn(response: ScreenLike, textContains: string) {
-      return (response.screen?.keyboard?.rows ?? [])
-        .flat()
-        .find((b) => b.text.includes(textContains));
-    }
-
-    /** Длинный снапшот модуля: блок «проект с уроками» ~500 символов. */
-    function longSnapshot(projectCount: number, lessonsPerProject: number) {
-      return Array.from({ length: projectCount }, (_, p) => ({
-        projectId: `p${p}`,
-        projectTitle: `Тема ${p + 1}: Проектирование и реализация надёжных компонентов интерфейса пользователя`,
-        lessons: Array.from({ length: lessonsPerProject }, (_, l) => ({
-          lessonId: `l${p}-${l}`,
-          lessonTitle: `Занятие ${p + 1}.${l + 1}: Разбор практических приёмов работы со сложным состоянием приложения`,
-          stepIds: ['s1', 's2', 's3'],
-        })),
-      }));
-    }
-
-    /** Считает вызовы UC в appApi-моке. */
-    function callsOf(api: ReturnType<typeof makeAppApi>, ucName: string) {
-      return api.execute.mock.calls.filter((c) => c[0] === ucName).length;
-    }
-
-    test('уровень 3 (модуль): ≥3 страницы из целых проектов, полный цикл листания', async () => {
-      const appApi = makeAppApi(
-        [],
+  describe('Листание соседей (drill-down навигация)', () => {
+    test('листание курсов: ◀️ Пред. курс / След. курс ▶️', async () => {
+      const courses = [
         {
-          'big-mod': {
-            uuid: 'big-mod',
-            title: 'Большой модуль',
-            description: '...',
-            projects: [],
-          },
+          uuid: 'c-1',
+          title: 'Первый курс',
+          description: 'd1',
+          authorId: 'a',
+          phases: [{ title: 'Этап 1', moduleIds: [] }],
+          status: 'published',
+          createdAt: '2026-01-01T00:00:00.000Z',
         },
-        { 'big-mod': longSnapshot(26, 4) },
-      );
+        {
+          uuid: 'c-2',
+          title: 'Второй курс',
+          description: 'd2',
+          authorId: 'a',
+          phases: [{ title: 'Этап 2', moduleIds: [] }],
+          status: 'published',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ];
+      const appApi = makeAppApi(courses);
       const story = new CourseCatalogStory();
       initStory(story, appApi);
 
-      const pageTexts: string[] = [];
-      let response = await story.handleCallback(
-        'projects:c1:0:big-mod',
-        actor,
-        session,
+      // Карточка первого курса: есть «След. курс ▶️», нет «◀️ Пред. курс»
+      const first = await story.handleCallback('list', actor, session);
+      assertDialogResponseMarkdownSafe(first);
+      const firstBtns = first.screen?.keyboard?.rows.flat() ?? [];
+      const nextCourseBtn = firstBtns.find((b) =>
+        b.text.includes('След. курс'),
       );
-      assertDialogResponseMarkdownSafe(response);
-      pageTexts.push(String(response.screen?.text ?? ''));
+      expect(nextCourseBtn).toBeDefined();
+      expect(nextCourseBtn?.code).toBe('course-catalog:course:c-2');
+      expect(firstBtns.some((b) => b.text.includes('Пред. курс'))).toBe(false);
 
-      for (let i = 0; i < 10; i++) {
-        const next = findBtn(response, 'След ›');
-        if (!next) break;
-        const pageSeg = next.code.split(':').pop() ?? '0';
-        response = await story.handleCallback(
-          `projects:c1:0:big-mod:${pageSeg}`,
-          actor,
-          session,
-        );
-        assertDialogResponseMarkdownSafe(response);
-        pageTexts.push(String(response.screen?.text ?? ''));
-      }
-
-      expect(pageTexts.length).toBeGreaterThanOrEqual(3);
-      const total = pageTexts.length;
-      for (let i = 0; i < total; i++) {
-        expect(pageTexts[i]).toContain('Модуль: Большой модуль');
-        expect(pageTexts[i]).toContain(`Стр\\. ${i + 1}/${total}`);
-      }
-
-      // Все 26 проектов по порядку, каждый со всеми 4 уроками
-      const projectLines = pageTexts
-        .join('\n')
-        .split('\n')
-        .filter((l) => l.includes('Проект:'));
-      expect(projectLines).toHaveLength(26);
-      const lessonLines = pageTexts
-        .join('\n')
-        .split('\n')
-        .filter((l) => l.includes('Урок:'));
-      expect(lessonLines).toHaveLength(26 * 4);
-
-      // Кнопки «След ›» несут номер страницы в коде
-      expect(findBtn(response, '‹ Пред')?.code).toBe(
-        `course-catalog:projects:c1:0:big-mod:${total - 2}`,
+      // Карточка второго курса: есть «◀️ Пред. курс», нет «След. курс ▶️»
+      const second = await story.handleCallback('course:c-2', actor, session);
+      assertDialogResponseMarkdownSafe(second);
+      const secondBtns = second.screen?.keyboard?.rows.flat() ?? [];
+      const prevCourseBtn = secondBtns.find((b) =>
+        b.text.includes('Пред. курс'),
       );
+      expect(prevCourseBtn).toBeDefined();
+      expect(prevCourseBtn?.code).toBe('course-catalog:course:c-1');
+      expect(secondBtns.some((b) => b.text.includes('След. курс'))).toBe(false);
     });
 
-    test('уровень 3: кеш — листание не перечитывает снапшот модуля', async () => {
-      const appApi = makeAppApi(
-        [],
-        {
-          'big-mod': {
-            uuid: 'big-mod',
-            title: 'Большой модуль',
-            description: '...',
-            projects: [],
-          },
-        },
-        { 'big-mod': longSnapshot(26, 4) },
-      );
-      const story = new CourseCatalogStory();
-      initStory(story, appApi);
-
-      await story.handleCallback('projects:c1:0:big-mod', actor, session);
-      await story.handleCallback('projects:c1:0:big-mod:1', actor, session);
-      await story.handleCallback('projects:c1:0:big-mod:0', actor, session);
-
-      expect(callsOf(appApi, 'get-module-snapshot')).toBe(1);
-    });
-
-    test('уровень 1 короткий: одна страница — без навигации и индикатора', async () => {
+    test('листание этапов: ◀️ Пред. этап / След. этап ▶️', async () => {
       const appApi = makeAppApi([
         {
-          uuid: 'c1',
-          title: 'JS Basics',
+          uuid: 'c-1',
+          title: 'Курс с 2 этапами',
           description: 'd',
           authorId: 'a',
-          phases: [{ title: 'Синтаксис', moduleIds: ['m1'] }],
+          phases: [
+            { title: 'Этап 1', moduleIds: [] },
+            { title: 'Этап 2', moduleIds: [] },
+          ],
           status: 'published',
           createdAt: '2026-01-01T00:00:00.000Z',
         },
@@ -1380,48 +1255,27 @@ describe('CourseCatalogStory', () => {
       const story = new CourseCatalogStory();
       initStory(story, appApi);
 
-      const response = await story.handleCallback('phases:c1', actor, session);
-      const text = String(response.screen?.text ?? '');
-      expect(text).toContain('Синтаксис');
-      expect(text).not.toContain('Стр');
-      const btns =
-        response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-      expect(btns.some((t) => t.includes('След'))).toBe(false);
-      expect(btns.some((t) => t.includes('Пред'))).toBe(false);
-    });
+      const respPhase0 = await story.handleCallback(
+        'phase:c-1:0',
+        actor,
+        session,
+      );
+      assertDialogResponseMarkdownSafe(respPhase0);
+      const btns0 = respPhase0.screen?.keyboard?.rows.flat() ?? [];
+      const nextPhaseBtn = btns0.find((b) => b.text.includes('След. этап'));
+      expect(nextPhaseBtn).toBeDefined();
+      expect(nextPhaseBtn?.code).toBe('course-catalog:phase:c-1:1');
 
-    test('уровень 0 (курсы): многостраничность, код list:<n>, clamp', async () => {
-      // 10 курсов × 8 этапов — блок ~900 символов → ≥2 страницы
-      const courses = Array.from({ length: 10 }, (_, i) => ({
-        uuid: `cc${i}`,
-        title: `Курс ${i + 1}: Полное руководство по современной разработке интерфейсов`,
-        description: 'd',
-        authorId: 'a',
-        phases: Array.from({ length: 8 }, (_, ph) => ({
-          title: `Этап ${ph + 1}: Основы проектирования интерактивных приложений`,
-          moduleIds: ['m1', 'm2'],
-        })),
-        status: 'published',
-        createdAt: '2026-01-01T00:00:00.000Z',
-      }));
-      const appApi = makeAppApi(courses);
-      const story = new CourseCatalogStory();
-      initStory(story, appApi);
-
-      const first = await story.handleCallback('list', actor, session);
-      assertDialogResponseMarkdownSafe(first);
-      const firstText = String(first.screen?.text ?? '');
-      expect(firstText).toContain('Стр\\. 1/');
-
-      const next = findBtn(first, 'След ›');
-      expect(next?.code).toBe('course-catalog:list:1');
-
-      // Clamp: номер за пределами — последняя страница (без «След ›»)
-      const clamped = await story.handleCallback('list:99', actor, session);
-      const clampText = String(clamped.screen?.text ?? '');
-      const m = /Стр\\. (\d+)\/(\d+)/.exec(clampText);
-      expect(m?.[1]).toBe(m?.[2]);
-      expect(findBtn(clamped, 'След ›')).toBeUndefined();
+      const respPhase1 = await story.handleCallback(
+        'phase:c-1:1',
+        actor,
+        session,
+      );
+      assertDialogResponseMarkdownSafe(respPhase1);
+      const btns1 = respPhase1.screen?.keyboard?.rows.flat() ?? [];
+      const prevPhaseBtn = btns1.find((b) => b.text.includes('Пред. этап'));
+      expect(prevPhaseBtn).toBeDefined();
+      expect(prevPhaseBtn?.code).toBe('course-catalog:phase:c-1:0');
     });
   });
 });

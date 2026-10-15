@@ -43,7 +43,6 @@ apps/u7-bot/
       logger/                     # TelegramLogger
     shared/
       app-codes.ts                # Якоря диалогов приложения (app:main-menu, app/invite, ...)
-      tree-renderer.ts            # Отрисовка дерева уроков (ASCII)
   tests/
     helpers/
       test-app.ts                 # createTestApp() — ApiApp на временных репозиториях

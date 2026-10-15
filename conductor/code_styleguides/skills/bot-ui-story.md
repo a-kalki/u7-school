@@ -56,8 +56,6 @@
 
 Fail-fast: `assertDialogResponseMarkdownSafe(response)` (тесты, транспорт) роняет невалидный MarkdownV2. Живой образец: `packages/core/src/shared/markdown.ts` (+ тесты там же).
 
-**Дерево (`TreeNode[]` → `renderTree`, `apps/u7-bot/src/shared/tree-renderer.ts`):** `TreeNode.title` — строка, уже безопасная для MarkdownV2: формируй заголовки через `md\`…\``.
-
 ---
 
 ## 5. Хелперы ответов: `screen`/`ask`/`notify`/`warn`/`note`/`go`/`kb`/`btn`
