@@ -100,7 +100,7 @@ export const CORE_EDUCATION_WORLD: WorldDefinition = {
     {
       key: 'dev',
       uuid: '44444444-4444-4444-4444-444444444444',
-      name: 'Ментор',
+      name: 'Алексей',
       telegramId: 1004,
       roles: [Role.MENTOR, Role.AUTHOR],
       registeredAt: 'T-90d',

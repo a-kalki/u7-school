@@ -211,7 +211,7 @@ describe('E2E peer-review: хаб «Мои отзывы» и меню', () => {
     );
     const s05 = await transport.handleCallback(
       transport.makeBotContext(SUBJECT_TG, {
-        callbackData: pressedCode(transport, SUBJECT_TG, 'Ментор — Ментор'),
+        callbackData: pressedCode(transport, SUBJECT_TG, 'Ментор — Алексей'),
       }),
     );
     expect(s05.awaitInput).toBeDefined();

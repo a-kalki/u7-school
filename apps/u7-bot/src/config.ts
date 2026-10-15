@@ -74,6 +74,22 @@ export const BotConfigSchema = v.object({
     ),
     '',
   ),
+
+  // ══ Менторы школы (опциональный список UUID через запятую, например для dev-режима) ══
+  schoolMentors: v.optional(
+    v.pipe(
+      v.string(),
+      v.transform((input) =>
+        input
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean),
+      ),
+      v.array(
+        v.pipe(v.string(), v.uuid('Некорректный формат UUID ментора школы')),
+      ),
+    ),
+  ),
 });
 
 export type BotConfig = v.InferOutput<typeof BotConfigSchema>;
@@ -107,6 +123,7 @@ export function loadConfig(): BotConfig {
     devTelegramId: process.env.DEV_TELEGRAM_ID
       ? Number(process.env.DEV_TELEGRAM_ID)
       : undefined,
+    schoolMentors: process.env.SCHOOL_MENTOR_IDS,
   };
 
   return v.parse(BotConfigSchema, raw);

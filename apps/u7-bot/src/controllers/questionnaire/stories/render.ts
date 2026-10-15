@@ -173,7 +173,7 @@ function formatQuestionMd(
         ? '*\\[x\\]*'
         : '\\[ \\]'
       : checked
-        ? '\\(x\\)'
+        ? '*\\(x\\)*'
         : '\\( \\)';
     lines.push(`${idx}\\. ${marker} ${esc(a.answer)}`);
   }

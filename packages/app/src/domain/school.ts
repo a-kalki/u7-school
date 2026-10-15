@@ -82,10 +82,13 @@ export function createSchool(params: {
   communityGroup: { id: number; url: string };
   studentGroup: { id: number; inviteUrl: string };
   contacts?: { site?: string };
+  mentors?: string[];
 }): School {
   return {
     ...U7_SCHOOL_STATIC,
-    mentors: [...U7_SCHOOL_STATIC.mentors],
+    mentors: params.mentors
+      ? [...params.mentors]
+      : [...U7_SCHOOL_STATIC.mentors],
     contacts: {
       ...U7_SCHOOL_STATIC.contacts,
       ...(params.contacts?.site ? { site: params.contacts.site } : {}),
@@ -107,4 +110,8 @@ export const TEST_SCHOOL: School = createSchool({
     id: -100987654321,
     inviteUrl: 'https://t.me/+studentInvite',
   },
+  mentors: [
+    '44444444-4444-4444-4444-444444444444',
+    '99999999-9999-4999-8999-999999999999',
+  ],
 });

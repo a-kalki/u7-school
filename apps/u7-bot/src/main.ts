@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { CompositeLogger } from '@u7-scl/app/infra';
 import {
   ConsoleLogger,
+  type Logger,
   LogLevel,
   now,
   serializeError,
@@ -17,7 +18,7 @@ import { createUiApp } from './create-ui-app';
 import { registerGroupHandlers } from './handlers/group-handler';
 import { BotTransport } from './infra/bot-transport';
 import { JsonBotSessionRepo } from './infra/json-bot-session-repo';
-import { TelegramLogger } from './infra/logger';
+import { FileLogger, TelegramLogger } from './infra/logger';
 
 const config = loadConfig();
 
@@ -25,7 +26,14 @@ const config = loadConfig();
 const consoleLogger = new ConsoleLogger();
 consoleLogger.setLogLevel(LogLevel.DEBUG);
 
-const loggers: CompositeLogger = new CompositeLogger([consoleLogger]);
+const loggersList: Logger[] = [consoleLogger];
+
+// В dev-режиме дублируем лог в dbDir/bot.log для автономной диагностики агентом
+if (config.mode === 'development') {
+  loggersList.push(new FileLogger(`${config.dbDir}/bot.log`));
+}
+
+const loggers: CompositeLogger = new CompositeLogger(loggersList);
 setGlobalLogger(loggers);
 
 // TelegramLogger создадим после createBot, но пока есть только consoleLogger

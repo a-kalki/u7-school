@@ -181,14 +181,14 @@ describe('E2E peer-review: S07 из карточки потока — конте
     expect(pageOf(text)).toBeNull();
     // Группа адресата-ментора: направление student_mentor — роли из
     // direction, лейбл authorOutcome у автора-студента
-    expect(text).toContain('👤 Ментор');
+    expect(text).toContain('👤 Алексей');
     expect(text).toContain('«Ментор давал понятную обратную связь');
     expect(text).toContain('— Андрей');
     expect(text).toContain('студент · завершил и прошел');
     // Группа адресата-студента: автор-ментор — БЕЗ лейбла исхода
     expect(text).toContain('👤 Андрей');
     expect(text).toContain('«Студент дисциплинированно');
-    expect(text).toContain('— Ментор');
+    expect(text).toContain('— Алексей');
     // student_student: обе роли «студент»
     expect(text).toContain('👤 Марина');
     expect(text).toContain('«Работать в паре');

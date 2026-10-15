@@ -57,7 +57,7 @@ export class InviteStory extends U7BotUiStory {
     ]);
 
     await this.proactiveSender.invite(telegramId, {
-      text: md`📋 *Анкета*\n\n${response.inviteText ?? 'Заполните, пожалуйста, анкету.'}\n\nДля отмены в любой момент нажмите /cancel\\.\n\nЕсли кнопки не открываются \\- наберите /start\\.`,
+      text: md`📋 *Анкета*\n\n${response.inviteText ?? 'Заполните, пожалуйста, анкету.'}\n\nДля отмены в любой момент нажмите /cancel\\.`,
       keyboard: this.kb(rows),
     });
   }

@@ -574,7 +574,6 @@ describe('FillStory — подписки вариант A (invite-канал)', 
     ];
     expect(telegramId).toBe(456);
     expect(payload.text).toContain('Анкета');
-    expect(payload.text).toContain('/start');
     expect(payload.keyboard.rows.flat().map((b) => [b.text, b.code])).toEqual([
       ['▶️ Заполнить анкету', 'questionnaire:fill:resume:course-1'],
     ]);

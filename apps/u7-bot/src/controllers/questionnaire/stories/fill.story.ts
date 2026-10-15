@@ -78,7 +78,7 @@ export class FillStory extends U7BotUiStory {
     }
 
     await this.proactiveSender.invite(telegramId, {
-      text: md`📋 *Анкета*\n\nДля вас подготовлена анкета — заполните, пожалуйста\\.\n\nЕсли кнопки не открываются \\- наберите /start\\.`,
+      text: md`📋 *Анкета*\n\nДля вас подготовлена анкета — заполните, пожалуйста\\.`,
       keyboard: this.kb([
         [this.btn('▶️ Заполнить анкету', Routes.questionnaire.resume(courseId))],
       ]),
@@ -101,7 +101,7 @@ export class FillStory extends U7BotUiStory {
     );
 
     await this.proactiveSender.invite(telegramId, {
-      text: md`⏳ *Анкета приостановлена*\n\nМы заметили, что ты давно не заполнял анкету\\. Скоро она будет закрыта\\.\n\nПродолжить?\n\nЕсли кнопки не открываются \\- наберите /start\\.`,
+      text: md`⏳ *Анкета приостановлена*\n\nМы заметили, что ты давно не заполнял анкету\\. Скоро она будет закрыта\\.\n\nПродолжить?`,
       keyboard: this.kb(rows),
     });
   }
@@ -121,7 +121,7 @@ export class FillStory extends U7BotUiStory {
     );
 
     await this.proactiveSender.invite(telegramId, {
-      text: md`📋 *Анкета*\n\nВы начали заполнять анкету — продолжим?\n\nЕсли кнопки не открываются \\- наберите /start\\.`,
+      text: md`📋 *Анкета*\n\nВы начали заполнять анкету — продолжим?`,
       keyboard: this.kb(rows),
     });
   }

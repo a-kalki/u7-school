@@ -238,13 +238,12 @@ describe('Wish: анкетная ветка (e2e)', () => {
     expect(response.screen).toBeUndefined();
 
     // Приглашение (вариант A): сервер только зовёт, диалог открывает
-    // пользователь; подсказка /start на случай устаревшего экрана
+    // пользователь
     const invite = await waitForSent(
       guest.telegramId,
       'Для вас подготовлена анкета',
     );
     expect(invite.text).toContain('заполните, пожалуйста');
-    expect(invite.text).toContain('/start');
     expect(invite.keyboard?.rows.flat().map((b) => b.text)).toEqual([
       '▶️ Заполнить анкету',
     ]);

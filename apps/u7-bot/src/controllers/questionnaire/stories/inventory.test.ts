@@ -321,8 +321,6 @@ describe('Инвентаризация InviteStory', () => {
     expect(telegramId).toBe(456);
     expect(payload.text).toContain('Анкета');
     expect(payload.text).toContain('Заполните анкету');
-    // Подсказка /start на случай устаревшего экрана (вариант A)
-    expect(payload.text).toContain('/start');
 
     expect(
       payload.keyboard.rows.map((r) => r.map((b) => [b.text, b.code])),

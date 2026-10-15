@@ -54,7 +54,6 @@ describe('FillStory — continue-invite (S09): invite-канал', () => {
     expect(telegramId).toBe(456);
 
     expect(payload.text).toContain('продолжим?');
-    expect(payload.text).toContain('/start');
     expect(() => assertMarkdownV2Safe(payload.text)).not.toThrow();
 
     expect(payload.keyboard.rows.flat().map((b) => [b.text, b.code])).toEqual([

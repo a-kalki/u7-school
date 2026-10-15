@@ -129,13 +129,17 @@ describe('E2E peer-review: судьба субъекта — написание'
     expect(s03buttons.map((b) => b.text)).toEqual([
       'Одногруппник — Андрей',
       'Одногруппник — Олег',
-      'Ментор — Ментор',
+      'Ментор — Алексей',
       '↩️ Мои отзывы',
     ]);
 
     // ── 4. Выбор ментора → S05 (подсказка по исходу автора) ──
     // Код кнопки — отштампованный транспорт-рендер последнего экрана
-    const mentorBtnCode = pressedCode(transport, SUBJECT_TG, 'Ментор — Ментор');
+    const mentorBtnCode = pressedCode(
+      transport,
+      SUBJECT_TG,
+      'Ментор — Алексей',
+    );
     const s05 = await transport.handleCallback(
       transport.makeBotContext(SUBJECT_TG, { callbackData: mentorBtnCode }),
     );
@@ -189,7 +193,7 @@ describe('E2E peer-review: судьба субъекта — написание'
     );
     // инфо-сообщение о результате — поверх нового экрана-родителя
     expect(String(s06.notify?.text ?? '')).toContain(
-      '✅ Отзыв о Ментор сохранён',
+      '✅ Отзыв о Алексей сохранён',
     );
     // экран-родитель: список кампании (несколько адресатов)
     expect(String(s06.screen?.text)).toContain('О ком расскажешь?');
@@ -197,7 +201,7 @@ describe('E2E peer-review: судьба субъекта — написание'
     // новый экран и инфо — отдельными сообщениями внизу чата:
     // после текста пользователя всё актуальное видно без прокрутки
     const lastEdit = transport.api.editedMessages.at(-1);
-    expect(lastEdit?.text).toContain('отзыв о Ментор отправлен');
+    expect(lastEdit?.text).toContain('отзыв о Алексей отправлен');
     expect(lastEdit?.keyboard).toBeUndefined();
     const lastSent = transport.api.sentMessages.at(-1);
     expect(lastSent?.text).toContain('О ком расскажешь?');
@@ -206,7 +210,7 @@ describe('E2E peer-review: судьба субъекта — написание'
     expect(s06buttons.map((b) => b.text)).toEqual([
       'Одногруппник — Андрей',
       'Одногруппник — Олег',
-      '✅Ментор — Ментор',
+      '✅Ментор — Алексей',
       '↩️ Мои отзывы',
     ]);
 
@@ -214,7 +218,7 @@ describe('E2E peer-review: судьба субъекта — написание'
     const rewriteBtnCode = pressedCode(
       transport,
       SUBJECT_TG,
-      '✅Ментор — Ментор',
+      '✅Ментор — Алексей',
     );
     const s04 = await transport.handleCallback(
       transport.makeBotContext(SUBJECT_TG, {
@@ -222,7 +226,7 @@ describe('E2E peer-review: судьба субъекта — написание'
       }),
     );
     expect(String(s04.screen?.text)).toContain('Ты уже писал');
-    expect(String(s04.screen?.text)).toContain('о Ментор');
+    expect(String(s04.screen?.text)).toContain('о Алексей');
     expect(String(s04.screen?.text)).toContain(
       '«Ментор спокойно разбирал мои ошибки и не давал застрять',
     );
@@ -234,7 +238,7 @@ describe('E2E peer-review: судьба субъекта — написание'
       transport.makeBotContext(SUBJECT_TG, { text: GOOD_TEXT_2 }),
     );
     expect(String(s06b.notify?.text ?? '')).toContain(
-      '✏️ Отзыв о Ментор обновлён',
+      '✏️ Отзыв о Алексей обновлён',
     );
     expect(String(s06b.screen?.text)).toContain('О ком расскажешь?');
 
@@ -279,7 +283,7 @@ describe('E2E peer-review: судьба субъекта — написание'
     expect(s03.screen?.keyboard?.rows.flat().map((b) => b.text)).toEqual([
       'Одногруппник — Андрей',
       'Одногруппник — Олег',
-      '✅Ментор — Ментор',
+      '✅Ментор — Алексей',
       '↩️ Мои отзывы',
     ]);
 
@@ -308,7 +312,7 @@ describe('E2E peer-review: судьба субъекта — написание'
     expect(s06.screen?.keyboard?.rows.flat().map((b) => b.text)).toEqual([
       '✅Одногруппник — Андрей',
       'Одногруппник — Олег',
-      '✅Ментор — Ментор',
+      '✅Ментор — Алексей',
       '↩️ Мои отзывы',
     ]);
   });
@@ -366,7 +370,7 @@ describe('E2E peer-review: судьба субъекта — написание'
       }),
     );
     expect(String(done.notify?.text ?? '')).toContain(
-      '✅ Отзыв о Ментор сохранён',
+      '✅ Отзыв о Алексей сохранён',
     );
     const hubText = String(done.screen?.text);
     expect(hubText).toContain('💬 *Мои отзывы*');

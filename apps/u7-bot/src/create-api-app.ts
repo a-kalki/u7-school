@@ -1,5 +1,5 @@
 import type { School, U7AppResolver } from '@u7-scl/app/domain';
-import { createSchool } from '@u7-scl/app/domain';
+import { createSchool, TEST_SCHOOL } from '@u7-scl/app/domain';
 import { ApiApp } from '@u7-scl/core/api';
 import type { EventBus } from '@u7-scl/core/domain';
 import {
@@ -67,6 +67,10 @@ export interface ApiAppBundle {
 export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
   const db = new BaseJsonDb();
 
+  const mentors =
+    config.schoolMentors ??
+    (config.mode !== 'production' ? TEST_SCHOOL.mentors : undefined);
+
   const school = createSchool({
     communityGroup: {
       id: config.communityGroupId,
@@ -76,6 +80,7 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
       id: config.studentGroupId,
       inviteUrl: config.studentGroupInvite,
     },
+    ...(mentors ? { mentors } : {}),
   });
 
   const appLogger = logger ?? new ConsoleLogger();

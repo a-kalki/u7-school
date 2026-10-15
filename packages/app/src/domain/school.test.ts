@@ -93,5 +93,23 @@ describe('SchoolSchema и сущность School', () => {
     expect(parsed.name).toBe('U7 School');
     expect(parsed.communityGroup.id).toBe(-100123456789);
     expect(parsed.studentGroup.id).toBe(-100987654321);
+    expect(parsed.mentors).toEqual([...U7_SCHOOL_STATIC.mentors]);
+  });
+
+  test('createSchool позволяет переопределить список менторов школы', () => {
+    const customMentor = '44444444-4444-4444-4444-444444444444';
+    const school = createSchool({
+      communityGroup: {
+        id: -100123456789,
+        url: 'https://t.me/+communityInvite',
+      },
+      studentGroup: {
+        id: -100987654321,
+        inviteUrl: 'https://t.me/+studentInvite',
+      },
+      mentors: [customMentor],
+    });
+
+    expect(school.mentors).toEqual([customMentor]);
   });
 });

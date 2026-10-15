@@ -62,5 +62,25 @@ export function extractDevPersonasFromWorld(
     });
   }
 
+  // 4. Гости и кандидаты (любопытный посетитель, подписчик)
+  for (const p of persons) {
+    if (result.some((r) => r.key === p.key)) continue;
+    if (p.key === 'guest') {
+      result.push({
+        key: 'guest',
+        name: p.name,
+        about: 'любопытный гость (ещё не зарегистрирован в потоках)',
+        telegramId: p.telegramId,
+      });
+    } else if (p.key === 'candidate') {
+      result.push({
+        key: 'candidate',
+        name: p.name,
+        about: 'кандидат (подписчик, воронка onboarding)',
+        telegramId: p.telegramId,
+      });
+    }
+  }
+
   return result;
 }

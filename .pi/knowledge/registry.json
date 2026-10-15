@@ -401,6 +401,20 @@
       "helped": 0,
       "last_shown_at": "2026-10-14",
       "last_used_at": null
+    },
+    "R-20261015-1210-61": {
+      "kind": "practice",
+      "tags": ["testing", "fixtures", "architecture", "domain"],
+      "description": "Изоляция тестовых миров от боевых идентификаторов (UUID)",
+      "symptoms": [],
+      "file": "R-20261015-1210-61.md",
+      "created_at": "2026-10-15T07:10:27.120Z",
+      "updated_at": "2026-10-15T07:10:27.120Z",
+      "shown": 0,
+      "opened": 0,
+      "helped": 0,
+      "last_shown_at": null,
+      "last_used_at": null
     }
   }
 }

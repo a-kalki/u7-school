@@ -64,7 +64,6 @@ describe('FillStory — abandon-warning (S07): invite-канал', () => {
 
     expect(payload.text).toContain('Анкета приостановлена');
     expect(payload.text).toContain('Скоро она будет закрыта');
-    expect(payload.text).toContain('/start');
     expect(() => assertMarkdownV2Safe(payload.text)).not.toThrow();
 
     expect(payload.keyboard.rows.flat().map((b) => [b.text, b.code])).toEqual([

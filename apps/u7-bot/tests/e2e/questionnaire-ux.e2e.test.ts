@@ -370,7 +370,6 @@ describe('Questionnaire UX (e2e)', () => {
     );
     expect(invite.text).toContain('продолжим?');
     expect(invite.text).not.toContain('окончанию вашего текущего действия');
-    expect(invite.text).toContain('/start');
     expect(
       invite.keyboard?.rows
         .flat()
@@ -420,7 +419,6 @@ describe('Questionnaire UX (e2e)', () => {
       'Вы начали заполнять анкету',
     );
     expect(invite.text).toContain('продолжим?');
-    expect(invite.text).toContain('/start');
     const resumeBtn = invite.keyboard?.rows
       .flat()
       .find((b) => b.text === '▶️ Продолжить анкету');
