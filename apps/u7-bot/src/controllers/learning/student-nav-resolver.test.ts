@@ -110,17 +110,17 @@ describe('student-nav-resolver (TDD)', () => {
     // Проект 1: в процессе, уроки как подуровни
     const p1 = level?.children?.[0];
     expect(p1?.id).toBe(PROJECT1_ID);
-    expect(p1?.title).toBe('Основы');
+    expect(p1?.title).toBe('Проект: Основы');
     expect(p1?.status).toBe('in_progress');
     expect(p1?.enterable).toBe(true);
     expect(p1?.children).toHaveLength(2);
-    expect(p1?.children?.[0]?.title).toBe('Введение');
+    expect(p1?.children?.[0]?.title).toBe('Урок: Введение');
     expect(p1?.children?.[0]?.status).toBe('in_progress');
 
     // Проект 2: заблокирован
     const p2 = level?.children?.[1];
     expect(p2?.id).toBe(PROJECT2_ID);
-    expect(p2?.title).toBe('Продвинутый');
+    expect(p2?.title).toBe('Проект: Продвинутый');
     expect(p2?.status).toBe('locked');
   });
 
@@ -134,17 +134,17 @@ describe('student-nav-resolver (TDD)', () => {
     });
 
     expect(level).toBeDefined();
-    expect(level?.breadcrumbs).toEqual(['📂 Уроки', 'Основы']);
+    expect(level?.breadcrumbs).toEqual(['📂 Уроки', 'Проект: Основы']);
     expect(level?.title).toBe('Основы');
     expect(level?.children).toHaveLength(2);
 
     const l1 = level?.children?.[0];
     expect(l1?.id).toBe(LESSON1_ID);
-    expect(l1?.title).toBe('Введение');
+    expect(l1?.title).toBe('Урок: Введение');
     expect(l1?.children).toHaveLength(2);
-    expect(l1?.children?.[0]?.title).toBe('Установка окружения');
+    expect(l1?.children?.[0]?.title).toBe('Шаг: Установка окружения');
     expect(l1?.children?.[0]?.status).toBe('completed');
-    expect(l1?.children?.[1]?.title).toBe('Первая программа');
+    expect(l1?.children?.[1]?.title).toBe('Шаг: Первая программа');
     expect(l1?.children?.[1]?.status).toBe('in_progress');
 
     // Навигация соседей между проектами: у проекта 1 есть next (проект 2), но нет prev
@@ -167,7 +167,11 @@ describe('student-nav-resolver (TDD)', () => {
     });
 
     expect(level).toBeDefined();
-    expect(level?.breadcrumbs).toEqual(['📂 Уроки', 'Основы', 'Введение']);
+    expect(level?.breadcrumbs).toEqual([
+      '📂 Уроки',
+      'Проект: Основы',
+      'Урок: Введение',
+    ]);
     expect(level?.children).toHaveLength(2);
 
     // Шаг 1 пройден → enterable: true
@@ -205,9 +209,9 @@ describe('student-nav-resolver (TDD)', () => {
     expect(level).toBeDefined();
     expect(level?.breadcrumbs).toEqual([
       '📂 Уроки',
-      'Основы',
-      'Введение',
-      'Шаг 1',
+      'Проект: Основы',
+      'Урок: Введение',
+      'Шаг: Установка окружения',
     ]);
     expect(level?.status).toBe('completed');
     expect(level?.statusLabel).toBe('Пройден');

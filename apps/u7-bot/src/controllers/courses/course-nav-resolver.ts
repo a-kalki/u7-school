@@ -316,7 +316,6 @@ export function resolveCourseNavLevel(
     const subtitle = `Проект состоит из ${lessonCount} урок${plural(lessonCount, 'а', 'ов', 'ов')}`;
 
     const children: NavChild[] = project.lessons.map((l, lIdx) => {
-      const stepName = params.stepTitles?.[l.stepIds[0] ?? ''];
       const subChildren: NavSubChild[] = l.stepIds.map((sId, sIdx) => {
         const title = params.stepTitles?.[sId] ?? `Шаг ${sIdx + 1}`;
         return {

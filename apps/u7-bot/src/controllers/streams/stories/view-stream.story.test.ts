@@ -624,8 +624,8 @@ describe('ViewStreamStory — публичная drill-down программа �
     const btnCodes =
       response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
 
-    expect(btnTexts).toContain('1. 📁 Введение в архитектуру');
-    expect(btnTexts).toContain('2. 📁 Паттерны проектирования');
+    expect(btnTexts).toContain('1. Введение в архитектуру');
+    expect(btnTexts).toContain('2. Паттерны проектирования');
     expect(btnCodes).toContain(
       `view-stream:prog:${STREAM_ID_PUB}:project:proj-1`,
     );
@@ -653,8 +653,8 @@ describe('ViewStreamStory — публичная drill-down программа �
     const btnCodes =
       response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
 
-    expect(btnTexts).toContain('1. 📝 Модули и компоненты');
-    expect(btnTexts).toContain('2. 📝 Интерфейсы');
+    expect(btnTexts).toContain('1. Модули и компоненты');
+    expect(btnTexts).toContain('2. Интерфейсы');
     expect(btnCodes).toContain(
       `view-stream:prog:${STREAM_ID_PUB}:lesson:lesson-1`,
     );

@@ -89,7 +89,7 @@ describe('stream-nav-resolver (TDD)', () => {
     // Проект 1: без статуса, доступен для перехода
     const p1 = level?.children?.[0];
     expect(p1?.id).toBe(PROJECT1_ID);
-    expect(p1?.title).toBe('Введение в web');
+    expect(p1?.title).toBe('Проект: Введение в web');
     expect(p1?.status).toBeUndefined();
     expect(p1?.enterable).toBe(true);
     expect(p1?.address).toBe(
@@ -98,7 +98,7 @@ describe('stream-nav-resolver (TDD)', () => {
 
     // Дочерние уроки в превью проекта: без статусов
     expect(p1?.children).toHaveLength(2);
-    expect(p1?.children?.[0]?.title).toBe('Как устроен web');
+    expect(p1?.children?.[0]?.title).toBe('Урок: Как устроен web');
     expect(p1?.children?.[0]?.status).toBeUndefined();
 
     // Возврат к потоку на уровне root
@@ -120,14 +120,14 @@ describe('stream-nav-resolver (TDD)', () => {
     expect(level).toBeDefined();
     expect(level?.breadcrumbs).toEqual([
       '📖 Программа модуля',
-      'Введение в web',
+      'Проект: Введение в web',
     ]);
     expect(level?.title).toBe('Введение в web');
     expect(level?.children).toHaveLength(2);
 
     const l1 = level?.children?.[0];
     expect(l1?.id).toBe(LESSON1_ID);
-    expect(l1?.title).toBe('Как устроен web');
+    expect(l1?.title).toBe('Урок: Как устроен web');
     expect(l1?.status).toBeUndefined();
     expect(l1?.enterable).toBe(true);
     expect(l1?.address).toBe(
@@ -160,15 +160,15 @@ describe('stream-nav-resolver (TDD)', () => {
     expect(level).toBeDefined();
     expect(level?.breadcrumbs).toEqual([
       '📖 Программа модуля',
-      'Введение в web',
-      'Как устроен web',
+      'Проект: Введение в web',
+      'Урок: Как устроен web',
     ]);
     expect(level?.children).toHaveLength(2);
 
     // В менторском режиме все шаги enterable: true
     const s1 = level?.children?.[0];
     expect(s1?.id).toBe(STEP1_ID);
-    expect(s1?.title).toBe('Протоколы HTTP и HTTPS');
+    expect(s1?.title).toBe('Шаг: Протоколы HTTP и HTTPS');
     expect(s1?.status).toBeUndefined();
     expect(s1?.enterable).toBe(true);
     expect(s1?.address).toBe(
@@ -177,7 +177,7 @@ describe('stream-nav-resolver (TDD)', () => {
 
     const s2 = level?.children?.[1];
     expect(s2?.id).toBe(STEP2_ID);
-    expect(s2?.title).toBe('DNS и IP адреса');
+    expect(s2?.title).toBe('Шаг: DNS и IP адреса');
     expect(s2?.status).toBeUndefined();
     expect(s2?.enterable).toBe(true);
 
@@ -208,9 +208,9 @@ describe('stream-nav-resolver (TDD)', () => {
     expect(level).toBeDefined();
     expect(level?.breadcrumbs).toEqual([
       '📖 Программа модуля',
-      'Введение в web',
-      'Как устроен web',
-      'Шаг 1',
+      'Проект: Введение в web',
+      'Урок: Как устроен web',
+      'Шаг: Протоколы HTTP и HTTPS',
     ]);
     expect(level?.title).toBe('Протоколы HTTP и HTTPS');
     expect(level?.body).toBe(stepBodies[STEP1_ID]);

@@ -236,10 +236,10 @@ describe('NavTreeStory — drill-down навигация студента (TDD)'
 
     const text = String(response.screen?.text);
     expect(text).toContain('📂 *Уроки*');
-    expect(text).toContain('1\\. *Основы*');
+    expect(text).toContain('1\\. 📁 *Проект: Основы*');
     expect(text).toContain('Введение');
     expect(text).toContain('Переменные');
-    expect(text).toContain('2\\. *Продвинутый*');
+    expect(text).toContain('2\\. 📁 *Проект: Продвинутый*');
 
     const flatBtns = response.screen?.keyboard?.rows.flat() ?? [];
     // Кнопка проекта содержит UUID проекта
@@ -264,10 +264,10 @@ describe('NavTreeStory — drill-down навигация студента (TDD)'
     assertDialogResponseMarkdownSafe(response);
 
     const text = String(response.screen?.text);
-    expect(text).toContain('📂 *Уроки* › Основы');
-    expect(text).toContain('1\\. *Введение*');
+    expect(text).toContain('📂 *Уроки*\n› *Проект: Основы*');
+    expect(text).toContain('1\\. 📝 *Урок: Введение*');
     expect(text).toContain('Первый шаг');
-    expect(text).toContain('2\\. *Переменные*');
+    expect(text).toContain('2\\. 📝 *Урок: Переменные*');
 
     const flatBtns = response.screen?.keyboard?.rows.flat() ?? [];
     // Кнопки уроков ведут в nav-tree:lesson:<lessonId>
@@ -297,9 +297,11 @@ describe('NavTreeStory — drill-down навигация студента (TDD)'
     assertDialogResponseMarkdownSafe(response);
 
     const text = String(response.screen?.text);
-    expect(text).toContain('📂 *Уроки* › Основы › Переменные');
-    expect(text).toContain('1\\. ✅ Третий шаг');
-    expect(text).toContain('2\\. ▶️ Четвёртый шаг');
+    expect(text).toContain(
+      '📂 *Уроки*\n› Проект: Основы\n› *Урок: Переменные*',
+    );
+    expect(text).toContain('1\\. ✅ Шаг: Третий шаг');
+    expect(text).toContain('2\\. ▶️ Шаг: Четвёртый шаг');
 
     const flatBtns = response.screen?.keyboard?.rows.flat() ?? [];
     // Кнопки доступных шагов ведут в карточки шагов drill-down nav-tree:step:<stepId>
@@ -354,7 +356,9 @@ describe('NavTreeStory — drill-down навигация студента (TDD)'
     assertDialogResponseMarkdownSafe(response);
 
     const text = String(response.screen?.text);
-    expect(text).toContain('📂 *Уроки* › Основы › Введение › Шаг 1');
+    expect(text).toContain(
+      '📂 *Уроки*\n› Проект: Основы\n› Урок: Введение\n› *Шаг: Первый шаг*',
+    );
     expect(text).toContain('✅ Пройден');
     expect(text).toContain('Контент первого шага');
 

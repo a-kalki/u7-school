@@ -170,7 +170,7 @@ describe('ViewStreamMentorStory (S02m-карточка) — контракт «�
     expect(text).not.toContain('▶️');
     expect(text).not.toContain('🔒');
     const { texts, codes } = flat(response);
-    expect(texts).toContain('1. 📁 Проект 1');
+    expect(texts).toContain('1. Проект 1');
     expect(codes).toContain(
       'view-stream-mentor:prog:stream-1:project:project-1',
     );
@@ -190,7 +190,7 @@ describe('ViewStreamMentorStory (S02m-карточка) — контракт «�
     expect(text).toContain('Программа модуля');
     expect(text).toContain('Проект 1');
     const { texts, codes } = flat(response);
-    expect(texts).toContain('1. 📝 Урок 1');
+    expect(texts).toContain('1. Урок 1');
     expect(codes).toContain('view-stream-mentor:prog:stream-1:lesson:lesson-1');
     expect(texts).toContain('⬅️ Назад к модулю');
     expect(codes).toContain('view-stream-mentor:prog:stream-1:root');
@@ -218,8 +218,8 @@ describe('ViewStreamMentorStory (S02m-карточка) — контракт «�
     const text = String(response.screen?.text);
     expect(text).toContain('Урок 1');
     const { texts, codes } = flat(response);
-    expect(texts).toContain('1. 📄 Шаг первый');
-    expect(texts).toContain('2. 📄 Шаг второй');
+    expect(texts).toContain('1. Шаг первый');
+    expect(texts).toContain('2. Шаг второй');
     expect(codes).toContain('view-stream-mentor:prog:stream-1:step:step-1');
     expect(codes).toContain('view-stream-mentor:prog:stream-1:step:step-2');
     expect(texts).toContain('⬅️ Назад к проекту');

@@ -26,6 +26,18 @@ export interface ResolveStudentNavLevelParams {
   backToHubCode?: string;
 }
 
+/**
+ * Склонение существительных после числительных в русском языке.
+ */
+function plural(n: number, one: string, two: string, five: string): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 19) return five;
+  if (mod10 === 1) return one;
+  if (mod10 >= 2 && mod10 <= 4) return two;
+  return five;
+}
+
 function mapStatus(status: 'completed' | 'current' | 'locked'): NavNodeStatus {
   if (status === 'completed') return 'completed';
   if (status === 'current') return 'in_progress';
@@ -46,13 +58,17 @@ export function resolveStudentNavLevel(
 
   // ── Уровень 1: Root (Модуль / Проекты) ──
   if (address.level === 'root') {
+    const projectCount = tree.projects.length;
+    const subtitle = `Модуль состоит из ${projectCount} проект${plural(projectCount, 'а', 'ов', 'ов')}`;
+
     const children: NavChild[] = tree.projects.map((p, pIdx) => {
       const snapProject = snapshot[pIdx];
       const projectId = snapProject?.projectId ?? `project-${pIdx}`;
 
       const subChildren: NavSubChild[] = p.lessons.map((l) => ({
         id: l.lessonId,
-        title: l.title,
+        title: `Урок: ${l.title}`,
+        emoji: '📝',
         status: mapStatus(l.status),
         meta: `(${l.completedSteps}/${l.totalSteps})`,
       }));
@@ -60,7 +76,7 @@ export function resolveStudentNavLevel(
       return {
         id: projectId,
         index: pIdx + 1,
-        title: p.title,
+        title: `Проект: ${p.title}`,
         emoji: '📁',
         status: mapStatus(p.status),
         meta: `(${p.completedLessons}/${p.totalLessons})`,
@@ -71,7 +87,9 @@ export function resolveStudentNavLevel(
     });
 
     return {
+      multilineBreadcrumbs: true,
       breadcrumbs: ['📂 Уроки'],
+      subtitle,
       children,
       back: {
         address: backToHubCode ?? 'hub:my-study',
@@ -96,17 +114,24 @@ export function resolveStudentNavLevel(
     const snapProject = snapshot[projectIndex];
     if (!project || !snapProject) return null;
 
+    const lessonCount = project.lessons.length;
+    const subtitle = `Проект состоит из ${lessonCount} урок${plural(lessonCount, 'а', 'ов', 'ов')}`;
+
     const children: NavChild[] = project.lessons.map((l, lIdx) => {
-      const subChildren: NavSubChild[] = l.steps.map((s) => ({
-        id: s.stepId,
-        title: stepDescriptions?.[s.stepId] ?? `Шаг ${s.index}`,
-        status: mapStatus(s.status),
-      }));
+      const subChildren: NavSubChild[] = l.steps.map((s) => {
+        const title = stepDescriptions?.[s.stepId] ?? `Шаг ${s.index}`;
+        return {
+          id: s.stepId,
+          title: title.startsWith('Шаг') ? title : `Шаг: ${title}`,
+          emoji: '📄',
+          status: mapStatus(s.status),
+        };
+      });
 
       return {
         id: l.lessonId,
         index: lIdx + 1,
-        title: l.title,
+        title: `Урок: ${l.title}`,
         emoji: '📝',
         status: mapStatus(l.status),
         meta: `(${l.completedSteps}/${l.totalSteps})`,
@@ -120,8 +145,10 @@ export function resolveStudentNavLevel(
     const nextSnapProject = snapshot[projectIndex + 1];
 
     return {
-      breadcrumbs: ['📂 Уроки', project.title],
+      multilineBreadcrumbs: true,
+      breadcrumbs: ['📂 Уроки', `Проект: ${project.title}`],
       title: project.title,
+      subtitle,
       children,
       prev: prevSnapProject
         ? {
@@ -170,12 +197,16 @@ export function resolveStudentNavLevel(
     const lesson = parentProject.lessons[lessonIndex];
     if (!lesson) return null;
 
+    const stepCount = lesson.steps.length;
+    const subtitle = `Урок состоит из ${stepCount} шаг${plural(stepCount, 'а', 'ов', 'ов')}`;
+
     const children: NavChild[] = lesson.steps.map((s) => {
       const isAvailable = s.status === 'completed' || s.status === 'current';
+      const title = stepDescriptions?.[s.stepId] ?? `Шаг ${s.index}`;
       return {
         id: s.stepId,
         index: s.index,
-        title: stepDescriptions?.[s.stepId] ?? `Шаг ${s.index}`,
+        title: title.startsWith('Шаг') ? title : `Шаг: ${title}`,
         emoji: '📄',
         status: mapStatus(s.status),
         enterable: isAvailable,
@@ -189,8 +220,14 @@ export function resolveStudentNavLevel(
     const nextLesson = parentProject.lessons[lessonIndex + 1];
 
     return {
-      breadcrumbs: ['📂 Уроки', parentProject.title, lesson.title],
+      multilineBreadcrumbs: true,
+      breadcrumbs: [
+        '📂 Уроки',
+        `Проект: ${parentProject.title}`,
+        `Урок: ${lesson.title}`,
+      ],
       title: lesson.title,
+      subtitle,
       children,
       prev: prevLesson
         ? { address: formatNavAddress(story, 'lesson', prevLesson.lessonId) }
@@ -244,12 +281,18 @@ export function resolveStudentNavLevel(
     const nextStep =
       rawNextStep && rawNextStep.status !== 'locked' ? rawNextStep : undefined;
 
+    const rawStepTitle = stepDescriptions?.[step.stepId] ?? `Шаг ${step.index}`;
+    const stepLabel = rawStepTitle.startsWith('Шаг')
+      ? rawStepTitle
+      : `Шаг: ${rawStepTitle}`;
+
     return {
+      multilineBreadcrumbs: true,
       breadcrumbs: [
         '📂 Уроки',
-        parentProject.title,
-        parentLesson.title,
-        `Шаг ${step.index}`,
+        `Проект: ${parentProject.title}`,
+        `Урок: ${parentLesson.title}`,
+        stepLabel,
       ],
       status,
       statusLabel,
