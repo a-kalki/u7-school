@@ -44,7 +44,7 @@
 - [x] Task: Удалить inline-поддеревья и `pagedScreen` из `course-catalog` [6c86ed8]
     - [x] Удалить `renderTreeBlocks`/`tree-renderer` — последний потребитель здесь
           (трек-владелец зачистки); убедиться, что ссылок не осталось.
-- [ ] Task: Обновить `ui-spec.md` (courses) под новое поведение экранов/кнопок.
+- [x] Task: Обновить `ui-spec.md` (courses) под новое поведение экранов/кнопок. [a89feb2]
 - [ ] Task: Обновить e2e-тесты каталога (`tests/e2e/curious-showcase.e2e.test.ts`) под
       новую drill-down навигацию и порядок уровней.
 - [ ] Task: Conductor - User Manual Verification 'Зачистка и документация' (Protocol in workflow.md)
