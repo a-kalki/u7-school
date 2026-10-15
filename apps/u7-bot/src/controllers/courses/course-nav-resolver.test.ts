@@ -172,6 +172,35 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
       expect(levelExpressed?.extraRows?.[0]?.[0]?.code).toBe(
         'course-catalog:cancel:course-1',
       );
+
+      const levelConfirmed = resolveCourseNavLevel({
+        level: 'course',
+        courses: dummyCourses,
+        currentCourseId: 'course-1',
+        modulesInfo: dummyModulesInfo,
+        wishStatus: 'confirmed',
+      });
+      expect(levelConfirmed?.extraRows?.[0]?.[0]?.text).toBe(
+        '🗑️ Отменить желание',
+      );
+      expect(levelConfirmed?.extraRows?.[0]?.[0]?.code).toBe(
+        'course-catalog:cancel:course-1',
+      );
+
+      // 4. fulfilled (обучение) -> Хочу пройти курс (клик ведет на W04)
+      const levelFulfilled = resolveCourseNavLevel({
+        level: 'course',
+        courses: dummyCourses,
+        currentCourseId: 'course-1',
+        modulesInfo: dummyModulesInfo,
+        wishStatus: 'fulfilled',
+      });
+      expect(levelFulfilled?.extraRows?.[0]?.[0]?.text).toBe(
+        '🎓 Хочу пройти курс',
+      );
+      expect(levelFulfilled?.extraRows?.[0]?.[0]?.code).toBe(
+        'course-catalog:apply:course-1',
+      );
     });
   });
 
@@ -249,6 +278,36 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
   });
 
   describe('Подключение presenter: рендеринг карточек курса и этапа', () => {
+    test('presentNavLevel корректно рендерит клавиатуру с разными wish-кнопками', () => {
+      // pending -> кнопка продолжить анкету
+      const levelPending = resolveCourseNavLevel({
+        level: 'course',
+        courses: dummyCourses,
+        currentCourseId: 'course-1',
+        modulesInfo: dummyModulesInfo,
+        wishStatus: 'pending',
+      });
+      const kbPending = presentNavLevel(levelPending!).keyboard;
+      expect(kbPending.rows[2]?.[0]?.text).toBe('📝 Продолжить анкету');
+      expect(kbPending.rows[2]?.[0]?.code).toBe(
+        'questionnaire:fill:resume:course-1',
+      );
+
+      // confirmed -> кнопка отменить желание
+      const levelConfirmed = resolveCourseNavLevel({
+        level: 'course',
+        courses: dummyCourses,
+        currentCourseId: 'course-1',
+        modulesInfo: dummyModulesInfo,
+        wishStatus: 'confirmed',
+      });
+      const kbConfirmed = presentNavLevel(levelConfirmed!).keyboard;
+      expect(kbConfirmed.rows[2]?.[0]?.text).toBe('🗑️ Отменить желание');
+      expect(kbConfirmed.rows[2]?.[0]?.code).toBe(
+        'course-catalog:cancel:course-1',
+      );
+    });
+
     test('presentNavLevel корректно рендерит текст и клавиатуру уровня курса', () => {
       const level = resolveCourseNavLevel({
         level: 'course',
