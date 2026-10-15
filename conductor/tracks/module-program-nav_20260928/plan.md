@@ -50,34 +50,34 @@
 - [x] Task: Сохранить поведение `▶️ Продолжить учёбу` (регресс) (84b54b3)
     - [ ] [Red] Тесты: `Продолжить` открывает текущий шаг в `step-view`, где есть «Выполнено».
     - [ ] [Green] При необходимости — минимальная правка, поведение не менять.
-- [ ] Task: Conductor - User Manual Verification 'Студент — «📂 Уроки»' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Студент — «📂 Уроки»' (Protocol in workflow.md)
 
 ---
 
 ## Фаза 3: Ментор — «📖 Программа модуля»
 
-- [ ] Task: Резолвер контекста потока для ментора (TDD)
-    - [ ] [Red] Тесты: источник `stream`, без статусов/счётчиков/прогресса, все шаги открыты.
-    - [ ] [Green] Реализация режима `readOnly`.
-- [ ] Task: Переименовать и перевести программу на drill-down (TDD)
-    - [ ] [Red] Тесты: кнопка `📖 Программа модуля`; карточки всех уровней; отсутствие статусов.
-    - [ ] [Green] Переработка `handleProgramView` в `view-stream.story.ts`.
-- [ ] Task: Доступ и маршрутизация
-    - [ ] [Red] Тесты: доступ владельцу/ADMIN (`StreamPolicy.canEdit`); подделанный callback без
+- [x] Task: Резолвер контекста потока для ментора (TDD) (commit 911445e5)
+    - [x] [Red] Тесты: источник `stream`, без статусов/счётчиков/прогресса, все шаги открыты.
+    - [x] [Green] Реализация режима `readOnly`.
+- [x] Task: Переименовать и перевести программу на drill-down (TDD) (commit 41111742)
+    - [x] [Red] Тесты: кнопка `📖 Программа модуля`; карточки всех уровней; отсутствие статусов.
+    - [x] [Green] Переработка `handleProgramView` в `view-stream.story.ts`.
+- [x] Task: Доступ и маршрутизация (commit 41111742)
+    - [x] [Red] Тесты: доступ владельцу/ADMIN (`StreamPolicy.canEdit`); подделанный callback без
           прав отсекается.
-    - [ ] [Green] Проверка прав в обработчике; при необходимости — адрес в `Routes`.
-- [ ] Task: Conductor - User Manual Verification 'Ментор — «Программа модуля»' (Protocol in workflow.md)
+    - [x] [Green] Проверка прав в обработчике; при необходимости — адрес в `Routes`.
+- [x] Task: Conductor - User Manual Verification 'Ментор — «Программа модуля»' (Protocol in workflow.md)
 
 ---
 
 ## Фаза 4: Публичная ветка и зачистка старого
 
-- [ ] Task: Публичная карточка потока S02 — drill-down до заголовков шагов (TDD)
-    - [ ] [Red] Тесты: тела шагов недоступны любопытному; структура видна до шагов-заголовков.
-    - [ ] [Green] Реализация ветки `readOnly` без тел.
-- [ ] Task: Убрать старое наследие
-    - [ ] Удалить `#formatTreeBody` и inline-рендер программы.
-    - [ ] Проверить потребителей `tree-renderer`: удаление `renderTreeBlocks`/`tree-renderer` —
+- [x] Task: Публичная карточка потока S02 — drill-down до заголовков шагов (TDD) (commit 19a9ac88)
+    - [x] [Red] Тесты: тела шагов недоступны любопытному; структура видна до шагов-заголовков.
+    - [x] [Green] Реализация ветки `readOnly` без тел.
+- [x] Task: Убрать старое наследие (commit 19a9ac88)
+    - [x] Удалить `#formatTreeBody` и inline-рендер программы.
+    - [x] Проверить потребителей `tree-renderer`: удаление `renderTreeBlocks`/`tree-renderer` —
           владелец трек `course-catalog-nav_20260928` (последний потребитель).
-- [ ] Task: Обновить `ui-spec.md` (streams, learning) под реальное состояние экранов/кнопок.
+- [x] Task: Обновить `ui-spec.md` (streams, learning) под реальное состояние экранов/кнопок (commit 2856ca0f)
 - [ ] Task: Conductor - User Manual Verification 'Публичная ветка и зачистка старого' (Protocol in workflow.md)
