@@ -70,7 +70,7 @@
 
 ---
 
-## Фаза 4: Публичная ветка и зачистка старого
+## Фаза 4: Публичная ветка и зачистка старого [checkpoint: 93cec046]
 
 - [x] Task: Публичная карточка потока S02 — drill-down до заголовков шагов (TDD) (commit 19a9ac88)
     - [x] [Red] Тесты: тела шагов недоступны любопытному; структура видна до шагов-заголовков.
@@ -80,4 +80,4 @@
     - [x] Проверить потребителей `tree-renderer`: удаление `renderTreeBlocks`/`tree-renderer` —
           владелец трек `course-catalog-nav_20260928` (последний потребитель).
 - [x] Task: Обновить `ui-spec.md` (streams, learning) под реальное состояние экранов/кнопок (commit 2856ca0f)
-- [ ] Task: Conductor - User Manual Verification 'Публичная ветка и зачистка старого' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Публичная ветка и зачистка старого' (commit 93cec046)
