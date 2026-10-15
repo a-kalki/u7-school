@@ -1,0 +1,6 @@
+track_id: module-program-nav_20260928
+type: feature
+status: complete
+created_at: "2026-09-28T12:17:23Z"
+updated_at: "2026-10-15T15:00:00Z"
+description: "Программа модуля: единая drill-down навигация по контенту (модуль → проект → урок → шаг) для студента и ментора + переиспользуемое ядро навигации"
