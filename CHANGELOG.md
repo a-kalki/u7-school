@@ -8,84 +8,55 @@
 (наличие секции проверяет `scripts/release.sh`). Группировка:
 Added / Changed / Fixed / Migration.
 
-## [0.2.5] — 2026-10-14
+## [0.2.4] — 2026-10-15
 
-Хаб школы (`school-hub`): карточка школы SH01, экраны «Инфо», перенос входов
-в сообщество и каталог потоков в карточку школы, привязка потоков к школе (`Stream.schoolId`).
+Релизная группа «Школа»: хаб школы (`school-hub`), школа как конфигурация уровня приложения (`school-config`), привязка потоков к школе (`Stream.schoolId`), декларативные тестовые миры (`test-worlds`).
 
 ### Added
 
-- **Поле `Stream.schoolId` (`@u7-scl/stream`)**: связка каждого потока со школой
-  (`U7_SCHOOL_ID`), валидация в `StreamSchema`, автозаполнение из `appResolver.school.id`
-  при создании потока (`CreateStreamUc`), фильтрация по `schoolId` в `ListStreamsUc` и `StreamJsonRepo`.
-- **Скрипт миграции `scripts/migrate-streams-school-id.ts`** (`bun run migrate:streams-school-id`):
-  идемпотентно проставляет `schoolId` существующим потокам в `data/streams/streams.json`.
+- **Хаб школы (`SchoolController`, `@u7-scl/u7-bot`)**:
+  - Карточка школы (SH01) с описанием, списком менторов (`resolve uuid → name`), кнопками «📚 Потоки», «💬 Отзывы», «ℹ️ Инфо», «💬 Сообщество».
+  - Экран «Инфо» (SH02) с адресом, телефоном и сайтом.
+  - Экран «Отзывы» (SH03) со срезом отзывов студентов о менторах по всем потокам школы.
+  - Перенос входов «Сообщество школы» и «Потоки курсов» из главного меню в хаб школы.
+- **Сущность `School` (`@u7-scl/app/domain`)**: канонический тип школы с valibot-схемой
+  `SchoolSchema`, статическими данными (имя, описание, адрес, контакты, менторы) и
+  динамическими группами Telegram (`communityGroup`, `studentGroup`). Фабрика `createSchool` с поддержкой кастомного списка менторов и тестовая константа `TEST_SCHOOL`.
+- **Резолверы уровня приложения**: generic `ModuleResolver<TAppResolver>` в `core`,
+  `U7AppResolver extends AppResolver { school: School }` и `U7ModuleResolver extends ModuleResolver<U7AppResolver>` в `app`.
+  Все доменные резолверы (`*ApiModuleResolver`) переведены на `U7ModuleResolver`.
+- **Поле `Stream.schoolId` (`@u7-scl/stream`)**: связка каждого потока со школой (`U7_SCHOOL_ID`), автозаполнение при создании потока (`CreateStreamUc`), фильтрация по `schoolId` в `ListStreamsUc` и репозитории.
+- **Скрипт миграции `scripts/migrate-streams-school-id.ts`** (`bun run migrate:streams-school-id`): идемпотентно проставляет `schoolId` существующим потокам в `data/streams/streams.json`.
+- **Расширение `ListScopeReviewsUc`**: поддержка выборки по нескольким `scopeIds: string[]` и фильтрации по `direction`.
+- **Декларативные тестовые миры (`test-worlds`)**: `world-kit`, нейтральное состояние `WorldState`, генерация фикстур с кешированием по хешу исходников, детерминированные UUID и хронология, поддержка миров `core-education` и персоны `guest`.
+- **Инфраструктура dev-диагностики**: `FileLogger` (`dbDir/bot.log`) для автономного анализа логов агентом в dev-режиме.
+
+### Changed
+
+- **Главное меню**: кнопка каталога переименована в «📖 Курсы» (priority 12), добавлена кнопка «🏫 Школа» (priority 10); кнопки «Потоки курсов» и «Сообщество школы» перенесены в карточку школы.
+- **Единые имена переменных env**:
+  - `SCHOOL_GROUP_ID` переименован в `COMMUNITY_GROUP_ID`;
+  - `SCHOOL_GROUP_URL` переименован в `COMMUNITY_GROUP_URL`;
+  - добавлены обязательные переменные студенческой группы: `STUDENT_GROUP_ID` и `STUDENT_GROUP_INVITE`.
+- **Обязательный `NODE_ENV`**: режим валидируется строго по схеме `test | development | production` без fallback.
+- **Инвариант UI-слоя**: `createUiApp` больше не принимает `BotConfig`. Компоненты UI получают параметры школы через `resolve.school`, а ID администраторов — через `resolve.adminTelegramIds`.
+- **Wizard создания потока**: шаги студенческой группы школы предзаполняются из `school.studentGroup`.
 
 ### Migration
 
-> **КРИТИЧНО:** На работающем старом коде мигрировать **нельзя**: valibot отбрасывает
-> неизвестные поля и затрёт `schoolId` при следующей записи в БД.
-> Порядок и способ выполнения — на усмотрение агента деплоя; запуск с явным подтверждением владельца (Нурболата).
+> **КРИТИЧНО:** Единое окно деплоя. Порядок действий:
+> 1. На старом работающем коде мигрировать **нельзя**: valibot отбросит неизвестные поля при следующей записи.
+> 2. Без переменных `NODE_ENV`, `COMMUNITY_GROUP_*` и `STUDENT_GROUP_*` приложение упадёт при старте (fail-fast).
 
 1. **Остановить бота:**
    ```bash
    bun run start:prod:stop
    ```
-2. **Сделать бэкап данных потоков:**
+2. **Сделать бэкап данных:**
    ```bash
-   bun run backup before-stream-school-id-migration
+   bun run backup before-school-hub-0.2.4
    ```
-3. **Прогнать миграцию:**
-   ```bash
-   bun run migrate:streams-school-id
-   ```
-4. **Запустить бота с актуальным окружением:**
-   ```bash
-   pm2 restart pm2.config.cjs --env production --update-env
-   ```
-
-## [0.2.4] — 2026-10-14
-
-Школа как конфигурация уровня приложения (`school-config`): сущность `School`,
-резолвер школы в `U7AppResolver`/`U7ModuleResolver`, типизация `SchoolSchema`,
-резолв групп школы из env, уход от прямых `config.schoolGroup*`, обязательный `NODE_ENV`,
-предзаполнение wizard создания потока студенческой группой школы.
-
-### Added
-
-- **Сущность `School` (`@u7-scl/app/domain`)**: канонический тип школы с valibot-схемой
-  `SchoolSchema`, статическими данными (имя, описание, адрес, контакты, менторы) и
-  динамическими группами Telegram (`communityGroup`, `studentGroup`). Экспортирована
-  фабрика `createSchool` и тестовая константа `TEST_SCHOOL`.
-- **Резолверы уровня приложения**: generic `ModuleResolver<TAppResolver>` в `core`,
-  `U7AppResolver extends AppResolver { school: School }` и `U7ModuleResolver extends ModuleResolver<U7AppResolver>` в `app`.
-- **Закрытие дефолтов `U7UseCase` и `U7ApiModule`**: по умолчанию используют `U7ModuleResolver`.
-  Все доменные резолверы (`*ApiModuleResolver`) переведены со core-`ModuleResolver` на `U7ModuleResolver`.
-- **Wizard создания потока**: шаги 9 и 10 предзаполняются значениями студенческой группы
-  школы (`school.studentGroup`) с кнопками «✅ Оставить» (`accept-group`, `accept-invite`),
-  сохранением пропуска («⏭️ Пропустить») и ручного ввода.
-
-### Changed
-
-- **Единые имена переменных env**:
-  - `SCHOOL_GROUP_ID` переименован в `COMMUNITY_GROUP_ID`;
-  - `SCHOOL_GROUP_URL` переименован в `COMMUNITY_GROUP_URL`;
-  - добавлены обязательные переменные общей студенческой группы школы: `STUDENT_GROUP_ID` и `STUDENT_GROUP_INVITE`.
-- **Обязательный `NODE_ENV`**: `mode` валидируется по схеме `test | development | production`,
-  отсутствие переменной приводит к падению при загрузке без fallback.
-- **Инвариант UI-слоя**: `createUiApp` больше не принимает `BotConfig`. Все компоненты
-  UI-слоя (`AppController`, `CommunityStory`, `CreateStreamStory`) получают параметры школы
-  через `resolve.school`, а ID администраторов — через `resolve.adminTelegramIds`.
-- **Групповые обработчики**: `registerGroupHandlers` принимает `school: School` вместо
-  прямого `schoolGroupId`.
-
-### Migration
-
-> **КРИТИЧНО:** Порядок обновления обязателен: **env правится до перезапуска / выката кода**.
-> Без обязательных переменных `NODE_ENV`, `COMMUNITY_GROUP_*` и `STUDENT_GROUP_*`
-> приложение падает при старте (fail-fast, fallback нет).
-
-1. В `.env.production` (или рабочей среде) перенести старые переменные и добавить новые:
+3. **Обновить `.env.production`:**
    ```bash
    # Переименовать:
    # SCHOOL_GROUP_ID -> COMMUNITY_GROUP_ID
@@ -98,12 +69,14 @@ Added / Changed / Fixed / Migration.
    # Убедиться, что задан NODE_ENV:
    NODE_ENV=production
    ```
-2. Удалить legacy-переменные `SCHOOL_GROUP_ID` и `SCHOOL_GROUP_URL`.
-3. Перезапустить сервис под pm2 с флагом обновления переменных окружения:
+4. **Прогнать миграцию потоков:**
+   ```bash
+   bun run migrate:streams-school-id
+   ```
+5. **Запустить бота с обновлённым окружением:**
    ```bash
    pm2 restart pm2.config.cjs --env production --update-env
    ```
-   (или `pm2 start pm2.config.cjs --env production --update-env`).
 
 ## [0.2.3] — 2026-10-13
 
