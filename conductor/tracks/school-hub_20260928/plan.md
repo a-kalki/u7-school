@@ -78,4 +78,4 @@
 - [x] Task: Обновить conductor-документацию (`schools-system.md`, `tracks.md`,
       `streams/ui-spec.md` — новый вход). [6ead66f]
 - [x] Task: `summary.md` трека. [e7a813d]
-- [ ] Task: Conductor - User Manual Verification 'Фаза 7: Финал' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 7: Финал' (Protocol in workflow.md)
