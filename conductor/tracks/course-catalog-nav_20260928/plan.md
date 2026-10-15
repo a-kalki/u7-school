@@ -39,7 +39,7 @@
 
 ---
 
-## Фаза 3: Зачистка и документация
+## Фаза 3: Зачистка и документация [checkpoint: 7e98c58]
 
 - [x] Task: Удалить inline-поддеревья и `pagedScreen` из `course-catalog` [6c86ed8]
     - [x] Удалить `renderTreeBlocks`/`tree-renderer` — последний потребитель здесь
@@ -47,4 +47,4 @@
 - [x] Task: Обновить `ui-spec.md` (courses) под новое поведение экранов/кнопок. [a89feb2]
 - [x] Task: Обновить e2e-тесты каталога (`tests/e2e/curious-showcase.e2e.test.ts`) под
       новую drill-down навигацию и порядок уровней. [4b2ce48]
-- [ ] Task: Conductor - User Manual Verification 'Зачистка и документация' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Зачистка и документация' (Protocol in workflow.md)
