@@ -61,9 +61,11 @@ export function resolveStudentNavLevel(
         id: projectId,
         index: pIdx + 1,
         title: p.title,
+        emoji: '📁',
         status: mapStatus(p.status),
         meta: `(${p.completedLessons}/${p.totalLessons})`,
         enterable: true,
+        address: formatNavAddress(story, 'project', projectId),
         children: subChildren,
       };
     });
@@ -80,9 +82,15 @@ export function resolveStudentNavLevel(
 
   // ── Уровень 2: Project (Проект / Уроки) ──
   if (address.level === 'project') {
-    const projectIndex = snapshot.findIndex(
+    let projectIndex = snapshot.findIndex(
       (p) => p.projectId === address.targetId,
     );
+    if (projectIndex === -1 && address.targetId) {
+      const num = Number.parseInt(address.targetId, 10);
+      if (!Number.isNaN(num) && snapshot[num - 1]) {
+        projectIndex = num - 1;
+      }
+    }
     if (projectIndex === -1) return null;
     const project = tree.projects[projectIndex];
     const snapProject = snapshot[projectIndex];
@@ -99,9 +107,11 @@ export function resolveStudentNavLevel(
         id: l.lessonId,
         index: lIdx + 1,
         title: l.title,
+        emoji: '📝',
         status: mapStatus(l.status),
         meta: `(${l.completedSteps}/${l.totalSteps})`,
         enterable: true,
+        address: formatNavAddress(story, 'lesson', l.lessonId),
         children: subChildren,
       };
     });
@@ -166,8 +176,12 @@ export function resolveStudentNavLevel(
         id: s.stepId,
         index: s.index,
         title: stepDescriptions?.[s.stepId] ?? `Шаг ${s.index}`,
+        emoji: '📄',
         status: mapStatus(s.status),
         enterable: isAvailable,
+        address: isAvailable
+          ? formatNavAddress(story, 'step', s.stepId)
+          : undefined,
       };
     });
 

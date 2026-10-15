@@ -1,25 +1,27 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import { type MdText, md, mdConcat, mdJoin } from '@u7-scl/core/shared';
-import type { BotSession, DialogResponse, KbButton } from '@u7-scl/core/ui';
-import type { NavigationTree } from '@u7-scl/stream/domain';
-import { StreamDs } from '@u7-scl/stream/domain';
+import { md } from '@u7-scl/core/shared';
+import {
+  type BotSession,
+  type DialogResponse,
+  parseNavAddress,
+  presentNavLevel,
+  type StepContentData,
+} from '@u7-scl/core/ui';
+import type { ContentSnapshot } from '@u7-scl/course/domain';
 import {
   getStudentAndStream,
   loadStepDescriptions,
   notEnrolled,
 } from '../shared';
-
-/** Иконки статуса элементов дерева (✅ пройдено / ▶️ текущий / 🔒 закрыто). */
-const STATUS_ICONS: Record<string, string> = {
-  completed: '✅',
-  current: '▶️',
-  locked: '🔒',
-};
+import {
+  resolveStudentNavLevel,
+  type StudentNavAddress,
+} from '../student-nav-resolver';
 
 /**
- * Дерево уроков с маркерами ✅/▶️/🔒 (S05b).
- * Три уровня навигации: проекты → уроки → шаги.
+ * Дерево уроков студента с drill-down карточками (S05b).
+ * Уровни навигации: модуль (root) → проект → урок → шаг.
  *
  * Drill-down внутри стори — тот же dialog.path: транспорт рендерит
  * ответ edit'ом на месте («владеешь экраном — обновляй»).
@@ -32,254 +34,134 @@ export class NavTreeStory extends U7BotUiStory {
     actor: User,
     session: BotSession,
   ): Promise<DialogResponse> {
-    if (action === 'my-study:lessons') {
-      return this.#showProjects(actor);
+    const { student, stream } = await getStudentAndStream(this.appApi, actor);
+    if (!student || !stream) {
+      return notEnrolled();
     }
-    if (action.startsWith('my-study:project:')) {
-      const projectIndex = Number.parseInt(action.split(':')[2] ?? '0', 10);
-      return this.#showLessons(actor, projectIndex);
+
+    const navAddress = this.#parseAddress(action, stream.contentSnapshot);
+    if (!navAddress) {
+      return this.unknownCommand(action, actor, session);
     }
-    if (action.startsWith('my-study:lesson:')) {
-      const lessonId = action.split(':').slice(2).join(':');
-      return this.#showSteps(actor, lessonId);
-    }
-    return this.unknownCommand(action, actor, session);
-  }
 
-  // ── Приватные методы: форматирование дерева ──
+    // Собираем описания шагов и контент (если уровень step)
+    const stepDescriptions: Record<string, string> = {};
+    let stepContent: StepContentData | undefined;
 
-  /**
-   * Форматирует дерево в текст: проекты → уроки → шаги со статусами.
-   * @param maxDepth 1 = проекты+уроки, 2 = всё (по умолчанию 2).
-   * @param stepsByLesson опциональная карта lessonId → шаги с описаниями.
-   */
-  #formatTreeBody(
-    tree: NavigationTree,
-    stepsByLesson?: Record<
-      string,
-      Array<{ uuid: string; description: string }>
-    >,
-    maxDepth = 2,
-  ): MdText {
-    const lines: MdText[] = [];
-
-    let pi = 0;
-    for (const p of tree.projects) {
-      pi++;
-      lines.push(
-        md`📁 *Проект ${pi}: ${p.title}* \\(${p.completedLessons}/${p.totalLessons}\\) ${STATUS_ICONS[p.status] ?? ''}`,
+    if (navAddress.level === 'root' || navAddress.level === 'project') {
+      const lessonIds = stream.contentSnapshot.flatMap((p) =>
+        p.lessons.map((l) => l.lessonId),
       );
-      let li = 0;
-      for (const l of p.lessons) {
-        li++;
-        lines.push(
-          md`    📝 Урок ${li}: ${l.title} \\(${l.completedSteps}/${l.totalSteps}\\) ${STATUS_ICONS[l.status] ?? ''}`,
-        );
-        if (maxDepth < 2) continue;
-        const stepDescs = stepsByLesson?.[l.lessonId];
-        for (const s of l.steps) {
-          const desc = stepDescs?.find((d) => d.uuid === s.stepId)?.description;
-          lines.push(
-            md`        📄 Шаг ${s.index}: ${desc ?? '—'} ${STATUS_ICONS[s.status] ?? ''}`,
-          );
+      if (lessonIds.length > 0) {
+        const byLesson = await loadStepDescriptions(this.appApi, lessonIds);
+        for (const steps of Object.values(byLesson)) {
+          for (const s of steps) {
+            stepDescriptions[s.uuid] = s.description;
+          }
         }
       }
-      lines.push(md``);
-    }
-
-    return mdJoin(lines).trimEnd() as MdText;
-  }
-
-  // ── Уровень 1: список проектов ──
-
-  /** Уровень 1: список проектов с прогрессом. */
-  async #showProjects(actor: User): Promise<DialogResponse> {
-    const { student, stream } = await getStudentAndStream(this.appApi, actor);
-    if (!student || !stream) {
-      return notEnrolled();
-    }
-
-    const tree = StreamDs.buildNavigationTree(stream.contentSnapshot, student);
-
-    // Загружаем описания шагов для всех уроков
-    const lessonIds = tree.projects.flatMap((p) =>
-      p.lessons.map((l) => l.lessonId),
-    );
-    const stepsByLesson = lessonIds.length
-      ? await loadStepDescriptions(this.appApi, lessonIds)
-      : undefined;
-
-    const rows: KbButton[][] = [];
-
-    for (let pi = 0; pi < tree.projects.length; pi++) {
-      const p = tree.projects[pi];
-      if (!p) continue;
-
-      rows.push([
-        this.btn(
-          `📁 ${p.title} (${p.completedLessons}/${p.totalLessons})`,
-          this.cb('my-study:project', String(pi + 1)),
-        ),
+    } else if (navAddress.level === 'lesson' && navAddress.targetId) {
+      const byLesson = await loadStepDescriptions(this.appApi, [
+        navAddress.targetId,
       ]);
-    }
-
-    rows.push([this.btn('⬅️ Назад к учёбе', this.cbFor('hub', 'my-study'))]);
-
-    return this.screen(
-      mdConcat(
-        md`📂 *Уроки*\n\n`,
-        this.#formatTreeBody(tree, stepsByLesson, 1),
-      ),
-      this.kb(rows),
-    );
-  }
-
-  // ── Уровень 2: уроки проекта ──
-
-  /** Уровень 2: уроки проекта. */
-  async #showLessons(
-    actor: User,
-    projectIndex: number,
-  ): Promise<DialogResponse> {
-    const { student, stream } = await getStudentAndStream(this.appApi, actor);
-    if (!student || !stream) {
-      return notEnrolled();
-    }
-
-    const tree = StreamDs.buildNavigationTree(stream.contentSnapshot, student);
-
-    const project = tree.projects[projectIndex - 1];
-    if (!project) {
-      return this.screen(md`⚠️ Проект не найден`);
-    }
-
-    const rows: KbButton[][] = [];
-
-    for (const lesson of project.lessons) {
-      rows.push([
-        this.btn(
-          `📝 ${lesson.title} (${lesson.completedSteps}/${lesson.totalSteps})`,
-          this.cb('my-study:lesson', lesson.lessonId),
-        ),
-      ]);
-    }
-
-    rows.push([
-      { text: '⬅️ Назад к проектам', code: this.cb('my-study:lessons') },
-    ]);
-
-    // Загружаем описания шагов для уроков проекта
-    const lessonIds = project.lessons.map((l) => l.lessonId);
-    const stepsByLesson = await loadStepDescriptions(this.appApi, lessonIds);
-
-    const bodyLines: MdText[] = [];
-    let li = 0;
-    for (const l of project.lessons) {
-      li++;
-      bodyLines.push(
-        md`📝 *Урок ${li}: ${l.title}* \\(${l.completedSteps}/${l.totalSteps}\\) ${STATUS_ICONS[l.status] ?? ''}`,
-      );
-      const stepDescs = stepsByLesson?.[l.lessonId];
-      for (const s of l.steps) {
-        const desc = stepDescs?.find((d) => d.uuid === s.stepId)?.description;
-        bodyLines.push(
-          md`    📄 Шаг ${s.index}: ${desc ?? '—'} ${STATUS_ICONS[s.status] ?? ''}`,
-        );
+      for (const steps of Object.values(byLesson)) {
+        for (const s of steps) {
+          stepDescriptions[s.uuid] = s.description;
+        }
       }
-    }
-
-    return this.screen(
-      mdConcat(md`📂 *Уроки* › ${project.title}\n\n`, mdJoin(bodyLines)),
-      this.kb(rows),
-    );
-  }
-
-  // ── Уровень 3: шаги урока ──
-
-  /** Уровень 3: шаги урока с маркерами ✅/▶️/🔒. */
-  async #showSteps(actor: User, lessonId: string): Promise<DialogResponse> {
-    const { student, stream } = await getStudentAndStream(this.appApi, actor);
-    if (!student || !stream) {
-      return notEnrolled();
-    }
-
-    const view = StreamDs.buildLessonSteps(
-      stream.contentSnapshot,
-      lessonId,
-      student,
-    );
-
-    if (!view) {
-      return this.screen(md`⚠️ Урок не найден`);
-    }
-
-    // Собираем описания шагов
-    const stepsWithDesc: Array<{
-      stepId: string;
-      description: string;
-      marker: string;
-    }> = [];
-
-    for (const s of view.steps) {
-      let marker: string;
-      if (s.status === 'completed') {
-        marker = '✅';
-      } else if (s.status === 'current') {
-        marker = '▶️';
-      } else {
-        marker = '🔒';
-      }
-
-      // Получаем описание шага (только заголовок)
-      let description = '';
+    } else if (navAddress.level === 'step' && navAddress.targetId) {
       try {
-        const step = await this.appApi.execute('get-step', { uuid: s.stepId });
-        description = (step as { description?: string }).description ?? '';
+        const step = (await this.appApi.execute('get-step', {
+          uuid: navAddress.targetId,
+        })) as {
+          description?: string;
+          kind?: string;
+          code?: string;
+          content?: string;
+        };
+        if (step) {
+          stepDescriptions[navAddress.targetId] = step.description ?? '';
+          stepContent = {
+            kind: step.kind ?? 'text',
+            code: step.code,
+            content: step.content,
+          };
+        }
       } catch {
-        description = '';
+        // Если шаг не загружен — резолвер обработает отсутствие контента
       }
-
-      stepsWithDesc.push({ stepId: s.stepId, description, marker });
     }
 
-    const lines: MdText[] = [
-      md`📂 *Уроки* › ${view.projectTitle} › ${view.lessonTitle}`,
-      md``,
-    ];
+    const navLevel = resolveStudentNavLevel({
+      story: this.name,
+      address: navAddress,
+      snapshot: stream.contentSnapshot,
+      student,
+      stepDescriptions,
+      stepContent,
+      backToHubCode: this.cbFor('hub', 'my-study'),
+    });
 
-    for (const s of stepsWithDesc) {
-      lines.push(md`${s.marker} _${s.description || s.stepId}_`);
+    if (!navLevel) {
+      return this.screen(md`⚠️ Шаг или уровень не найден или недоступен`);
     }
 
-    lines.push(md``, md`Выберите шаг:`);
+    const presented = presentNavLevel(navLevel);
+    return this.screen(presented.text, presented.keyboard);
+  }
 
-    // Кнопки: только доступные шаги
-    const rows: KbButton[][] = [];
-
-    for (const s of stepsWithDesc) {
-      if (s.marker === '🔒') continue;
-      rows.push([
-        this.btn(
-          `${s.marker} ${s.description || s.stepId}`,
-          s.marker === '✅'
-            ? this.cbFor(
-                'step-view',
-                'my-study:view',
-                student.streamId,
-                s.stepId,
-              )
-            : this.cbFor('step-view', 'my-study:continue'),
-        ),
-      ]);
+  /**
+   * Разбирает callback action в адрес навигации.
+   * Поддерживает как канонические nav-tree адреса, так и legacy алиасы.
+   */
+  #parseAddress(
+    action: string,
+    snapshot: ContentSnapshot,
+  ): StudentNavAddress | null {
+    if (
+      action === 'root' ||
+      action === 'my-study:lessons' ||
+      action === 'nav-tree:root'
+    ) {
+      return { level: 'root' };
     }
 
-    rows.push([
-      this.btn(
-        '⬅️ Назад к урокам',
-        this.cb('my-study:project', String(view.projectIndex)),
-      ),
-    ]);
+    const parsed = parseNavAddress(action);
+    if (parsed) {
+      if (parsed.level === 'root') {
+        return { level: 'root' };
+      }
+      if (
+        (parsed.level === 'project' ||
+          parsed.level === 'lesson' ||
+          parsed.level === 'step') &&
+        parsed.id
+      ) {
+        return {
+          level: parsed.level as 'project' | 'lesson' | 'step',
+          targetId: parsed.id,
+        };
+      }
+    }
 
-    return this.screen(mdJoin(lines), this.kb(rows));
+    // Обратная совместимость legacy префиксов
+    if (action.includes('my-study:project:')) {
+      const param = action.split('my-study:project:')[1] ?? '';
+      const numIndex = Number.parseInt(param, 10);
+      if (!Number.isNaN(numIndex) && String(numIndex) === param) {
+        const project = snapshot[numIndex - 1];
+        if (project) {
+          return { level: 'project', targetId: project.projectId };
+        }
+      }
+      return { level: 'project', targetId: param };
+    }
+
+    if (action.includes('my-study:lesson:')) {
+      const lessonId = action.split('my-study:lesson:')[1] ?? '';
+      return { level: 'lesson', targetId: lessonId };
+    }
+
+    return null;
   }
 }

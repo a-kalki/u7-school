@@ -71,7 +71,7 @@ function formatChild(child: NavChild, isNestedList: boolean): MdText[] {
   if (isNestedList) {
     // В списке с подуровнями (проекты модуля или уроки проекта) родитель жирным
     const statusPart = statusIcon ? ` ${statusIcon}` : '';
-    lines.push(md`${child.index}. **${child.title}**${meta}${statusPart}`);
+    lines.push(md`${child.index}\\. *${child.title}*${meta}${statusPart}`);
     if (child.children) {
       for (const sub of child.children) {
         lines.push(formatSubChild(sub));
@@ -80,10 +80,10 @@ function formatChild(child: NavChild, isNestedList: boolean): MdText[] {
   } else {
     // Одноуровневый список (шаги урока): если есть статус, он ставится перед заголовком
     if (statusIcon) {
-      lines.push(md`${child.index}. ${statusIcon} ${child.title}${meta}`);
+      lines.push(md`${child.index}\\. ${statusIcon} ${child.title}${meta}`);
     } else {
       const emojiPrefix = child.emoji ? `${child.emoji} ` : '';
-      lines.push(md`${child.index}. ${emojiPrefix}${child.title}${meta}`);
+      lines.push(md`${child.index}\\. ${emojiPrefix}${child.title}${meta}`);
     }
   }
 

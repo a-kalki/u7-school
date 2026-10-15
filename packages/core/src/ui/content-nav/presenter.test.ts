@@ -80,10 +80,10 @@ describe('NavLevel Presenter (TDD)', () => {
 
       const mdText = formatNavLevelText(level);
 
-      expect(mdText).toContain('1. **Проект: Введение в web** \\(2/5\\) ✅');
+      expect(mdText).toContain('1\\. *Проект: Введение в web* \\(2/5\\) ✅');
       expect(mdText).toContain('    📝 Урок 1: Как устроен web \\(3/3\\) ✅');
       expect(mdText).toContain('    📝 Урок 2: Бэкенд \\(0/2\\) ▶️');
-      expect(mdText).toContain('2. **Проект: Инфраструктура** \\(0/3\\) 🔒');
+      expect(mdText).toContain('2\\. *Проект: Инфраструктура* \\(0/3\\) 🔒');
     });
 
     test('рендер одноуровневого списка детей со статусами', () => {
@@ -120,9 +120,9 @@ describe('NavLevel Presenter (TDD)', () => {
 
       const mdText = formatNavLevelText(level);
 
-      expect(mdText).toContain('1. ✅ Шаг 1: Теория');
-      expect(mdText).toContain('2. ▶️ Шаг 2: Практика');
-      expect(mdText).toContain('3. 🔒 Шаг 3: Тест');
+      expect(mdText).toContain('1\\. ✅ Шаг 1: Теория');
+      expect(mdText).toContain('2\\. ▶️ Шаг 2: Практика');
+      expect(mdText).toContain('3\\. 🔒 Шаг 3: Тест');
     });
 
     test('рендер карточки шага с телом контента и статусом', () => {

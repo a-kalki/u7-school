@@ -149,6 +149,19 @@ export function parseNavAddress(address: string): ParsedNavAddress | null {
     };
   }
 
+  // <level>:<id> (когда транспорт стори уже отрезал префикс стори)
+  if (
+    parts.length === 2 &&
+    parts[0] &&
+    ['project', 'lesson', 'step'].includes(parts[0])
+  ) {
+    return {
+      prefix: '',
+      level: parts[0],
+      id: parts[1],
+    };
+  }
+
   // <prefix>:<level>
   const prefix = parts[0];
   const level = parts[1];
