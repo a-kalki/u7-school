@@ -26,7 +26,7 @@
           наличие `⬅️ Назад`.
     - [ ] [Green] Реализация чистых функций presenter.
     - [ ] [Refactor] Убрать дубли форматирования.
-- [ ] Task: Реализовать единый рендер тела шага с режимами `student` / `readOnly` (TDD)
+- [x] Task: Реализовать единый рендер тела шага с режимами `student` / `readOnly` (TDD) (4a021d9)
     - [ ] [Red] Тесты: студент видит статус, readOnly — без статуса; MarkdownV2-безопасность.
     - [ ] [Green] Обобщить `formatStepMessage`; переиспользовать в `step-view`.
 - [ ] Task: Conductor - User Manual Verification 'Ядро drill-down навигации' (Protocol in workflow.md)
