@@ -41,8 +41,8 @@
 
 ## Фаза 3: Зачистка и документация
 
-- [ ] Task: Удалить inline-поддеревья и `pagedScreen` из `course-catalog`
-    - [ ] Удалить `renderTreeBlocks`/`tree-renderer` — последний потребитель здесь
+- [x] Task: Удалить inline-поддеревья и `pagedScreen` из `course-catalog` [6c86ed8]
+    - [x] Удалить `renderTreeBlocks`/`tree-renderer` — последний потребитель здесь
           (трек-владелец зачистки); убедиться, что ссылок не осталось.
 - [ ] Task: Обновить `ui-spec.md` (courses) под новое поведение экранов/кнопок.
 - [ ] Task: Обновить e2e-тесты каталога (`tests/e2e/curious-showcase.e2e.test.ts`) под
