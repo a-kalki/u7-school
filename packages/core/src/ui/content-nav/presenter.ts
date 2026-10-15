@@ -21,8 +21,12 @@ export const STATUS_ICONS: Record<NavNodeStatus, string> = {
  * Например:
  * - `['📂 Уроки']` → `📂 *Уроки*`
  * - `['📂 Уроки', 'Web']` → `📂 *Уроки* › Web`
+ * - при multiline: `['📖 Курсы', 'Курс: JS']` → `📖 *Курсы*\n› Курс: JS`
  */
-export function formatBreadcrumbs(breadcrumbs: readonly string[]): MdText {
+export function formatBreadcrumbs(
+  breadcrumbs: readonly string[],
+  multiline = false,
+): MdText {
   if (breadcrumbs.length === 0) return md``;
 
   const parts: MdText[] = [];
@@ -38,11 +42,15 @@ export function formatBreadcrumbs(breadcrumbs: readonly string[]): MdText {
     }
   }
 
-  // Последующие сегменты пути через разделитель ` › `
+  // Последующие сегменты пути
   for (let i = 1; i < breadcrumbs.length; i++) {
     const segment = breadcrumbs[i];
     if (segment) {
-      parts.push(md` › ${segment}`);
+      if (multiline) {
+        parts.push(md`\n› ${segment}`);
+      } else {
+        parts.push(md` › ${segment}`);
+      }
     }
   }
 
@@ -97,7 +105,9 @@ export function formatNavLevelText(level: NavLevel): MdText {
   const sections: MdText[] = [];
 
   // 1. Шапка: хлебные крошки
-  sections.push(formatBreadcrumbs(level.breadcrumbs));
+  sections.push(
+    formatBreadcrumbs(level.breadcrumbs, level.multilineBreadcrumbs),
+  );
 
   // 2. Статус шапки (если есть явная подпись статуса, например карточка шага)
   if (level.statusLabel) {
@@ -192,6 +202,13 @@ export function buildNavLevelKeyboard(level: NavLevel): KeyboardDescription {
       if (child.enterable && child.address) {
         rows.push([btn(buildChildButtonText(child), child.address)]);
       }
+    }
+  }
+
+  // 1.5. Дополнительные ряды кнопок (например wish actions)
+  if (level.extraRows && level.extraRows.length > 0) {
+    for (const extraRow of level.extraRows) {
+      rows.push([...extraRow]);
     }
   }
 

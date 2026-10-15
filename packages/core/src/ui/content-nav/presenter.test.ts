@@ -22,6 +22,19 @@ describe('NavLevel Presenter (TDD)', () => {
       expect(mdText).toContain('Урок состоит из 3 шагов');
     });
 
+    test('шапка с многострочными хлебными крошками (multilineBreadcrumbs)', () => {
+      const level: NavLevel = {
+        breadcrumbs: ['📖 Курсы', 'Курс: Fullstack JS', 'Этап: Синтаксис'],
+        multilineBreadcrumbs: true,
+        back: 'nav:root',
+      };
+
+      const mdText = formatNavLevelText(level);
+      expect(mdText).toContain(
+        '📖 *Курсы*\n› Курс: Fullstack JS\n› Этап: Синтаксис',
+      );
+    });
+
     test('экранирование спецсимволов MarkdownV2 в заголовках', () => {
       const level: NavLevel = {
         breadcrumbs: [
@@ -222,6 +235,34 @@ describe('NavLevel Presenter (TDD)', () => {
       const kbLast = buildNavLevelKeyboard(lastLevel);
       expect(kbLast.rows[0]?.length).toBe(1);
       expect(kbLast.rows[0]?.[0]?.text).toBe('◀️ Пред. проект');
+    });
+
+    test('дополнительные ряды кнопок (extraRows) перед навигацией', () => {
+      const level: NavLevel = {
+        breadcrumbs: ['📖 Курсы', 'Курс: Fullstack JS'],
+        children: [
+          {
+            id: 'ph1',
+            index: 1,
+            title: 'Синтаксис',
+            enterable: true,
+            address: 'course:phase:ph1',
+          },
+        ],
+        extraRows: [[{ text: '🎓 Хочу пройти курс', code: 'course:wish:c1' }]],
+        prev: { address: 'course:root:prev', label: '◀️ Пред.' },
+        next: { address: 'course:root:next', label: 'След. ▶️' },
+        back: { address: 'menu:root', label: '⬅️ Назад' },
+      };
+
+      const kbDesc = buildNavLevelKeyboard(level);
+      // Ожидаем 4 ряда: 1) child, 2) extraRow (wish), 3) prev/next, 4) back
+      expect(kbDesc.rows.length).toBe(4);
+      expect(kbDesc.rows[0]?.[0]?.text).toContain('1. Синтаксис');
+      expect(kbDesc.rows[1]?.[0]?.text).toBe('🎓 Хочу пройти курс');
+      expect(kbDesc.rows[2]?.[0]?.text).toBe('◀️ Пред.');
+      expect(kbDesc.rows[2]?.[1]?.text).toBe('След. ▶️');
+      expect(kbDesc.rows[3]?.[0]?.text).toBe('⬅️ Назад');
     });
   });
 

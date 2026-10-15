@@ -1,3 +1,5 @@
+import type { KbButton } from '../bot/response-builders';
+
 /**
  * Статус узла навигации в UI.
  * - 'completed' (✅) — завершён/пройден
@@ -60,9 +62,15 @@ export interface NavLevel {
   /**
    * Цепочка хлебных крошек drill-down от корня до текущего узла.
    * Например: `['📂 Уроки']` или `['📖 Программа модуля', 'Введение в web', 'Как устроен web']`.
-   * Выводится в шапке карточки через разделитель ` › `.
+   * Выводится в шапке карточки через разделитель ` › ` (или построчно с `› ` при `multilineBreadcrumbs: true`).
    */
   readonly breadcrumbs: readonly string[];
+
+  /**
+   * Выводить ли цепочку хлебных крошек построчно для глубоких иерархий (например, каталога курсов).
+   * По умолчанию false (в одну строку через ` › `).
+   */
+  readonly multilineBreadcrumbs?: boolean;
 
   /** Название текущего уровня / узла (опционально, если нужно вывести отдельно от крошек) */
   readonly title?: string;
@@ -81,6 +89,9 @@ export interface NavLevel {
 
   /** Дочерние элементы (проекты, уроки, шаги) */
   readonly children?: readonly NavChild[];
+
+  /** Дополнительные ряды кнопок (например, кнопки действий wish), размещаемые перед навигацией */
+  readonly extraRows?: readonly (readonly KbButton[])[];
 
   /** Адрес предыдущего соседа в пределах родителя */
   readonly prev?: NavTarget | string;
