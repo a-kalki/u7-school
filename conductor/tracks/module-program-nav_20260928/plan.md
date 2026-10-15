@@ -29,7 +29,7 @@
 - [x] Task: Реализовать единый рендер тела шага с режимами `student` / `readOnly` (TDD) (4a021d9)
     - [ ] [Red] Тесты: студент видит статус, readOnly — без статуса; MarkdownV2-безопасность.
     - [ ] [Green] Обобщить `formatStepMessage`; переиспользовать в `step-view`.
-- [ ] Task: Conductor - User Manual Verification 'Ядро drill-down навигации' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Ядро drill-down навигации' (Protocol in workflow.md)
 
 ---
 
