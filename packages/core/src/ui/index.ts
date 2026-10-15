@@ -8,6 +8,7 @@ export { assertDialogResponseMarkdownSafe } from './bot/response-assert';
 export * from './bot/response-builders';
 export * from './bot/types';
 export * from './bot/ui-app';
+export * from './content-nav';
 export * from './event-subscription';
 export * from './pagination/paginator';
 export * from './types';
