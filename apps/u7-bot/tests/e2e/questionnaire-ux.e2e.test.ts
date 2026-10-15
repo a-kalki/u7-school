@@ -132,24 +132,12 @@ describe('Questionnaire UX (e2e)', () => {
     );
   }
 
-  /**
-   * apply-кнопка анкетного курса из каталога: ряд
-   * [«<эмодзи> Тест. Курс…», «🎓 Хочу пройти курс»] — у каждого курса свой
-   * apply, ищем ряд по названию курса.
-   */
+  /** apply-кнопка анкетного курса на открытой карточке. */
   function applyCode(tgId: number): string {
-    for (const screen of screensNewFirst(transport, tgId)) {
-      const row = screen.keyboard?.rows.find(
-        (r) =>
-          r[0]?.text.includes('Тест. Курс') &&
-          r[1]?.text.includes('Хочу пройти курс'),
-      );
-      if (row) return row[1]!.code;
-    }
-    throw new Error('apply-кнопка анкетного курса не найдена — открой каталог');
+    return pressedCode(transport, tgId, 'Хочу пройти курс');
   }
 
-  /** /start → «Курсы» (уровень 0 с apply-кнопками). */
+  /** /start → «Курсы» → листание к анкетному курсу (уровень 0 с apply-кнопкой). */
   async function openCatalog(tgId: number): Promise<void> {
     await transport.handleStart(transport.makeBotContext(tgId));
     await transport.handleCallback(
@@ -157,6 +145,27 @@ describe('Questionnaire UX (e2e)', () => {
         callbackData: pressedCode(transport, tgId, 'Курсы'),
       }),
     );
+    const shortId = QUESTIONNAIRE_COURSE_ID.slice(0, 8);
+    while (true) {
+      const screens = screensNewFirst(transport, tgId);
+      const isTargetCourse = screens[0]?.keyboard?.rows
+        .flat()
+        .some(
+          (b) =>
+            b.code.includes(shortId) &&
+            (b.code.includes(':phase:') ||
+              b.code.includes(':apply:') ||
+              b.code.includes(':cancel:')),
+        );
+      if (isTargetCourse) break;
+      const nextBtn = screens[0]?.keyboard?.rows
+        .flat()
+        .find((b) => b.text.includes('След. курс'));
+      if (!nextBtn) break;
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, { callbackData: nextBtn.code }),
+      );
+    }
   }
 
   /**

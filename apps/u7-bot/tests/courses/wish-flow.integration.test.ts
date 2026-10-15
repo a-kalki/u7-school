@@ -292,13 +292,13 @@ describe('Wish: жизненный цикл желания курса (инте�
     );
     expect(draftCard.screen?.text).toContain('Чернов\\. Курс \\(v1\\.0\\)');
 
-    // Каталог (list): опасное название published-курса — markdown-safe
+    // Карточка published-курса: опасное название — markdown-safe
     const list = await transport.handleCallback(
       transport.makeBotContext(guest.telegramId, {
         callbackData: stampedCode(
           transport,
           guest.telegramId,
-          'course:course-catalog:list',
+          `course:course-catalog:course:${DANGEROUS_COURSE_ID}`,
         ),
       }),
     );

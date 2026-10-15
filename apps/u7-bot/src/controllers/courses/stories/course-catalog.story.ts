@@ -63,12 +63,22 @@ export class CourseCatalogStory extends U7BotUiStory {
         return this.#handlePhase(ids[0] ?? '', Number(ids[1]));
       case 'project':
       case 'projects': {
+        // Старый формат: projects:<courseId>:<phaseIdx>:<moduleId> -> карточка модуля
+        if (cmd === 'projects' && ids.length === 3) {
+          return this.#handleModule(ids[0] ?? '', Number(ids[1]), ids[2] ?? '');
+        }
         const modId = ids.length >= 4 ? (ids[2] ?? '') : (ids[0] ?? '');
         const projId = ids.length >= 4 ? (ids[3] ?? '') : (ids[1] ?? '');
         return this.#handleProject(modId, projId);
       }
       case 'lesson':
       case 'lessons': {
+        // Старый формат: lessons:<courseId>:<phaseIdx>:<moduleId>:<projectIdx> -> карточка проекта
+        if (cmd === 'lessons' && ids.length === 4) {
+          const modId = ids[2] ?? '';
+          const pIdxOrId = ids[3] ?? '';
+          return this.#handleLegacyProjectByIndex(modId, pIdxOrId);
+        }
         const modId = ids.length >= 5 ? (ids[2] ?? '') : (ids[0] ?? '');
         const projId = ids.length >= 5 ? (ids[3] ?? '') : (ids[1] ?? '');
         const lesId = ids.length >= 5 ? (ids[4] ?? '') : (ids[2] ?? '');
@@ -113,7 +123,7 @@ export class CourseCatalogStory extends U7BotUiStory {
     courseId: string | undefined,
     actor: User,
   ): Promise<DialogResponse> {
-    const courses = await this.#loadCourses();
+    const courses = await this.#loadCourses(courseId);
     if (courses.length === 0) {
       if (courseId) {
         return this.screen(md`⚠️ Курс не найден или недоступен`);
@@ -171,7 +181,7 @@ export class CourseCatalogStory extends U7BotUiStory {
       return this.screen(md`⚠️ Курс не указан`);
     }
 
-    const courses = await this.#loadCourses();
+    const courses = await this.#loadCourses(courseId);
     const course = courses.find((c) => c.uuid === courseId);
     if (!course) {
       return this.screen(md`⚠️ Курс не найден или недоступен`);
@@ -211,8 +221,21 @@ export class CourseCatalogStory extends U7BotUiStory {
       return this.screen(md`⚠️ Модуль не указан`);
     }
 
-    const courses = await this.#loadCourses();
-    const course = courses.find((c) => c.uuid === courseId);
+    const courses = await this.#loadCourses(courseId);
+    let course = courses.find((c) => c.uuid === courseId);
+    if (!course) {
+      try {
+        const c = (await this.appApi.execute('get-course-by-module', {
+          moduleId,
+        })) as Course | undefined;
+        if (c) {
+          course = c;
+          if (!courses.some((x) => x.uuid === c.uuid)) courses.push(c);
+        }
+      } catch {
+        // fallback
+      }
+    }
     if (!course) {
       return this.screen(md`⚠️ Курс не найден или недоступен`);
     }
@@ -261,10 +284,23 @@ export class CourseCatalogStory extends U7BotUiStory {
     projectId: string,
   ): Promise<DialogResponse> {
     const courses = await this.#loadCourses();
-    const course =
-      courses.find((c) =>
-        c.phases.some((p) => p.moduleIds?.includes(moduleId)),
-      ) ?? courses[0];
+    let course = courses.find((c) =>
+      c.phases.some((p) => p.moduleIds?.includes(moduleId)),
+    );
+    if (!course) {
+      try {
+        const c = (await this.appApi.execute('get-course-by-module', {
+          moduleId,
+        })) as Course | undefined;
+        if (c) {
+          course = c;
+          if (!courses.some((x) => x.uuid === c.uuid)) courses.push(c);
+        }
+      } catch {
+        // fallback
+      }
+    }
+    course ??= courses[0];
     if (!course) {
       return this.screen(md`⚠️ Курс не найден или недоступен`);
     }
@@ -329,10 +365,23 @@ export class CourseCatalogStory extends U7BotUiStory {
     lessonId: string,
   ): Promise<DialogResponse> {
     const courses = await this.#loadCourses();
-    const course =
-      courses.find((c) =>
-        c.phases.some((p) => p.moduleIds?.includes(moduleId)),
-      ) ?? courses[0];
+    let course = courses.find((c) =>
+      c.phases.some((p) => p.moduleIds?.includes(moduleId)),
+    );
+    if (!course) {
+      try {
+        const c = (await this.appApi.execute('get-course-by-module', {
+          moduleId,
+        })) as Course | undefined;
+        if (c) {
+          course = c;
+          if (!courses.some((x) => x.uuid === c.uuid)) courses.push(c);
+        }
+      } catch {
+        // fallback
+      }
+    }
+    course ??= courses[0];
     if (!course) {
       return this.screen(md`⚠️ Курс не найден или недоступен`);
     }
@@ -533,10 +582,46 @@ export class CourseCatalogStory extends U7BotUiStory {
     }
   }
 
+  async #handleLegacyProjectByIndex(
+    moduleId: string,
+    projectIdxOrId: string,
+  ): Promise<DialogResponse> {
+    let snapshot: ContentSnapshot;
+    try {
+      snapshot = (await this.appApi.execute('get-module-snapshot', {
+        moduleId,
+      })) as ContentSnapshot;
+    } catch {
+      return this.screen(md`⚠️ Модуль не найден или недоступен`);
+    }
+
+    const idx = Number(projectIdxOrId);
+    const project = Number.isNaN(idx)
+      ? snapshot.find((p) => p.projectId === projectIdxOrId)
+      : snapshot[idx];
+
+    if (!project) {
+      return this.screen(md`⚠️ Проект не найден`);
+    }
+    return this.#handleProject(moduleId, project.projectId);
+  }
+
   // ═══ Загрузка доменных данных ═══
 
-  async #loadCourses(): Promise<Course[]> {
-    return ((await this.appApi.execute('list-courses', {})) ?? []) as Course[];
+  async #loadCourses(courseId?: string): Promise<Course[]> {
+    const list = ((await this.appApi.execute('list-courses', {})) ??
+      []) as Course[];
+    if (courseId && !list.some((c) => c.uuid === courseId)) {
+      try {
+        const c = (await this.appApi.execute('get-course', {
+          uuid: courseId,
+        })) as Course;
+        if (c) list.push(c);
+      } catch {
+        // не найден
+      }
+    }
+    return list;
   }
 
   async #loadModulesInfo(moduleIds: string[]): Promise<

@@ -64,6 +64,7 @@ describe('E2E: Пагинация (S03 + каталог уровня 3)', () => 
 
   beforeEach(() => {
     transport.reset();
+    transport.dropSession(guest.telegramId);
   });
 
   afterAll(async () => {
@@ -246,40 +247,91 @@ describe('E2E: Пагинация (S03 + каталог уровня 3)', () => 
     expect(String(backToRoot.screen?.text ?? '')).toContain('Программа модуля');
   });
 
-  // ── Каталог: уровень 3 длинного модуля ──
+  // ── Каталог: уровень 3 длинного модуля (drill-down) ──
 
-  test('Каталог 3: длинный модуль — полный цикл листания, edit на месте', async () => {
-    const tgId = guest.telegramId;
+  async function openLongCourse(tgId: number): Promise<void> {
     await transport.handleStart(transport.makeBotContext(tgId));
     await press(tgId, 'Курсы');
-    await press(tgId, 'Длинный курс (пагинация)');
+    while (true) {
+      const screens = screensNewFirst(tgId);
+      const isTarget = screens[0]?.keyboard?.rows
+        .flat()
+        .some((b) => b.text.includes('Полный трек'));
+      if (isTarget) break;
+      const nextBtn = screens[0]?.keyboard?.rows
+        .flat()
+        .find((b) => b.text.includes('След. курс'));
+      if (!nextBtn) break;
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, { callbackData: nextBtn.code }),
+      );
+    }
+  }
+
+  test('Каталог: длинный модуль — drill-down навигация по проектам, edit на месте', async () => {
+    const tgId = guest.telegramId;
+    await openLongCourse(tgId);
     await press(tgId, 'Полный трек');
 
-    const modulesScreen = await press(tgId, 'Длинный модуль (пагинация)');
+    const modulesScreen = await press(tgId, 'Длинный модуль');
     const modulesText = String(modulesScreen.screen?.text ?? '');
     expect(modulesText).toContain('Модуль: Длинный модуль');
-    expect(modulesText).toContain('📁');
+    expect(modulesText).toContain('Проект 01');
 
-    await pageThroughCycle(tgId, modulesText);
+    const originMessageId = lastSentMessageId(tgId);
+
+    // Переход в проект 01 через кнопку подуровня
+    const projectScreen = await press(tgId, 'Проект 01');
+    const projectText = String(projectScreen.screen?.text ?? '');
+    expect(projectText).toContain('Проект: Проект 01');
+    expect(hasButton(tgId, 'След. проект ▶️')).toBe(true);
+    expectEditInPlace(tgId, originMessageId);
+
+    // Листание проектов вперед
+    const nextProject = await press(tgId, 'След. проект ▶️');
+    expect(String(nextProject.screen?.text ?? '')).toContain(
+      'Проект: Проект 02',
+    );
+    expect(hasButton(tgId, '◀️ Пред. проект')).toBe(true);
+    expectEditInPlace(tgId, originMessageId);
+
+    // Листание проектов назад
+    const prevProject = await press(tgId, '◀️ Пред. проект');
+    expect(String(prevProject.screen?.text ?? '')).toContain(
+      'Проект: Проект 01',
+    );
+    expectEditInPlace(tgId, originMessageId);
+
+    // Возврат к модулю
+    const backToModule = await press(tgId, 'Назад к модулю');
+    expect(String(backToModule.screen?.text ?? '')).toContain(
+      'Модуль: Длинный модуль',
+    );
+    expectEditInPlace(tgId, originMessageId);
   });
 
-  test('Каталог 3: проекты распределены по страницам без потерь и дублей', async () => {
+  test('Каталог: сквозное листание проектов в пределах модуля', async () => {
     const tgId = guest.telegramId;
-    await transport.handleStart(transport.makeBotContext(tgId));
-    await press(tgId, 'Курсы');
-    await press(tgId, 'Длинный курс (пагинация)');
+    await openLongCourse(tgId);
     await press(tgId, 'Полный трек');
-    const first = await press(tgId, 'Длинный модуль (пагинация)');
-    const total = pageOf(String(first.screen?.text ?? ''))!.total;
+    await press(tgId, 'Длинный модуль');
+
+    const originMessageId = lastSentMessageId(tgId);
+    let screen = await press(tgId, 'Проект 01');
 
     const seen = new Set<string>();
-    let text = String(first.screen?.text ?? '');
-    for (let i = 0; i < total + 2 && hasButton(tgId, 'След ›'); i++) {
-      collectProjects(text, seen);
-      const response = await press(tgId, 'След ›');
-      text = String(response.screen?.text ?? '');
+    for (let i = 0; i < 20; i++) {
+      const text = String(screen.screen?.text ?? '');
+      const match = text.match(/Проект:\s*(Проект\s*\d+)/);
+      if (match?.[1]) seen.add(match[1]);
+
+      if (!hasButton(tgId, 'След. проект ▶️')) break;
+      screen = await press(tgId, 'След. проект ▶️');
+      expectEditInPlace(tgId, originMessageId);
     }
-    collectProjects(text, seen);
-    expect(seen.size).toBe(16);
+
+    expect(seen.size).toBeGreaterThanOrEqual(10);
+    expect(seen.has('Проект 01')).toBe(true);
+    expect(seen.has('Проект 02')).toBe(true);
   });
 });

@@ -168,24 +168,12 @@ describe('Wish: анкетная ветка (e2e)', () => {
     );
   }
 
-  /**
-   * apply-кнопка анкетного курса из каталога: ряд
-   * [«<эмодзи> Тест. Курс…», «🎓 Хочу пройти курс»] — у каждого курса свой
-   * apply, ищем ряд по названию курса.
-   */
+  /** apply-кнопка анкетного курса на открытой карточке. */
   function applyCode(tgId: number): string {
-    for (const screen of screensNewFirst(transport, tgId)) {
-      const row = screen.keyboard?.rows.find(
-        (r) =>
-          r[0]?.text.includes('Тест. Курс') &&
-          r[1]?.text.includes('Хочу пройти курс'),
-      );
-      if (row) return row[1]!.code;
-    }
-    throw new Error('apply-кнопка анкетного курса не найдена — открой каталог');
+    return pressedCode(transport, tgId, 'Хочу пройти курс');
   }
 
-  /** /start → «Курсы» (уровень 0 с apply-кнопками). */
+  /** /start → «Курсы» → листание к анкетному курсу (уровень 0 с apply-кнопкой). */
   async function openCatalog(tgId: number): Promise<void> {
     await transport.handleStart(transport.makeBotContext(tgId));
     await transport.handleCallback(
@@ -193,6 +181,27 @@ describe('Wish: анкетная ветка (e2e)', () => {
         callbackData: pressedCode(transport, tgId, 'Курсы'),
       }),
     );
+    const shortId = QUESTIONNAIRE_COURSE_ID.slice(0, 8);
+    while (true) {
+      const screens = screensNewFirst(transport, tgId);
+      const isTargetCourse = screens[0]?.keyboard?.rows
+        .flat()
+        .some(
+          (b) =>
+            b.code.includes(shortId) &&
+            (b.code.includes(':phase:') ||
+              b.code.includes(':apply:') ||
+              b.code.includes(':cancel:')),
+        );
+      if (isTargetCourse) break;
+      const nextBtn = screens[0]?.keyboard?.rows
+        .flat()
+        .find((b) => b.text.includes('След. курс'));
+      if (!nextBtn) break;
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, { callbackData: nextBtn.code }),
+      );
+    }
   }
 
   /** apply (кнопка «Хочу пройти курс» в каталоге). */
@@ -350,12 +359,20 @@ describe('Wish: анкетная ветка (e2e)', () => {
     // активное желание pending → конфликт → W04 «начал заполнять анкету»
     dropSession(mentor.telegramId);
     await openCatalog(mentor.telegramId);
-    const w04 = await applyQuestionnaire(mentor.telegramId);
+    const w04 = await transport.handleCallback(
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: stampedCode(
+          transport,
+          mentor.telegramId,
+          `course:course-catalog:apply:${QUESTIONNAIRE_COURSE_ID}`,
+        ),
+      }),
+    );
     expect(w04.screen?.text).toContain('начал заполнять анкету');
     expect(w04.screen?.text).not.toContain('⚠️');
 
-    // «▶️ Продолжить анкету» → resume → текущий (первый) вопрос
-    const resume = await click(mentor.telegramId, '▶️ Продолжить анкету');
+    // «Продолжить анкету» → resume → текущий (первый) вопрос
+    const resume = await click(mentor.telegramId, 'Продолжить анкету');
     expect(resume.screen?.text).toContain('Вопрос 1 из 3');
     expect(resume.screen?.text).toContain('Какой у тебя опыт?');
     // Сессия восстановлена: захват ввода fill-диалогом
@@ -429,6 +446,7 @@ describe('Wish: анкетная ветка (e2e)', () => {
   // ── B.6: confirmed → на карточке «Отменить желание» → cancelled ──
 
   test('confirmed → на карточке кнопка «Отменить желание»; отмена → cancelled', async () => {
+    dropSession(author.telegramId);
     // Прогоняем анкету до конца (confirmed); после последнего ответа
     // ввод освобождён, но сессию сбрасываем — как после рестарта бота
     await startQuestionnaire(author.telegramId);

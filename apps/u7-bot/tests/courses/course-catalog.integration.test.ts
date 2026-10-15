@@ -120,7 +120,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
 
     const rows = response.screen?.keyboard?.rows ?? [];
     expect(rows.some((r) => r[0]?.text?.includes('Этап 1'))).toBe(true);
-    expect(rows.some((r) => r[0]?.text?.includes('Назад к курсам'))).toBe(true);
+    expect(rows.some((r) => r[0]?.text?.includes('Главное меню'))).toBe(true);
   });
 
   test('phases: несуществующий курс — ошибка', async () => {
