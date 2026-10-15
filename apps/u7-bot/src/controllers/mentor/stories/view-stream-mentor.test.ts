@@ -29,6 +29,7 @@ const mockStream = {
   startDate: '2026-06-01T10:00:00.000Z',
   contentSnapshot: [
     {
+      projectId: 'project-1',
       projectTitle: 'Проект 1',
       lessons: [
         {
@@ -99,7 +100,7 @@ describe('ViewStreamMentorStory (S02m-карточка) — контракт «�
     const { texts, codes } = flat(response);
     // Публичные кнопки (инвентаризация)
     expect(texts).toEqual([
-      '📖 Программа курса',
+      '📖 Программа модуля',
       '📋 Детали',
       '👥 Студенты',
       '🚀 Запустить',
@@ -152,7 +153,7 @@ describe('ViewStreamMentorStory (S02m-карточка) — контракт «�
 
   // ── program / details: родительский текст, назад — на свою view ──
 
-  test('program: программа курса, назад в view-stream-mentor', async () => {
+  test('program: карточка модуля (root) — без статусов, назад в view-stream-mentor', async () => {
     const { story } = createStory();
     const response = await story.handleCallback(
       'program:stream-1',
@@ -161,10 +162,124 @@ describe('ViewStreamMentorStory (S02m-карточка) — контракт «�
     );
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text);
-    expect(text).toContain('Программа курса');
+    expect(text).toContain('Программа модуля');
     expect(text).toContain('Проект 1');
     expect(text).toContain('Урок 1');
-    expect(flat(response).codes).toContain('view-stream-mentor:view:stream-1');
+    // Без статусов
+    expect(text).not.toContain('✅');
+    expect(text).not.toContain('▶️');
+    expect(text).not.toContain('🔒');
+    const { texts, codes } = flat(response);
+    expect(texts).toContain('1. 📁 Проект 1');
+    expect(codes).toContain(
+      'view-stream-mentor:prog:stream-1:project:project-1',
+    );
+    expect(texts).toContain('⬅️ Назад к потоку');
+    expect(codes).toContain('view-stream-mentor:view:stream-1');
+  });
+
+  test('program: карточка проекта — список уроков', async () => {
+    const { story } = createStory();
+    const response = await story.handleCallback(
+      'prog:stream-1:project:project-1',
+      mentorActor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text);
+    expect(text).toContain('Программа модуля');
+    expect(text).toContain('Проект 1');
+    const { texts, codes } = flat(response);
+    expect(texts).toContain('1. 📝 Урок 1');
+    expect(codes).toContain('view-stream-mentor:prog:stream-1:lesson:lesson-1');
+    expect(texts).toContain('⬅️ Назад к модулю');
+    expect(codes).toContain('view-stream-mentor:prog:stream-1:root');
+  });
+
+  test('program: карточка урока — все шаги доступны для ментора', async () => {
+    const { story } = createStory((name) => {
+      if (name === 'get-stream') return mockStream;
+      if (name === 'get-steps-by-lessons') {
+        return {
+          'lesson-1': [
+            { uuid: 'step-1', description: 'Шаг первый' },
+            { uuid: 'step-2', description: 'Шаг второй' },
+          ],
+        };
+      }
+      return undefined;
+    });
+    const response = await story.handleCallback(
+      'prog:stream-1:lesson:lesson-1',
+      mentorActor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text);
+    expect(text).toContain('Урок 1');
+    const { texts, codes } = flat(response);
+    expect(texts).toContain('1. 📄 Шаг первый');
+    expect(texts).toContain('2. 📄 Шаг второй');
+    expect(codes).toContain('view-stream-mentor:prog:stream-1:step:step-1');
+    expect(codes).toContain('view-stream-mentor:prog:stream-1:step:step-2');
+    expect(texts).toContain('⬅️ Назад к проекту');
+    expect(codes).toContain(
+      'view-stream-mentor:prog:stream-1:project:project-1',
+    );
+  });
+
+  test('program: карточка шага — ментор видит тело шага (readOnly)', async () => {
+    const { story } = createStory((name, params) => {
+      if (name === 'get-stream') return mockStream;
+      if (name === 'get-step') {
+        return {
+          uuid: params?.uuid,
+          description: 'Шаг первый',
+          kind: 'text',
+          content: 'Теория протокола HTTP.',
+        };
+      }
+      return undefined;
+    });
+    const response = await story.handleCallback(
+      'prog:stream-1:step:step-1',
+      mentorActor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text);
+    expect(text).toContain('Теория протокола HTTP');
+    const { texts, codes } = flat(response);
+    expect(texts).toContain('След. шаг ▶️');
+    expect(codes).toContain('view-stream-mentor:prog:stream-1:step:step-2');
+    expect(texts).toContain('⬅️ Назад к уроку');
+    expect(codes).toContain('view-stream-mentor:prog:stream-1:lesson:lesson-1');
+  });
+
+  test('program: не-ментор потока получает отказ доступа', async () => {
+    const { story } = createStory();
+    const guestActor: User = {
+      uuid: 'stranger-1',
+      name: 'Чужой',
+      roles: ['student'],
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    };
+    const response = await story.handleCallback(
+      'program:stream-1',
+      guestActor,
+      session,
+    );
+    const text = String(response.screen?.text);
+    expect(text).toContain('нет прав');
+
+    // Подделанный прямой переход на шаг также отсекается
+    const stepResponse = await story.handleCallback(
+      'prog:stream-1:step:step-1',
+      guestActor,
+      session,
+    );
+    expect(String(stepResponse.screen?.text)).toContain('нет прав');
   });
 
   test('details: показывает заполненные поля', async () => {

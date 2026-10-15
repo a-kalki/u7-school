@@ -8,12 +8,14 @@ import {
   mdRaw,
   now,
 } from '@u7-scl/core/shared';
-import type {
-  BotSession,
-  BotUpdate,
-  DialogResponse,
-  KbButton,
-  KeyboardDescription,
+import {
+  type BotSession,
+  type BotUpdate,
+  type DialogResponse,
+  type KbButton,
+  type KeyboardDescription,
+  presentNavLevel,
+  type StepContentData,
 } from '@u7-scl/core/ui';
 import type {
   CategorizedStudent,
@@ -28,9 +30,9 @@ import {
   StudentAr,
   StudentOutcomeCategory,
 } from '@u7-scl/stream/domain';
-import type { TreeNode } from '../../../shared/tree-renderer';
-import { renderTreeBlocks } from '../../../shared/tree-renderer';
+import { loadStepDescriptions } from '../../learning/shared';
 import { Routes } from '../../shared/routes';
+import { resolveStreamNavLevel } from '../stream-nav-resolver';
 
 /** Контекст awaitInput при вводе кодового слова */
 interface EnrollKeyContext {
@@ -63,16 +65,10 @@ export class ViewStreamStory extends U7BotUiStory {
     actor: User,
     session: BotSession,
   ): Promise<DialogResponse> {
-    const [cmd, streamId, pageSeg] = action.split(':');
+    const [cmd, streamId] = action.split(':');
 
-    if (cmd === 'program' && streamId) {
-      const page = Number(pageSeg);
-      return this.handleProgramView(
-        streamId,
-        actor,
-        session,
-        Number.isNaN(page) ? 0 : page,
-      );
+    if ((cmd === 'program' || cmd === 'prog') && streamId) {
+      return this.handleProgramView(action, actor, session);
     }
 
     if (cmd === 'details' && streamId) {
@@ -236,81 +232,143 @@ export class ViewStreamStory extends U7BotUiStory {
     }
   }
 
+  /**
+   * Карточная drill-down программа модуля потока (S03).
+   * Поддерживает режимы ментора (чтение всех шагов) и зрителя (только заголовки шагов).
+   */
   protected async handleProgramView(
-    streamId: string,
+    actionOrStreamId: string,
     actor: User,
-    session: BotSession,
-    pageIndex = 0,
+    _session: BotSession,
+    _pageIndex = 0,
   ): Promise<DialogResponse> {
-    // Блок = проект с уроками (целый, не рвётся); страницы кешируются
-    // в системном кеш эпохи диалога — build (чтение домена) вызывается
-    // только при промахе кеша, тыки навигации домен не перечитывают.
-    return this.pagedScreen({
-      build: () => this.#buildProgramBlocks(streamId),
-      emptyScreen: () =>
-        this.screen(
-          md`📖 *Программа курса*\n\nПрограмма пока не загружена\\.`,
-          this.kb([
-            [
-              this.btn(
-                '⬅️ Назад к потоку',
-                this.cbFor(this.storyName, 'view', streamId),
-              ),
-            ],
-          ]),
-        ),
-      rows: () => [
-        [
-          this.btn(
-            '⬅️ Назад к потоку',
-            this.cbFor(this.storyName, 'view', streamId),
-          ),
-        ],
-      ],
-      cacheKey: `program:${streamId}`,
-      pageIndex,
-      cbPage: (n) => this.cbFor(this.storyName, 'program', streamId, String(n)),
-      session,
-      tgId: actor.telegramId,
-    });
-  }
+    let streamId: string;
+    let level: 'root' | 'project' | 'lesson' | 'step' = 'root';
+    let targetId: string | undefined;
 
-  /** Читает снапшот программы потока и собирает блоки «проект с уроками». */
-  async #buildProgramBlocks(
-    streamId: string,
-  ): Promise<{ header: MdText; blocks: string[]; payload: undefined }> {
+    if (
+      actionOrStreamId.startsWith('program:') ||
+      actionOrStreamId.startsWith('prog:')
+    ) {
+      const parts = actionOrStreamId.split(':');
+      streamId = parts[1] ?? '';
+      if (parts.length >= 4) {
+        level = (parts[2] as 'root' | 'project' | 'lesson' | 'step') || 'root';
+        targetId = parts[3];
+      } else if (
+        parts.length === 3 &&
+        parts[2] !== 'root' &&
+        Number.isNaN(Number(parts[2]))
+      ) {
+        level = (parts[2] as 'root' | 'project' | 'lesson' | 'step') || 'root';
+      }
+    } else {
+      streamId = actionOrStreamId;
+    }
+
     const stream = (await this.appApi.execute('get-stream', {
       streamId,
-    })) as Stream;
-    const snapshot = stream.contentSnapshot;
+    })) as Stream | null;
+    if (!stream) {
+      return this.screen(md`❌ Поток не найден\\.`);
+    }
 
-    // Собираем дерево проектов для tree-renderer.
-    // Контракт TreeNode.title — «уже экранированный для MarkdownV2»,
-    // поэтому заголовки пропускаем через md-интерполяцию ДО renderTree.
-    const projectNodes: TreeNode[] = (snapshot ?? []).map(
-      (p: {
-        projectTitle: string;
-        lessons: Array<{ lessonTitle: string; stepIds: string[] }>;
-      }) => ({
-        // префиксы «Проект:»/«Урок:» — как в каталоге «Программы курсов»
-        title: md`Проект: ${p.projectTitle}`,
-        emoji: '📁',
-        children: p.lessons.map(
-          (l: { lessonTitle: string; stepIds: string[] }) =>
-            ({
-              title: md`Урок: ${l.lessonTitle}`,
-              emoji: '📝',
-              meta: `${l.stepIds.length} шаг${this.#plural(l.stepIds.length, '', 'а', 'ов')}`,
-            }) as TreeNode,
-        ),
-      }),
-    );
+    if (!stream.contentSnapshot || stream.contentSnapshot.length === 0) {
+      return this.screen(
+        md`📖 *Программа модуля*\n\nПрограмма пока не загружена\\.`,
+        this.kb([
+          [
+            this.btn(
+              '⬅️ Назад к потоку',
+              this.cbFor(this.storyName, 'view', streamId),
+            ),
+          ],
+        ]),
+      );
+    }
 
-    return {
-      header: md`📖 *Программа курса*`,
-      blocks: renderTreeBlocks(projectNodes),
-      payload: undefined,
-    };
+    const canEdit = StreamPolicy.canEdit(actor, stream);
+    if (this.storyName === 'view-stream-mentor' && !canEdit) {
+      return this.screen(md`⛔ У вас нет прав для управления этим потоком\\.`);
+    }
+
+    const mode = canEdit ? 'mentor' : 'viewer';
+
+    if (level === 'step' && mode !== 'mentor') {
+      return this.screen(md`⛔ Тела шагов недоступны для просмотра\\.`);
+    }
+
+    const stepDescriptions: Record<string, string> = {};
+    let stepContent: StepContentData | undefined;
+
+    if (level === 'project' && targetId) {
+      const snapProject = stream.contentSnapshot?.find(
+        (p) => p.projectId === targetId,
+      );
+      if (snapProject) {
+        const lessonIds = snapProject.lessons.map((l) => l.lessonId);
+        const byLesson =
+          (await loadStepDescriptions(this.appApi, lessonIds)) ?? {};
+        for (const steps of Object.values(byLesson)) {
+          if (Array.isArray(steps)) {
+            for (const s of steps) {
+              stepDescriptions[s.uuid] = s.description;
+            }
+          }
+        }
+      }
+    } else if (level === 'lesson' && targetId) {
+      const byLesson =
+        (await loadStepDescriptions(this.appApi, [targetId])) ?? {};
+      for (const steps of Object.values(byLesson)) {
+        if (Array.isArray(steps)) {
+          for (const s of steps) {
+            stepDescriptions[s.uuid] = s.description;
+          }
+        }
+      }
+    } else if (level === 'step' && targetId) {
+      try {
+        const step = (await this.appApi.execute('get-step', {
+          uuid: targetId,
+        })) as {
+          description?: string;
+          kind?: string;
+          code?: string;
+          content?: string;
+        } | null;
+        if (step) {
+          stepDescriptions[targetId] = step.description ?? '';
+          stepContent = {
+            kind: step.kind,
+            content: step.content,
+            code: step.code,
+          };
+        }
+      } catch {
+        // Шаг не найден
+      }
+    }
+
+    const navLevel = resolveStreamNavLevel({
+      stream,
+      address: {
+        level,
+        targetId,
+      },
+      story: `${this.storyName}:prog:${streamId}`,
+      mode,
+      stepDescriptions,
+      stepContent,
+      rootBackAddress: this.cbFor(this.storyName, 'view', streamId),
+    });
+
+    if (!navLevel) {
+      return this.screen(md`❌ Уровень программы не найден\\.`);
+    }
+
+    const { text, keyboard } = presentNavLevel(navLevel);
+    return this.screen(text, keyboard);
   }
 
   protected async handleDetailsView(streamId: string): Promise<DialogResponse> {
@@ -927,14 +985,5 @@ export class ViewStreamStory extends U7BotUiStory {
     } catch {
       return iso;
     }
-  }
-
-  #plural(count: number, one: string, two: string, five: string): string {
-    const n = count % 100;
-    if (n >= 11 && n <= 19) return five;
-    const r = n % 10;
-    if (r === 1) return one;
-    if (r >= 2 && r <= 4) return two;
-    return five;
   }
 }

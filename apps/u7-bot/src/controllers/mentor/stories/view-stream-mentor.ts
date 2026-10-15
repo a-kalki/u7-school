@@ -32,21 +32,15 @@ export class ViewStreamMentorStory extends ViewStreamStory {
     actor: User,
     session: BotSession,
   ): Promise<DialogResponse> {
-    const [cmd, streamId, pageSeg] = action.split(':');
+    const [cmd, streamId] = action.split(':');
 
     // Делегируем просмотр карточки, программы и деталей родителю
     if (cmd === 'view' && streamId) {
       return this.handleView(streamId, actor);
     }
 
-    if (cmd === 'program' && streamId) {
-      const page = Number(pageSeg);
-      return this.handleProgramView(
-        streamId,
-        actor,
-        session,
-        Number.isNaN(page) ? 0 : page,
-      );
+    if ((cmd === 'program' || cmd === 'prog') && streamId) {
+      return this.handleProgramView(action, actor, session);
     }
 
     if (cmd === 'details' && streamId) {
@@ -89,7 +83,7 @@ export class ViewStreamMentorStory extends ViewStreamStory {
     // (единый вид со студенческой карточкой ViewStreamStory)
     rows.push([
       this.btn(
-        '📖 Программа курса',
+        '📖 Программа модуля',
         this.cbFor('view-stream-mentor', 'program', stream.uuid),
       ),
       this.btn(
