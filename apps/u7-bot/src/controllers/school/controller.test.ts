@@ -96,7 +96,7 @@ describe('SchoolController (реестр)', () => {
 
     const text = String(response.screen?.text);
     expect(text).toContain(TEST_SCHOOL.name);
-    expect(text).toContain('Развиваем не только хард');
+    expect(text).toContain('Мы учим быть программистом');
     expect(text).toContain('BatysHub');
     expect(text).toContain('Исатая');
     expect(text).toContain('777 287 8182');
