@@ -338,7 +338,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(text).not.toContain('Неизвестная команда');
       const btns =
         response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-      expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
+      expect(btns.some((t) => t.includes('Программа модуля'))).toBe(true);
       expect(btns.some((t) => t.includes('Детали'))).toBe(true);
       expect(btns.some((t) => t.includes('Назад к списку'))).toBe(true);
       // Менторские lifecycle-кнопки отсутствуют
@@ -382,7 +382,7 @@ describe('E2E: Витрина для любопытного', () => {
       );
       const btns =
         response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-      expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
+      expect(btns.some((t) => t.includes('Программа модуля'))).toBe(true);
       expect(btns.some((t) => t.includes('Детали'))).toBe(true);
     });
   });
@@ -482,9 +482,9 @@ describe('E2E: Витрина для любопытного', () => {
       const card = await press('JS Core — Поток 1');
       expect(card.screen?.text).toContain('JS Core');
 
-      const program = await press('Программа курса');
-      expect(program.screen?.text).toContain('Программа курса');
-      expect(program.screen?.text).toContain('📁');
+      const program = await press('Программа модуля');
+      expect(program.screen?.text).toContain('Программа модуля');
+      expect(program.screen?.text).toContain('Введение');
 
       const backToCard = await press('Назад к потоку');
       expect(backToCard.screen?.text).toContain('JS Core');
@@ -514,8 +514,8 @@ describe('E2E: Витрина для любопытного', () => {
       const card = await press('JS Core — Поток 2');
       expect(card.screen?.text).toContain('Поток 2');
 
-      const program = await press('Программа курса');
-      expect(program.screen?.text).toContain('📁');
+      const program = await press('Программа модуля');
+      expect(program.screen?.text).toContain('Программа модуля');
 
       await press('Назад к потоку');
       const backCatalog = await press('Назад к списку');

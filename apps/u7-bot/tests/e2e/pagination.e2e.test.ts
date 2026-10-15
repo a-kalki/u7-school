@@ -216,9 +216,9 @@ describe('E2E: Пагинация (S03 + каталог уровня 3)', () => 
     return first!;
   }
 
-  // ── S03: программа длинного потока ──
+  // ── S03: программа длинного потока (drill-down) ──
 
-  test('S03: длинная программа — полный цикл листания, edit на месте', async () => {
+  test('S03: длинная программа — drill-down навигация по проектам', async () => {
     const tgId = guest.telegramId;
     await transport.handleStart(transport.makeBotContext(tgId));
     await press(tgId, 'Школа');
@@ -226,36 +226,24 @@ describe('E2E: Пагинация (S03 + каталог уровня 3)', () => 
     const card = await press(tgId, 'JS Core — Длинная программа');
     expect(card.screen?.text).toContain('Длинная программа');
 
-    const program = await press(tgId, 'Программа курса');
+    const program = await press(tgId, 'Программа модуля');
     const programText = String(program.screen?.text ?? '');
-    expect(programText).toContain('Программа курса');
-    expect(programText).toContain('📁');
-    // блок = целый проект: первый проект страницы 1 виден целиком
+    expect(programText).toContain('Программа модуля');
     expect(programText).toContain('Проект 01');
 
-    await pageThroughCycle(tgId, programText);
-  });
+    // Переход в проект 01 через кнопку
+    const projectScreen = await press(tgId, 'Проект 01');
+    const projectText = String(projectScreen.screen?.text ?? '');
+    expect(projectText).toContain('Проект 01');
+    expect(hasButton(tgId, 'След. проект ▶️')).toBe(true);
 
-  test('S03: страницы не повторяют шапку-разделитель и целы по проектам', async () => {
-    const tgId = guest.telegramId;
-    await transport.handleStart(transport.makeBotContext(tgId));
-    await press(tgId, 'Школа');
-    await press(tgId, 'Потоки');
-    await press(tgId, 'JS Core — Длинная программа');
-    const program = await press(tgId, 'Программа курса');
-    const total = pageOf(String(program.screen?.text ?? ''))!.total;
+    // Листание проектов
+    const nextProject = await press(tgId, 'След. проект ▶️');
+    expect(String(nextProject.screen?.text ?? '')).toContain('Проект 02');
 
-    // Собираем тексты всех страниц и проверяем: проекты не повторяются
-    const seen = new Set<string>();
-    let text = String(program.screen?.text ?? '');
-    for (let i = 0; i < total + 2 && hasButton(tgId, 'След ›'); i++) {
-      collectProjects(text, seen);
-      const response = await press(tgId, 'След ›');
-      text = String(response.screen?.text ?? '');
-    }
-    collectProjects(text, seen);
-    // все 24 проекта распределены по страницам без потерь и дублей
-    expect(seen.size).toBe(24);
+    // Возврат к модулю
+    const backToRoot = await press(tgId, 'Назад к модулю');
+    expect(String(backToRoot.screen?.text ?? '')).toContain('Программа модуля');
   });
 
   // ── Каталог: уровень 3 длинного модуля ──

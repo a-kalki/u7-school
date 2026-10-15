@@ -261,7 +261,8 @@ describe('ViewStreamMentorStory (S02m-карточка) — контракт «�
     const guestActor: User = {
       uuid: 'stranger-1',
       name: 'Чужой',
-      roles: ['student'],
+      telegramId: 999,
+      roles: [Role.STUDENT],
       createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-01-01T00:00:00.000Z',
     };

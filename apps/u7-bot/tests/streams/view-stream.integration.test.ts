@@ -85,7 +85,7 @@ describe('ViewStreamStory (интеграционный)', () => {
     const response = await openView(guest, 'view', ENROLLMENT_ID);
     const btns =
       response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
+    expect(btns.some((t) => t.includes('Программа модуля'))).toBe(true);
     expect(btns.some((t) => t.includes('Детали'))).toBe(true);
     expect(btns.some((t) => t.includes('Назад к списку'))).toBe(true);
   });
@@ -119,12 +119,12 @@ describe('ViewStreamStory (интеграционный)', () => {
 
   // ── S03: Программа потока ──
 
-  test('program: показывает дерево проектов через tree-renderer', async () => {
+  test('program: показывает карточку программы модуля', async () => {
     const response = await openView(guest, 'program', ACTIVE_ID);
     const text = response.screen?.text ?? '';
-    expect(text).toContain('Программа курса');
-    expect(text).toContain('📁');
-    expect(text).toContain('📝');
+    expect(text).toContain('Программа модуля');
+    expect(text).toContain('Введение');
+    expect(text).toContain('Циклы и функции');
   });
 
   test('program: кнопка «Назад к потоку»', async () => {
@@ -171,9 +171,9 @@ describe('ViewStreamStory (интеграционный)', () => {
     const viewResp = await press('JS Core — Поток 1');
     expect(viewResp.screen?.text).toContain('JS Core');
 
-    // 4-5. «Программа курса» → программа
-    const programResp = await press('Программа курса');
-    expect(programResp.screen?.text).toContain('Программа курса');
+    // 4-5. «Программа модуля» → программа
+    const programResp = await press('Программа модуля');
+    expect(programResp.screen?.text).toContain('Программа модуля');
 
     // 6-7. «Назад к потоку» → карточка
     const backResp = await press('Назад к потоку');

@@ -340,7 +340,7 @@ export class ViewStreamStory extends U7BotUiStory {
         if (step) {
           stepDescriptions[targetId] = step.description ?? '';
           stepContent = {
-            kind: step.kind,
+            kind: step.kind ?? 'text',
             content: step.content,
             code: step.code,
           };
@@ -423,7 +423,7 @@ export class ViewStreamStory extends U7BotUiStory {
     // Информационные кнопки о курсе — рядом, первой строкой
     rows.push([
       this.btn(
-        '📖 Программа курса',
+        '📖 Программа модуля',
         this.cbFor(this.storyName, 'program', stream.uuid),
       ),
       this.btn('📋 Детали', this.cbFor(this.storyName, 'details', stream.uuid)),

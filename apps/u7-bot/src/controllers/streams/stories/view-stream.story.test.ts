@@ -200,10 +200,7 @@ describe('ViewStreamStory (S02-S04)', () => {
     );
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text);
-    expect(text).toContain('Программа курса');
-    // префиксы — как в каталоге «Программы курсов»
-    expect(text).toContain('Проект: Проект «CLI\\-калькулятор»');
-    expect(text).toContain('Урок: Урок «Введение»');
+    expect(text).toContain('Программа модуля');
     // дефис в доменном названии экранирован md-интерполяцией
     expect(text).toContain('CLI\\-калькулятор');
     expect(text).toContain('Введение');
@@ -533,264 +530,184 @@ describe('ViewStreamStory (S02-S04)', () => {
   });
 });
 
-// ── Пагинация программы курса (S03, трек pagination) ──
+// ── Публичная drill-down программа модуля (S03) ──
 
-describe('ViewStreamStory — пагинация программы (S03)', () => {
-  const PAGED_STREAM_ID = '22222222-2222-4222-8222-222222222222';
+describe('ViewStreamStory — публичная drill-down программа модуля (S03)', () => {
+  const STREAM_ID_PUB = '22222222-2222-4222-8222-222222222222';
 
-  /** Минимальная форма ответа для поиска кнопок. */
-  interface ScreenLike {
-    screen?: {
-      text?: string;
-      keyboard?: { rows: Array<Array<{ text: string; code: string }>> };
-    };
-  }
-
-  const pagedSession: BotSession = {
+  const pubSession: BotSession = {
     dialog: { path: 'stream/view-stream', seq: 1 },
   };
-  const pagedActor = makeActor();
+  const pubActor = makeActor();
 
-  /** Длинный снапшот: блок «проект с уроками» ~500 символов. */
-  function makeLongSnapshot(
-    projectCount: number,
-    lessonsPerProject: number,
-  ): ContentSnapshot {
-    return Array.from({ length: projectCount }, (_, p) => ({
-      projectId: `proj-${p}`,
-      projectTitle: `Проект ${p + 1}: Разработка и отладка серверных приложений на современном стеке технологий`,
-      lessons: Array.from({ length: lessonsPerProject }, (_, l) => ({
-        lessonId: `lesson-${p}-${l}`,
-        lessonTitle: `Урок ${p + 1}.${l + 1}: Практическое занятие по проектированию надёжной архитектуры модуля`,
-        stepIds: ['s1', 's2', 's3'],
-      })),
-    }));
-  }
+  const snapshot: ContentSnapshot = [
+    {
+      projectId: 'proj-1',
+      projectTitle: 'Введение в архитектуру',
+      lessons: [
+        {
+          lessonId: 'lesson-1',
+          lessonTitle: 'Модули и компоненты',
+          stepIds: ['step-1', 'step-2'],
+        },
+        {
+          lessonId: 'lesson-2',
+          lessonTitle: 'Интерфейсы',
+          stepIds: ['step-3'],
+        },
+      ],
+    },
+    {
+      projectId: 'proj-2',
+      projectTitle: 'Паттерны проектирования',
+      lessons: [
+        {
+          lessonId: 'lesson-3',
+          lessonTitle: 'Фасад и адаптер',
+          stepIds: ['step-4'],
+        },
+      ],
+    },
+  ];
 
-  /** Стори с подсчётом чтений домена (get-stream). */
-  function makePagedStory(snapshot: ContentSnapshot) {
-    let getStreamCalls = 0;
+  function makePublicStory() {
     const mockAppApi = {
-      execute: mock(async (name: string) => {
+      execute: mock(async (name: string, params?: Record<string, unknown>) => {
         if (name === 'get-stream') {
-          getStreamCalls++;
           return makeStream({
-            uuid: PAGED_STREAM_ID,
+            uuid: STREAM_ID_PUB,
             contentSnapshot: snapshot,
           });
+        }
+        if (name === 'get-steps-by-lessons') {
+          return {
+            'lesson-1': [
+              { uuid: 'step-1', description: 'Шаг 1: Описание первого шага' },
+              { uuid: 'step-2', description: 'Шаг 2: Описание второго шага' },
+            ],
+          };
+        }
+        if (name === 'get-step') {
+          return {
+            uuid: params?.uuid,
+            description: 'Шаг 1',
+            kind: 'text',
+            content: 'Секретное тело шага',
+          };
         }
         return undefined;
       }),
     };
     const story = new ViewStreamStory();
     story.init({ appApi: mockAppApi } as never);
-    return { story, getStreamCalls: () => getStreamCalls };
+    return { story, mockAppApi };
   }
 
-  /** Разбирает страницу: полные блоки «проект → его уроки». */
-  function parsePage(
-    text: string,
-  ): Array<{ title: string; lessons: string[] }> {
-    const blocks: Array<{ title: string; lessons: string[] }> = [];
-    for (const line of text.split('\n')) {
-      const proj = /^📁 \*Проект: (.+)\*$/.exec(line);
-      if (proj) {
-        blocks.push({ title: proj[1] ?? '', lessons: [] });
-        continue;
-      }
-      const lesson = /^ {4}📝 Урок: (.+) — \d+ шаг/.exec(line);
-      if (lesson && blocks.length > 0) {
-        blocks[blocks.length - 1]?.lessons.push(lesson[1] ?? '');
-      }
-    }
-    return blocks;
-  }
-
-  /** Кнопка с экрана по подстроке текста (или undefined). */
-  function findBtn(response: ScreenLike, textContains: string) {
-    return (response.screen?.keyboard?.rows ?? [])
-      .flat()
-      .find((b) => b.text.includes(textContains));
-  }
-
-  test('длинная программа: ≥3 страницы из целых проектов, полный цикл листания', async () => {
-    const snapshot = makeLongSnapshot(26, 4);
-    const { story } = makePagedStory(snapshot);
-
-    // Страница 0 и дальнейшее листание по кодам кнопок «След ›»
-    const pageTexts: string[] = [];
-    let response = await story.handleCallback(
-      `program:${PAGED_STREAM_ID}`,
-      pagedActor,
-      pagedSession,
+  test('root: карточка модуля — список проектов без статусов и кнопка назад', async () => {
+    const { story } = makePublicStory();
+    const response = await story.handleCallback(
+      `program:${STREAM_ID_PUB}`,
+      pubActor,
+      pubSession,
     );
     assertDialogResponseMarkdownSafe(response);
-    pageTexts.push(String(response.screen?.text ?? ''));
+    const text = String(response.screen?.text);
+    expect(text).toContain('Программа модуля');
+    expect(text).toContain('Введение в архитектуру');
+    expect(text).toContain('Паттерны проектирования');
+    // Без статусов
+    expect(text).not.toContain('✅');
+    expect(text).not.toContain('🔒');
 
-    for (let i = 0; i < 10; i++) {
-      const next = findBtn(response, 'След ›');
-      if (!next) break;
-      response = await story.handleCallback(
-        `program:${PAGED_STREAM_ID}:${next.code.split(':').pop()}`,
-        pagedActor,
-        pagedSession,
-      );
-      assertDialogResponseMarkdownSafe(response);
-      pageTexts.push(String(response.screen?.text ?? ''));
-    }
-
-    // Не меньше трёх страниц
-    expect(pageTexts.length).toBeGreaterThanOrEqual(3);
-
-    // Каждая страница несёт шапку и индикатор Стр. k/M
-    const total = pageTexts.length;
-    for (let i = 0; i < total; i++) {
-      expect(pageTexts[i]).toContain('Программа курса');
-      expect(pageTexts[i]).toContain(`Стр\\. ${i + 1}/${total}`);
-    }
-
-    // Объединение страниц = все 26 проектов по порядку, без потерь и дублей
-    const allBlocks = pageTexts.flatMap((t) => parsePage(t));
-    expect(allBlocks).toHaveLength(26);
-    const expected = snapshot.map((p) => p.projectTitle);
-    expect(allBlocks.map((b) => b.title)).toEqual(expected);
-
-    // Каждый проект на странице — ЦЕЛЫЙ: все 4 урока при нём
-    for (const block of allBlocks) {
-      expect(block.lessons).toHaveLength(4);
-    }
-  });
-
-  test('кнопки ‹ Пред / След › одним рядом, коды содержат номер страницы', async () => {
-    const { story } = makePagedStory(makeLongSnapshot(26, 4));
-
-    // Страница 0: только «След ›»
-    const first = await story.handleCallback(
-      `program:${PAGED_STREAM_ID}`,
-      pagedActor,
-      pagedSession,
-    );
-    const navRow0 = (first.screen?.keyboard?.rows ?? []).find((row) =>
-      row.some((b) => b.text.includes('Пред') || b.text.includes('След')),
-    );
-    expect(navRow0).toBeDefined();
-    expect(navRow0).toHaveLength(1); // одна кнопка в ряду
-    expect(navRow0?.[0]?.text).toBe('След ›');
-    expect(navRow0?.[0]?.code).toBe(`view-stream:program:${PAGED_STREAM_ID}:1`);
-
-    // Средняя страница 1: обе кнопки одним рядом
-    const mid = await story.handleCallback(
-      `program:${PAGED_STREAM_ID}:1`,
-      pagedActor,
-      pagedSession,
-    );
-    const navRowMid = (mid.screen?.keyboard?.rows ?? []).find((row) =>
-      row.some((b) => b.text.includes('‹ Пред')),
-    );
-    expect(navRowMid).toHaveLength(2);
-    expect(navRowMid?.[0]?.text).toBe('‹ Пред');
-    expect(navRowMid?.[0]?.code).toBe(
-      `view-stream:program:${PAGED_STREAM_ID}:0`,
-    );
-    expect(navRowMid?.[1]?.text).toBe('След ›');
-    expect(navRowMid?.[1]?.code).toBe(
-      `view-stream:program:${PAGED_STREAM_ID}:2`,
-    );
-
-    // Кнопка «Назад к потоку» — под навигацией
-    const rows = mid.screen?.keyboard?.rows ?? [];
-    const navIdx = rows.findIndex((r) =>
-      r.some((b) => b.text.includes('‹ Пред')),
-    );
-    const backIdx = rows.findIndex((r) =>
-      r.some((b) => b.text.includes('Назад к потоку')),
-    );
-    expect(navIdx).toBeGreaterThanOrEqual(0);
-    expect(backIdx).toBeGreaterThan(navIdx);
-  });
-
-  test('кеш: тыки по навигации не перечитывают домен', async () => {
-    const { story, getStreamCalls } = makePagedStory(makeLongSnapshot(26, 4));
-    await story.handleCallback(
-      `program:${PAGED_STREAM_ID}`,
-      pagedActor,
-      pagedSession,
-    );
-    await story.handleCallback(
-      `program:${PAGED_STREAM_ID}:1`,
-      pagedActor,
-      pagedSession,
-    );
-    await story.handleCallback(
-      `program:${PAGED_STREAM_ID}:0`,
-      pagedActor,
-      pagedSession,
-    );
-    expect(getStreamCalls()).toBe(1);
-  });
-
-  test('смена диалога (новая эпоха) → пересборка: домен перечитывается', async () => {
-    const { story, getStreamCalls } = makePagedStory(makeLongSnapshot(26, 4));
-    await story.handleCallback(
-      `program:${PAGED_STREAM_ID}`,
-      pagedActor,
-      pagedSession,
-    );
-    expect(getStreamCalls()).toBe(1);
-
-    // Новая эпоха диалога: seq вырос — кеш чужой, тихая пересборка
-    const nextSession: BotSession = {
-      dialog: { path: 'stream/view-stream', seq: 2 },
-    };
-    await story.handleCallback(
-      `program:${PAGED_STREAM_ID}:1`,
-      pagedActor,
-      nextSession,
-    );
-    expect(getStreamCalls()).toBe(2);
-  });
-
-  test('короткая программа: одна страница — без навигации и индикатора', async () => {
-    const { story } = makePagedStory(makeLongSnapshot(2, 2));
-    const response = await story.handleCallback(
-      `program:${PAGED_STREAM_ID}`,
-      pagedActor,
-      pagedSession,
-    );
-    const text = String(response.screen?.text ?? '');
-    expect(text).toContain('Проект 1');
-    expect(text).not.toContain('Стр');
-    const btns =
+    const btnTexts =
       response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btns.some((t) => t.includes('След'))).toBe(false);
-    expect(btns.some((t) => t.includes('Пред'))).toBe(false);
+    const btnCodes =
+      response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+
+    expect(btnTexts).toContain('1. 📁 Введение в архитектуру');
+    expect(btnTexts).toContain('2. 📁 Паттерны проектирования');
+    expect(btnCodes).toContain(
+      `view-stream:prog:${STREAM_ID_PUB}:project:proj-1`,
+    );
+    expect(btnCodes).toContain(
+      `view-stream:prog:${STREAM_ID_PUB}:project:proj-2`,
+    );
+    expect(btnTexts).toContain('⬅️ Назад к потоку');
+    expect(btnCodes).toContain(`view-stream:view:${STREAM_ID_PUB}`);
   });
 
-  test('clamp: номер страницы за пределами — последняя страница', async () => {
-    const { story } = makePagedStory(makeLongSnapshot(26, 4));
-    const first = String(
-      (
-        await story.handleCallback(
-          `program:${PAGED_STREAM_ID}`,
-          pagedActor,
-          pagedSession,
-        )
-      ).screen?.text ?? '',
-    );
-    const total = Number(/Стр\\. 1\/(\d+)/.exec(first)?.[1]);
-    expect(total).toBeGreaterThanOrEqual(3);
-
+  test('project: карточка проекта — список уроков и листание проектов', async () => {
+    const { story } = makePublicStory();
     const response = await story.handleCallback(
-      `program:${PAGED_STREAM_ID}:99`,
-      pagedActor,
-      pagedSession,
+      `prog:${STREAM_ID_PUB}:project:proj-1`,
+      pubActor,
+      pubSession,
     );
-    const text = String(response.screen?.text ?? '');
-    expect(text).toContain(`Стр\\. ${total}/${total}`);
-    const btns =
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text);
+    expect(text).toContain('Программа модуля');
+    expect(text).toContain('Введение в архитектуру');
+
+    const btnTexts =
       response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btns.some((t) => t === '‹ Пред')).toBe(true);
-    expect(btns.some((t) => t === 'След ›')).toBe(false);
+    const btnCodes =
+      response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+
+    expect(btnTexts).toContain('1. 📝 Модули и компоненты');
+    expect(btnTexts).toContain('2. 📝 Интерфейсы');
+    expect(btnCodes).toContain(
+      `view-stream:prog:${STREAM_ID_PUB}:lesson:lesson-1`,
+    );
+    expect(btnTexts).toContain('След. проект ▶️');
+    expect(btnCodes).toContain(
+      `view-stream:prog:${STREAM_ID_PUB}:project:proj-2`,
+    );
+    expect(btnTexts).toContain('⬅️ Назад к модулю');
+    expect(btnCodes).toContain(`view-stream:prog:${STREAM_ID_PUB}:root`);
+  });
+
+  test('lesson: карточка урока — заголовки шагов в тексте, но кнопок шагов нет', async () => {
+    const { story } = makePublicStory();
+    const response = await story.handleCallback(
+      `prog:${STREAM_ID_PUB}:lesson:lesson-1`,
+      pubActor,
+      pubSession,
+    );
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text);
+    expect(text).toContain('Модули и компоненты');
+    expect(text).toContain('Шаг 1: Описание первого шага');
+    expect(text).toContain('Шаг 2: Описание второго шага');
+
+    const btnTexts =
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btnCodes =
+      response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+
+    // Зрителю кнопки перехода в шаги недоступны!
+    expect(btnCodes.some((c) => c.includes(':step:'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('📄'))).toBe(false);
+
+    // Листание уроков и возврат к проекту доступны
+    expect(btnTexts).toContain('След. урок ▶️');
+    expect(btnCodes).toContain(
+      `view-stream:prog:${STREAM_ID_PUB}:lesson:lesson-2`,
+    );
+    expect(btnTexts).toContain('⬅️ Назад к проекту');
+    expect(btnCodes).toContain(
+      `view-stream:prog:${STREAM_ID_PUB}:project:proj-1`,
+    );
+  });
+
+  test('step: зритель получает отказ доступа к телу шага', async () => {
+    const { story } = makePublicStory();
+    const response = await story.handleCallback(
+      `prog:${STREAM_ID_PUB}:step:step-1`,
+      pubActor,
+      pubSession,
+    );
+    const text = String(response.screen?.text);
+    expect(text).toContain('Тела шагов недоступны');
   });
 });
 
