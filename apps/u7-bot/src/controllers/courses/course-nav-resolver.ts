@@ -127,7 +127,7 @@ export function resolveCourseNavLevel(
         id: `phase-${pIdx}`,
         index: pIdx + 1,
         title: `Этап: ${phase.title}`,
-        emoji: '🗂️',
+        emoji: '🏛',
         enterable: true,
         address: `${storyPrefix}:phase:${course.uuid}:${pIdx}`,
         children: subChildren,
@@ -184,7 +184,7 @@ export function resolveCourseNavLevel(
       return {
         id: modId,
         index: mIdx + 1,
-        title,
+        title: `Модуль: ${title}`,
         emoji: '📦',
         enterable: true,
         address: `${storyPrefix}:module:${course.uuid}:${currentPhaseIdx}:${modId}`,
@@ -244,14 +244,14 @@ export function resolveCourseNavLevel(
     const children: NavChild[] = snapshot.map((p, pIdx) => {
       const subChildren: NavSubChild[] = p.lessons.map((l) => ({
         id: l.lessonId,
-        title: l.lessonTitle,
+        title: `Урок: ${l.lessonTitle}`,
         emoji: '📝',
       }));
 
       return {
         id: p.projectId,
         index: pIdx + 1,
-        title: p.projectTitle,
+        title: `Проект: ${p.projectTitle}`,
         emoji: '📁',
         enterable: true,
         address: `${storyPrefix}:project:${modId}:${p.projectId}`,
@@ -316,16 +316,20 @@ export function resolveCourseNavLevel(
     const subtitle = `Проект состоит из ${lessonCount} урок${plural(lessonCount, 'а', 'ов', 'ов')}`;
 
     const children: NavChild[] = project.lessons.map((l, lIdx) => {
-      const subChildren: NavSubChild[] = l.stepIds.map((sId, sIdx) => ({
-        id: sId,
-        title: params.stepTitles?.[sId] ?? `Шаг ${sIdx + 1}`,
-        emoji: '🔹',
-      }));
+      const stepName = params.stepTitles?.[l.stepIds[0] ?? ''];
+      const subChildren: NavSubChild[] = l.stepIds.map((sId, sIdx) => {
+        const title = params.stepTitles?.[sId] ?? `Шаг ${sIdx + 1}`;
+        return {
+          id: sId,
+          title: title.startsWith('Шаг') ? title : `Шаг: ${title}`,
+          emoji: '📄',
+        };
+      });
 
       return {
         id: l.lessonId,
         index: lIdx + 1,
-        title: l.lessonTitle,
+        title: `Урок: ${l.lessonTitle}`,
         emoji: '📝',
         enterable: true,
         address: `${storyPrefix}:lesson:${modId}:${project.projectId}:${l.lessonId}`,
@@ -398,13 +402,16 @@ export function resolveCourseNavLevel(
     const stepCount = lesson.stepIds.length;
     const subtitle = `Урок состоит из ${stepCount} шаг${plural(stepCount, 'а', 'ов', 'ов')}`;
 
-    const children: NavChild[] = lesson.stepIds.map((sId, sIdx) => ({
-      id: sId,
-      index: sIdx + 1,
-      title: params.stepTitles?.[sId] ?? `Шаг ${sIdx + 1}`,
-      emoji: '🔹',
-      enterable: false,
-    }));
+    const children: NavChild[] = lesson.stepIds.map((sId, sIdx) => {
+      const title = params.stepTitles?.[sId] ?? `Шаг ${sIdx + 1}`;
+      return {
+        id: sId,
+        index: sIdx + 1,
+        title: title.startsWith('Шаг') ? title : `Шаг: ${title}`,
+        emoji: '📄',
+        enterable: false,
+      };
+    });
 
     const prevLesson = project.lessons[lessonIndex - 1];
     const nextLesson = project.lessons[lessonIndex + 1];

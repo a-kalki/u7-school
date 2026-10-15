@@ -22,14 +22,14 @@
 
 ## Фаза 2: Хаб «Курсы» и починка регресса
 
-- [ ] Task: Синхронизировать `course-nav-resolver` с обновленным презентером ядра [TDD]
-    - [ ] Проверить единообразие подписей (`Этап: ...`, `Модуль: ...`, `Проект: ...`, `Урок: ...`).
-    - [ ] Юнит-тесты `course-nav-resolver.test.ts` и `course-catalog.story.test.ts`.
-- [ ] Task: Починить регресс смежных e2e и интеграционных тестов каталога
-    - [ ] Актуализировать хелперы поиска кнопок в `wish-questionnaire.e2e.test.ts` и `questionnaire-ux.e2e.test.ts`.
-    - [ ] Актуализировать `pagination.e2e.test.ts` под карточный drill-down.
-    - [ ] Актуализировать `course-catalog.integration.test.ts` и `wish-flow.integration.test.ts`.
-    - [ ] Убедиться, что тесты каталога курсов и wish-флоу зелёные.
+- [x] Task: Синхронизировать `course-nav-resolver` с обновленным презентером ядра [TDD]
+    - [x] Проверить единообразие подписей (`Этап: ...`, `Модуль: ...`, `Проект: ...`, `Урок: ...`).
+    - [x] Юнит-тесты `course-nav-resolver.test.ts` и `course-catalog.story.test.ts`.
+- [x] Task: Починить регресс смежных e2e и интеграционных тестов каталога
+    - [x] Актуализировать хелперы поиска кнопок в `wish-questionnaire.e2e.test.ts` и `questionnaire-ux.e2e.test.ts`.
+    - [x] Актуализировать `pagination.e2e.test.ts` под карточный drill-down.
+    - [x] Актуализировать `course-catalog.integration.test.ts` и `wish-flow.integration.test.ts`.
+    - [x] Убедиться, что тесты каталога курсов и wish-флоу зелёные.
 
 ---
 

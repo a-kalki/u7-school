@@ -84,7 +84,7 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
       const phase1 = level?.children?.[0];
       expect(phase1?.index).toBe(1);
       expect(phase1?.title).toBe('Этап: Основы JS');
-      expect(phase1?.emoji).toBe('🗂️');
+      expect(phase1?.emoji).toBe('🏛');
       expect(phase1?.enterable).toBe(true);
       expect(phase1?.address).toBe('course-catalog:phase:course-1:0');
       // Подуровень — модули
@@ -229,7 +229,7 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
 
       const mod1 = level?.children?.[0];
       expect(mod1?.index).toBe(1);
-      expect(mod1?.title).toBe('Введение в синтаксис');
+      expect(mod1?.title).toBe('Модуль: Введение в синтаксис');
       expect(mod1?.emoji).toBe('📦');
       expect(mod1?.enterable).toBe(true);
       expect(mod1?.address).toBe('course-catalog:module:course-1:0:mod-1');
@@ -322,21 +322,19 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
       const { text, keyboard } = presentNavLevel(level);
 
       // MarkdownV2 текст
-      expect(text).toContain('📖 *Курсы*\n› Курс: Fullstack JS');
+      expect(text).toContain('📖 *Курсы*\n› *Курс: Fullstack JS*');
       expect(text).toContain('Курс состоит из 2 этапов');
-      expect(text).toContain('1\\. *Этап: Основы JS*');
+      expect(text).toContain('1\\. 🏛 *Этап: Основы JS*');
       expect(text).toContain('    📦 Модуль: Введение в синтаксис');
-      expect(text).toContain('2\\. *Этап: Продвинутый JS*');
+      expect(text).toContain('2\\. 🏛 *Этап: Продвинутый JS*');
 
-      // Клавиатура: 2 кнопки этапов, 1 wish, 1 навигация (След. курс), 1 меню
+      // Клавиатура: 2 кнопки этапов (компактные без эмодзи и префикса), 1 wish, 1 навигация, 1 меню
       expect(keyboard.rows).toHaveLength(5);
-      expect(keyboard.rows[0]?.[0]?.text).toContain('1. 🗂️ Этап: Основы JS');
+      expect(keyboard.rows[0]?.[0]?.text).toBe('1. Основы JS');
       expect(keyboard.rows[0]?.[0]?.code).toBe(
         'course-catalog:phase:course-1:0',
       );
-      expect(keyboard.rows[1]?.[0]?.text).toContain(
-        '2. 🗂️ Этап: Продвинутый JS',
-      );
+      expect(keyboard.rows[1]?.[0]?.text).toBe('2. Продвинутый JS');
       expect(keyboard.rows[2]?.[0]?.text).toBe('🎓 Хочу пройти курс');
       expect(keyboard.rows[3]?.[0]?.text).toBe('След. курс ▶️');
       expect(keyboard.rows[4]?.[0]?.text).toBe('↩️ Главное меню');
@@ -356,21 +354,19 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
       const { text, keyboard } = presentNavLevel(level);
 
       expect(text).toContain(
-        '📖 *Курсы*\n› Курс: Fullstack JS\n› Этап: Основы JS',
+        '📖 *Курсы*\n› Курс: Fullstack JS\n› *Этап: Основы JS*',
       );
       expect(text).toContain('Этап состоит из 2 модулей');
-      expect(text).toContain('1\\. *Введение в синтаксис*');
+      expect(text).toContain('1\\. 📦 *Модуль: Введение в синтаксис*');
       expect(text).toContain('    📁 Проект: Переменные и типы');
 
-      // Клавиатура: 2 кнопки модулей, 1 навигация (След. этап), 1 назад к курсу
+      // Клавиатура: 2 кнопки модулей (компактные), 1 навигация (След. этап), 1 назад к курсу
       expect(keyboard.rows).toHaveLength(4);
-      expect(keyboard.rows[0]?.[0]?.text).toContain(
-        '1. 📦 Введение в синтаксис',
-      );
+      expect(keyboard.rows[0]?.[0]?.text).toBe('1. Введение в синтаксис');
       expect(keyboard.rows[0]?.[0]?.code).toBe(
         'course-catalog:module:course-1:0:mod-1',
       );
-      expect(keyboard.rows[1]?.[0]?.text).toContain('2. 📦 Структуры данных');
+      expect(keyboard.rows[1]?.[0]?.text).toBe('2. Структуры данных');
       expect(keyboard.rows[2]?.[0]?.text).toBe('След. этап ▶️');
       expect(keyboard.rows[3]?.[0]?.text).toBe('⬅️ Назад к курсу');
     });
@@ -441,16 +437,16 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
 
         const proj1 = level?.children?.[0];
         expect(proj1?.index).toBe(1);
-        expect(proj1?.title).toBe('Введение в JS');
+        expect(proj1?.title).toBe('Проект: Введение в JS');
         expect(proj1?.emoji).toBe('📁');
         expect(proj1?.enterable).toBe(true);
         expect(proj1?.address).toBe('course-catalog:project:mod-1:proj-1');
 
         // Подуровень проекта — уроки
         expect(proj1?.children).toHaveLength(2);
-        expect(proj1?.children?.[0]?.title).toBe('Настройка окружения');
+        expect(proj1?.children?.[0]?.title).toBe('Урок: Настройка окружения');
         expect(proj1?.children?.[0]?.emoji).toBe('📝');
-        expect(proj1?.children?.[1]?.title).toBe('Первая программа');
+        expect(proj1?.children?.[1]?.title).toBe('Урок: Первая программа');
         expect(proj1?.children?.[1]?.emoji).toBe('📝');
 
         // Назад к этапу
@@ -525,17 +521,17 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
 
         const les1 = level?.children?.[0];
         expect(les1?.index).toBe(1);
-        expect(les1?.title).toBe('Настройка окружения');
+        expect(les1?.title).toBe('Урок: Настройка окружения');
         expect(les1?.emoji).toBe('📝');
         expect(les1?.enterable).toBe(true);
         expect(les1?.address).toBe('course-catalog:lesson:mod-1:proj-1:les-1');
 
         // Подуровень урока — шаги-заголовки
         expect(les1?.children).toHaveLength(2);
-        expect(les1?.children?.[0]?.title).toBe('Установка Bun');
-        expect(les1?.children?.[0]?.emoji).toBe('🔹');
-        expect(les1?.children?.[1]?.title).toBe('Запуск скрипта');
-        expect(les1?.children?.[1]?.emoji).toBe('🔹');
+        expect(les1?.children?.[0]?.title).toBe('Шаг: Установка Bun');
+        expect(les1?.children?.[0]?.emoji).toBe('📄');
+        expect(les1?.children?.[1]?.title).toBe('Шаг: Запуск скрипта');
+        expect(les1?.children?.[1]?.emoji).toBe('📄');
 
         // Назад к модулю
         expect(level?.back).toEqual({
@@ -600,21 +596,19 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
         const { text, keyboard } = presentNavLevel(level);
 
         expect(text).toContain(
-          '📖 *Курсы*\n› Курс: Fullstack JS\n› Этап: Основы JS\n› Модуль: Введение в синтаксис',
+          '📖 *Курсы*\n› Курс: Fullstack JS\n› Этап: Основы JS\n› *Модуль: Введение в синтаксис*',
         );
         expect(text).toContain('Модуль состоит из 2 проектов');
-        expect(text).toContain('1\\. *Введение в JS*');
-        expect(text).toContain('    📝 Настройка окружения');
+        expect(text).toContain('1\\. 📁 *Проект: Введение в JS*');
+        expect(text).toContain('    📝 Урок: Настройка окружения');
 
-        // Клавиатура: 2 кнопки проектов, 1 навигация (След. модуль), 1 назад к этапу
+        // Клавиатура: 2 кнопки проектов (компактные), 1 навигация (След. модуль), 1 назад к этапу
         expect(keyboard.rows).toHaveLength(4);
-        expect(keyboard.rows[0]?.[0]?.text).toContain('1. 📁 Введение в JS');
+        expect(keyboard.rows[0]?.[0]?.text).toBe('1. Введение в JS');
         expect(keyboard.rows[0]?.[0]?.code).toBe(
           'course-catalog:project:mod-1:proj-1',
         );
-        expect(keyboard.rows[1]?.[0]?.text).toContain(
-          '2. 📁 Базовые типы и операторы',
-        );
+        expect(keyboard.rows[1]?.[0]?.text).toBe('2. Базовые типы и операторы');
         expect(keyboard.rows[2]?.[0]?.text).toBe('След. модуль ▶️');
         expect(keyboard.rows[3]?.[0]?.text).toBe('⬅️ Назад к этапу');
       });
@@ -637,21 +631,19 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
         const { text, keyboard } = presentNavLevel(level);
 
         expect(text).toContain(
-          '📖 *Курсы*\n› Курс: Fullstack JS\n› Этап: Основы JS\n› Модуль: Введение в синтаксис\n› Проект: Введение в JS',
+          '📖 *Курсы*\n› Курс: Fullstack JS\n› Этап: Основы JS\n› Модуль: Введение в синтаксис\n› *Проект: Введение в JS*',
         );
         expect(text).toContain('Проект состоит из 2 уроков');
-        expect(text).toContain('1\\. *Настройка окружения*');
-        expect(text).toContain('    🔹 Установка Bun');
+        expect(text).toContain('1\\. 📝 *Урок: Настройка окружения*');
+        expect(text).toContain('    📄 Шаг: Установка Bun');
 
         // Клавиатура: 2 кнопки уроков, 1 навигация (След. проект), 1 назад к модулю
         expect(keyboard.rows).toHaveLength(4);
-        expect(keyboard.rows[0]?.[0]?.text).toContain(
-          '1. 📝 Настройка окружения',
-        );
+        expect(keyboard.rows[0]?.[0]?.text).toBe('1. Настройка окружения');
         expect(keyboard.rows[0]?.[0]?.code).toBe(
           'course-catalog:lesson:mod-1:proj-1:les-1',
         );
-        expect(keyboard.rows[1]?.[0]?.text).toContain('2. 📝 Первая программа');
+        expect(keyboard.rows[1]?.[0]?.text).toBe('2. Первая программа');
         expect(keyboard.rows[2]?.[0]?.text).toBe('След. проект ▶️');
         expect(keyboard.rows[3]?.[0]?.text).toBe('⬅️ Назад к модулю');
       });
@@ -689,16 +681,16 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
 
         const step1 = level?.children?.[0];
         expect(step1?.index).toBe(1);
-        expect(step1?.title).toBe('Установка Bun');
-        expect(step1?.emoji).toBe('🔹');
+        expect(step1?.title).toBe('Шаг: Установка Bun');
+        expect(step1?.emoji).toBe('📄');
         expect(step1?.enterable).toBe(false);
         expect(step1?.address).toBeUndefined();
         expect(step1?.children).toBeUndefined();
 
         const step2 = level?.children?.[1];
         expect(step2?.index).toBe(2);
-        expect(step2?.title).toBe('Запуск скрипта');
-        expect(step2?.emoji).toBe('🔹');
+        expect(step2?.title).toBe('Шаг: Запуск скрипта');
+        expect(step2?.emoji).toBe('📄');
         expect(step2?.enterable).toBe(false);
         expect(step2?.address).toBeUndefined();
 
@@ -768,11 +760,11 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
         const { text, keyboard } = presentNavLevel(level);
 
         expect(text).toContain(
-          '📖 *Курсы*\n› Курс: Fullstack JS\n› Этап: Основы JS\n› Модуль: Введение в синтаксис\n› Проект: Введение в JS\n› Урок: Настройка окружения',
+          '📖 *Курсы*\n› Курс: Fullstack JS\n› Этап: Основы JS\n› Модуль: Введение в синтаксис\n› Проект: Введение в JS\n› *Урок: Настройка окружения*',
         );
         expect(text).toContain('Урок состоит из 2 шагов');
-        expect(text).toContain('1\\. 🔹 Установка Bun');
-        expect(text).toContain('2\\. 🔹 Запуск скрипта');
+        expect(text).toContain('1\\. 📄 Шаг: Установка Bun');
+        expect(text).toContain('2\\. 📄 Шаг: Запуск скрипта');
 
         // Клавиатура: НЕТ кнопок шагов, только навигация (След. урок) и назад к проекту
         expect(keyboard.rows).toHaveLength(2);
