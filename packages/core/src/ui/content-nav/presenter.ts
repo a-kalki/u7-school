@@ -46,8 +46,13 @@ export function formatBreadcrumbs(
   for (let i = 1; i < breadcrumbs.length; i++) {
     const segment = breadcrumbs[i];
     if (segment) {
+      const isLast = i === breadcrumbs.length - 1;
       if (multiline) {
-        parts.push(md`\n› ${segment}`);
+        if (isLast) {
+          parts.push(md`\n› *${segment}*`);
+        } else {
+          parts.push(md`\n› ${segment}`);
+        }
       } else {
         parts.push(md` › ${segment}`);
       }
@@ -79,7 +84,13 @@ function formatChild(child: NavChild, isNestedList: boolean): MdText[] {
   if (isNestedList) {
     // В списке с подуровнями (проекты модуля или уроки проекта) родитель жирным
     const statusPart = statusIcon ? ` ${statusIcon}` : '';
-    lines.push(md`${child.index}\\. *${child.title}*${meta}${statusPart}`);
+    let emojiPrefix = '';
+    if (child.emoji && !child.title.startsWith(child.emoji)) {
+      emojiPrefix = `${child.emoji} `;
+    }
+    lines.push(
+      md`${child.index}\\. ${emojiPrefix}*${child.title}*${meta}${statusPart}`,
+    );
     if (child.children) {
       for (const sub of child.children) {
         lines.push(formatSubChild(sub));
@@ -90,7 +101,10 @@ function formatChild(child: NavChild, isNestedList: boolean): MdText[] {
     if (statusIcon) {
       lines.push(md`${child.index}\\. ${statusIcon} ${child.title}${meta}`);
     } else {
-      const emojiPrefix = child.emoji ? `${child.emoji} ` : '';
+      let emojiPrefix = '';
+      if (child.emoji && !child.title.startsWith(child.emoji)) {
+        emojiPrefix = `${child.emoji} `;
+      }
       lines.push(md`${child.index}\\. ${emojiPrefix}${child.title}${meta}`);
     }
   }
@@ -162,29 +176,40 @@ function resolveTarget(
 const MAX_BUTTON_LABEL_LENGTH = 48;
 
 /**
+ * Очищает название дочернего элемента для отображения на кнопке (без эмодзи и префикса уровня).
+ */
+function cleanChildButtonTitle(title: string): string {
+  // 1. Убираем ведущие эмодзи и пробелы
+  let cleaned = title.replace(
+    /^(?:\p{Extended_Pictographic}|\uFE0F|\u200D|\s)+/u,
+    '',
+  );
+  // 2. Убираем служебный префикс уровня ("Этап:", "Проект:", "Урок:", "Модуль:", "Шаг:")
+  cleaned = cleaned.replace(
+    /^(?:Курс|Этап|Модуль|Проект|Урок|Шаг(?:\s*\d+)?):\s*/iu,
+    '',
+  );
+  // 3. Убираем оставшиеся ведущие эмодзи, если шли после префикса
+  cleaned = cleaned.replace(
+    /^(?:\p{Extended_Pictographic}|\uFE0F|\u200D|\s)+/u,
+    '',
+  );
+  return cleaned.trim();
+}
+
+/**
  * Формирует читабельный текст для кнопки дочернего элемента.
  */
 function buildChildButtonText(child: NavChild): string {
-  // На кнопках проектов (📁) и уроков (📝) используется их emoji
-  // На кнопках шагов (📄 или без emoji) — статусная иконка ✅/▶️ или 📄 (у ментора)
-  let prefix = '';
-  if (child.emoji && child.emoji !== '📄') {
-    prefix = `${child.emoji} `;
-  } else if (child.status) {
-    prefix = `${STATUS_ICONS[child.status]} `;
-  } else if (child.emoji) {
-    prefix = `${child.emoji} `;
-  }
-
   const meta = child.meta ? ` ${child.meta}` : '';
+  let title = cleanChildButtonTitle(child.title);
 
-  let title = child.title;
-  const full = `${child.index}. ${prefix}${title}${meta}`;
+  const full = `${child.index}. ${title}${meta}`;
   if (full.length > MAX_BUTTON_LABEL_LENGTH) {
     const available =
-      MAX_BUTTON_LABEL_LENGTH - `${child.index}. ${prefix}${meta}...`.length;
+      MAX_BUTTON_LABEL_LENGTH - `${child.index}. ${meta}...`.length;
     title = `${title.slice(0, Math.max(5, available))}...`;
-    return `${child.index}. ${prefix}${title}${meta}`;
+    return `${child.index}. ${title}${meta}`;
   }
 
   return full;

@@ -22,7 +22,7 @@ describe('NavLevel Presenter (TDD)', () => {
       expect(mdText).toContain('Урок состоит из 3 шагов');
     });
 
-    test('шапка с многострочными хлебными крошками (multilineBreadcrumbs)', () => {
+    test('шапка с многострочными хлебными крошками (multilineBreadcrumbs) и жирным последним уровнем', () => {
       const level: NavLevel = {
         breadcrumbs: ['📖 Курсы', 'Курс: Fullstack JS', 'Этап: Синтаксис'],
         multilineBreadcrumbs: true,
@@ -31,7 +31,7 @@ describe('NavLevel Presenter (TDD)', () => {
 
       const mdText = formatNavLevelText(level);
       expect(mdText).toContain(
-        '📖 *Курсы*\n› Курс: Fullstack JS\n› Этап: Синтаксис',
+        '📖 *Курсы*\n› Курс: Fullstack JS\n› *Этап: Синтаксис*',
       );
     });
 
@@ -99,6 +99,33 @@ describe('NavLevel Presenter (TDD)', () => {
       expect(mdText).toContain('2\\. *Проект: Инфраструктура* \\(0/3\\) 🔒');
     });
 
+    test('карточка выводит эмодзи уровня в списке с подуровнями', () => {
+      const level: NavLevel = {
+        breadcrumbs: ['📖 Курсы', 'Fullstack JS'],
+        subtitle: 'Курс состоит из 1 этапа',
+        children: [
+          {
+            id: 'ph1',
+            index: 1,
+            title: 'Этап: Основы',
+            emoji: '🏛',
+            enterable: true,
+            children: [
+              {
+                title: 'Модуль: Введение',
+                emoji: '📦',
+              },
+            ],
+          },
+        ],
+        back: 'nav:root',
+      };
+
+      const mdText = formatNavLevelText(level);
+      expect(mdText).toContain('1\\. 🏛 *Этап: Основы*');
+      expect(mdText).toContain('    📦 Модуль: Введение');
+    });
+
     test('рендер одноуровневого списка детей со статусами', () => {
       const level: NavLevel = {
         breadcrumbs: ['📂 Уроки', 'Web', 'Урок 1'],
@@ -156,41 +183,43 @@ describe('NavLevel Presenter (TDD)', () => {
   });
 
   describe('buildNavLevelKeyboard', () => {
-    test('кнопки детей создаются только для enterable: true', () => {
+    test('кнопки подуровней упрощаются: без эмодзи и префикса уровня', () => {
       const level: NavLevel = {
-        breadcrumbs: ['📂 Уроки'],
+        breadcrumbs: ['📖 Курсы', 'Fullstack JS'],
         children: [
           {
-            id: 'p1',
+            id: 'ph1',
             index: 1,
-            title: 'Введение в web',
-            emoji: '📁',
-            meta: '(2/5)',
-            status: 'completed',
+            title: 'Этап: Синтаксис',
+            emoji: '🏛',
             enterable: true,
-            address: 'nav:p1',
+            address: 'nav:ph1',
           },
           {
-            id: 'p2',
+            id: 'ph2',
             index: 2,
-            title: 'Инфраструктура',
+            title: '📁 Проект: Введение в Web',
             emoji: '📁',
-            meta: '(0/3)',
-            status: 'locked',
-            enterable: false, // заблокирован для студента
+            meta: '(2/5)',
+            enterable: true,
+            address: 'nav:ph2',
+          },
+          {
+            id: 'ph3',
+            index: 3,
+            title: '📝 Урок: Переменные',
+            enterable: true,
+            address: 'nav:ph3',
           },
         ],
-        back: { address: 'nav:hub', label: '⬅️ Назад к учёбе' },
+        back: 'nav:root',
       };
 
       const kbDesc = buildNavLevelKeyboard(level);
 
-      // 1 кнопка ребенка + 1 кнопка назад = 2 ряда
-      expect(kbDesc.rows.length).toBe(2);
-      expect(kbDesc.rows[0]?.[0]?.text).toContain('1. 📁 Введение в web (2/5)');
-      expect(kbDesc.rows[0]?.[0]?.code).toBe('nav:p1');
-      expect(kbDesc.rows[1]?.[0]?.text).toBe('⬅️ Назад к учёбе');
-      expect(kbDesc.rows[1]?.[0]?.code).toBe('nav:hub');
+      expect(kbDesc.rows[0]?.[0]?.text).toBe('1. Синтаксис');
+      expect(kbDesc.rows[1]?.[0]?.text).toBe('2. Введение в Web (2/5)');
+      expect(kbDesc.rows[2]?.[0]?.text).toBe('3. Переменные');
     });
 
     test('навигационный ряд соседей: оба соседа присутствуют', () => {
