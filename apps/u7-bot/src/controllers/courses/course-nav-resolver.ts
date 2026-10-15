@@ -157,7 +157,7 @@ export function resolveCourseNavLevel(
         : undefined,
       back: {
         label: '↩️ Главное меню',
-        address: 'menu:root',
+        address: Routes.app.mainMenu,
       },
     };
   }
@@ -254,7 +254,7 @@ export function resolveCourseNavLevel(
         title: p.projectTitle,
         emoji: '📁',
         enterable: true,
-        address: `${storyPrefix}:project:${course.uuid}:${currentPhaseIdx}:${modId}:${p.projectId}`,
+        address: `${storyPrefix}:project:${modId}:${p.projectId}`,
         children: subChildren,
       };
     });
@@ -328,7 +328,7 @@ export function resolveCourseNavLevel(
         title: l.lessonTitle,
         emoji: '📝',
         enterable: true,
-        address: `${storyPrefix}:lesson:${course.uuid}:${currentPhaseIdx}:${modId}:${project.projectId}:${l.lessonId}`,
+        address: `${storyPrefix}:lesson:${modId}:${project.projectId}:${l.lessonId}`,
         children: subChildren,
       };
     });
@@ -350,13 +350,13 @@ export function resolveCourseNavLevel(
       prev: prevProject
         ? {
             label: '◀️ Пред. проект',
-            address: `${storyPrefix}:project:${course.uuid}:${currentPhaseIdx}:${modId}:${prevProject.projectId}`,
+            address: `${storyPrefix}:project:${modId}:${prevProject.projectId}`,
           }
         : undefined,
       next: nextProject
         ? {
             label: 'След. проект ▶️',
-            address: `${storyPrefix}:project:${course.uuid}:${currentPhaseIdx}:${modId}:${nextProject.projectId}`,
+            address: `${storyPrefix}:project:${modId}:${nextProject.projectId}`,
           }
         : undefined,
       back: {
@@ -424,18 +424,18 @@ export function resolveCourseNavLevel(
       prev: prevLesson
         ? {
             label: '◀️ Пред. урок',
-            address: `${storyPrefix}:lesson:${course.uuid}:${currentPhaseIdx}:${modId}:${project.projectId}:${prevLesson.lessonId}`,
+            address: `${storyPrefix}:lesson:${modId}:${project.projectId}:${prevLesson.lessonId}`,
           }
         : undefined,
       next: nextLesson
         ? {
             label: 'След. урок ▶️',
-            address: `${storyPrefix}:lesson:${course.uuid}:${currentPhaseIdx}:${modId}:${project.projectId}:${nextLesson.lessonId}`,
+            address: `${storyPrefix}:lesson:${modId}:${project.projectId}:${nextLesson.lessonId}`,
           }
         : undefined,
       back: {
         label: '⬅️ Назад к проекту',
-        address: `${storyPrefix}:project:${course.uuid}:${currentPhaseIdx}:${modId}:${project.projectId}`,
+        address: `${storyPrefix}:project:${modId}:${project.projectId}`,
       },
     };
   }

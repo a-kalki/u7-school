@@ -343,9 +343,7 @@ describe('CourseCatalogStory', () => {
     const rows = response.screen?.keyboard?.rows ?? [];
     const projBtn = rows.find((r) => r[0]?.text?.includes('Проект 1'));
     expect(projBtn).toBeDefined();
-    expect(projBtn![0]!.code).toBe(
-      `course-catalog:project:${courseUuid}:0:m-a:pa`,
-    );
+    expect(projBtn![0]!.code).toBe(`course-catalog:project:m-a:pa`);
 
     // Кнопка «Назад к этапу»
     expect(rows.some((r) => r[0]?.text?.includes('Назад к этапу'))).toBe(true);
@@ -423,9 +421,7 @@ describe('CourseCatalogStory', () => {
     const rows = response.screen?.keyboard?.rows ?? [];
     const lessonBtn = rows.find((r) => r[0]?.text?.includes('HTML разметка'));
     expect(lessonBtn).toBeDefined();
-    expect(lessonBtn![0]!.code).toBe(
-      `course-catalog:lesson:${courseUuid}:0:m-x:proj-1:les-a`,
-    );
+    expect(lessonBtn![0]!.code).toBe(`course-catalog:lesson:m-x:proj-1:les-a`);
 
     // Кнопка «Назад к модулю»
     expect(rows.some((r) => r[0]?.text?.includes('Назад к модулю'))).toBe(true);

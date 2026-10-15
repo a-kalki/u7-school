@@ -62,31 +62,18 @@ export class CourseCatalogStory extends U7BotUiStory {
         // Совместимость со старыми колбэками: modules:<courseId>:<phaseIdx> -> карточка этапа
         return this.#handlePhase(ids[0] ?? '', Number(ids[1]));
       case 'project':
-        return this.#handleProject(
-          ids[0] ?? '',
-          Number(ids[1]),
-          ids[2] ?? '',
-          ids[3] ?? '',
-        );
-      case 'projects':
-        // Совместимость: projects:<courseId>:<phaseIdx>:<modId> -> карточка модуля
-        return this.#handleModule(ids[0] ?? '', Number(ids[1]), ids[2] ?? '');
+      case 'projects': {
+        const modId = ids.length >= 4 ? (ids[2] ?? '') : (ids[0] ?? '');
+        const projId = ids.length >= 4 ? (ids[3] ?? '') : (ids[1] ?? '');
+        return this.#handleProject(modId, projId);
+      }
       case 'lesson':
-        return this.#handleLesson(
-          ids[0] ?? '',
-          Number(ids[1]),
-          ids[2] ?? '',
-          ids[3] ?? '',
-          ids[4] ?? '',
-        );
-      case 'lessons':
-        // Совместимость: lessons:<courseId>:<phaseIdx>:<modId>:<projId> -> карточка проекта
-        return this.#handleProject(
-          ids[0] ?? '',
-          Number(ids[1]),
-          ids[2] ?? '',
-          ids[3] ?? '',
-        );
+      case 'lessons': {
+        const modId = ids.length >= 5 ? (ids[2] ?? '') : (ids[0] ?? '');
+        const projId = ids.length >= 5 ? (ids[3] ?? '') : (ids[1] ?? '');
+        const lesId = ids.length >= 5 ? (ids[4] ?? '') : (ids[2] ?? '');
+        return this.#handleLesson(modId, projId, lesId);
+      }
       case 'wish':
         return this.#handleWishModule(ids[0] ?? '', actor);
       case 'apply':
@@ -270,16 +257,22 @@ export class CourseCatalogStory extends U7BotUiStory {
   // ═══ Уровень 3: Проект (карточка проекта + уроки подуровнем) ═══
 
   async #handleProject(
-    courseId: string,
-    phaseIdx: number,
     moduleId: string,
     projectId: string,
   ): Promise<DialogResponse> {
     const courses = await this.#loadCourses();
-    const course = courses.find((c) => c.uuid === courseId);
+    const course =
+      courses.find((c) =>
+        c.phases.some((p) => p.moduleIds?.includes(moduleId)),
+      ) ?? courses[0];
     if (!course) {
       return this.screen(md`⚠️ Курс не найден или недоступен`);
     }
+
+    const phaseIdx = Math.max(
+      0,
+      course.phases.findIndex((p) => p.moduleIds?.includes(moduleId)),
+    );
 
     let snapshot: ContentSnapshot;
     try {
@@ -311,7 +304,7 @@ export class CourseCatalogStory extends U7BotUiStory {
     const navLevel = resolveCourseNavLevel({
       level: 'project',
       courses,
-      currentCourseId: courseId,
+      currentCourseId: course.uuid,
       phaseIdx,
       moduleId,
       projectId,
@@ -331,17 +324,23 @@ export class CourseCatalogStory extends U7BotUiStory {
   // ═══ Уровень 4: Урок (шаги только заголовками, закрытый уровень) ═══
 
   async #handleLesson(
-    courseId: string,
-    phaseIdx: number,
     moduleId: string,
     projectId: string,
     lessonId: string,
   ): Promise<DialogResponse> {
     const courses = await this.#loadCourses();
-    const course = courses.find((c) => c.uuid === courseId);
+    const course =
+      courses.find((c) =>
+        c.phases.some((p) => p.moduleIds?.includes(moduleId)),
+      ) ?? courses[0];
     if (!course) {
       return this.screen(md`⚠️ Курс не найден или недоступен`);
     }
+
+    const phaseIdx = Math.max(
+      0,
+      course.phases.findIndex((p) => p.moduleIds?.includes(moduleId)),
+    );
 
     let snapshot: ContentSnapshot;
     try {
@@ -377,7 +376,7 @@ export class CourseCatalogStory extends U7BotUiStory {
     const navLevel = resolveCourseNavLevel({
       level: 'lesson',
       courses,
-      currentCourseId: courseId,
+      currentCourseId: course.uuid,
       phaseIdx,
       moduleId,
       projectId,

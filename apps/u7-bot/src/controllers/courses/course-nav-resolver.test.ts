@@ -5,6 +5,7 @@ import {
   type Course,
   Status,
 } from '@u7-scl/course/domain';
+import { Routes } from '../shared/routes';
 import {
   type ModuleNavInfo,
   resolveCourseNavLevel,
@@ -114,7 +115,7 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
       });
       expect(level1?.back).toEqual({
         label: '↩️ Главное меню',
-        address: 'menu:root',
+        address: Routes.app.mainMenu,
       });
 
       // Второй курс (есть prev, нет next)
@@ -443,9 +444,7 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
         expect(proj1?.title).toBe('Введение в JS');
         expect(proj1?.emoji).toBe('📁');
         expect(proj1?.enterable).toBe(true);
-        expect(proj1?.address).toBe(
-          'course-catalog:project:course-1:0:mod-1:proj-1',
-        );
+        expect(proj1?.address).toBe('course-catalog:project:mod-1:proj-1');
 
         // Подуровень проекта — уроки
         expect(proj1?.children).toHaveLength(2);
@@ -529,9 +528,7 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
         expect(les1?.title).toBe('Настройка окружения');
         expect(les1?.emoji).toBe('📝');
         expect(les1?.enterable).toBe(true);
-        expect(les1?.address).toBe(
-          'course-catalog:lesson:course-1:0:mod-1:proj-1:les-1',
-        );
+        expect(les1?.address).toBe('course-catalog:lesson:mod-1:proj-1:les-1');
 
         // Подуровень урока — шаги-заголовки
         expect(les1?.children).toHaveLength(2);
@@ -563,7 +560,7 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
         expect(level1?.prev).toBeUndefined();
         expect(level1?.next).toEqual({
           label: 'След. проект ▶️',
-          address: 'course-catalog:project:course-1:0:mod-1:proj-2',
+          address: 'course-catalog:project:mod-1:proj-2',
         });
 
         // Второй проект proj-2 (есть prev: proj-1, нет next)
@@ -580,7 +577,7 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
         });
         expect(level2?.prev).toEqual({
           label: '◀️ Пред. проект',
-          address: 'course-catalog:project:course-1:0:mod-1:proj-1',
+          address: 'course-catalog:project:mod-1:proj-1',
         });
         expect(level2?.next).toBeUndefined();
       });
@@ -613,7 +610,7 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
         expect(keyboard.rows).toHaveLength(4);
         expect(keyboard.rows[0]?.[0]?.text).toContain('1. 📁 Введение в JS');
         expect(keyboard.rows[0]?.[0]?.code).toBe(
-          'course-catalog:project:course-1:0:mod-1:proj-1',
+          'course-catalog:project:mod-1:proj-1',
         );
         expect(keyboard.rows[1]?.[0]?.text).toContain(
           '2. 📁 Базовые типы и операторы',
@@ -652,7 +649,7 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
           '1. 📝 Настройка окружения',
         );
         expect(keyboard.rows[0]?.[0]?.code).toBe(
-          'course-catalog:lesson:course-1:0:mod-1:proj-1:les-1',
+          'course-catalog:lesson:mod-1:proj-1:les-1',
         );
         expect(keyboard.rows[1]?.[0]?.text).toContain('2. 📝 Первая программа');
         expect(keyboard.rows[2]?.[0]?.text).toBe('След. проект ▶️');
@@ -708,7 +705,7 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
         // Назад к проекту
         expect(level?.back).toEqual({
           label: '⬅️ Назад к проекту',
-          address: 'course-catalog:project:course-1:0:mod-1:proj-1',
+          address: 'course-catalog:project:mod-1:proj-1',
         });
       });
 
@@ -729,7 +726,7 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
         expect(level1?.prev).toBeUndefined();
         expect(level1?.next).toEqual({
           label: 'След. урок ▶️',
-          address: 'course-catalog:lesson:course-1:0:mod-1:proj-1:les-2',
+          address: 'course-catalog:lesson:mod-1:proj-1:les-2',
         });
 
         // Второй урок les-2 (есть prev: les-1, нет next)
@@ -747,7 +744,7 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
         });
         expect(level2?.prev).toEqual({
           label: '◀️ Пред. урок',
-          address: 'course-catalog:lesson:course-1:0:mod-1:proj-1:les-1',
+          address: 'course-catalog:lesson:mod-1:proj-1:les-1',
         });
         expect(level2?.next).toBeUndefined();
       });
@@ -781,7 +778,7 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
         expect(keyboard.rows).toHaveLength(2);
         expect(keyboard.rows[0]?.[0]?.text).toBe('След. урок ▶️');
         expect(keyboard.rows[0]?.[0]?.code).toBe(
-          'course-catalog:lesson:course-1:0:mod-1:proj-1:les-2',
+          'course-catalog:lesson:mod-1:proj-1:les-2',
         );
         expect(keyboard.rows[1]?.[0]?.text).toBe('⬅️ Назад к проекту');
       });
