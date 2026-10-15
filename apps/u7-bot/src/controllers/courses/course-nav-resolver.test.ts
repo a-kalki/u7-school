@@ -600,5 +600,132 @@ describe('CourseNavResolver — Фаза 1: Курс и этап на общем
         expect(keyboard.rows[3]?.[0]?.text).toBe('⬅️ Назад к модулю');
       });
     });
+
+    describe('Уровень 4: Урок (шаги только заголовками, закрытый уровень)', () => {
+      test('хлебные крошки, пояснение и одноуровневый список шагов без входа', () => {
+        const level = resolveCourseNavLevel({
+          level: 'lesson',
+          courses: dummyCourses,
+          currentCourseId: 'course-1',
+          phaseIdx: 0,
+          moduleId: 'mod-1',
+          projectId: 'proj-1',
+          lessonId: 'les-1',
+          modulesInfo: dummyModulesInfo,
+          moduleSnapshot: dummySnapshot,
+          stepTitles: dummyStepTitles,
+        });
+
+        expect(level).not.toBeNull();
+        expect(level?.multilineBreadcrumbs).toBe(true);
+        expect(level?.breadcrumbs).toEqual([
+          '📖 Курсы',
+          'Курс: Fullstack JS',
+          'Этап: Основы JS',
+          'Модуль: Введение в синтаксис',
+          'Проект: Введение в JS',
+          'Урок: Настройка окружения',
+        ]);
+        expect(level?.subtitle).toBe('Урок состоит из 2 шагов');
+
+        // Дети — шаги
+        expect(level?.children).toHaveLength(2);
+
+        const step1 = level?.children?.[0];
+        expect(step1?.index).toBe(1);
+        expect(step1?.title).toBe('Установка Bun');
+        expect(step1?.emoji).toBe('🔹');
+        expect(step1?.enterable).toBe(false);
+        expect(step1?.address).toBeUndefined();
+        expect(step1?.children).toBeUndefined();
+
+        const step2 = level?.children?.[1];
+        expect(step2?.index).toBe(2);
+        expect(step2?.title).toBe('Запуск скрипта');
+        expect(step2?.emoji).toBe('🔹');
+        expect(step2?.enterable).toBe(false);
+        expect(step2?.address).toBeUndefined();
+
+        // Назад к проекту
+        expect(level?.back).toEqual({
+          label: '⬅️ Назад к проекту',
+          address: 'course-catalog:project:course-1:0:mod-1:proj-1',
+        });
+      });
+
+      test('листание уроков в пределах проекта', () => {
+        // Первый урок les-1 (нет prev, есть next: les-2)
+        const level1 = resolveCourseNavLevel({
+          level: 'lesson',
+          courses: dummyCourses,
+          currentCourseId: 'course-1',
+          phaseIdx: 0,
+          moduleId: 'mod-1',
+          projectId: 'proj-1',
+          lessonId: 'les-1',
+          modulesInfo: dummyModulesInfo,
+          moduleSnapshot: dummySnapshot,
+          stepTitles: dummyStepTitles,
+        });
+        expect(level1?.prev).toBeUndefined();
+        expect(level1?.next).toEqual({
+          label: 'След. урок ▶️',
+          address: 'course-catalog:lesson:course-1:0:mod-1:proj-1:les-2',
+        });
+
+        // Второй урок les-2 (есть prev: les-1, нет next)
+        const level2 = resolveCourseNavLevel({
+          level: 'lesson',
+          courses: dummyCourses,
+          currentCourseId: 'course-1',
+          phaseIdx: 0,
+          moduleId: 'mod-1',
+          projectId: 'proj-1',
+          lessonId: 'les-2',
+          modulesInfo: dummyModulesInfo,
+          moduleSnapshot: dummySnapshot,
+          stepTitles: dummyStepTitles,
+        });
+        expect(level2?.prev).toEqual({
+          label: '◀️ Пред. урок',
+          address: 'course-catalog:lesson:course-1:0:mod-1:proj-1:les-1',
+        });
+        expect(level2?.next).toBeUndefined();
+      });
+
+      test('presentNavLevel корректно рендерит карточку урока без кнопок шагов', () => {
+        const level = resolveCourseNavLevel({
+          level: 'lesson',
+          courses: dummyCourses,
+          currentCourseId: 'course-1',
+          phaseIdx: 0,
+          moduleId: 'mod-1',
+          projectId: 'proj-1',
+          lessonId: 'les-1',
+          modulesInfo: dummyModulesInfo,
+          moduleSnapshot: dummySnapshot,
+          stepTitles: dummyStepTitles,
+        });
+        expect(level).not.toBeNull();
+        if (!level) return;
+
+        const { text, keyboard } = presentNavLevel(level);
+
+        expect(text).toContain(
+          '📖 *Курсы*\n› Курс: Fullstack JS\n› Этап: Основы JS\n› Модуль: Введение в синтаксис\n› Проект: Введение в JS\n› Урок: Настройка окружения',
+        );
+        expect(text).toContain('Урок состоит из 2 шагов');
+        expect(text).toContain('1\\. 🔹 Установка Bun');
+        expect(text).toContain('2\\. 🔹 Запуск скрипта');
+
+        // Клавиатура: НЕТ кнопок шагов, только навигация (След. урок) и назад к проекту
+        expect(keyboard.rows).toHaveLength(2);
+        expect(keyboard.rows[0]?.[0]?.text).toBe('След. урок ▶️');
+        expect(keyboard.rows[0]?.[0]?.code).toBe(
+          'course-catalog:lesson:course-1:0:mod-1:proj-1:les-2',
+        );
+        expect(keyboard.rows[1]?.[0]?.text).toBe('⬅️ Назад к проекту');
+      });
+    });
   });
 });

@@ -366,5 +366,79 @@ export function resolveCourseNavLevel(
     };
   }
 
+  // ── Уровень 4: Урок (шаги только заголовками, закрытый уровень) ──
+  if (level === 'lesson') {
+    const currentPhaseIdx = phaseIdx ?? 0;
+    const phase = course.phases[currentPhaseIdx];
+    if (!phase) return null;
+
+    if (
+      !params.moduleId ||
+      !params.projectId ||
+      !params.lessonId ||
+      !params.moduleSnapshot
+    ) {
+      return null;
+    }
+    const modId = params.moduleId;
+    const modInfo = modulesInfo[modId];
+    const moduleTitle = modInfo?.title ?? `Модуль ${modId.slice(0, 8)}...`;
+    const snapshot = params.moduleSnapshot;
+
+    const project = snapshot.find((p) => p.projectId === params.projectId);
+    if (!project) return null;
+
+    const lessonIndex = project.lessons.findIndex(
+      (l) => l.lessonId === params.lessonId,
+    );
+    if (lessonIndex === -1) return null;
+    const lesson = project.lessons[lessonIndex];
+    if (!lesson) return null;
+
+    const stepCount = lesson.stepIds.length;
+    const subtitle = `Урок состоит из ${stepCount} шаг${plural(stepCount, 'а', 'ов', 'ов')}`;
+
+    const children: NavChild[] = lesson.stepIds.map((sId, sIdx) => ({
+      id: sId,
+      index: sIdx + 1,
+      title: params.stepTitles?.[sId] ?? `Шаг ${sIdx + 1}`,
+      emoji: '🔹',
+      enterable: false,
+    }));
+
+    const prevLesson = project.lessons[lessonIndex - 1];
+    const nextLesson = project.lessons[lessonIndex + 1];
+
+    return {
+      multilineBreadcrumbs: true,
+      breadcrumbs: [
+        '📖 Курсы',
+        `Курс: ${course.title}`,
+        `Этап: ${phase.title}`,
+        `Модуль: ${moduleTitle}`,
+        `Проект: ${project.projectTitle}`,
+        `Урок: ${lesson.lessonTitle}`,
+      ],
+      subtitle,
+      children,
+      prev: prevLesson
+        ? {
+            label: '◀️ Пред. урок',
+            address: `${storyPrefix}:lesson:${course.uuid}:${currentPhaseIdx}:${modId}:${project.projectId}:${prevLesson.lessonId}`,
+          }
+        : undefined,
+      next: nextLesson
+        ? {
+            label: 'След. урок ▶️',
+            address: `${storyPrefix}:lesson:${course.uuid}:${currentPhaseIdx}:${modId}:${project.projectId}:${nextLesson.lessonId}`,
+          }
+        : undefined,
+      back: {
+        label: '⬅️ Назад к проекту',
+        address: `${storyPrefix}:project:${course.uuid}:${currentPhaseIdx}:${modId}:${project.projectId}`,
+      },
+    };
+  }
+
   return null;
 }
