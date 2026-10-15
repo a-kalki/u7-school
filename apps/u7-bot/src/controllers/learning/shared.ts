@@ -1,16 +1,13 @@
 import type { User } from '@u7-scl/app/domain';
 import type { ApiApp } from '@u7-scl/core/api';
+import { type MdText, md, mdConcat, mdJoin, mdRaw } from '@u7-scl/core/shared';
+import type { DialogResponse, NavNodeStatus } from '@u7-scl/core/ui';
 import {
-  type MdText,
-  md,
-  mdCodeBlock,
-  mdConcat,
-  mdJoin,
-  mdRaw,
-  safeConvert,
-} from '@u7-scl/core/shared';
-import type { DialogResponse } from '@u7-scl/core/ui';
-import { screen } from '@u7-scl/core/ui';
+  formatBreadcrumbs,
+  formatStepBody,
+  STATUS_ICONS,
+  screen,
+} from '@u7-scl/core/ui';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
 import type { Student } from '@u7-scl/stream/domain';
 import { StreamDs } from '@u7-scl/stream/domain';
@@ -174,8 +171,19 @@ export function formatProgressBar(current: number, total: number): MdText {
   return mdRaw(`\\[${block}\\] ${current}/${total}`);
 }
 
+export interface FormatStepMessageOpts {
+  mode?: 'study' | 'student' | 'readOnly';
+  breadcrumbs?: string[];
+  status?: NavNodeStatus;
+  statusLabel?: string;
+}
+
 /**
  * Форматирует сообщение шага: заголовок, разделитель, тело.
+ * Поддерживает режимы:
+ * - 'student' — карточка шага drill-down со статусом студента (S05b);
+ * - 'readOnly' — карточка шага drill-down для ментора/зрителя (S03) без статуса;
+ * - 'study' (дефолт) — режим прохождения с прогресс-баром (S05a).
  */
 export function formatStepMessage(
   streamTitle: string,
@@ -196,7 +204,42 @@ export function formatStepMessage(
   },
   snapshot?: ContentSnapshot,
   student?: { steps: Array<{ stepId: string; status: string }> },
+  opts?: FormatStepMessageOpts,
 ): MdText {
+  const mode = opts?.mode ?? 'study';
+
+  if (mode === 'student' || mode === 'readOnly') {
+    const sections: MdText[] = [];
+
+    // Хлебные крошки
+    const defaultBreadcrumbs = [
+      mode === 'student' ? '📂 Уроки' : '📖 Программа модуля',
+      resolved?.projectTitle ?? 'Проект',
+      resolved?.lessonTitle ?? 'Урок',
+      `Шаг ${resolved?.stepIndex ?? 1}`,
+    ];
+    sections.push(formatBreadcrumbs(opts?.breadcrumbs ?? defaultBreadcrumbs));
+
+    // Статус (только для режима студента)
+    if (mode === 'student') {
+      const status = opts?.status ?? 'in_progress';
+      const icon = STATUS_ICONS[status] ?? '▶️';
+      const label =
+        opts?.statusLabel ??
+        (status === 'completed' ? 'Пройден' : 'В процессе');
+      sections.push(md`${icon} ${label}`);
+    }
+
+    // Тело шага
+    const body = formatStepBody(step);
+    if (body) {
+      sections.push(body);
+    }
+
+    return mdJoin(sections, '\n\n');
+  }
+
+  // Режим 'study' (активное прохождение S05a):
   // Прогресс урока: только завершённые шаги.
   // completed и total берём из одного источника: иначе прогресс-бар
   // может получить completed > total и упасть в String.repeat.
@@ -224,13 +267,9 @@ export function formatStepMessage(
     md`📝 *Шаг ${resolved?.stepIndex ?? 1} из ${totalSteps}:* ${step.description}`,
   ];
 
-  if (step.kind === 'code' && step.code) {
-    // Блок кода: содержимое экранируется по правилам pre-entity
-    // Telegram (только ` и \) — голый \ съедает следующий символ,
-    // голой ` преждевременно закрывает блок
-    lines.push(md``, mdCodeBlock(step.code));
-  } else if (step.kind === 'text' && step.content) {
-    lines.push(md``, mdRaw(safeConvert(step.content)));
+  const body = formatStepBody(step);
+  if (body) {
+    lines.push(md``, body);
   }
 
   return mdJoin(lines);
