@@ -6,7 +6,7 @@
 
 ---
 
-## Фаза 1: Курс и этап на общем ядре
+## Фаза 1: Курс и этап на общем ядре [checkpoint: 31fb14b]
 
 - [x] Task: Обновить `ui-spec.md` — зафиксировать целевые экраны и кнопки (spec-first, ДО кода)
     - [x] `courses/ui-spec.md`: переписать `S00` под карточную drill-down; уточнить блок `W01–W05`.
@@ -19,7 +19,7 @@
 - [x] Task: Листание и номера на уровнях курса/этапа (TDD)
     - [x] [Red] Тесты: `◀️/▶️` в пределах уровня, `⬅️ Назад`, нумерация кнопок.
     - [x] [Green] Подключение presenter.
-- [ ] Task: Conductor - User Manual Verification 'Курс и этап на общем ядре' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Курс и этап на общем ядре' (Protocol in workflow.md)
 
 ---
 
