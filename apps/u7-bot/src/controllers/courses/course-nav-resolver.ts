@@ -4,7 +4,7 @@ import type {
   NavLevel,
   NavSubChild,
 } from '@u7-scl/core/ui';
-import type { Course } from '@u7-scl/course/domain';
+import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
 import { Routes } from '../shared/routes';
 
 export interface ModuleNavInfo {
@@ -28,6 +28,8 @@ export interface ResolveCourseNavLevelParams {
   projectId?: string;
   lessonId?: string;
   modulesInfo?: Record<string, ModuleNavInfo>;
+  moduleSnapshot?: ContentSnapshot;
+  stepTitles?: Record<string, string>;
   wishStatus?: string;
   storyPrefix?: string;
 }
@@ -217,6 +219,149 @@ export function resolveCourseNavLevel(
       back: {
         label: '⬅️ Назад к курсу',
         address: `${storyPrefix}:course:${course.uuid}`,
+      },
+    };
+  }
+
+  // ── Уровень 2: Модуль ──
+  if (level === 'module') {
+    const currentPhaseIdx = phaseIdx ?? 0;
+    const phase = course.phases[currentPhaseIdx];
+    if (!phase) return null;
+
+    if (!params.moduleId || !params.moduleSnapshot) return null;
+    const modId = params.moduleId;
+    const modIndex = phase.moduleIds?.indexOf(modId) ?? -1;
+    if (modIndex === -1) return null;
+
+    const modInfo = modulesInfo[modId];
+    const moduleTitle = modInfo?.title ?? `Модуль ${modId.slice(0, 8)}...`;
+    const snapshot = params.moduleSnapshot;
+
+    const projectCount = snapshot.length;
+    const subtitle = `Модуль состоит из ${projectCount} проект${plural(projectCount, 'а', 'ов', 'ов')}`;
+
+    const children: NavChild[] = snapshot.map((p, pIdx) => {
+      const subChildren: NavSubChild[] = p.lessons.map((l) => ({
+        id: l.lessonId,
+        title: l.lessonTitle,
+        emoji: '📝',
+      }));
+
+      return {
+        id: p.projectId,
+        index: pIdx + 1,
+        title: p.projectTitle,
+        emoji: '📁',
+        enterable: true,
+        address: `${storyPrefix}:project:${course.uuid}:${currentPhaseIdx}:${modId}:${p.projectId}`,
+        children: subChildren,
+      };
+    });
+
+    const prevModId = phase.moduleIds?.[modIndex - 1];
+    const nextModId = phase.moduleIds?.[modIndex + 1];
+
+    return {
+      multilineBreadcrumbs: true,
+      breadcrumbs: [
+        '📖 Курсы',
+        `Курс: ${course.title}`,
+        `Этап: ${phase.title}`,
+        `Модуль: ${moduleTitle}`,
+      ],
+      subtitle,
+      children,
+      prev: prevModId
+        ? {
+            label: '◀️ Пред. модуль',
+            address: `${storyPrefix}:module:${course.uuid}:${currentPhaseIdx}:${prevModId}`,
+          }
+        : undefined,
+      next: nextModId
+        ? {
+            label: 'След. модуль ▶️',
+            address: `${storyPrefix}:module:${course.uuid}:${currentPhaseIdx}:${nextModId}`,
+          }
+        : undefined,
+      back: {
+        label: '⬅️ Назад к этапу',
+        address: `${storyPrefix}:phase:${course.uuid}:${currentPhaseIdx}`,
+      },
+    };
+  }
+
+  // ── Уровень 3: Проект ──
+  if (level === 'project') {
+    const currentPhaseIdx = phaseIdx ?? 0;
+    const phase = course.phases[currentPhaseIdx];
+    if (!phase) return null;
+
+    if (!params.moduleId || !params.projectId || !params.moduleSnapshot) {
+      return null;
+    }
+    const modId = params.moduleId;
+    const modInfo = modulesInfo[modId];
+    const moduleTitle = modInfo?.title ?? `Модуль ${modId.slice(0, 8)}...`;
+    const snapshot = params.moduleSnapshot;
+
+    const projectIndex = snapshot.findIndex(
+      (p) => p.projectId === params.projectId,
+    );
+    if (projectIndex === -1) return null;
+    const project = snapshot[projectIndex];
+    if (!project) return null;
+
+    const lessonCount = project.lessons.length;
+    const subtitle = `Проект состоит из ${lessonCount} урок${plural(lessonCount, 'а', 'ов', 'ов')}`;
+
+    const children: NavChild[] = project.lessons.map((l, lIdx) => {
+      const subChildren: NavSubChild[] = l.stepIds.map((sId, sIdx) => ({
+        id: sId,
+        title: params.stepTitles?.[sId] ?? `Шаг ${sIdx + 1}`,
+        emoji: '🔹',
+      }));
+
+      return {
+        id: l.lessonId,
+        index: lIdx + 1,
+        title: l.lessonTitle,
+        emoji: '📝',
+        enterable: true,
+        address: `${storyPrefix}:lesson:${course.uuid}:${currentPhaseIdx}:${modId}:${project.projectId}:${l.lessonId}`,
+        children: subChildren,
+      };
+    });
+
+    const prevProject = snapshot[projectIndex - 1];
+    const nextProject = snapshot[projectIndex + 1];
+
+    return {
+      multilineBreadcrumbs: true,
+      breadcrumbs: [
+        '📖 Курсы',
+        `Курс: ${course.title}`,
+        `Этап: ${phase.title}`,
+        `Модуль: ${moduleTitle}`,
+        `Проект: ${project.projectTitle}`,
+      ],
+      subtitle,
+      children,
+      prev: prevProject
+        ? {
+            label: '◀️ Пред. проект',
+            address: `${storyPrefix}:project:${course.uuid}:${currentPhaseIdx}:${modId}:${prevProject.projectId}`,
+          }
+        : undefined,
+      next: nextProject
+        ? {
+            label: 'След. проект ▶️',
+            address: `${storyPrefix}:project:${course.uuid}:${currentPhaseIdx}:${modId}:${nextProject.projectId}`,
+          }
+        : undefined,
+      back: {
+        label: '⬅️ Назад к модулю',
+        address: `${storyPrefix}:module:${course.uuid}:${currentPhaseIdx}:${modId}`,
       },
     };
   }
