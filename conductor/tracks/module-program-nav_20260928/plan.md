@@ -11,7 +11,7 @@
     - [ ] `learning/ui-spec.md`: переписать `S05b` под карточную drill-down; уточнить `S05` и `S05a`.
     - [ ] `streams/ui-spec.md`: `S03` — «Программа модуля» (drill-down с шагами); правки кнопки в `S02`/`S02m`.
     - [ ] Согласовать с владельцем до начала реализации.
-- [ ] Task: Спроектировать модель карточки уровня (`NavLevel`) и единый формат адреса уровня
+- [x] Task: Спроектировать модель карточки уровня (`NavLevel`) и единый формат адреса уровня (424a2ea)
     - [ ] Следовать каркасу [courses/content-nav.md](../../../apps/u7-bot/src/controllers/courses/content-nav.md).
     - [ ] Разместить `NavLevel`/presenter в `packages/core/src/ui/content-nav/`, резолверы — в `apps/u7-bot`.
     - [ ] Зафиксировать структуру: `breadcrumbs[]` (цепочка крошек drill-down), `title`,
