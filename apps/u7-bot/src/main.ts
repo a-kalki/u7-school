@@ -15,7 +15,6 @@ import { createBot } from './bot';
 import { loadConfig } from './config';
 import { createApiApp } from './create-api-app';
 import { createUiApp } from './create-ui-app';
-import { registerGroupHandlers } from './handlers/group-handler';
 import { BotTransport } from './infra/bot-transport';
 import { JsonBotSessionRepo } from './infra/json-bot-session-repo';
 import { FileLogger, TelegramLogger } from './infra/logger';
@@ -135,17 +134,6 @@ if (!UserPolicy.isAdmin(adminUser)) {
 }
 logger.info('main', 'Верификация бота пройдена: ADMIN подтверждён');
 
-// ══ Групповые события — на исходный бот (chat_member, my_chat_member) ══
-// FR-7: при выходе студента из группы — уведомление ментору потока.
-// Актор — бот как системный актор (User-объект): регистрация гостей в group-handler.
-// Регистрация гостей и роли (SUBSCRIBER) — только для школьной группы.
-registerGroupHandlers(bot, apiBundle.userFacade, logger, {
-  apiApp: apiBundle.apiApp,
-  transport,
-  actor: adminUser,
-  school: apiBundle.school,
-});
-
 // ══ Приватные чаты — через filter ══
 const privateBot = bot.filter((ctx) => ctx.chat?.type === 'private');
 
@@ -231,12 +219,10 @@ if (config.botMode === 'webhook') {
   logger.info('main', 'Бот запущен в режиме polling');
 }
 
-// ══ Dev-режим: список персон — в лог и приветствием в чат ══
+// ══ Dev-режим: список персон — приветствием в чат ══
 if (devPanel && config.devTelegramId) {
   const hello = `🎭 Dev-режим подмены личности активен.\n\n${devPanel.listText()}`;
-  // В лог — чтобы видеть персон ещё до открытия чата
-  logger.info('main', `\n${hello}`);
-  // И в чат бота — исходный api (не обёрнутый редиректом персон)
+  // В чат бота — исходный api (не обёрнутый редиректом персон)
   await bot.api.sendMessage(config.devTelegramId, hello).catch(() => {
     logger.warn(
       'main',

@@ -35,10 +35,8 @@ apps/u7-bot/
       shared/
         routes.ts                 # Канонические кросс-контроллерные маршруты
         buttons.ts                # Готовые кнопки (buttons.mainMenu и др.)
-    handlers/
-      group-handler.ts            # Групповые апдейты: регистрация при входе в группу школы
     infra/
-      bot-transport.ts            # BotTransport — сессии, штампы, сжатие UUID, рендер §5, notify/invite
+      bot-transport.ts            # BotTransport — сессии, штампы, сжатие UUID, рендер §5, notify/invite, execute, messenger-events
       short-id.ts                 # Сжатие UUID ↔ короткие id для callback_data
       logger/                     # TelegramLogger
     shared/
