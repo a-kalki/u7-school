@@ -34,11 +34,11 @@
 
 ## Фаза 3: Transport — Маппинг событий Telegram и исполнение действий
 
-- [ ] Task: Реализовать `execute(action: MessengerAction)` в `BotTransport` [TDD]
-    - [ ] [Red] Тесты в `apps/u7-bot/src/infra/bot-transport.test.ts`:
+- [x] Task: Реализовать `execute(action: MessengerAction)` в `BotTransport` [TDD] [7efccfa]
+    - [x] [Red] Тесты в `apps/u7-bot/src/infra/bot-transport.test.ts`:
         - `execute({ kind: 'kick_member', chatId, userId })` вызывает `banChatMember` + `unbanChatMember`.
-    - [ ] [Green] Реализовать метод `execute` в `BotTransport`.
-    - [ ] Переписать `kickFromGroup` в `BotTransport` как вызов `this.execute({ kind: 'kick_member', ... })`.
+    - [x] [Green] Реализовать метод `execute` в `BotTransport`.
+    - [x] Переписать `kickFromGroup` в `BotTransport` как вызов `this.execute({ kind: 'kick_member', ... })`.
 - [ ] Task: Маппинг `chat_member` и `my_chat_member` в `MessengerEvent` в `BotTransport` [TDD]
     - [ ] [Red] Тесты в `apps/u7-bot/src/infra/bot-transport.test.ts`:
         - переход `left → member` маппится в `{ kind: 'member_joined', chatId, user }`;
