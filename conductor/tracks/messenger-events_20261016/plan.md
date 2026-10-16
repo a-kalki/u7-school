@@ -63,8 +63,8 @@
 
 ## Фаза 5: StreamController — Обработка студенческих групп потоков
 
-- [ ] Task: Реализовать реакцию на вход и выход участников в учебную группу в `StreamController` [TDD]
-    - [ ] [Red] Тесты в `apps/u7-bot/src/controllers/streams/stories/view-stream.story.test.ts` (или `stream-controller.test.ts`):
+- [x] Task: Реализовать реакцию на вход и выход участников в учебную группу в `StreamController` [TDD] [44017a3]
+    - [x] [Red] Тесты в `apps/u7-bot/src/controllers/streams/controller.test.ts`:
         - При `member_joined` в группу с `stream.telegramGroupId`:
           - если участник НЕ является студентом этого потока → отправка ментору предупреждения: `⚠️ В группу «...» вступил неизвестный участник: ...`;
           - если участник — активный студент потока → ментор предупреждение не получает;
@@ -73,7 +73,7 @@
           - если вышедший студент активен в потоке (`outcomeCategory === IN_PROGRESS`) → отправка `proactiveSender.notify(mentorTgId, "🚪 Студент ...")`;
           - если студент не активен (завершён, отчислен) или вышел из чужого чата → уведомление ментору не отправляется;
           - возвращает `'stop'`.
-    - [ ] [Green] Реализовать логику в `StreamController.handleMessengerEvent`.
+    - [x] [Green] Реализовать логику в `StreamController.handleMessengerEvent`.
 
 ---
 
