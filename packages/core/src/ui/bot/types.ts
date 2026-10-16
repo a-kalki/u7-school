@@ -36,10 +36,61 @@ export interface NotificationPayload {
 }
 
 /**
+ * Данные участника чата в мессенджере
+ */
+export interface ChatMemberUser {
+  id: number;
+  firstName: string;
+  lastName?: string;
+  username?: string;
+}
+
+/**
+ * Входящие события мессенджера (группы, каналы, служебные)
+ */
+export type MessengerEvent =
+  | {
+      kind: 'member_joined';
+      chatId: string;
+      user: ChatMemberUser;
+    }
+  | {
+      kind: 'member_left';
+      chatId: string;
+      user: ChatMemberUser;
+      kicked?: boolean;
+    }
+  | {
+      kind: 'bot_membership';
+      chatId: string;
+      status: 'added' | 'removed' | 'promoted' | 'demoted';
+      byUser?: ChatMemberUser;
+    };
+
+/**
+ * Реакция контроллера на событие мессенджера
+ */
+export type MessengerEventReaction = 'pass' | 'stop';
+
+/**
+ * Исходящие команды управления мессенджером
+ */
+export type MessengerAction =
+  | { kind: 'kick_member'; chatId: string | number; userId: number }
+  | { kind: 'restrict_member'; chatId: string | number; userId: number; untilDate?: Date }
+  | { kind: 'pin_message'; chatId: string | number; messageId: number; silent?: boolean }
+  | { kind: 'approve_join'; chatId: string | number; userId: number };
+
+/**
  * Проактивный отправитель сообщений бота (контракт «Диалог и Экран»).
  */
 export interface ProactiveSender {
   notify(telegramId: number, payload: NotificationPayload): Promise<void>;
+
+  /**
+   * Исполнение инициативных команд управления чатами мессенджера
+   */
+  execute(action: MessengerAction): Promise<void>;
 
   /**
    * ВРЕМЕННЫЙ проактив с кнопками (ФР-6): удаляется с приходом модуля
@@ -55,6 +106,7 @@ export interface ProactiveSender {
 
   /**
    * Мягкий кик пользователя из Telegram-группы
+   * @deprecated Используй execute({ kind: 'kick_member', chatId: groupId, userId })
    */
   kickFromGroup(groupId: number | string, userId: number): Promise<void>;
 }
