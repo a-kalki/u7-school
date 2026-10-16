@@ -171,6 +171,17 @@ describe('UserPolicy', () => {
     test('ADMIN может добавить любую роль любому пользователю', () => {
       expect(UserPolicy.canAddRole(admin, student, Role.STUDENT)).toBe(true);
       expect(UserPolicy.canAddRole(admin, teacher, Role.ADMIN)).toBe(true);
+      expect(UserPolicy.canAddRole(admin, guest, Role.SUBSCRIBER)).toBe(true);
+    });
+
+    test('пользователь или MENTOR НЕ может выдать роль SUBSCRIBER', () => {
+      expect(UserPolicy.canAddRole(guest, guest, Role.SUBSCRIBER)).toBe(false);
+      expect(UserPolicy.canAddRole(student, student, Role.SUBSCRIBER)).toBe(
+        false,
+      );
+      expect(UserPolicy.canAddRole(teacher, guest, Role.SUBSCRIBER)).toBe(
+        false,
+      );
     });
 
     test('GUEST может добавить себе роль STUDENT', () => {
@@ -212,6 +223,21 @@ describe('UserPolicy', () => {
     test('ADMIN может удалить любую роль у любого пользователя', () => {
       expect(UserPolicy.canRemoveRole(admin, student, Role.STUDENT)).toBe(true);
       expect(UserPolicy.canRemoveRole(admin, teacher, Role.MENTOR)).toBe(true);
+      expect(UserPolicy.canRemoveRole(admin, guest, Role.SUBSCRIBER)).toBe(
+        true,
+      );
+    });
+
+    test('пользователь или MENTOR НЕ может снять роль SUBSCRIBER', () => {
+      expect(UserPolicy.canRemoveRole(guest, guest, Role.SUBSCRIBER)).toBe(
+        false,
+      );
+      expect(UserPolicy.canRemoveRole(student, student, Role.SUBSCRIBER)).toBe(
+        false,
+      );
+      expect(UserPolicy.canRemoveRole(teacher, guest, Role.SUBSCRIBER)).toBe(
+        false,
+      );
     });
 
     test('пользователь может удалить STUDENT у себя', () => {
