@@ -79,9 +79,9 @@
 
 ## Фаза 6: Интеграция, очистка и верификация
 
-- [ ] Task: Перевести стори и тесты на `execute` вместо `kickFromGroup`
-    - [ ] Обновить `apps/u7-bot/src/controllers/streams/stories/inactivity.story.ts`: вызов `this.proactiveSender.execute({ kind: 'kick_member', ... })`.
-    - [ ] Обновить тестовые хелперы `TestBotTransport`.
+- [x] Task: Перевести стори и тесты на `execute` вместо `kickFromGroup` [f774378]
+    - [x] Обновить `apps/u7-bot/src/controllers/streams/stories/inactivity.story.ts`: вызов `this.proactiveSender.execute({ kind: 'kick_member', ... })`.
+    - [x] Обновить тестовые хелперы `TestBotTransport`.
 - [ ] Task: Удалить процедурный `group-handler.ts` и `group-handler.test.ts`
     - [ ] Убрать вызов `registerGroupHandlers` из `apps/u7-bot/src/main.ts`.
     - [ ] Удалить файлы `apps/u7-bot/src/handlers/group-handler.ts` и `group-handler.test.ts`.
