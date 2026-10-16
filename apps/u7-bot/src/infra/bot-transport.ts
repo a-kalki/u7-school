@@ -16,7 +16,6 @@ import {
   type KeyboardDescription,
   type MessengerAction,
   type MessengerEvent,
-  type MessengerEventReaction,
   type NoticeKind,
   type NotificationPayload,
   type ProactiveSender,
@@ -107,9 +106,7 @@ export interface DialogUiAppPort {
     session: BotSession,
   ): Promise<DialogResponse | null>;
   /** Событие мессенджера (FR-1, FR-2, FR-3) */
-  handleMessengerEvent?(
-    event: MessengerEvent,
-  ): Promise<MessengerEventReaction | undefined>;
+  handleMessengerEvent?(event: MessengerEvent): Promise<void>;
 }
 
 export interface BotUpdateHandler {
@@ -387,13 +384,13 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     if (!isOldActive && isNewActive) {
       await this.uiApp.handleMessengerEvent?.({
         kind: 'member_joined',
-        chatId: member.chat.id,
+        chatId: String(member.chat.id),
         user: chatMemberUser,
       });
     } else if (isOldActive && !isNewActive) {
       await this.uiApp.handleMessengerEvent?.({
         kind: 'member_left',
-        chatId: member.chat.id,
+        chatId: String(member.chat.id),
         user: chatMemberUser,
         kicked: newStatus === 'kicked',
       });
@@ -425,14 +422,14 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     if (!isOldActive && isNewActive) {
       await this.uiApp.handleMessengerEvent?.({
         kind: 'bot_membership',
-        chatId: member.chat.id,
+        chatId: String(member.chat.id),
         status: 'added',
         byUser: fromUser,
       });
     } else if (isOldActive && !isNewActive) {
       await this.uiApp.handleMessengerEvent?.({
         kind: 'bot_membership',
-        chatId: member.chat.id,
+        chatId: String(member.chat.id),
         status: 'removed',
         byUser: fromUser,
       });

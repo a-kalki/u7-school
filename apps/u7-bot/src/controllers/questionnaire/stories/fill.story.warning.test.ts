@@ -19,6 +19,7 @@ function makeStory() {
     name: 'questionnaire',
     notify: mock(async () => {}),
     invite: mock(async () => {}),
+    execute: mock(async () => {}),
     kickFromGroup: mock(async () => {}),
   };
   story.init({ appApi: { execute: mock(async () => ({})) } } as never, sender);

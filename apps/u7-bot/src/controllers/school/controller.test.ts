@@ -178,7 +178,7 @@ describe('SchoolController (реестр)', () => {
 
       const result = await controller.handleMessengerEvent({
         kind: 'bot_membership',
-        chatId: TEST_SCHOOL.communityGroup.id,
+        chatId: String(TEST_SCHOOL.communityGroup.id),
         status: 'added',
         byUser: { id: 777, firstName: 'Иван' },
       });
@@ -197,7 +197,7 @@ describe('SchoolController (реестр)', () => {
 
       const result = await controller.handleMessengerEvent({
         kind: 'member_joined',
-        chatId: TEST_SCHOOL.communityGroup.id,
+        chatId: String(TEST_SCHOOL.communityGroup.id),
         user: { id: 777, firstName: 'Иван' },
       });
 
@@ -215,7 +215,7 @@ describe('SchoolController (реестр)', () => {
 
       const result = await controller.handleMessengerEvent({
         kind: 'member_left',
-        chatId: TEST_SCHOOL.communityGroup.id,
+        chatId: String(TEST_SCHOOL.communityGroup.id),
         user: { id: 777, firstName: 'Иван' },
       });
 
@@ -233,7 +233,7 @@ describe('SchoolController (реестр)', () => {
 
       const result = await controller.handleMessengerEvent({
         kind: 'bot_membership',
-        chatId: TEST_SCHOOL.communityGroup.id,
+        chatId: String(TEST_SCHOOL.communityGroup.id),
         status: 'removed',
         byUser: { id: 777, firstName: 'Иван' },
       });
@@ -248,7 +248,7 @@ describe('SchoolController (реестр)', () => {
 
       const result = await controller.handleMessengerEvent({
         kind: 'member_joined',
-        chatId: -999999999,
+        chatId: '-999999999',
         user: { id: 777, firstName: 'Иван' },
       });
 

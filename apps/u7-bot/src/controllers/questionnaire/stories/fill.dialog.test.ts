@@ -70,6 +70,7 @@ function makeStory(
     name: 'questionnaire',
     notify: mock(async () => {}),
     invite: mock(async () => {}),
+    execute: mock(async () => {}),
     kickFromGroup: mock(async () => {}),
   };
   story.init({ appApi } as never, sender);
@@ -527,6 +528,7 @@ describe('FillStory — подписки вариант A (invite-канал)', 
     name: 'questionnaire',
     notify: mock(async () => {}),
     invite: mock(async () => {}),
+    execute: mock(async () => {}),
     kickFromGroup: mock(async () => {}),
   });
 

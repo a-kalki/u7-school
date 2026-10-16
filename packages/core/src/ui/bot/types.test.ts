@@ -11,7 +11,12 @@ describe('Messenger Inbound/Outbound types and ProactiveSender contract', () => 
   it('supports MessengerAction discriminated union', () => {
     const actions: MessengerAction[] = [
       { kind: 'kick_member', chatId: '-100123', userId: 42 },
-      { kind: 'restrict_member', chatId: 123, userId: 42, untilDate: new Date() },
+      {
+        kind: 'restrict_member',
+        chatId: 123,
+        userId: 42,
+        untilDate: new Date(),
+      },
       { kind: 'pin_message', chatId: '-100123', messageId: 99, silent: true },
       { kind: 'approve_join', chatId: '-100123', userId: 42 },
     ];

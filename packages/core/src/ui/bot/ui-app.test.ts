@@ -629,9 +629,9 @@ describe('BotUiApp — инварианты: операция входа', () =>
 describe('BotUiApp — handleMessengerEvent и execute', () => {
   test('handleMessengerEvent последовательно опрашивает контроллеры и останавливается на stop', async () => {
     const calls: string[] = [];
-    class Ctrl1 extends BotController {
+    class Ctrl1 extends BotController<AppMeta, TestActor> {
       readonly name = 'ctrl1';
-      protected readonly stories = [];
+      protected override readonly stories = [];
       override async handleMessengerEvent(
         event: MessengerEvent,
       ): Promise<MessengerEventReaction> {
@@ -639,9 +639,9 @@ describe('BotUiApp — handleMessengerEvent и execute', () => {
         return 'pass';
       }
     }
-    class Ctrl2 extends BotController {
+    class Ctrl2 extends BotController<AppMeta, TestActor> {
       readonly name = 'ctrl2';
-      protected readonly stories = [];
+      protected override readonly stories = [];
       override async handleMessengerEvent(
         event: MessengerEvent,
       ): Promise<MessengerEventReaction> {
@@ -649,9 +649,9 @@ describe('BotUiApp — handleMessengerEvent и execute', () => {
         return 'stop';
       }
     }
-    class Ctrl3 extends BotController {
+    class Ctrl3 extends BotController<AppMeta, TestActor> {
       readonly name = 'ctrl3';
-      protected readonly stories = [];
+      protected override readonly stories = [];
       override async handleMessengerEvent(
         event: MessengerEvent,
       ): Promise<MessengerEventReaction> {

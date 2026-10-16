@@ -66,10 +66,10 @@ export class StreamsController extends U7BotController {
         );
 
         const isStudentActive =
-          user !== null &&
+          Boolean(user) &&
           students.some(
             (s: { userId?: string }) =>
-              s.userId === user.uuid && isStudentInProgress(s),
+              s.userId === user?.uuid && isStudentInProgress(s),
           );
 
         if (!isStudentActive) {

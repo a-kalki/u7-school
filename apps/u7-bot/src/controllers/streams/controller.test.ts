@@ -195,7 +195,7 @@ describe('StreamsController (реестр)', () => {
 
       expect(result).toBe('stop');
       expect(notifyMock).toHaveBeenCalledTimes(1);
-      const [mentorTgId, payload] = notifyMock.mock.calls[0] as [
+      const [mentorTgId, payload] = notifyMock.mock.calls[0] as unknown as [
         number,
         { text: string },
       ];
@@ -234,7 +234,7 @@ describe('StreamsController (реестр)', () => {
 
       expect(result).toBe('stop');
       expect(notifyMock).toHaveBeenCalledTimes(1);
-      const [mentorTgId, payload] = notifyMock.mock.calls[0] as [
+      const [mentorTgId, payload] = notifyMock.mock.calls[0] as unknown as [
         number,
         { text: string },
       ];

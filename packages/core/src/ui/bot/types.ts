@@ -77,8 +77,18 @@ export type MessengerEventReaction = 'pass' | 'stop';
  */
 export type MessengerAction =
   | { kind: 'kick_member'; chatId: string | number; userId: number }
-  | { kind: 'restrict_member'; chatId: string | number; userId: number; untilDate?: Date }
-  | { kind: 'pin_message'; chatId: string | number; messageId: number; silent?: boolean }
+  | {
+      kind: 'restrict_member';
+      chatId: string | number;
+      userId: number;
+      untilDate?: Date;
+    }
+  | {
+      kind: 'pin_message';
+      chatId: string | number;
+      messageId: number;
+      silent?: boolean;
+    }
   | { kind: 'approve_join'; chatId: string | number; userId: number };
 
 /**

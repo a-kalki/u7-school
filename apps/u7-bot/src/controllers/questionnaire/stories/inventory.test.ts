@@ -36,6 +36,7 @@ function makeSender() {
   return {
     notify: mock(async () => {}),
     invite: mock(async () => {}),
+    execute: mock(async () => {}),
     kickFromGroup: mock(async () => {}),
   };
 }

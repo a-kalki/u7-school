@@ -1677,7 +1677,7 @@ describe('BotTransport — handleChatMember', () => {
   }
 
   test('переход left → member маппится в member_joined', async () => {
-    const handleMessengerEvent = mock(async () => 'pass');
+    const handleMessengerEvent = mock(async () => {});
     const uiApp = makeUiApp({ handleMessengerEvent });
     const transport = new BotTransport(uiApp, makeMockBotApi());
 
@@ -1686,7 +1686,7 @@ describe('BotTransport — handleChatMember', () => {
 
     expect(handleMessengerEvent).toHaveBeenCalledWith({
       kind: 'member_joined',
-      chatId: -1001234567,
+      chatId: '-1001234567',
       user: {
         id: 777,
         firstName: 'Иван',
@@ -1697,7 +1697,7 @@ describe('BotTransport — handleChatMember', () => {
   });
 
   test('переход left → administrator маппится в member_joined', async () => {
-    const handleMessengerEvent = mock(async () => 'pass');
+    const handleMessengerEvent = mock(async () => {});
     const uiApp = makeUiApp({ handleMessengerEvent });
     const transport = new BotTransport(uiApp, makeMockBotApi());
 
@@ -1711,7 +1711,7 @@ describe('BotTransport — handleChatMember', () => {
 
     expect(handleMessengerEvent).toHaveBeenCalledWith({
       kind: 'member_joined',
-      chatId: -1001234567,
+      chatId: '-1001234567',
       user: {
         id: 777,
         firstName: 'Иван',
@@ -1722,7 +1722,7 @@ describe('BotTransport — handleChatMember', () => {
   });
 
   test('переход member → left маппится в member_left (kicked: false)', async () => {
-    const handleMessengerEvent = mock(async () => 'pass');
+    const handleMessengerEvent = mock(async () => {});
     const uiApp = makeUiApp({ handleMessengerEvent });
     const transport = new BotTransport(uiApp, makeMockBotApi());
 
@@ -1740,7 +1740,7 @@ describe('BotTransport — handleChatMember', () => {
 
     expect(handleMessengerEvent).toHaveBeenCalledWith({
       kind: 'member_left',
-      chatId: -1001234567,
+      chatId: '-1001234567',
       user: {
         id: 777,
         firstName: 'Иван',
@@ -1752,7 +1752,7 @@ describe('BotTransport — handleChatMember', () => {
   });
 
   test('переход administrator → kicked маппится в member_left (kicked: true)', async () => {
-    const handleMessengerEvent = mock(async () => 'pass');
+    const handleMessengerEvent = mock(async () => {});
     const uiApp = makeUiApp({ handleMessengerEvent });
     const transport = new BotTransport(uiApp, makeMockBotApi());
 
@@ -1770,7 +1770,7 @@ describe('BotTransport — handleChatMember', () => {
 
     expect(handleMessengerEvent).toHaveBeenCalledWith({
       kind: 'member_left',
-      chatId: -1001234567,
+      chatId: '-1001234567',
       user: {
         id: 777,
         firstName: 'Иван',
@@ -1782,7 +1782,7 @@ describe('BotTransport — handleChatMember', () => {
   });
 
   test('технические изменения прав без смены членства игнорируются', async () => {
-    const handleMessengerEvent = mock(async () => 'pass');
+    const handleMessengerEvent = mock(async () => {});
     const uiApp = makeUiApp({ handleMessengerEvent });
     const transport = new BotTransport(uiApp, makeMockBotApi());
 
@@ -1818,7 +1818,7 @@ describe('BotTransport — handleMyChatMember', () => {
   }
 
   test('переход left → member маппится в bot_membership(status: added)', async () => {
-    const handleMessengerEvent = mock(async () => 'pass');
+    const handleMessengerEvent = mock(async () => {});
     const uiApp = makeUiApp({ handleMessengerEvent });
     const transport = new BotTransport(uiApp, makeMockBotApi());
 
@@ -1827,7 +1827,7 @@ describe('BotTransport — handleMyChatMember', () => {
 
     expect(handleMessengerEvent).toHaveBeenCalledWith({
       kind: 'bot_membership',
-      chatId: -1001234567,
+      chatId: '-1001234567',
       status: 'added',
       byUser: {
         id: 888,
@@ -1839,7 +1839,7 @@ describe('BotTransport — handleMyChatMember', () => {
   });
 
   test('переход administrator → left маппится в bot_membership(status: removed)', async () => {
-    const handleMessengerEvent = mock(async () => 'pass');
+    const handleMessengerEvent = mock(async () => {});
     const uiApp = makeUiApp({ handleMessengerEvent });
     const transport = new BotTransport(uiApp, makeMockBotApi());
 
@@ -1851,7 +1851,7 @@ describe('BotTransport — handleMyChatMember', () => {
 
     expect(handleMessengerEvent).toHaveBeenCalledWith({
       kind: 'bot_membership',
-      chatId: -1001234567,
+      chatId: '-1001234567',
       status: 'removed',
       byUser: {
         id: 888,
@@ -1863,7 +1863,7 @@ describe('BotTransport — handleMyChatMember', () => {
   });
 
   test('переход member → administrator (смена прав) игнорируется', async () => {
-    const handleMessengerEvent = mock(async () => 'pass');
+    const handleMessengerEvent = mock(async () => {});
     const uiApp = makeUiApp({ handleMessengerEvent });
     const transport = new BotTransport(uiApp, makeMockBotApi());
 
