@@ -177,6 +177,17 @@ function setupStory(opts: { streamOverrides?: Partial<Stream> } = {}): {
           invites.push({ telegramId, payload });
         },
       ),
+      execute: mock(
+        async (action: {
+          kind: string;
+          chatId: number | string;
+          userId: number;
+        }) => {
+          if (action.kind === 'kick_member') {
+            kicks.push({ groupId: action.chatId, userId: action.userId });
+          }
+        },
+      ),
       kickFromGroup: mock(async (groupId: number | string, userId: number) => {
         kicks.push({ groupId, userId });
       }),

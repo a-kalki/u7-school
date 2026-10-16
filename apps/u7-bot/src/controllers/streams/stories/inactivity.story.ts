@@ -312,7 +312,11 @@ export class InactivityStory extends U7BotUiStory {
     ]);
     const groupId = stream?.telegramGroupId;
     if (groupId === undefined || telegramId === undefined) return;
-    await this.proactiveSender.kickFromGroup(groupId, telegramId);
+    await this.proactiveSender.execute({
+      kind: 'kick_member',
+      chatId: groupId,
+      userId: telegramId,
+    });
   }
 
   /** Склоняет «N дней» (1 день, 2 дня, 5 дней). */
