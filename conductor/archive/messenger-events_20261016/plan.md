@@ -90,4 +90,4 @@
     - [x] Убедиться, что тест `inactivity.e2e.test.ts` полностью зелёный.
 - [x] Task: Финальная сквозная проверка качества [3d3093b]
     - [x] Запуск `bun run check` (типизация `tsc --noEmit`, линтер `biome check`, полный прогон всех юнит/интеграционных/e2e тестов).
-- [ ] Task: Conductor - User Manual Verification 'События мессенджера' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'События мессенджера' (Protocol in workflow.md)

@@ -2,8 +2,8 @@
   "track_id": "messenger-events_20261016",
   "title": "События мессенджера (группы и чаты) — абстракция в Core, обработчики в School и Stream, ProactiveSender.execute",
   "type": "feature",
-  "status": "in_progress",
+  "status": "complete",
   "created_at": "2026-10-16T13:00:00Z",
-  "updated_at": "2026-10-16T13:00:00Z",
+  "updated_at": "2026-10-16T16:45:00Z",
   "description": "Единая модель мессенджерских событий (MessengerEvent) и действий (MessengerAction в ProactiveSender.execute), перенос group-handler в SchoolController и StreamController, починка прав SUBSCRIBER"
 }
