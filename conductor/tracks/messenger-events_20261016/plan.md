@@ -85,9 +85,9 @@
 - [x] Task: Удалить процедурный `group-handler.ts` и `group-handler.test.ts` [6e45b93]
     - [x] Убрать вызов `registerGroupHandlers` из `apps/u7-bot/src/main.ts`.
     - [x] Удалить файлы `apps/u7-bot/src/handlers/group-handler.ts` и `group-handler.test.ts`.
-- [ ] Task: Актуализировать e2e-тесты
-    - [ ] Перевести `apps/u7-bot/tests/e2e/inactivity.e2e.test.ts` на эмуляцию через `uiApp.handleMessengerEvent`.
-    - [ ] Убедиться, что тест `inactivity.e2e.test.ts` полностью зелёный.
+- [x] Task: Актуализировать e2e-тесты [7bfb32a]
+    - [x] Перевести `apps/u7-bot/tests/e2e/inactivity.e2e.test.ts` на эмуляцию через `uiApp.handleMessengerEvent`.
+    - [x] Убедиться, что тест `inactivity.e2e.test.ts` полностью зелёный.
 - [ ] Task: Финальная сквозная проверка качества
     - [ ] Запуск `bun run check` (типизация `tsc --noEmit`, линтер `biome check`, полный прогон всех юнит/интеграционных/e2e тестов).
 - [ ] Task: Conductor - User Manual Verification 'События мессенджера' (Protocol in workflow.md)
