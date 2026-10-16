@@ -51,13 +51,13 @@
 
 ## Фаза 4: SchoolController — Роль SUBSCRIBER для школьного сообщества
 
-- [ ] Task: Реализовать реакцию на события школьной группы в `SchoolController` [TDD]
-    - [ ] [Red] Тесты в `apps/u7-bot/src/controllers/school/controller.test.ts`:
+- [x] Task: Реализовать реакцию на события школьной группы в `SchoolController` [TDD] [2c0bee0]
+    - [x] [Red] Тесты в `apps/u7-bot/src/controllers/school/controller.test.ts`:
         - При `bot_membership(status: 'added')` в группе школы (`school.communityGroup.id`): `userFacade.addRoleToUser(uuid, SUBSCRIBER, adminActor)` и `'stop'`;
         - При `member_joined` в группе школы: `userFacade.addRoleToUser(uuid, SUBSCRIBER, adminActor)` и `'stop'`;
         - При `member_left` в группе школы: `userFacade.removeRoleFromUser(uuid, SUBSCRIBER, adminActor)` и `'stop'`;
         - События в чужих группах пропускаются (`'pass'`).
-    - [ ] [Green] Реализация `handleMessengerEvent` в `SchoolController`.
+    - [x] [Green] Реализация `handleMessengerEvent` в `SchoolController`.
 
 ---
 
