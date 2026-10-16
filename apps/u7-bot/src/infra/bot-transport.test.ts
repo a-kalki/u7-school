@@ -1583,7 +1583,45 @@ describe('BotTransport — инварианты жизненного цикла 
   });
 });
 
-// ── kickFromGroup (перенос) ──
+// ── execute и kickFromGroup ──
+
+describe('BotTransport — execute', () => {
+  test('execute(kick_member): banChatMember на минуту + unbanChatMember', async () => {
+    const api = makeMockBotApi();
+    const transport = new BotTransport(makeUiApp(), api);
+
+    await transport.execute({
+      kind: 'kick_member',
+      chatId: '-1002222222222',
+      userId: 1003,
+    });
+
+    expect(api.banChatMember).toHaveBeenCalledWith(
+      '-1002222222222',
+      1003,
+      expect.objectContaining({ until_date: expect.any(Number) }),
+    );
+    expect(api.unbanChatMember).toHaveBeenCalledWith('-1002222222222', 1003);
+  });
+
+  test('ошибка banChatMember в execute(kick_member) не всплывает наружу (бот не админ)', async () => {
+    const api = makeMockBotApi({
+      banChatMember: mock(async () => {
+        throw new Error('Bad Request: not enough rights');
+      }),
+    });
+    const transport = new BotTransport(makeUiApp(), api);
+
+    await expect(
+      transport.execute({
+        kind: 'kick_member',
+        chatId: '-1002222222222',
+        userId: 1003,
+      }),
+    ).resolves.toBeUndefined();
+    expect(api.unbanChatMember).not.toHaveBeenCalled();
+  });
+});
 
 describe('BotTransport — kickFromGroup', () => {
   test('мягкий кик: banChatMember на минуту + unbanChatMember', async () => {

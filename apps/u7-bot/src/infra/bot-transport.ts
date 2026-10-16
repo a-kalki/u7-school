@@ -13,6 +13,7 @@ import {
   type CommandUpdate,
   type DialogResponse,
   type KeyboardDescription,
+  type MessengerAction,
   type NoticeKind,
   type NotificationPayload,
   type ProactiveSender,
@@ -421,28 +422,51 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   }
 
   /**
+   * Выполнение действия в мессенджере (FR-8).
+   */
+  async execute(action: MessengerAction): Promise<void> {
+    switch (action.kind) {
+      case 'kick_member': {
+        try {
+          await this.botApi.banChatMember(action.chatId, action.userId, {
+            until_date: Math.floor(now().getTime() / 1000) + 60,
+          });
+          await this.botApi.unbanChatMember(action.chatId, action.userId);
+          getGlobalLogger()?.info(
+            'bot-transport',
+            `Пользователь ${action.userId} исключён из чата ${action.chatId}`,
+          );
+        } catch (err) {
+          getGlobalLogger()?.warn(
+            'bot-transport',
+            `Не удалось исключить пользователя ${action.userId} из чата ${action.chatId} (бот не админ?): ${String(err)}`,
+          );
+        }
+        break;
+      }
+      case 'restrict_member':
+      case 'pin_message':
+      case 'approve_join':
+        // Зарезервировано на будущее
+        break;
+    }
+  }
+
+  /**
    * Мягкий кик пользователя из Telegram-группы (FR-6).
    *
    * ban на 60 секунд + мгновенный unban — пользователь удалён из группы,
    * но может вернуться по инвайту. Ошибки (бот не админ, группа не найдена)
    * логируются и не всплывают наружу — снятие с учёбы не ломается.
+   *
+   * @deprecated используйте `execute({ kind: 'kick_member', chatId, userId })`
    */
   async kickFromGroup(groupId: number | string, userId: number): Promise<void> {
-    try {
-      await this.botApi.banChatMember(groupId, userId, {
-        until_date: Math.floor(now().getTime() / 1000) + 60,
-      });
-      await this.botApi.unbanChatMember(groupId, userId);
-      getGlobalLogger()?.info(
-        'bot-transport',
-        `Пользователь ${userId} исключён из группы ${groupId}`,
-      );
-    } catch (err) {
-      getGlobalLogger()?.warn(
-        'bot-transport',
-        `Не удалось исключить пользователя ${userId} из группы ${groupId} (бот не админ?): ${String(err)}`,
-      );
-    }
+    await this.execute({
+      kind: 'kick_member',
+      chatId: groupId,
+      userId,
+    });
   }
 
   // ═══════════════════════════════════════════
