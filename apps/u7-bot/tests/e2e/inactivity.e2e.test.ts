@@ -1,9 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { Role } from '@u7-scl/app';
 import type { User } from '@u7-scl/app/domain';
-import { TEST_SCHOOL } from '@u7-scl/app/domain';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
-import { ConsoleLogger } from '@u7-scl/core/shared';
 import type {
   StudentAbandonedEvent,
   StudentInactivityRemoveCandidateEvent,
@@ -16,7 +13,6 @@ import {
   type TestBotTransport,
 } from '@u7-scl/test-helpers/test-bot-transport';
 import { UserController } from '../../src/controllers/user/controller';
-import { registerGroupHandlers } from '../../src/handlers/group-handler';
 
 /**
  * E2E проактивов бездействия и ухода из учёбы (контракт «Диалог и Экран»):
@@ -43,30 +39,20 @@ import { registerGroupHandlers } from '../../src/handlers/group-handler';
 
 const STUDENT_TG = 1003; // «Студент» (active, поток e1e1e1e1)
 const MENTOR_TG = 1004; // «Ментор» (ментор обоих потоков)
-const BOT_ADMIN_UUID = 'ae00f3f6-1392-4b98-b178-41c27e794b7f'; // «Бот-админ» из фикстур
 
-const BOT_ADMIN: User = {
-  uuid: BOT_ADMIN_UUID,
-  name: 'Бот-админ',
-  telegramId: 0,
-  roles: [Role.ADMIN],
-  createdAt: '2026-01-01T00:00',
-};
 const STREAM2_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1';
 const STUDENT_F0 = 'f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0';
 const STUDENT_USER_ID = '33333333-3333-3333-3333-333333333333';
 const GROUP2_ID = '-1002222222222';
-const SCHOOL_GROUP_ID = -1003964284604; // ≠ группы потока: выход из неё роль не снимает
 
 interface Stand {
   app: TestApp;
   transport: TestBotTransport;
   student: User;
   mentor: User;
-  chatMemberHandlers: Record<string, (ctx: unknown) => Promise<void>>;
 }
 
-/** Стенд e2e: TestApp + TestBotTransport + chat_member-обработчики. */
+/** Стенд e2e: TestApp + TestBotTransport. */
 async function createInactivityStand(tag: string): Promise<Stand> {
   const app = await createTestApp(tag);
   const transport = createTestBotTransport(app, [
@@ -77,29 +63,7 @@ async function createInactivityStand(tag: string): Promise<Stand> {
   const student = (await app.userFacade.getUserByTelegramId(STUDENT_TG))!;
   const mentor = (await app.userFacade.getUserByTelegramId(MENTOR_TG))!;
 
-  // chat_member-обработчики — как в main.ts (мок grammy Bot)
-  const chatMemberHandlers: Record<string, (ctx: unknown) => Promise<void>> =
-    {};
-  registerGroupHandlers(
-    {
-      on: (e: string, cb: (ctx: unknown) => Promise<void>) => {
-        chatMemberHandlers[e] = cb;
-      },
-    } as never,
-    app.userFacade,
-    new ConsoleLogger(),
-    {
-      apiApp: app.apiApp,
-      transport: transport.transport,
-      actor: BOT_ADMIN,
-      school: {
-        ...TEST_SCHOOL,
-        communityGroup: { id: SCHOOL_GROUP_ID, url: 'https://t.me/test_comm' },
-      },
-    },
-  );
-
-  return { app, transport, student, mentor, chatMemberHandlers };
+  return { app, transport, student, mentor };
 }
 
 /** Ждёт появления проактивного сообщения адресату (poll sentMessages). */
@@ -314,16 +278,13 @@ describe('E2E: выход из группы и снятие ментором', (
   });
 
   test('chat_member left активного студента → ментору «покинул группу», статус не меняется (FR-7)', async () => {
-    const { app, transport, mentor, chatMemberHandlers } = stand;
+    const { app, transport, mentor } = stand;
     transport.reset();
 
-    await chatMemberHandlers.chat_member?.({
-      chatMember: {
-        chat: { id: Number(GROUP2_ID) },
-        from: { id: 999 },
-        old_chat_member: { status: 'member' },
-        new_chat_member: { status: 'left', user: { id: STUDENT_TG } },
-      },
+    await transport.uiApp.handleMessengerEvent({
+      kind: 'member_left',
+      chatId: GROUP2_ID,
+      user: { id: STUDENT_TG, firstName: 'Студент' },
     });
 
     const notice = await waitMessageFor(transport, MENTOR_TG);
@@ -371,16 +332,13 @@ describe('E2E: выход из группы и снятие ментором', (
   });
 
   test('chat_member left выбывшего студента → ментору уведомления нет (FR-7)', async () => {
-    const { transport, chatMemberHandlers } = stand;
+    const { transport } = stand;
     transport.reset();
 
-    await chatMemberHandlers.chat_member?.({
-      chatMember: {
-        chat: { id: Number(GROUP2_ID) },
-        from: { id: 999 },
-        old_chat_member: { status: 'member' },
-        new_chat_member: { status: 'left', user: { id: STUDENT_TG } },
-      },
+    await transport.uiApp.handleMessengerEvent({
+      kind: 'member_left',
+      chatId: GROUP2_ID,
+      user: { id: STUDENT_TG, firstName: 'Студент' },
     });
     await new Promise((r) => setTimeout(r, 200));
 
