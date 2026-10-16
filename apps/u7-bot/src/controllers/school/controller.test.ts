@@ -75,7 +75,7 @@ describe('SchoolController (реестр)', () => {
     expect(rows[1]![0]!.code).toBe('school:reviews:list');
     expect(rows[2]![0]!.text).toBe('ℹ️ Инфо');
     expect(rows[2]![0]!.code).toBe('school:info:view');
-    expect(rows[3]![0]!.text).toBe('💬 Сообщество');
+    expect(rows[3]![0]!.text).toBe('👥 Сообщество');
     expect(rows[3]![0]!.url).toBe(TEST_SCHOOL.communityGroup.url);
     expect(rows[4]![0]!.text).toBe('↩️ Главное меню');
   });
@@ -132,5 +132,129 @@ describe('SchoolController (реестр)', () => {
     expect(rows).toHaveLength(1);
     expect(rows[0]![0]!.text).toBe('⬅️ Назад в школу');
     expect(rows[0]![0]!.code).toBe('school:hub:open');
+  });
+
+  describe('handleMessengerEvent', () => {
+    const adminActor: User = {
+      uuid: 'admin-1',
+      name: 'Admin',
+      telegramId: 999999,
+      roles: [Role.ADMIN],
+      createdAt: '2026-01-01T00:00:00.000Z',
+    };
+
+    const targetUser: User = {
+      uuid: 'user-777',
+      name: 'Иван',
+      telegramId: 777,
+      roles: [Role.GUEST],
+      createdAt: '2026-01-01T00:00:00.000Z',
+    };
+
+    function setupController(
+      userFacadeOverrides: Record<string, unknown> = {},
+    ) {
+      const controller = new SchoolController();
+      const userFacade = {
+        getUserByTelegramId: mock(async (tgId: number) =>
+          tgId === 777 ? targetUser : null,
+        ),
+        addRoleToUser: mock(async () => targetUser),
+        removeRoleFromUser: mock(async () => targetUser),
+        ...userFacadeOverrides,
+      };
+
+      controller.init({
+        school: TEST_SCHOOL,
+        userFacade,
+        botAdminUser: adminActor,
+      } as any);
+
+      return { controller, userFacade };
+    }
+
+    test('bot_membership(status: added) в группе школы выдаёт роль SUBSCRIBER и возвращает stop', async () => {
+      const { controller, userFacade } = setupController();
+
+      const result = await controller.handleMessengerEvent({
+        kind: 'bot_membership',
+        chatId: TEST_SCHOOL.communityGroup.id,
+        status: 'added',
+        byUser: { id: 777, firstName: 'Иван' },
+      });
+
+      expect(result).toBe('stop');
+      expect(userFacade.getUserByTelegramId).toHaveBeenCalledWith(777);
+      expect(userFacade.addRoleToUser).toHaveBeenCalledWith(
+        'user-777',
+        Role.SUBSCRIBER,
+        adminActor,
+      );
+    });
+
+    test('member_joined в группе школы выдаёт роль SUBSCRIBER и возвращает stop', async () => {
+      const { controller, userFacade } = setupController();
+
+      const result = await controller.handleMessengerEvent({
+        kind: 'member_joined',
+        chatId: TEST_SCHOOL.communityGroup.id,
+        user: { id: 777, firstName: 'Иван' },
+      });
+
+      expect(result).toBe('stop');
+      expect(userFacade.getUserByTelegramId).toHaveBeenCalledWith(777);
+      expect(userFacade.addRoleToUser).toHaveBeenCalledWith(
+        'user-777',
+        Role.SUBSCRIBER,
+        adminActor,
+      );
+    });
+
+    test('member_left в группе школы снимает роль SUBSCRIBER и возвращает stop', async () => {
+      const { controller, userFacade } = setupController();
+
+      const result = await controller.handleMessengerEvent({
+        kind: 'member_left',
+        chatId: TEST_SCHOOL.communityGroup.id,
+        user: { id: 777, firstName: 'Иван' },
+      });
+
+      expect(result).toBe('stop');
+      expect(userFacade.getUserByTelegramId).toHaveBeenCalledWith(777);
+      expect(userFacade.removeRoleFromUser).toHaveBeenCalledWith(
+        'user-777',
+        Role.SUBSCRIBER,
+        adminActor,
+      );
+    });
+
+    test('bot_membership(status: removed) в группе школы возвращает stop без изменения ролей', async () => {
+      const { controller, userFacade } = setupController();
+
+      const result = await controller.handleMessengerEvent({
+        kind: 'bot_membership',
+        chatId: TEST_SCHOOL.communityGroup.id,
+        status: 'removed',
+        byUser: { id: 777, firstName: 'Иван' },
+      });
+
+      expect(result).toBe('stop');
+      expect(userFacade.addRoleToUser).not.toHaveBeenCalled();
+      expect(userFacade.removeRoleFromUser).not.toHaveBeenCalled();
+    });
+
+    test('события в чужой группе возвращают pass и не трогают userFacade', async () => {
+      const { controller, userFacade } = setupController();
+
+      const result = await controller.handleMessengerEvent({
+        kind: 'member_joined',
+        chatId: -999999999,
+        user: { id: 777, firstName: 'Иван' },
+      });
+
+      expect(result).toBe('pass');
+      expect(userFacade.getUserByTelegramId).not.toHaveBeenCalled();
+      expect(userFacade.addRoleToUser).not.toHaveBeenCalled();
+    });
   });
 });
