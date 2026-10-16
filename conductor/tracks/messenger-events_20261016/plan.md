@@ -88,6 +88,6 @@
 - [x] Task: Актуализировать e2e-тесты [7bfb32a]
     - [x] Перевести `apps/u7-bot/tests/e2e/inactivity.e2e.test.ts` на эмуляцию через `uiApp.handleMessengerEvent`.
     - [x] Убедиться, что тест `inactivity.e2e.test.ts` полностью зелёный.
-- [ ] Task: Финальная сквозная проверка качества
-    - [ ] Запуск `bun run check` (типизация `tsc --noEmit`, линтер `biome check`, полный прогон всех юнит/интеграционных/e2e тестов).
+- [x] Task: Финальная сквозная проверка качества [3d3093b]
+    - [x] Запуск `bun run check` (типизация `tsc --noEmit`, линтер `biome check`, полный прогон всех юнит/интеграционных/e2e тестов).
 - [ ] Task: Conductor - User Manual Verification 'События мессенджера' (Protocol in workflow.md)
