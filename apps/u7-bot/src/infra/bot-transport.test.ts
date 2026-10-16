@@ -1652,3 +1652,227 @@ describe('BotTransport — kickFromGroup', () => {
     expect(api.unbanChatMember).not.toHaveBeenCalled();
   });
 });
+
+// ── Маппинг событий chat_member и my_chat_member ──
+
+describe('BotTransport — handleChatMember', () => {
+  function makeChatMemberCtx(
+    overrides: Record<string, unknown> = {},
+  ): BotContext {
+    return {
+      chatMember: {
+        chat: { id: -1001234567 },
+        old_chat_member: {
+          status: 'left',
+          user: { id: 777, first_name: 'Иван', username: 'ivan' },
+        },
+        new_chat_member: {
+          status: 'member',
+          user: { id: 777, first_name: 'Иван', username: 'ivan' },
+        },
+        from: { id: 777, first_name: 'Иван', username: 'ivan' },
+        ...overrides,
+      },
+    } as unknown as BotContext;
+  }
+
+  test('переход left → member маппится в member_joined', async () => {
+    const handleMessengerEvent = mock(async () => 'pass');
+    const uiApp = makeUiApp({ handleMessengerEvent });
+    const transport = new BotTransport(uiApp, makeMockBotApi());
+
+    const ctx = makeChatMemberCtx();
+    await transport.handleChatMember(ctx);
+
+    expect(handleMessengerEvent).toHaveBeenCalledWith({
+      kind: 'member_joined',
+      chatId: -1001234567,
+      user: {
+        id: 777,
+        firstName: 'Иван',
+        lastName: undefined,
+        username: 'ivan',
+      },
+    });
+  });
+
+  test('переход left → administrator маппится в member_joined', async () => {
+    const handleMessengerEvent = mock(async () => 'pass');
+    const uiApp = makeUiApp({ handleMessengerEvent });
+    const transport = new BotTransport(uiApp, makeMockBotApi());
+
+    const ctx = makeChatMemberCtx({
+      new_chat_member: {
+        status: 'administrator',
+        user: { id: 777, first_name: 'Иван', last_name: 'Петров' },
+      },
+    });
+    await transport.handleChatMember(ctx);
+
+    expect(handleMessengerEvent).toHaveBeenCalledWith({
+      kind: 'member_joined',
+      chatId: -1001234567,
+      user: {
+        id: 777,
+        firstName: 'Иван',
+        lastName: 'Петров',
+        username: undefined,
+      },
+    });
+  });
+
+  test('переход member → left маппится в member_left (kicked: false)', async () => {
+    const handleMessengerEvent = mock(async () => 'pass');
+    const uiApp = makeUiApp({ handleMessengerEvent });
+    const transport = new BotTransport(uiApp, makeMockBotApi());
+
+    const ctx = makeChatMemberCtx({
+      old_chat_member: {
+        status: 'member',
+        user: { id: 777, first_name: 'Иван', username: 'ivan' },
+      },
+      new_chat_member: {
+        status: 'left',
+        user: { id: 777, first_name: 'Иван', username: 'ivan' },
+      },
+    });
+    await transport.handleChatMember(ctx);
+
+    expect(handleMessengerEvent).toHaveBeenCalledWith({
+      kind: 'member_left',
+      chatId: -1001234567,
+      user: {
+        id: 777,
+        firstName: 'Иван',
+        lastName: undefined,
+        username: 'ivan',
+      },
+      kicked: false,
+    });
+  });
+
+  test('переход administrator → kicked маппится в member_left (kicked: true)', async () => {
+    const handleMessengerEvent = mock(async () => 'pass');
+    const uiApp = makeUiApp({ handleMessengerEvent });
+    const transport = new BotTransport(uiApp, makeMockBotApi());
+
+    const ctx = makeChatMemberCtx({
+      old_chat_member: {
+        status: 'administrator',
+        user: { id: 777, first_name: 'Иван' },
+      },
+      new_chat_member: {
+        status: 'kicked',
+        user: { id: 777, first_name: 'Иван' },
+      },
+    });
+    await transport.handleChatMember(ctx);
+
+    expect(handleMessengerEvent).toHaveBeenCalledWith({
+      kind: 'member_left',
+      chatId: -1001234567,
+      user: {
+        id: 777,
+        firstName: 'Иван',
+        lastName: undefined,
+        username: undefined,
+      },
+      kicked: true,
+    });
+  });
+
+  test('технические изменения прав без смены членства игнорируются', async () => {
+    const handleMessengerEvent = mock(async () => 'pass');
+    const uiApp = makeUiApp({ handleMessengerEvent });
+    const transport = new BotTransport(uiApp, makeMockBotApi());
+
+    const ctx = makeChatMemberCtx({
+      old_chat_member: {
+        status: 'administrator',
+        user: { id: 777, first_name: 'Иван' },
+      },
+      new_chat_member: {
+        status: 'administrator',
+        user: { id: 777, first_name: 'Иван' },
+      },
+    });
+    await transport.handleChatMember(ctx);
+
+    expect(handleMessengerEvent).not.toHaveBeenCalled();
+  });
+});
+
+describe('BotTransport — handleMyChatMember', () => {
+  function makeMyChatMemberCtx(
+    overrides: Record<string, unknown> = {},
+  ): BotContext {
+    return {
+      myChatMember: {
+        chat: { id: -1001234567 },
+        old_chat_member: { status: 'left' },
+        new_chat_member: { status: 'member' },
+        from: { id: 888, first_name: 'Admin', username: 'admin' },
+        ...overrides,
+      },
+    } as unknown as BotContext;
+  }
+
+  test('переход left → member маппится в bot_membership(status: added)', async () => {
+    const handleMessengerEvent = mock(async () => 'pass');
+    const uiApp = makeUiApp({ handleMessengerEvent });
+    const transport = new BotTransport(uiApp, makeMockBotApi());
+
+    const ctx = makeMyChatMemberCtx();
+    await transport.handleMyChatMember(ctx);
+
+    expect(handleMessengerEvent).toHaveBeenCalledWith({
+      kind: 'bot_membership',
+      chatId: -1001234567,
+      status: 'added',
+      byUser: {
+        id: 888,
+        firstName: 'Admin',
+        lastName: undefined,
+        username: 'admin',
+      },
+    });
+  });
+
+  test('переход administrator → left маппится в bot_membership(status: removed)', async () => {
+    const handleMessengerEvent = mock(async () => 'pass');
+    const uiApp = makeUiApp({ handleMessengerEvent });
+    const transport = new BotTransport(uiApp, makeMockBotApi());
+
+    const ctx = makeMyChatMemberCtx({
+      old_chat_member: { status: 'administrator' },
+      new_chat_member: { status: 'left' },
+    });
+    await transport.handleMyChatMember(ctx);
+
+    expect(handleMessengerEvent).toHaveBeenCalledWith({
+      kind: 'bot_membership',
+      chatId: -1001234567,
+      status: 'removed',
+      byUser: {
+        id: 888,
+        firstName: 'Admin',
+        lastName: undefined,
+        username: 'admin',
+      },
+    });
+  });
+
+  test('переход member → administrator (смена прав) игнорируется', async () => {
+    const handleMessengerEvent = mock(async () => 'pass');
+    const uiApp = makeUiApp({ handleMessengerEvent });
+    const transport = new BotTransport(uiApp, makeMockBotApi());
+
+    const ctx = makeMyChatMemberCtx({
+      old_chat_member: { status: 'member' },
+      new_chat_member: { status: 'administrator' },
+    });
+    await transport.handleMyChatMember(ctx);
+
+    expect(handleMessengerEvent).not.toHaveBeenCalled();
+  });
+});

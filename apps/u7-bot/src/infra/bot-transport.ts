@@ -10,10 +10,13 @@ import {
   type BotSession,
   type BotSessionRepo,
   type BotUpdate,
+  type ChatMemberUser,
   type CommandUpdate,
   type DialogResponse,
   type KeyboardDescription,
   type MessengerAction,
+  type MessengerEvent,
+  type MessengerEventReaction,
   type NoticeKind,
   type NotificationPayload,
   type ProactiveSender,
@@ -103,12 +106,18 @@ export interface DialogUiAppPort {
     tgId: number,
     session: BotSession,
   ): Promise<DialogResponse | null>;
+  /** Событие мессенджера (FR-1, FR-2, FR-3) */
+  handleMessengerEvent?(
+    event: MessengerEvent,
+  ): Promise<MessengerEventReaction | undefined>;
 }
 
 export interface BotUpdateHandler {
   handleCommand(ctx: BotContext): Promise<void>;
   handleCallback(ctx: BotContext): Promise<void>;
   handleMessage(ctx: BotContext): Promise<void>;
+  handleChatMember?(ctx: BotContext): Promise<void>;
+  handleMyChatMember?(ctx: BotContext): Promise<void>;
 }
 
 // ── Парсинг слэш-команд (ФР-4) ──
@@ -352,6 +361,82 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       await this.#render(tgId, session, response);
       await this.#persistUpdate(tgId, session);
     });
+  }
+
+  /**
+   * Обработка событий изменения статуса участника группы (chat_member).
+   */
+  async handleChatMember(ctx: BotContext): Promise<void> {
+    const member = ctx.chatMember;
+    if (!member) return;
+
+    const oldStatus = member.old_chat_member.status;
+    const newStatus = member.new_chat_member.status;
+    const user = member.new_chat_member.user;
+
+    const isOldActive = oldStatus === 'member' || oldStatus === 'administrator';
+    const isNewActive = newStatus === 'member' || newStatus === 'administrator';
+
+    const chatMemberUser: ChatMemberUser = {
+      id: user.id,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      username: user.username,
+    };
+
+    if (!isOldActive && isNewActive) {
+      await this.uiApp.handleMessengerEvent?.({
+        kind: 'member_joined',
+        chatId: member.chat.id,
+        user: chatMemberUser,
+      });
+    } else if (isOldActive && !isNewActive) {
+      await this.uiApp.handleMessengerEvent?.({
+        kind: 'member_left',
+        chatId: member.chat.id,
+        user: chatMemberUser,
+        kicked: newStatus === 'kicked',
+      });
+    }
+  }
+
+  /**
+   * Обработка событий изменения статуса членства бота в группе (my_chat_member).
+   */
+  async handleMyChatMember(ctx: BotContext): Promise<void> {
+    const member = ctx.myChatMember;
+    if (!member) return;
+
+    const oldStatus = member.old_chat_member.status;
+    const newStatus = member.new_chat_member.status;
+
+    const isOldActive = oldStatus === 'member' || oldStatus === 'administrator';
+    const isNewActive = newStatus === 'member' || newStatus === 'administrator';
+
+    const fromUser = member.from
+      ? {
+          id: member.from.id,
+          firstName: member.from.first_name,
+          lastName: member.from.last_name,
+          username: member.from.username,
+        }
+      : undefined;
+
+    if (!isOldActive && isNewActive) {
+      await this.uiApp.handleMessengerEvent?.({
+        kind: 'bot_membership',
+        chatId: member.chat.id,
+        status: 'added',
+        byUser: fromUser,
+      });
+    } else if (isOldActive && !isNewActive) {
+      await this.uiApp.handleMessengerEvent?.({
+        kind: 'bot_membership',
+        chatId: member.chat.id,
+        status: 'removed',
+        byUser: fromUser,
+      });
+    }
   }
 
   /** Реплика-подсказка на не-наш ввод: вне очереди и сессии (plain-текст). */
