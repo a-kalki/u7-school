@@ -39,13 +39,13 @@
         - `execute({ kind: 'kick_member', chatId, userId })` вызывает `banChatMember` + `unbanChatMember`.
     - [x] [Green] Реализовать метод `execute` в `BotTransport`.
     - [x] Переписать `kickFromGroup` в `BotTransport` как вызов `this.execute({ kind: 'kick_member', ... })`.
-- [ ] Task: Маппинг `chat_member` и `my_chat_member` в `MessengerEvent` в `BotTransport` [TDD]
-    - [ ] [Red] Тесты в `apps/u7-bot/src/infra/bot-transport.test.ts`:
+- [x] Task: Маппинг `chat_member` и `my_chat_member` в `MessengerEvent` в `BotTransport` [TDD] [30949ee]
+    - [x] [Red] Тесты в `apps/u7-bot/src/infra/bot-transport.test.ts`:
         - переход `left → member` маппится в `{ kind: 'member_joined', chatId, user }`;
         - переход `member → left` (или `kicked`) маппится в `{ kind: 'member_left', chatId, user, kicked }`;
         - `my_chat_member` переход `left → member|administrator` маппится в `{ kind: 'bot_membership', status: 'added', ... }`;
         - технические изменения прав без смены членства игнорируются (не порождают лишних событий).
-    - [ ] [Green] Подключить обработчики в `BotTransport`, передающие события в `uiApp.handleMessengerEvent(event)`.
+    - [x] [Green] Подключить обработчики в `BotTransport`, передающие события в `uiApp.handleMessengerEvent(event)`.
 
 ---
 
