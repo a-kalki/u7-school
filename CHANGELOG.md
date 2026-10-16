@@ -8,6 +8,47 @@
 (наличие секции проверяет `scripts/release.sh`). Группировка:
 Added / Changed / Fixed / Migration.
 
+## [0.2.5] — 2026-10-16
+
+События мессенджера (группы и чаты), единая drill-down навигация (каталог курсов, программа ментора и студента), управление ролью SUBSCRIBER, оптимизация отображения карточек и кнопок в Telegram.
+
+### Added
+
+- **Абстракция событий мессенджера (`packages/core`, `apps/u7-bot`)**:
+  - Контракты событий `MessengerEvent` (`member_joined`, `member_left`, `bot_membership`) и действий `MessengerAction` (`kick_member`).
+  - Метод `ProactiveSender.execute(action: MessengerAction): Promise<void>`.
+  - Хук `handleMessengerEvent(event): Promise<MessengerEventReaction | undefined>` в `BotController` с цепочкой `stop` / `pass`.
+  - Автоматическая гост-регистрация участников событий мессенджера в `U7BotUiApp.handleMessengerEvent`.
+  - Реализация маппинга `chat_member` и `my_chat_member` в `BotTransport` и исполнения действий через Telegram Bot API.
+- **Обработчики событий чатов в контроллерах**:
+  - `SchoolController`: выдача роли `SUBSCRIBER` при вступлении в группу сообщества школы (`communityGroup`) и снятие роли при выходе.
+  - `StreamController`: оповещение ментора о входе неизвестных участников в учебную группу потока и о выходе активных студентов (FR-7).
+- **Drill-down навигация (`packages/core/src/ui/content-nav`)**:
+  - Единая карточная модель уровня `NavLevel`, презентер `presentNavLevel` с многоуровневыми хлебными крошками (multiline breadcrumbs).
+  - Листание соседних элементов (`◀️` / `▶️`) в пределах одного уровня.
+  - Перевод каталога курсов (`CourseCatalogStory`), программы модуля ментора (`ViewStreamMentorStory`) и навигации студента (`NavTreeStory`) на общее ядро.
+- **Утилита `truncateByWords` (`packages/core/src/shared/string-utility`)**:
+  - Читабельная обрезка длинного текста по границам слов без висячих союзов и предлогов.
+
+### Changed
+
+- **UX карточек и кнопок drill-down навигации**:
+  - Промежуточные сегменты хлебных крошек ограничены по длине (`MAX_PARENT_BREADCRUMB_LENGTH = 34`) для читаемости в клиентах Telegram.
+  - Активный уровень выделяется жирным шрифтом (`› *Уровень: Название*`).
+  - Текст inline-кнопок подуровней очищен от избыточных эмодзи и префиксов (`1. Название`).
+  - Счётчики уроков и шагов оставлены в теле карточки, на кнопках сохраняется только краткий прогресс `(1/2)`.
+  - Ряды дополнительных действий (например, wish actions) вынесены под блок листания и над кнопкой «Назад».
+- **Стори неактивности (`InactivityStory`)**: переведена на `proactiveSender.execute({ kind: 'kick_member', ... })`.
+
+### Fixed
+
+- **Права роли `SUBSCRIBER` в `UserPolicy`**: администратору разрешено назначать и снимать роль `SUBSCRIBER` пользователям (закрыт TODO).
+- **Стабильность MarkdownV2**: безопасное форматирование отзывов и переносов строк в `reviews-for-me`, `school-reviews` и каталоге курсов.
+
+### Removed
+
+- **Процедурный `group-handler.ts`**: удалён процедурный обработчик событий групп из `apps/u7-bot/src/handlers/`, логика распределена по контроллерам `SchoolController` и `StreamController`.
+
 ## [0.2.4] — 2026-10-15
 
 Релизная группа «Школа»: хаб школы (`school-hub`), школа как конфигурация уровня приложения (`school-config`), привязка потоков к школе (`Stream.schoolId`), декларативные тестовые миры (`test-worlds`).
