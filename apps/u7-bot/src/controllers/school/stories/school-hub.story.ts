@@ -79,7 +79,7 @@ export class SchoolHubStory extends U7BotUiStory {
       [this.btn('📚 Потоки', Routes.stream.catalogList)],
       [this.btn('💬 Отзывы', this.cbFor('reviews', 'list'))],
       [this.btn('ℹ️ Инфо', this.cbFor('info', 'view'))],
-      [this.btnUrl('💬 Сообщество', school.communityGroup.url)],
+      [this.btnUrl('👥 Сообщество', school.communityGroup.url)],
       [buttons.mainMenu()],
     ];
 

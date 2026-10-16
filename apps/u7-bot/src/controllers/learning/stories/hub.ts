@@ -139,7 +139,10 @@ export class HubStory extends U7BotUiStory {
         ),
       ]);
       rows.push([
-        this.btn('📂 Уроки', this.cbFor('nav-tree', 'my-study:lessons')),
+        this.btn(
+          '📖 Программа модуля',
+          this.cbFor('nav-tree', 'my-study:lessons'),
+        ),
       ]);
     }
 

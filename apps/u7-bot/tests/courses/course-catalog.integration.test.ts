@@ -115,7 +115,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
     );
 
     const text = response.screen?.text ?? '';
-    expect(text).toContain('Курс: Тестовый курс');
+    expect(text).toContain('Тестовый курс');
     expect(text).toContain('Этап 1');
 
     const rows = response.screen?.keyboard?.rows ?? [];
@@ -138,7 +138,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
     );
 
     const text = response.screen?.text ?? '';
-    expect(text).toContain('Этап: Этап 1');
+    expect(text).toContain('Этап 1');
     expect(text).toContain('Модуль');
 
     const rows = response.screen?.keyboard?.rows ?? [];
@@ -175,7 +175,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
 
     const text = response.screen?.text ?? '';
     expect(text).toContain('Введение');
-    expect(text).toContain('Переменные и типы');
+    expect(text).toContain('урок');
 
     const rows = response.screen?.keyboard?.rows ?? [];
     // Кнопки — проекты, не уроки
@@ -211,7 +211,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
     );
 
     const text = response.screen?.text ?? '';
-    expect(text).toContain('Проект: Введение');
+    expect(text).toContain('Введение');
     expect(text).toContain('Переменные и типы');
 
     // Тела шагов не видны

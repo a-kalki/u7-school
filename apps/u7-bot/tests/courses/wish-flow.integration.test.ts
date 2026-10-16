@@ -204,7 +204,7 @@ describe('Wish: жизненный цикл желания курса (инте�
     expect(await wishStatuses(INSTANT_COURSE_ID)).toContain('expressed');
 
     const card = await click(confirmScreen, '❌ Отмена');
-    expect(card.screen?.text).toContain('Курс: Продвинутый JavaScript');
+    expect(card.screen?.text).toContain('Продвинутый JavaScript');
     expect(await wishStatuses(INSTANT_COURSE_ID)).toContain('expressed');
   });
 

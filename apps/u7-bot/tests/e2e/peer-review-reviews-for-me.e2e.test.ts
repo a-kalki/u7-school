@@ -15,9 +15,9 @@ import { PeerReviewController } from '../../src/controllers/peer-review/controll
  *   1) отзывов нет → в хабе кнопки «📥 Отзывы мне» нет (Олег — кампания
  *      создана событием судьбы в рантайме, окно 7 дн от «сейчас»);
  *   2) после create-review кнопка в хабе появляется; S08: новые наверху
- *      (свежий отзыв Олега выше фиксурного от Андрея), карточки-отзывы
- *      разделены линией, лейбл исхода у автора-студента; «↩️ Мои
- *      отзывы» возвращает в хаб;
+ *      (свежий отзыв Алексея — первая карточка 1/2, фиксурный Андрея —
+ *      вторая карточка 2/2), листание «◀️ Пред.» / «След. ▶️», лейбл
+ *      исхода у автора-студента; «↩️ Мои отзывы» возвращает в хаб;
  *   3) меню: живых кампаний нет, но отзывы есть → кнопка «💬 Отзывы»
  *      видна (Бот-админ — фиксурный отзыв -0004, ни в одной кампании);
  *      негатив «нет ни того, ни другого» — покрыт в peer-review-hub
@@ -130,8 +130,7 @@ describe('E2E peer-review: S08 «Отзывы мне»', () => {
     expect(btns.some((b) => b.text === '📥 Отзывы мне')).toBe(false);
   });
 
-  test('отзыв появился → кнопка есть; S08: новые наверху, линия, лейблы, возврат', async () => {
-    const oleg = (await app.userFacade.getUserByTelegramId(OLEG_TG))!;
+  test('отзыв появился → кнопка есть; S08: карточки 1/2 и 2/2, листание, лейблы, возврат', async () => {
     const marina = (await app.userFacade.getUserByTelegramId(MARINA_TG))!;
     const mentor = (await app.userFacade.getUserByTelegramId(MENTOR_TG))!;
     const campaign = (await app.reviewCampaignRepo.findBySubject(
@@ -162,21 +161,25 @@ describe('E2E peer-review: S08 «Отзывы мне»', () => {
       }),
     );
     const text = String(s08.screen?.text);
-    expect(text).toContain('📥 *Отзывы мне*');
-    expect(text).toContain('2 отзыва от участников');
+    expect(text).toContain('📥 *Отзывы мне* · 1/2');
+    expect(text).toContain('👤 От: Алексей \\(ментор\\)');
+    expect(text).toContain('📚 Поток: JS Core — Поток 2');
+    expect(text).toContain(`«${NEW_REVIEW_TEXT}»`);
+    expect(text).not.toContain(FIXTURE_REVIEW_TEXT);
 
-    // Новые наверху: свежий отзыв Олега выше фиксурного от Андрея
-    const fresh = text.indexOf(`«${NEW_REVIEW_TEXT}`);
-    const stale = text.indexOf(FIXTURE_REVIEW_TEXT);
-    expect(fresh).toBeGreaterThan(-1);
-    expect(stale).toBeGreaterThan(fresh);
-
-    // Карточки разделены линией — ровно одна на два отзыва
-    expect(text.split('──────────────').length - 1).toBe(1);
-
-    // Роли и лейблы: автор-ментор — без исхода; автор-студент — с исходом
-    expect(text).toContain('👤 Алексей \\(ментор ·');
-    expect(text).toContain('👤 Андрей \\(студент · завершил и прошел');
+    // Листание на следующую карточку
+    const nextCode = pressedCode(transport, MARINA_TG, 'След. ▶️');
+    const s08Page2 = await transport.handleCallback(
+      transport.makeBotContext(MARINA_TG, {
+        callbackData: nextCode,
+      }),
+    );
+    const text2 = String(s08Page2.screen?.text);
+    expect(text2).toContain('📥 *Отзывы мне* · 2/2');
+    expect(text2).toContain('👤 От: Андрей \\(студент · завершил и прошел\\)');
+    expect(text2).toContain('📚 Поток: JS Core — Поток 2');
+    expect(text2).toContain(`«${FIXTURE_REVIEW_TEXT}`);
+    expect(text2).not.toContain(NEW_REVIEW_TEXT);
 
     // Возврат «↩️ Мои отзывы» → хаб S02
     const hub2 = await transport.handleCallback(

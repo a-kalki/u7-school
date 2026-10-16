@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { stringUtility } from './string-utility';
+import { stringUtility, truncateByWords } from './string-utility';
 
 describe('StringUtility', () => {
   const sut = stringUtility;
@@ -108,6 +108,33 @@ describe('StringUtility', () => {
         'TypeScript',
       );
       expect(result).toBe('Hello {{ not_found }} world!');
+    });
+  });
+
+  describe('truncateByWords', () => {
+    test('не обрезает строку, если её длина меньше или равна maxLength', () => {
+      expect(truncateByWords('Короткий текст', 20)).toBe('Короткий текст');
+      expect(truncateByWords('Ровно двадцать симв', 20)).toBe(
+        'Ровно двадцать симв',
+      );
+    });
+
+    test('обрезает по границе последнего слова перед лимитом', () => {
+      const text = 'Очень длинный заголовок темы для изучения';
+      // budget = 25 - 3 = 22. "Очень длинный заголовок" -> режется по границе слова
+      expect(truncateByWords(text, 25)).toBe('Очень длинный...');
+    });
+
+    test('удаляет висячие союзы и предлоги перед многоточием', () => {
+      const text = 'Введение в курс и основные концепции';
+      // budget = 21 - 3 = 18. "Введение в курс и" -> отсекаем союз "и" -> "Введение в курс..."
+      expect(truncateByWords(text, 21)).toBe('Введение в курс...');
+    });
+
+    test('доступен через stringUtility.truncateByWords', () => {
+      expect(sut.truncateByWords('Привет мир из TypeScript', 15)).toBe(
+        'Привет мир...',
+      );
     });
   });
 });

@@ -314,7 +314,7 @@ describe('E2E: Студент — «Моя учёба» (learning)', () => {
 
     const btns = hubResp.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Начать учёбу'))).toBe(true);
-    expect(btns.some((t) => t.includes('Уроки'))).toBe(true);
+    expect(btns.some((t) => t.includes('Программа модуля'))).toBe(true);
     expect(btns.some((t) => t.includes('Мой прогресс'))).toBe(true);
     expect(btns.some((t) => t.includes('Покинуть учёбу'))).toBe(true);
   });
@@ -353,14 +353,14 @@ describe('E2E: Студент — «Моя учёба» (learning)', () => {
     expect(transport.api.editedMessages.length).toBeGreaterThan(editedBefore);
   });
 
-  test('студент: хаб → Уроки → проект → урок → шаги', async () => {
+  test('студент: хаб → Программа модуля → проект → урок → шаги', async () => {
     const tgId = student.telegramId;
     const hubResp = await openHub();
 
-    // 2. Нажимаем «📂 Уроки»
+    // 2. Нажимаем «📖 Программа модуля»
     const projectsResp = await transport.handleCallback(
       transport.makeBotContext(tgId, {
-        callbackData: pressedCode(transport, tgId, 'Уроки'),
+        callbackData: pressedCode(transport, tgId, 'Программа модуля'),
       }),
     );
     expect(String(projectsResp.screen?.text)).toContain('Введение');

@@ -58,3 +58,37 @@ export function authorLine(args: {
 }): MdText {
   return md`👤 ${args.name} \\(${authorLabel(args)} · ${reviewDate(args.createdAt)}\\):`;
 }
+
+/** Карточка одного отзыва для S08 «Отзывы мне». */
+export function renderReviewCard(args: {
+  authorName: string;
+  direction: ReviewDirection;
+  authorOutcome?: StudentOutcome;
+  streamTitle: string;
+  createdAt: string;
+  text: string;
+}): MdText {
+  return md`👤 От: ${args.authorName} \\(${authorLabel(args)}\\)
+📚 Поток: ${args.streamTitle}
+📅 Дата: ${reviewDate(args.createdAt)}
+
+💬 «${args.text}»`;
+}
+
+/** Карточка одного отзыва для SH03 «Отзывы по потокам школы». */
+export function renderSchoolReviewCard(args: {
+  mentorName: string;
+  authorName: string;
+  direction: ReviewDirection;
+  authorOutcome?: StudentOutcome;
+  streamTitle: string;
+  createdAt: string;
+  text: string;
+}): MdText {
+  return md`👨‍🏫 Ментор: ${args.mentorName}
+👤 От: ${args.authorName} \\(${authorLabel(args)}\\)
+📚 Поток: ${args.streamTitle}
+📅 Дата: ${reviewDate(args.createdAt)}
+
+💬 «${args.text}»`;
+}

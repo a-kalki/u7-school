@@ -31,3 +31,4 @@ export {
 } from './markdown-validator';
 export { now } from './now';
 export { serializeError } from './serialize-error';
+export { stringUtility, truncateByWords } from './string-utility';

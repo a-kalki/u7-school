@@ -164,7 +164,7 @@ describe('ViewStreamMentorStory (S02m-карточка) — контракт «�
     const text = String(response.screen?.text);
     expect(text).toContain('Программа модуля');
     expect(text).toContain('Проект 1');
-    expect(text).toContain('Урок 1');
+    expect(text).toContain('урок');
     // Без статусов
     expect(text).not.toContain('✅');
     expect(text).not.toContain('▶️');

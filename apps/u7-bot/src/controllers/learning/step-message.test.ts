@@ -30,13 +30,18 @@ describe('formatStepMessage — режимы student / readOnly / study (TDD)', 
         mode: 'student',
         status: 'in_progress',
         statusLabel: 'В процессе',
-        breadcrumbs: ['📂 Уроки', 'Введение в web', 'Как устроен web', 'Шаг 3'],
+        breadcrumbs: [
+          '📖 Программа модуля',
+          'Введение в web',
+          'Как устроен web',
+          'Шаг 3',
+        ],
       },
     );
 
     // Должен содержать хлебные крошки
     expect(text).toContain(
-      '📂 *Уроки* › Введение в web › Как устроен web › Шаг 3',
+      '📖 *Программа модуля* › Введение в web › Как устроен web › Шаг 3',
     );
     // Должен содержать статус студента
     expect(text).toContain('▶️ В процессе');

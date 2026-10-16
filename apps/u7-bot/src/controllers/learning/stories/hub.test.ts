@@ -79,7 +79,7 @@ describe('HubStory', () => {
     const btns = response.screen?.keyboard?.rows.flat() ?? [];
     const btnTexts = btns.map((b) => b.text);
     expect(btnTexts.some((t) => t.includes('Продолжить учёбу'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Уроки'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Программа модуля'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Покинуть учёбу'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Главное меню'))).toBe(true);
@@ -87,7 +87,7 @@ describe('HubStory', () => {
     // Коды навигации — мосты в стори контроллера (§3 И1–И2)
     const cont = btns.find((b) => b.text.includes('Продолжить учёбу'));
     expect(cont?.code).toBe('step-view:my-study:continue');
-    const lessons = btns.find((b) => b.text.includes('Уроки'));
+    const lessons = btns.find((b) => b.text.includes('Программа модуля'));
     expect(lessons?.code).toBe('nav-tree:my-study:lessons');
     const progress = btns.find((b) => b.text.includes('Мой прогресс'));
     expect(progress?.code).toBe(`progress:progress:${STREAM_ID}`);
@@ -110,7 +110,7 @@ describe('HubStory', () => {
     expect(String(response.screen?.text)).toContain('не записаны');
   });
 
-  test('my-study — завершивший студент (без Продолжить и Уроки)', async () => {
+  test('my-study — завершивший студент (без Продолжить и Программа модуля)', async () => {
     const { story } = makeStory({
       'get-student-by-user': { ...mockStudent, status: 'advanced' },
     });
@@ -124,7 +124,7 @@ describe('HubStory', () => {
     const btnTexts =
       response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Продолжить'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Уроки'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Программа модуля'))).toBe(false);
     expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Покинуть учёбу'))).toBe(true);
   });

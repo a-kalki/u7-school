@@ -61,16 +61,27 @@ export class CourseCatalogStory extends U7BotUiStory {
       case 'modules':
         // Совместимость со старыми колбэками: modules:<courseId>:<phaseIdx> -> карточка этапа
         return this.#handlePhase(ids[0] ?? '', Number(ids[1]));
+      case 'prj':
       case 'project':
       case 'projects': {
         // Старый формат: projects:<courseId>:<phaseIdx>:<moduleId> -> карточка модуля
         if (cmd === 'projects' && ids.length === 3) {
           return this.#handleModule(ids[0] ?? '', Number(ids[1]), ids[2] ?? '');
         }
-        const modId = ids.length >= 4 ? (ids[2] ?? '') : (ids[0] ?? '');
-        const projId = ids.length >= 4 ? (ids[3] ?? '') : (ids[1] ?? '');
+        // Формат 4 сегмента: project:<courseId>:<phaseIdx>:<moduleId>:<projId>
+        if (ids.length >= 4) {
+          return this.#handleProject(ids[2] ?? '', ids[3] ?? '', ids[0]);
+        }
+        // Новый компактный формат: prj:<courseId>:<moduleId>:<projId>
+        if (ids.length === 3) {
+          return this.#handleProject(ids[1] ?? '', ids[2] ?? '', ids[0]);
+        }
+        // Предыдущий формат: project:<moduleId>:<projId>
+        const modId = ids[0] ?? '';
+        const projId = ids[1] ?? '';
         return this.#handleProject(modId, projId);
       }
+      case 'les':
       case 'lesson':
       case 'lessons': {
         // Старый формат: lessons:<courseId>:<phaseIdx>:<moduleId>:<projectIdx> -> карточка проекта
@@ -79,10 +90,22 @@ export class CourseCatalogStory extends U7BotUiStory {
           const pIdxOrId = ids[3] ?? '';
           return this.#handleLegacyProjectByIndex(modId, pIdxOrId);
         }
-        const modId = ids.length >= 5 ? (ids[2] ?? '') : (ids[0] ?? '');
-        const projId = ids.length >= 5 ? (ids[3] ?? '') : (ids[1] ?? '');
-        const lesId = ids.length >= 5 ? (ids[4] ?? '') : (ids[2] ?? '');
-        return this.#handleLesson(modId, projId, lesId);
+        // Формат 5 сегментов: lesson:<courseId>:<phaseIdx>:<moduleId>:<projId>:<lesId>
+        if (ids.length >= 5) {
+          return this.#handleLesson(ids[3] ?? '', ids[4] ?? '', ids[0], ids[2]);
+        }
+        // Формат 4 сегмента: les:<courseId>:<moduleId>:<projId>:<lesId>
+        if (ids.length === 4) {
+          return this.#handleLesson(ids[2] ?? '', ids[3] ?? '', ids[0], ids[1]);
+        }
+        // Новый 3-UUID формат: les:<courseId>:<projId>:<lesId>
+        if (ids.length === 3) {
+          return this.#handleLesson(ids[1] ?? '', ids[2] ?? '', ids[0]);
+        }
+        // Предыдущий формат: lesson:<projId>:<lesId>
+        const projId = ids[0] ?? '';
+        const lesId = ids[1] ?? '';
+        return this.#handleLesson(projId, lesId);
       }
       case 'wish':
         return this.#handleWishModule(ids[0] ?? '', actor);
@@ -282,11 +305,17 @@ export class CourseCatalogStory extends U7BotUiStory {
   async #handleProject(
     moduleId: string,
     projectId: string,
+    courseId?: string,
   ): Promise<DialogResponse> {
-    const courses = await this.#loadCourses();
-    let course = courses.find((c) =>
-      c.phases.some((p) => p.moduleIds?.includes(moduleId)),
-    );
+    const courses = await this.#loadCourses(courseId);
+    let course = courseId
+      ? courses.find((c) => c.uuid === courseId)
+      : undefined;
+    if (!course) {
+      course = courses.find((c) =>
+        c.phases.some((p) => p.moduleIds?.includes(moduleId)),
+      );
+    }
     if (!course) {
       try {
         const c = (await this.appApi.execute('get-course-by-module', {
@@ -360,44 +389,82 @@ export class CourseCatalogStory extends U7BotUiStory {
   // ═══ Уровень 4: Урок (шаги только заголовками, закрытый уровень) ═══
 
   async #handleLesson(
-    moduleId: string,
     projectId: string,
     lessonId: string,
+    courseId?: string,
+    moduleId?: string,
   ): Promise<DialogResponse> {
-    const courses = await this.#loadCourses();
-    let course = courses.find((c) =>
-      c.phases.some((p) => p.moduleIds?.includes(moduleId)),
-    );
-    if (!course) {
-      try {
-        const c = (await this.appApi.execute('get-course-by-module', {
-          moduleId,
-        })) as Course | undefined;
-        if (c) {
-          course = c;
-          if (!courses.some((x) => x.uuid === c.uuid)) courses.push(c);
+    const courses = await this.#loadCourses(courseId);
+    let course = courseId
+      ? courses.find((c) => c.uuid === courseId)
+      : undefined;
+
+    let foundModId = moduleId;
+    let snapshot: ContentSnapshot | undefined;
+
+    if (course && !foundModId) {
+      const allModIds = course.phases.flatMap((p) => p.moduleIds ?? []);
+      for (const mId of allModIds) {
+        try {
+          const snap = (await this.appApi.execute('get-module-snapshot', {
+            moduleId: mId,
+          })) as ContentSnapshot;
+          if (snap.some((p) => p.projectId === projectId)) {
+            foundModId = mId;
+            snapshot = snap;
+            break;
+          }
+        } catch {
+          // fallback
         }
-      } catch {
-        // fallback
       }
+    }
+
+    if (!course) {
+      course = courses.find((c) =>
+        c.phases.some((p) => p.moduleIds?.includes(foundModId ?? '')),
+      );
     }
     course ??= courses[0];
     if (!course) {
       return this.screen(md`⚠️ Курс не найден или недоступен`);
     }
 
+    if (!foundModId) {
+      const allModIds = course.phases.flatMap((p) => p.moduleIds ?? []);
+      for (const mId of allModIds) {
+        try {
+          const snap = (await this.appApi.execute('get-module-snapshot', {
+            moduleId: mId,
+          })) as ContentSnapshot;
+          if (snap.some((p) => p.projectId === projectId)) {
+            foundModId = mId;
+            snapshot = snap;
+            break;
+          }
+        } catch {
+          // fallback
+        }
+      }
+    }
+
+    if (!foundModId) {
+      return this.screen(md`⚠️ Модуль не найден или недоступен`);
+    }
+
     const phaseIdx = Math.max(
       0,
-      course.phases.findIndex((p) => p.moduleIds?.includes(moduleId)),
+      course.phases.findIndex((p) => p.moduleIds?.includes(foundModId!)),
     );
 
-    let snapshot: ContentSnapshot;
-    try {
-      snapshot = (await this.appApi.execute('get-module-snapshot', {
-        moduleId,
-      })) as ContentSnapshot;
-    } catch {
-      return this.screen(md`⚠️ Модуль не найден или недоступен`);
+    if (!snapshot) {
+      try {
+        snapshot = (await this.appApi.execute('get-module-snapshot', {
+          moduleId: foundModId,
+        })) as ContentSnapshot;
+      } catch {
+        return this.screen(md`⚠️ Модуль не найден или недоступен`);
+      }
     }
 
     const project = snapshot.find((p) => p.projectId === projectId);
@@ -410,10 +477,10 @@ export class CourseCatalogStory extends U7BotUiStory {
       return this.screen(md`⚠️ Урок не найден`);
     }
 
-    let modTitle = `Модуль ${moduleId.slice(0, 8)}`;
+    let modTitle = `Модуль ${foundModId.slice(0, 8)}`;
     try {
       const mod = (await this.appApi.execute('get-module', {
-        uuid: moduleId,
+        uuid: foundModId,
       })) as { title: string };
       if (mod?.title) modTitle = mod.title;
     } catch {
@@ -427,10 +494,10 @@ export class CourseCatalogStory extends U7BotUiStory {
       courses,
       currentCourseId: course.uuid,
       phaseIdx,
-      moduleId,
+      moduleId: foundModId,
       projectId,
       lessonId,
-      modulesInfo: { [moduleId]: { title: modTitle } },
+      modulesInfo: { [foundModId]: { title: modTitle } },
       moduleSnapshot: snapshot,
       stepTitles,
     });

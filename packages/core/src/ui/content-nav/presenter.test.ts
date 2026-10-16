@@ -35,6 +35,28 @@ describe('NavLevel Presenter (TDD)', () => {
       );
     });
 
+    test('обрезает промежуточные сегменты хлебных крошек по границе слов, не затрагивая последний', () => {
+      const level: NavLevel = {
+        breadcrumbs: [
+          '📖 Курсы',
+          'Курс: Очень длинный курс по веб-разработке и сервисам',
+          'Этап: Архитектура распределённых микросервисных приложений',
+          'Модуль: Паттерны проектирования и лучшие практики (1 из 5)',
+        ],
+        multilineBreadcrumbs: true,
+        back: 'nav:root',
+      };
+
+      const mdText = formatNavLevelText(level);
+      // Промежуточные сегменты обрезаются по словам с многоточием (до 34 симв), висячий предлог "по" отсекается, точки экранируются в MarkdownV2
+      expect(mdText).toContain('› Курс: Очень длинный курс\\.\\.\\.');
+      expect(mdText).toContain('› Этап: Архитектура\\.\\.\\.');
+      // Последний сегмент остаётся целым и выделяется жирным
+      expect(mdText).toContain(
+        '› *Модуль: Паттерны проектирования и лучшие практики \\(1 из 5\\)*',
+      );
+    });
+
     test('экранирование спецсимволов MarkdownV2 в заголовках', () => {
       const level: NavLevel = {
         breadcrumbs: [
@@ -93,16 +115,16 @@ describe('NavLevel Presenter (TDD)', () => {
 
       const mdText = formatNavLevelText(level);
 
-      expect(mdText).toContain('1\\. *Проект: Введение в web* \\(2/5\\) ✅');
-      expect(mdText).toContain('    📝 Урок 1: Как устроен web \\(3/3\\) ✅');
-      expect(mdText).toContain('    📝 Урок 2: Бэкенд \\(0/2\\) ▶️');
-      expect(mdText).toContain('2\\. *Проект: Инфраструктура* \\(0/3\\) 🔒');
+      expect(mdText).toContain('1\\. ✅ Введение в web \\(2/5\\)');
+      expect(mdText).toContain('    Урок 1: Как устроен web \\(3/3\\) ✅');
+      expect(mdText).toContain('    Урок 2: Бэкенд \\(0/2\\) ▶️');
+      expect(mdText).toContain('2\\. 🔒 Инфраструктура \\(0/3\\)');
     });
 
-    test('карточка выводит эмодзи уровня в списке с подуровнями', () => {
+    test('карточка выводит заголовок и упрощенный список', () => {
       const level: NavLevel = {
         breadcrumbs: ['📖 Курсы', 'Fullstack JS'],
-        subtitle: 'Курс состоит из 1 этапа',
+        subtitle: 'Этапы курса:',
         children: [
           {
             id: 'ph1',
@@ -122,14 +144,15 @@ describe('NavLevel Presenter (TDD)', () => {
       };
 
       const mdText = formatNavLevelText(level);
-      expect(mdText).toContain('1\\. 🏛 *Этап: Основы*');
-      expect(mdText).toContain('    📦 Модуль: Введение');
+      expect(mdText).toContain('*Этапы курса:*');
+      expect(mdText).toContain('1\\. Основы');
+      expect(mdText).toContain('    Введение');
     });
 
     test('рендер одноуровневого списка детей со статусами', () => {
       const level: NavLevel = {
         breadcrumbs: ['📂 Уроки', 'Web', 'Урок 1'],
-        subtitle: 'Урок состоит из 3 шагов',
+        subtitle: 'Шаги урока:',
         children: [
           {
             id: 's1',
@@ -160,9 +183,10 @@ describe('NavLevel Presenter (TDD)', () => {
 
       const mdText = formatNavLevelText(level);
 
-      expect(mdText).toContain('1\\. ✅ Шаг 1: Теория');
-      expect(mdText).toContain('2\\. ▶️ Шаг 2: Практика');
-      expect(mdText).toContain('3\\. 🔒 Шаг 3: Тест');
+      expect(mdText).toContain('*Шаги урока:*');
+      expect(mdText).toContain('1\\. ✅ Теория');
+      expect(mdText).toContain('2\\. ▶️ Практика');
+      expect(mdText).toContain('3\\. 🔒 Тест');
     });
 
     test('рендер карточки шага с телом контента и статусом', () => {
@@ -222,6 +246,27 @@ describe('NavLevel Presenter (TDD)', () => {
       expect(kbDesc.rows[2]?.[0]?.text).toBe('3. Переменные');
     });
 
+    test('длинные названия кнопок обрезаются по границе целого слова с многоточием', () => {
+      const level: NavLevel = {
+        breadcrumbs: ['📖 Курсы'],
+        children: [
+          {
+            id: 'p1',
+            index: 1,
+            title: '📁 Проект: Git и GitHub: первый репозиторий и Pull Request',
+            enterable: true,
+            address: 'nav:p1',
+          },
+        ],
+        back: 'nav:root',
+      };
+
+      const kbDesc = buildNavLevelKeyboard(level);
+      const btnText = kbDesc.rows[0]?.[0]?.text ?? '';
+      expect(btnText.length).toBeLessThanOrEqual(44);
+      expect(btnText).toBe('1. Git и GitHub: первый репозиторий...');
+    });
+
     test('навигационный ряд соседей: оба соседа присутствуют', () => {
       const level: NavLevel = {
         breadcrumbs: ['📂 Уроки', 'Web'],
@@ -266,7 +311,7 @@ describe('NavLevel Presenter (TDD)', () => {
       expect(kbLast.rows[0]?.[0]?.text).toBe('◀️ Пред. проект');
     });
 
-    test('дополнительные ряды кнопок (extraRows) перед навигацией', () => {
+    test('дополнительные ряды кнопок (extraRows) после навигации, перед кнопкой назад', () => {
       const level: NavLevel = {
         breadcrumbs: ['📖 Курсы', 'Курс: Fullstack JS'],
         children: [
@@ -285,12 +330,12 @@ describe('NavLevel Presenter (TDD)', () => {
       };
 
       const kbDesc = buildNavLevelKeyboard(level);
-      // Ожидаем 4 ряда: 1) child, 2) extraRow (wish), 3) prev/next, 4) back
+      // Ожидаем 4 ряда: 1) child, 2) prev/next, 3) extraRow (wish), 4) back
       expect(kbDesc.rows.length).toBe(4);
       expect(kbDesc.rows[0]?.[0]?.text).toContain('1. Синтаксис');
-      expect(kbDesc.rows[1]?.[0]?.text).toBe('🎓 Хочу пройти курс');
-      expect(kbDesc.rows[2]?.[0]?.text).toBe('◀️ Пред.');
-      expect(kbDesc.rows[2]?.[1]?.text).toBe('След. ▶️');
+      expect(kbDesc.rows[1]?.[0]?.text).toBe('◀️ Пред.');
+      expect(kbDesc.rows[1]?.[1]?.text).toBe('След. ▶️');
+      expect(kbDesc.rows[2]?.[0]?.text).toBe('🎓 Хочу пройти курс');
       expect(kbDesc.rows[3]?.[0]?.text).toBe('⬅️ Назад');
     });
   });

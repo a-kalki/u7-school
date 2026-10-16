@@ -104,23 +104,21 @@ describe('student-nav-resolver (TDD)', () => {
     });
 
     expect(level).toBeDefined();
-    expect(level?.breadcrumbs).toEqual(['📂 Уроки']);
+    expect(level?.breadcrumbs).toEqual(['📖 Программа модуля']);
     expect(level?.children).toHaveLength(2);
 
-    // Проект 1: в процессе, уроки как подуровни
+    // Проект 1: в процессе, со счётчиком уроков
     const p1 = level?.children?.[0];
     expect(p1?.id).toBe(PROJECT1_ID);
-    expect(p1?.title).toBe('Проект: Основы');
+    expect(p1?.title).toBe('Основы');
     expect(p1?.status).toBe('in_progress');
     expect(p1?.enterable).toBe(true);
-    expect(p1?.children).toHaveLength(2);
-    expect(p1?.children?.[0]?.title).toBe('Урок: Введение');
-    expect(p1?.children?.[0]?.status).toBe('in_progress');
+    expect(p1?.meta).toBe('(1/2)');
 
     // Проект 2: заблокирован
     const p2 = level?.children?.[1];
     expect(p2?.id).toBe(PROJECT2_ID);
-    expect(p2?.title).toBe('Проект: Продвинутый');
+    expect(p2?.title).toBe('Продвинутый');
     expect(p2?.status).toBe('locked');
   });
 
@@ -134,18 +132,18 @@ describe('student-nav-resolver (TDD)', () => {
     });
 
     expect(level).toBeDefined();
-    expect(level?.breadcrumbs).toEqual(['📂 Уроки', 'Проект: Основы']);
+    expect(level?.breadcrumbs).toEqual([
+      '📖 Программа модуля',
+      'Проект 1/2: Основы',
+    ]);
     expect(level?.title).toBe('Основы');
     expect(level?.children).toHaveLength(2);
 
     const l1 = level?.children?.[0];
     expect(l1?.id).toBe(LESSON1_ID);
-    expect(l1?.title).toBe('Урок: Введение');
-    expect(l1?.children).toHaveLength(2);
-    expect(l1?.children?.[0]?.title).toBe('Шаг: Установка окружения');
-    expect(l1?.children?.[0]?.status).toBe('completed');
-    expect(l1?.children?.[1]?.title).toBe('Шаг: Первая программа');
-    expect(l1?.children?.[1]?.status).toBe('in_progress');
+    expect(l1?.title).toBe('Введение');
+    expect(l1?.meta).toBe('(1/2)');
+    expect(l1?.status).toBe('in_progress');
 
     // Навигация соседей между проектами: у проекта 1 есть next (проект 2), но нет prev
     expect(level?.prev).toBeUndefined();
@@ -168,9 +166,9 @@ describe('student-nav-resolver (TDD)', () => {
 
     expect(level).toBeDefined();
     expect(level?.breadcrumbs).toEqual([
-      '📂 Уроки',
-      'Проект: Основы',
-      'Урок: Введение',
+      '📖 Программа модуля',
+      'Проект 1/2: Основы',
+      'Урок 1/2: Введение',
     ]);
     expect(level?.children).toHaveLength(2);
 
@@ -208,10 +206,10 @@ describe('student-nav-resolver (TDD)', () => {
 
     expect(level).toBeDefined();
     expect(level?.breadcrumbs).toEqual([
-      '📂 Уроки',
-      'Проект: Основы',
-      'Урок: Введение',
-      'Шаг: Установка окружения',
+      '📖 Программа модуля',
+      'Проект 1/2: Основы',
+      'Урок 1/2: Введение',
+      'Шаг 1/2: Установка окружения',
     ]);
     expect(level?.status).toBe('completed');
     expect(level?.statusLabel).toBe('Пройден');

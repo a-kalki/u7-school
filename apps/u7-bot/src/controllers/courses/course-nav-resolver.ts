@@ -1,9 +1,4 @@
-import type {
-  KbButton,
-  NavChild,
-  NavLevel,
-  NavSubChild,
-} from '@u7-scl/core/ui';
+import type { KbButton, NavChild, NavLevel } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
 import { Routes } from '../shared/routes';
 
@@ -107,39 +102,32 @@ export function resolveCourseNavLevel(
 
   // ── Уровень 0: Курс (уровень корня каталога) ──
   if (level === 'course') {
-    const phaseCount = course.phases.length;
-    const subtitle = `Курс состоит из ${phaseCount} этап${plural(phaseCount, 'а', 'ов', 'ов')}`;
+    const subtitle = 'Этапы курса:';
 
     const children: NavChild[] = course.phases.map((phase, pIdx) => {
-      const subChildren: NavSubChild[] = (phase.moduleIds ?? []).map(
-        (modId) => {
-          const modInfo = modulesInfo[modId];
-          const title = modInfo?.title ?? `Модуль ${modId.slice(0, 8)}...`;
-          return {
-            id: modId,
-            title: `Модуль: ${title}`,
-            emoji: '📦',
-          };
-        },
-      );
+      const modCount = phase.moduleIds?.length ?? 0;
+      const meta = `(${modCount} ${plural(modCount, 'модуль', 'модуля', 'модулей')})`;
 
       return {
         id: `phase-${pIdx}`,
         index: pIdx + 1,
-        title: `Этап: ${phase.title}`,
-        emoji: '🏛',
+        title: phase.title,
+        meta,
         enterable: true,
         address: `${storyPrefix}:phase:${course.uuid}:${pIdx}`,
-        children: subChildren,
       };
     });
 
     const prevCourse = courses[courseIndex - 1];
     const nextCourse = courses[courseIndex + 1];
 
+    const totalCourses = courses.length;
     return {
       multilineBreadcrumbs: true,
-      breadcrumbs: ['📖 Курсы', `Курс: ${course.title}`],
+      breadcrumbs: [
+        '📖 Курсы',
+        `Курс ${courseIndex + 1}/${totalCourses}: ${course.title}`,
+      ],
       subtitle,
       children,
       extraRows: buildCourseWishRows(course.uuid, wishStatus, storyPrefix),
@@ -168,39 +156,35 @@ export function resolveCourseNavLevel(
     const phase = course.phases[currentPhaseIdx];
     if (!phase) return null;
 
-    const modCount = phase.moduleIds?.length ?? 0;
-    const subtitle = `Этап состоит из ${modCount} модул${plural(modCount, 'я', 'ей', 'ей')}`;
+    const subtitle = 'Модули этапа:';
 
     const children: NavChild[] = (phase.moduleIds ?? []).map((modId, mIdx) => {
       const modInfo = modulesInfo[modId];
       const title = modInfo?.title ?? `Модуль ${modId.slice(0, 8)}...`;
-      const subChildren: NavSubChild[] = (modInfo?.projectTitles ?? []).map(
-        (pTitle) => ({
-          title: `Проект: ${pTitle}`,
-          emoji: '📁',
-        }),
-      );
+      const prjCount = modInfo?.projectTitles?.length ?? 0;
+      const meta = `(${prjCount} ${plural(prjCount, 'проект', 'проекта', 'проектов')})`;
 
       return {
         id: modId,
         index: mIdx + 1,
-        title: `Модуль: ${title}`,
-        emoji: '📦',
+        title,
+        meta,
         enterable: true,
         address: `${storyPrefix}:module:${course.uuid}:${currentPhaseIdx}:${modId}`,
-        children: subChildren,
       };
     });
 
     const prevPhase = course.phases[currentPhaseIdx - 1];
     const nextPhase = course.phases[currentPhaseIdx + 1];
 
+    const totalCourses = courses.length;
+    const totalPhases = course.phases.length;
     return {
       multilineBreadcrumbs: true,
       breadcrumbs: [
         '📖 Курсы',
-        `Курс: ${course.title}`,
-        `Этап: ${phase.title}`,
+        `Курс ${courseIndex + 1}/${totalCourses}: ${course.title}`,
+        `Этап ${currentPhaseIdx + 1}/${totalPhases}: ${phase.title}`,
       ],
       subtitle,
       children,
@@ -238,37 +222,35 @@ export function resolveCourseNavLevel(
     const moduleTitle = modInfo?.title ?? `Модуль ${modId.slice(0, 8)}...`;
     const snapshot = params.moduleSnapshot;
 
-    const projectCount = snapshot.length;
-    const subtitle = `Модуль состоит из ${projectCount} проект${plural(projectCount, 'а', 'ов', 'ов')}`;
+    const subtitle = 'Проекты модуля:';
 
     const children: NavChild[] = snapshot.map((p, pIdx) => {
-      const subChildren: NavSubChild[] = p.lessons.map((l) => ({
-        id: l.lessonId,
-        title: `Урок: ${l.lessonTitle}`,
-        emoji: '📝',
-      }));
+      const lessonCount = p.lessons.length;
+      const meta = `(${lessonCount} ${plural(lessonCount, 'урок', 'урока', 'уроков')})`;
 
       return {
         id: p.projectId,
         index: pIdx + 1,
-        title: `Проект: ${p.projectTitle}`,
-        emoji: '📁',
+        title: p.projectTitle,
+        meta,
         enterable: true,
-        address: `${storyPrefix}:project:${modId}:${p.projectId}`,
-        children: subChildren,
+        address: `${storyPrefix}:prj:${course.uuid}:${modId}:${p.projectId}`,
       };
     });
 
     const prevModId = phase.moduleIds?.[modIndex - 1];
     const nextModId = phase.moduleIds?.[modIndex + 1];
+    const totalCourses = courses.length;
+    const totalPhases = course.phases.length;
+    const totalMods = phase.moduleIds?.length ?? 1;
 
     return {
       multilineBreadcrumbs: true,
       breadcrumbs: [
         '📖 Курсы',
-        `Курс: ${course.title}`,
-        `Этап: ${phase.title}`,
-        `Модуль: ${moduleTitle}`,
+        `Курс ${courseIndex + 1}/${totalCourses}: ${course.title}`,
+        `Этап ${currentPhaseIdx + 1}/${totalPhases}: ${phase.title}`,
+        `Модуль ${modIndex + 1}/${totalMods}: ${moduleTitle}`,
       ],
       subtitle,
       children,
@@ -301,6 +283,7 @@ export function resolveCourseNavLevel(
       return null;
     }
     const modId = params.moduleId;
+    const modIndex = phase.moduleIds?.indexOf(modId) ?? -1;
     const modInfo = modulesInfo[modId];
     const moduleTitle = modInfo?.title ?? `Модуль ${modId.slice(0, 8)}...`;
     const snapshot = params.moduleSnapshot;
@@ -312,54 +295,50 @@ export function resolveCourseNavLevel(
     const project = snapshot[projectIndex];
     if (!project) return null;
 
-    const lessonCount = project.lessons.length;
-    const subtitle = `Проект состоит из ${lessonCount} урок${plural(lessonCount, 'а', 'ов', 'ов')}`;
+    const subtitle = 'Уроки проекта:';
 
     const children: NavChild[] = project.lessons.map((l, lIdx) => {
-      const subChildren: NavSubChild[] = l.stepIds.map((sId, sIdx) => {
-        const title = params.stepTitles?.[sId] ?? `Шаг ${sIdx + 1}`;
-        return {
-          id: sId,
-          title: title.startsWith('Шаг') ? title : `Шаг: ${title}`,
-          emoji: '📄',
-        };
-      });
+      const stepCount = l.stepIds.length;
+      const meta = `(${stepCount} ${plural(stepCount, 'шаг', 'шага', 'шагов')})`;
 
       return {
         id: l.lessonId,
         index: lIdx + 1,
-        title: `Урок: ${l.lessonTitle}`,
-        emoji: '📝',
+        title: l.lessonTitle,
+        meta,
         enterable: true,
-        address: `${storyPrefix}:lesson:${modId}:${project.projectId}:${l.lessonId}`,
-        children: subChildren,
+        address: `${storyPrefix}:les:${course.uuid}:${project.projectId}:${l.lessonId}`,
       };
     });
 
     const prevProject = snapshot[projectIndex - 1];
     const nextProject = snapshot[projectIndex + 1];
+    const totalCourses = courses.length;
+    const totalPhases = course.phases.length;
+    const totalMods = phase.moduleIds?.length ?? 1;
+    const totalProjects = snapshot.length;
 
     return {
       multilineBreadcrumbs: true,
       breadcrumbs: [
         '📖 Курсы',
-        `Курс: ${course.title}`,
-        `Этап: ${phase.title}`,
-        `Модуль: ${moduleTitle}`,
-        `Проект: ${project.projectTitle}`,
+        `Курс ${courseIndex + 1}/${totalCourses}: ${course.title}`,
+        `Этап ${currentPhaseIdx + 1}/${totalPhases}: ${phase.title}`,
+        `Модуль ${modIndex >= 0 ? `${modIndex + 1}/${totalMods}: ` : ''}${moduleTitle}`,
+        `Проект ${projectIndex + 1}/${totalProjects}: ${project.projectTitle}`,
       ],
       subtitle,
       children,
       prev: prevProject
         ? {
             label: '◀️ Пред. проект',
-            address: `${storyPrefix}:project:${modId}:${prevProject.projectId}`,
+            address: `${storyPrefix}:prj:${course.uuid}:${modId}:${prevProject.projectId}`,
           }
         : undefined,
       next: nextProject
         ? {
             label: 'След. проект ▶️',
-            address: `${storyPrefix}:project:${modId}:${nextProject.projectId}`,
+            address: `${storyPrefix}:prj:${course.uuid}:${modId}:${nextProject.projectId}`,
           }
         : undefined,
       back: {
@@ -384,12 +363,16 @@ export function resolveCourseNavLevel(
       return null;
     }
     const modId = params.moduleId;
+    const modIndex = phase.moduleIds?.indexOf(modId) ?? -1;
     const modInfo = modulesInfo[modId];
     const moduleTitle = modInfo?.title ?? `Модуль ${modId.slice(0, 8)}...`;
     const snapshot = params.moduleSnapshot;
 
     const project = snapshot.find((p) => p.projectId === params.projectId);
     if (!project) return null;
+    const projectIndex = snapshot.findIndex(
+      (p) => p.projectId === params.projectId,
+    );
 
     const lessonIndex = project.lessons.findIndex(
       (l) => l.lessonId === params.lessonId,
@@ -398,50 +381,53 @@ export function resolveCourseNavLevel(
     const lesson = project.lessons[lessonIndex];
     if (!lesson) return null;
 
-    const stepCount = lesson.stepIds.length;
-    const subtitle = `Урок состоит из ${stepCount} шаг${plural(stepCount, 'а', 'ов', 'ов')}`;
+    const subtitle = 'Шаги урока:';
 
     const children: NavChild[] = lesson.stepIds.map((sId, sIdx) => {
       const title = params.stepTitles?.[sId] ?? `Шаг ${sIdx + 1}`;
       return {
         id: sId,
         index: sIdx + 1,
-        title: title.startsWith('Шаг') ? title : `Шаг: ${title}`,
-        emoji: '📄',
+        title,
         enterable: false,
       };
     });
 
     const prevLesson = project.lessons[lessonIndex - 1];
     const nextLesson = project.lessons[lessonIndex + 1];
+    const totalCourses = courses.length;
+    const totalPhases = course.phases.length;
+    const totalMods = phase.moduleIds?.length ?? 1;
+    const totalProjects = snapshot.length;
+    const totalLessons = project.lessons.length;
 
     return {
       multilineBreadcrumbs: true,
       breadcrumbs: [
         '📖 Курсы',
-        `Курс: ${course.title}`,
-        `Этап: ${phase.title}`,
-        `Модуль: ${moduleTitle}`,
-        `Проект: ${project.projectTitle}`,
-        `Урок: ${lesson.lessonTitle}`,
+        `Курс ${courseIndex + 1}/${totalCourses}: ${course.title}`,
+        `Этап ${currentPhaseIdx + 1}/${totalPhases}: ${phase.title}`,
+        `Модуль ${modIndex >= 0 ? `${modIndex + 1}/${totalMods}: ` : ''}${moduleTitle}`,
+        `Проект ${projectIndex >= 0 ? `${projectIndex + 1}/${totalProjects}: ` : ''}${project.projectTitle}`,
+        `Урок ${lessonIndex + 1}/${totalLessons}: ${lesson.lessonTitle}`,
       ],
       subtitle,
       children,
       prev: prevLesson
         ? {
             label: '◀️ Пред. урок',
-            address: `${storyPrefix}:lesson:${modId}:${project.projectId}:${prevLesson.lessonId}`,
+            address: `${storyPrefix}:les:${course.uuid}:${project.projectId}:${prevLesson.lessonId}`,
           }
         : undefined,
       next: nextLesson
         ? {
             label: 'След. урок ▶️',
-            address: `${storyPrefix}:lesson:${modId}:${project.projectId}:${nextLesson.lessonId}`,
+            address: `${storyPrefix}:les:${course.uuid}:${project.projectId}:${nextLesson.lessonId}`,
           }
         : undefined,
       back: {
         label: '⬅️ Назад к проекту',
-        address: `${storyPrefix}:project:${modId}:${project.projectId}`,
+        address: `${storyPrefix}:prj:${course.uuid}:${modId}:${project.projectId}`,
       },
     };
   }

@@ -90,7 +90,7 @@ describe('LearningController (интеграционный)', () => {
     const btns =
       response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Начать учёбу'))).toBe(true);
-    expect(btns.some((t) => t.includes('Уроки'))).toBe(true);
+    expect(btns.some((t) => t.includes('Программа модуля'))).toBe(true);
     expect(btns.some((t) => t.includes('Мой прогресс'))).toBe(true);
     expect(btns.some((t) => t.includes('Покинуть учёбу'))).toBe(true);
   });
@@ -120,7 +120,7 @@ describe('LearningController (интеграционный)', () => {
     const response = await callRaw('learning:nav-tree:my-study:lessons');
 
     const text = String(response.screen?.text);
-    expect(text).toContain('Уроки');
+    expect(text).toContain('Программа модуля');
     expect(text).toContain('Введение');
     expect(text).toContain('Циклы и функции');
 
@@ -204,7 +204,7 @@ describe('LearningController (интеграционный)', () => {
 
     const sentBefore = transport.api.sentMessages.length;
 
-    // Мост в nav-tree: /start → «Моя учёба» (хаб) → «📂 Уроки» (смена диалога → send)
+    // Мост в nav-tree: /start → «Моя учёба» (хаб) → «📖 Программа модуля» (смена диалога → send)
     await transport.handleCallback(
       transport.makeBotContext(tgId, {
         callbackData: pressedCode(transport, tgId, 'Моя учёба'),
@@ -212,7 +212,7 @@ describe('LearningController (интеграционный)', () => {
     );
     await transport.handleCallback(
       transport.makeBotContext(tgId, {
-        callbackData: pressedCode(transport, tgId, 'Уроки'),
+        callbackData: pressedCode(transport, tgId, 'Программа модуля'),
       }),
     );
     // send-ы: welcome + хаб + дерево (retire старых экранов — это edit-ы)
@@ -253,10 +253,10 @@ describe('LearningController (интеграционный)', () => {
     );
     const hubScreenMessageId = transport.api.sentMessages.at(-1)!.messageId;
 
-    // Мост «📂 Уроки» — смена диалога (learning/hub → learning/nav-tree)
+    // Мост «📖 Программа модуля» — смена диалога (learning/hub → learning/nav-tree)
     await transport.handleCallback(
       transport.makeBotContext(tgId, {
-        callbackData: pressedCode(transport, tgId, 'Уроки'),
+        callbackData: pressedCode(transport, tgId, 'Программа модуля'),
       }),
     );
 
@@ -265,12 +265,12 @@ describe('LearningController (интеграционный)', () => {
       (e) => e.messageId === hubScreenMessageId,
     );
     expect(retireEdit).toBeDefined();
-    expect(retireEdit!.text).toContain('Вы выбрали: 📂 Уроки');
+    expect(retireEdit!.text).toContain('Вы выбрали: 📖 Программа модуля');
     expect(retireEdit!.keyboard).toBeUndefined();
 
     // Новый экран нав-дерева — send
     const treeScreen = transport.api.sentMessages.at(-1)!;
-    expect(treeScreen.text).toContain('Уроки');
+    expect(treeScreen.text).toContain('Программа модуля');
   });
 
   // ── Неизвестная команда ──

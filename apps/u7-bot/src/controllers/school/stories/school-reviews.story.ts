@@ -2,12 +2,9 @@ import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import { type MdText, md } from '@u7-scl/core/shared';
 import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
-import type {
-  RecipientReviewsGroup,
-  ReviewSnapshotDto,
-} from '@u7-scl/peer-review/domain';
+import type { RecipientReviewsGroup } from '@u7-scl/peer-review/domain';
 import type { Stream } from '@u7-scl/stream/domain';
-import { authorLabel, rolesOf } from '../../peer-review/stories/review-render';
+import { renderSchoolReviewCard } from '../../peer-review/stories/review-render';
 import { buttons } from '../../shared/buttons';
 
 /**
@@ -18,7 +15,7 @@ import { buttons } from '../../shared/buttons';
  * 1. Получает все потоки школы (`list-streams({ schoolId })`).
  * 2. Собирает отзывы студентов о менторах (`list-scope-reviews({ scopeIds, direction: 'student_mentor' })`).
  * 3. Резолвит имена менторов и авторов через batch `get-users-by-ids`.
- * 4. Рендерит страницы через `pagedScreen` с кнопкой «⬅️ Назад в школу».
+ * 4. Рендерит карточки через `cardPagedScreen` с кнопкой «⬅️ Назад в школу».
  */
 export class SchoolReviewsStory extends U7BotUiStory {
   readonly name = 'reviews';
@@ -43,8 +40,8 @@ export class SchoolReviewsStory extends U7BotUiStory {
   ): Promise<DialogResponse> {
     const schoolId = this.resolve.school.id;
 
-    return this.pagedScreen({
-      build: () => this.#buildBlocks(schoolId, actor),
+    return this.cardPagedScreen({
+      build: () => this.#buildCards(schoolId, actor),
       emptyScreen: () =>
         this.screen(
           md`💬 Пока нет отзывов о школе\\.`,
@@ -59,10 +56,10 @@ export class SchoolReviewsStory extends U7BotUiStory {
     });
   }
 
-  async #buildBlocks(
+  async #buildCards(
     schoolId: string,
     actor: User,
-  ): Promise<{ header: MdText; blocks: string[]; payload: undefined }> {
+  ): Promise<{ title: MdText; cards: MdText[]; payload: undefined }> {
     const streams = (await this.appApi.execute(
       'list-streams',
       { schoolId },
@@ -72,11 +69,13 @@ export class SchoolReviewsStory extends U7BotUiStory {
     const scopeIds = streams.map((s) => s.uuid);
     if (scopeIds.length === 0) {
       return {
-        header: md`💬 *Отзывы о школе*`,
-        blocks: [],
+        title: md`💬 *Отзывы о школе*`,
+        cards: [],
         payload: undefined,
       };
     }
+
+    const streamTitles = new Map(streams.map((s) => [s.uuid, s.title]));
 
     const projection = (await this.appApi.execute(
       'list-scope-reviews',
@@ -87,19 +86,23 @@ export class SchoolReviewsStory extends U7BotUiStory {
     const userIds = uniqueIds(projection.recipients);
     const names = await this.#namesOf(userIds, actor);
 
-    const blocks = projection.recipients.flatMap((group) =>
+    const cards = projection.recipients.flatMap((group) =>
       group.reviews.map((review) =>
-        reviewBlock({
-          group,
-          review,
-          names,
+        renderSchoolReviewCard({
+          mentorName: names.get(group.recipientId) ?? 'неизвестно',
+          authorName: names.get(review.authorId) ?? 'неизвестно',
+          direction: review.direction,
+          authorOutcome: review.authorOutcome,
+          streamTitle: streamTitles.get(review.scopeId) ?? 'неизвестно',
+          createdAt: review.createdAt,
+          text: review.text,
         }),
       ),
     );
 
     return {
-      header: md`💬 *Отзывы о школе*`,
-      blocks,
+      title: md`💬 *Отзывы о школе*`,
+      cards,
       payload: undefined,
     };
   }
@@ -119,21 +122,6 @@ export class SchoolReviewsStory extends U7BotUiStory {
     }
     return names;
   }
-}
-
-/** Рендер одного отзыва в блоке пагинации. */
-function reviewBlock(args: {
-  group: RecipientReviewsGroup;
-  review: ReviewSnapshotDto;
-  names: Map<string, string>;
-}): string {
-  const { group, review, names } = args;
-  const roles = rolesOf(review.direction);
-  const recipient = names.get(group.recipientId) ?? 'неизвестно';
-  const author = names.get(review.authorId) ?? 'неизвестно';
-
-  return md`👤 ${recipient} \\(${roles.recipient}\\):
-«${review.text}» — ${author} \\(${authorLabel(review)}\\)`;
 }
 
 /** Извлечение уникальных ID адресатов и авторов из групп. */

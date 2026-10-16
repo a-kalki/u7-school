@@ -24,7 +24,7 @@ const MENTOR_1 = '33333333-3333-4333-8333-333333333333';
 const STUDENT_1 = '44444444-4444-4444-8444-444444444444';
 
 function makeStory(opts?: {
-  streams?: Array<{ uuid: string; schoolId: string }>;
+  streams?: Array<{ uuid: string; schoolId: string; title: string }>;
   recipients?: Array<{
     recipientId: string;
     reviews: Array<{
@@ -46,8 +46,8 @@ function makeStory(opts?: {
   const story = new SchoolReviewsStory();
 
   const streams = opts?.streams ?? [
-    { uuid: STREAM_1, schoolId: SCHOOL_ID },
-    { uuid: STREAM_2, schoolId: SCHOOL_ID },
+    { uuid: STREAM_1, schoolId: SCHOOL_ID, title: 'JS Core — Поток 1' },
+    { uuid: STREAM_2, schoolId: SCHOOL_ID, title: 'JS Core — Поток 2' },
   ];
   const recipients = opts?.recipients ?? [];
   const namesMap: Record<string, string> = {
@@ -128,7 +128,7 @@ describe('SchoolReviewsStory (SH03)', () => {
     );
   });
 
-  test('непустой срез: заголовок «Отзывы о школе», имя ментора, текст и автор', async () => {
+  test('один отзыв: карточка с ментором, автором, потоком, датой и текстом (без индикатора и кнопок листания)', async () => {
     const { story } = makeStory({
       recipients: [
         {
@@ -156,28 +156,33 @@ describe('SchoolReviewsStory (SH03)', () => {
     assertDialogResponseMarkdownSafe(response);
 
     const text = String(response.screen?.text);
-    expect(text).toContain('Отзывы о школе');
-    expect(text).toContain('Алексей Ментор');
-    expect(text).toContain('Иван Студент');
-    expect(text).toContain('Отличный курс, ментор всегда помогал');
+    expect(text).toContain('💬 *Отзывы о школе*');
+    expect(text).not.toContain('· 1/');
+    expect(text).toContain('👨‍🏫 Ментор: Алексей Ментор');
+    expect(text).toContain(
+      '👤 От: Иван Студент \\(студент · завершил и прошел\\)',
+    );
+    expect(text).toContain('📚 Поток: JS Core — Поток 1');
+    expect(text).toContain('📅 Дата: 20\\.09\\.2026');
+    expect(text).toContain('💬 «Отличный курс, ментор всегда помогал\\!»');
 
-    const backBtn = response.screen?.keyboard?.rows
-      .flat()
-      .find((b) => b.text.includes('Назад в школу'));
+    const flatBtns = response.screen?.keyboard?.rows.flat() ?? [];
+    expect(flatBtns.find((b) => b.text.includes('След. ▶️'))).toBeUndefined();
+    expect(flatBtns.find((b) => b.text.includes('◀️ Пред.'))).toBeUndefined();
+
+    const backBtn = flatBtns.find((b) => b.text.includes('Назад в школу'));
     expect(backBtn).toBeDefined();
     expect(backBtn?.code).toBe('school:hub:open');
   });
 
-  test('пагинация: длинный список отзывов нарезается на страницы', async () => {
-    const manyReviews = Array.from({ length: 8 }, (_, i) => ({
+  test('карточная пагинация: листание ◀️ Пред. / След. ▶️ с индикатором 1/N', async () => {
+    const manyReviews = Array.from({ length: 3 }, (_, i) => ({
       reviewId: `rev-${i}`,
       scopeId: STREAM_1,
       authorId: STUDENT_1,
       direction: 'student_mentor' as const,
       authorOutcome: 'completed_passed' as const,
-      text:
-        `Длинный полезный отзыв номер ${i + 1}. ` +
-        'Слова благодарности ментору. '.repeat(30),
+      text: `Отзыв номер ${i + 1}`,
       createdAt: `2026-09-2${i}T10:00`,
     }));
 
@@ -190,25 +195,37 @@ describe('SchoolReviewsStory (SH03)', () => {
       ],
     });
 
+    // Карточка 1
     const page0: DialogResponse = await story.handleCallback(
       'list',
       actor,
       session,
     );
-    expect(String(page0.screen?.text)).toContain('Стр\\. 1/');
+    assertDialogResponseMarkdownSafe(page0);
+    const text0 = String(page0.screen?.text);
+    expect(text0).toContain('💬 *Отзывы о школе* · 1/3');
+    expect(text0).toContain('Отзыв номер 1');
 
     const nextBtn = page0.screen?.keyboard?.rows
       .flat()
-      .find((b) => b.text.includes('След'));
+      .find((b) => b.text.includes('След. ▶️'));
     expect(nextBtn).toBeDefined();
 
-    // Листание на страницу 1
+    // Листание на карточку 2
     const page1: DialogResponse = await story.handleCallback(
       nextBtn!.code.split(':').slice(1).join(':'),
       actor,
       session,
     );
-    expect(String(page1.screen?.text)).toContain('Стр\\. 2/');
+    assertDialogResponseMarkdownSafe(page1);
+    const text1 = String(page1.screen?.text);
+    expect(text1).toContain('💬 *Отзывы о школе* · 2/3');
+    expect(text1).toContain('Отзыв номер 2');
+
+    const prevBtn = page1.screen?.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes('◀️ Пред.'));
+    expect(prevBtn).toBeDefined();
 
     // Проверка кеширования: повторные обращения к домену не происходят
     const scopeReviewCalls = executeMock.mock.calls.filter(

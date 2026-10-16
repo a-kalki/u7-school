@@ -235,11 +235,9 @@ describe('NavTreeStory — drill-down навигация студента (TDD)'
     assertDialogResponseMarkdownSafe(response);
 
     const text = String(response.screen?.text);
-    expect(text).toContain('📂 *Уроки*');
-    expect(text).toContain('1\\. 📁 *Проект: Основы*');
-    expect(text).toContain('Введение');
-    expect(text).toContain('Переменные');
-    expect(text).toContain('2\\. 📁 *Проект: Продвинутый*');
+    expect(text).toContain('📖 *Программа модуля*');
+    expect(text).toContain('1\\. ▶️ Основы');
+    expect(text).toContain('2\\. 🔒 Продвинутый');
 
     const flatBtns = response.screen?.keyboard?.rows.flat() ?? [];
     // Кнопка проекта содержит UUID проекта
@@ -264,10 +262,9 @@ describe('NavTreeStory — drill-down навигация студента (TDD)'
     assertDialogResponseMarkdownSafe(response);
 
     const text = String(response.screen?.text);
-    expect(text).toContain('📂 *Уроки*\n› *Проект: Основы*');
-    expect(text).toContain('1\\. 📝 *Урок: Введение*');
-    expect(text).toContain('Первый шаг');
-    expect(text).toContain('2\\. 📝 *Урок: Переменные*');
+    expect(text).toContain('📖 *Программа модуля*\n› *Проект 1/2: Основы*');
+    expect(text).toContain('1\\. ✅ Введение');
+    expect(text).toContain('2\\. ▶️ Переменные');
 
     const flatBtns = response.screen?.keyboard?.rows.flat() ?? [];
     // Кнопки уроков ведут в nav-tree:lesson:<lessonId>
@@ -298,10 +295,10 @@ describe('NavTreeStory — drill-down навигация студента (TDD)'
 
     const text = String(response.screen?.text);
     expect(text).toContain(
-      '📂 *Уроки*\n› Проект: Основы\n› *Урок: Переменные*',
+      '📖 *Программа модуля*\n› Проект 1/2: Основы\n› *Урок 2/2: Переменные*',
     );
-    expect(text).toContain('1\\. ✅ Шаг: Третий шаг');
-    expect(text).toContain('2\\. ▶️ Шаг: Четвёртый шаг');
+    expect(text).toContain('1\\. ✅ Третий шаг');
+    expect(text).toContain('2\\. ▶️ Четвёртый шаг');
 
     const flatBtns = response.screen?.keyboard?.rows.flat() ?? [];
     // Кнопки доступных шагов ведут в карточки шагов drill-down nav-tree:step:<stepId>
@@ -357,7 +354,7 @@ describe('NavTreeStory — drill-down навигация студента (TDD)'
 
     const text = String(response.screen?.text);
     expect(text).toContain(
-      '📂 *Уроки*\n› Проект: Основы\n› Урок: Введение\n› *Шаг: Первый шаг*',
+      '📖 *Программа модуля*\n› Проект 1/2: Основы\n› Урок 1/2: Введение\n› *Шаг 1/2: Первый шаг*',
     );
     expect(text).toContain('✅ Пройден');
     expect(text).toContain('Контент первого шага');

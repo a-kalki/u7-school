@@ -3,7 +3,6 @@ import {
   formatStepBody,
   type NavChild,
   type NavLevel,
-  type NavSubChild,
   parseNavAddress,
   type StepContentData,
 } from '@u7-scl/core/ui';
@@ -75,24 +74,19 @@ export function resolveStreamNavLevel(
 
   // ── Уровень 1: Root (Модуль / Проекты) ──
   if (parsedAddress.level === 'root') {
-    const projectCount = snapshot.length;
-    const subtitle = `Модуль состоит из ${projectCount} проект${plural(projectCount, 'а', 'ов', 'ов')}`;
+    const subtitle = 'Проекты модуля:';
 
     const children: NavChild[] = snapshot.map((p, pIdx) => {
-      const subChildren: NavSubChild[] = p.lessons.map((l) => ({
-        id: l.lessonId,
-        title: `Урок: ${l.lessonTitle}`,
-        emoji: '📝',
-      }));
+      const lessonCount = p.lessons.length;
+      const meta = `(${lessonCount} ${plural(lessonCount, 'урок', 'урока', 'уроков')})`;
 
       return {
         id: p.projectId,
         index: pIdx + 1,
-        title: `Проект: ${p.projectTitle}`,
-        emoji: '📁',
+        title: p.projectTitle,
+        meta,
         enterable: true,
         address: formatNavAddress(story, 'project', p.projectId),
-        children: subChildren,
       };
     });
 
@@ -126,38 +120,31 @@ export function resolveStreamNavLevel(
     const snapProject = snapshot[projectIndex];
     if (!snapProject) return null;
 
-    const lessonCount = snapProject.lessons.length;
-    const subtitle = `Проект состоит из ${lessonCount} урок${plural(lessonCount, 'а', 'ов', 'ов')}`;
+    const subtitle = 'Уроки проекта:';
 
     const children: NavChild[] = snapProject.lessons.map((l, lIdx) => {
-      const subChildren: NavSubChild[] = l.stepIds.map((sId, sIdx) => {
-        const title = stepDescriptions?.[sId] ?? `Шаг ${sIdx + 1}`;
-        return {
-          id: sId,
-          title: title.startsWith('Шаг') ? title : `Шаг: ${title}`,
-          emoji: '📄',
-        };
-      });
+      const stepCount = l.stepIds.length;
+      const meta = `(${stepCount} ${plural(stepCount, 'шаг', 'шага', 'шагов')})`;
 
       return {
         id: l.lessonId,
         index: lIdx + 1,
-        title: `Урок: ${l.lessonTitle}`,
-        emoji: '📝',
+        title: l.lessonTitle,
+        meta,
         enterable: true,
         address: formatNavAddress(story, 'lesson', l.lessonId),
-        children: subChildren,
       };
     });
 
     const prevSnapProject = snapshot[projectIndex - 1];
     const nextSnapProject = snapshot[projectIndex + 1];
+    const totalProjects = snapshot.length;
 
     return {
       multilineBreadcrumbs: true,
       breadcrumbs: [
         '📖 Программа модуля',
-        `Проект: ${snapProject.projectTitle}`,
+        `Проект ${projectIndex + 1}/${totalProjects}: ${snapProject.projectTitle}`,
       ],
       title: snapProject.projectTitle,
       subtitle,
@@ -209,16 +196,14 @@ export function resolveStreamNavLevel(
     const snapLesson = foundProject.lessons[lessonIndex];
     if (!snapLesson) return null;
 
-    const stepCount = snapLesson.stepIds.length;
-    const subtitle = `Урок состоит из ${stepCount} шаг${plural(stepCount, 'а', 'ов', 'ов')}`;
+    const subtitle = 'Шаги урока:';
 
     const children: NavChild[] = snapLesson.stepIds.map((sId, sIdx) => {
       const title = stepDescriptions?.[sId] ?? `Шаг ${sIdx + 1}`;
       return {
         id: sId,
         index: sIdx + 1,
-        title: title.startsWith('Шаг') ? title : `Шаг: ${title}`,
-        emoji: '📄',
+        title,
         enterable: isMentor,
         address: isMentor ? formatNavAddress(story, 'step', sId) : undefined,
       };
@@ -226,13 +211,16 @@ export function resolveStreamNavLevel(
 
     const prevLesson = foundProject.lessons[lessonIndex - 1];
     const nextLesson = foundProject.lessons[lessonIndex + 1];
+    const totalProjects = snapshot.length;
+    const projectIndex = snapshot.indexOf(foundProject);
+    const totalLessons = foundProject.lessons.length;
 
     return {
       multilineBreadcrumbs: true,
       breadcrumbs: [
         '📖 Программа модуля',
-        `Проект: ${foundProject.projectTitle}`,
-        `Урок: ${snapLesson.lessonTitle}`,
+        `Проект ${projectIndex + 1}/${totalProjects}: ${foundProject.projectTitle}`,
+        `Урок ${lessonIndex + 1}/${totalLessons}: ${snapLesson.lessonTitle}`,
       ],
       title: snapLesson.lessonTitle,
       subtitle,
@@ -280,24 +268,35 @@ export function resolveStreamNavLevel(
     if (!foundProject || !foundLesson || stepIndex === -1) return null;
 
     const stepId = foundLesson.stepIds[stepIndex]!;
-    const body: string | undefined =
+    let body: string | undefined =
       stepBodies?.[stepId] ??
       (stepContent ? formatStepBody(stepContent) : undefined);
 
+    if (body && body.length > 3200) {
+      body = `${body.slice(0, 3100)}\n\n⚠️ _[Контент сокращён: полный текст доступен на платформе]_`;
+    }
+
     const prevStepId = foundLesson.stepIds[stepIndex - 1];
     const nextStepId = foundLesson.stepIds[stepIndex + 1];
+    const totalProjects = snapshot.length;
+    const projectIndex = snapshot.indexOf(foundProject);
+    const totalLessons = foundProject.lessons.length;
+    const lessonIndex = foundProject.lessons.indexOf(foundLesson);
+    const totalSteps = foundLesson.stepIds.length;
 
     const rawStepTitle = stepDescriptions?.[stepId] ?? `Шаг ${stepIndex + 1}`;
-    const stepLabel = rawStepTitle.startsWith('Шаг')
-      ? rawStepTitle
-      : `Шаг: ${rawStepTitle}`;
+    const cleanStepTitle = rawStepTitle.replace(
+      /^(?:Шаг(?:\s*\d+)?:\s*)+/iu,
+      '',
+    );
+    const stepLabel = `Шаг ${stepIndex + 1}/${totalSteps}: ${cleanStepTitle}`;
 
     return {
       multilineBreadcrumbs: true,
       breadcrumbs: [
         '📖 Программа модуля',
-        `Проект: ${foundProject.projectTitle}`,
-        `Урок: ${foundLesson.lessonTitle}`,
+        `Проект ${projectIndex + 1}/${totalProjects}: ${foundProject.projectTitle}`,
+        `Урок ${lessonIndex + 1}/${totalLessons}: ${foundLesson.lessonTitle}`,
         stepLabel,
       ],
       title: rawStepTitle,

@@ -1,4 +1,5 @@
 import { type MdText, md, mdConcat, mdJoin } from '../../shared/markdown';
+import { truncateByWords } from '../../shared/string-utility';
 import { btn, type KbButton, kb } from '../bot/response-builders';
 import type { KeyboardDescription } from '../bot/types';
 import type {
@@ -15,6 +16,9 @@ export const STATUS_ICONS: Record<NavNodeStatus, string> = {
   in_progress: '▶️',
   locked: '🔒',
 };
+
+/** Максимальная длина строки промежуточного сегмента хлебных крошек */
+export const MAX_PARENT_BREADCRUMB_LENGTH = 34;
 
 /**
  * Форматирует хлебные крошки drill-down пути в MarkdownV2.
@@ -44,9 +48,13 @@ export function formatBreadcrumbs(
 
   // Последующие сегменты пути
   for (let i = 1; i < breadcrumbs.length; i++) {
-    const segment = breadcrumbs[i];
-    if (segment) {
+    const rawSegment = breadcrumbs[i];
+    if (rawSegment) {
       const isLast = i === breadcrumbs.length - 1;
+      const segment = isLast
+        ? rawSegment
+        : truncateByWords(rawSegment, MAX_PARENT_BREADCRUMB_LENGTH);
+
       if (multiline) {
         if (isLast) {
           parts.push(md`\n› *${segment}*`);
@@ -66,46 +74,28 @@ export function formatBreadcrumbs(
  * Форматирует строку подуровня дочернего элемента.
  */
 function formatSubChild(sub: NavSubChild): MdText {
-  const emojiPrefix = sub.emoji ? `${sub.emoji} ` : '';
+  const title = cleanChildButtonTitle(sub.title);
   const metaSuffix = sub.meta ? ` ${sub.meta}` : '';
   const statusIcon = sub.status ? ` ${STATUS_ICONS[sub.status]}` : '';
 
-  return md`    ${emojiPrefix}${sub.title}${metaSuffix}${statusIcon}`;
+  return md`    ${title}${metaSuffix}${statusIcon}`;
 }
 
 /**
  * Форматирует строку дочернего элемента.
  */
-function formatChild(child: NavChild, isNestedList: boolean): MdText[] {
+function formatChild(child: NavChild): MdText[] {
   const lines: MdText[] = [];
-  const statusIcon = child.status ? STATUS_ICONS[child.status] : undefined;
+  const statusIcon = child.status ? `${STATUS_ICONS[child.status]} ` : '';
   const meta = child.meta ? ` ${child.meta}` : '';
+  const title = cleanChildButtonTitle(child.title);
 
-  if (isNestedList) {
-    // В списке с подуровнями (проекты модуля или уроки проекта) родитель жирным
-    const statusPart = statusIcon ? ` ${statusIcon}` : '';
-    let emojiPrefix = '';
-    if (child.emoji && !child.title.startsWith(child.emoji)) {
-      emojiPrefix = `${child.emoji} `;
-    }
-    lines.push(
-      md`${child.index}\\. ${emojiPrefix}*${child.title}*${meta}${statusPart}`,
-    );
-    if (child.children) {
-      for (const sub of child.children) {
-        lines.push(formatSubChild(sub));
-      }
-    }
-  } else {
-    // Одноуровневый список (шаги урока): если есть статус, он ставится перед заголовком
-    if (statusIcon) {
-      lines.push(md`${child.index}\\. ${statusIcon} ${child.title}${meta}`);
-    } else {
-      let emojiPrefix = '';
-      if (child.emoji && !child.title.startsWith(child.emoji)) {
-        emojiPrefix = `${child.emoji} `;
-      }
-      lines.push(md`${child.index}\\. ${emojiPrefix}${child.title}${meta}`);
+  lines.push(md`${child.index}\\. ${statusIcon}${title}${meta}`);
+
+  // Если переданы подуровни (дети детей) — выводим их под родителем
+  if (child.children) {
+    for (const sub of child.children) {
+      lines.push(formatSubChild(sub));
     }
   }
 
@@ -129,28 +119,33 @@ export function formatNavLevelText(level: NavLevel): MdText {
     sections.push(md`${icon}${level.statusLabel}`);
   }
 
-  // 3. Пояснение уровня
-  if (level.subtitle) {
-    sections.push(md`${level.subtitle}`);
-  }
-
-  // 4. Тело контента (для карточки шага)
+  // 3. Тело контента (для карточки шага)
   if (level.body) {
     sections.push(md`${level.body}`);
   }
 
-  // 5. Дочерние элементы
-  if (level.children && level.children.length > 0) {
-    // Определяем, является ли список двухуровневым (хотя бы у одного ребёнка есть подуровень)
-    const isNestedList = level.children.some(
-      (c) => c.children !== undefined && c.children.length > 0,
-    );
-
+  // 4. Пояснение уровня (заголовок списка) и дочерние элементы
+  const children = level.children ?? [];
+  const hasChildren = children.length > 0;
+  if (level.subtitle && hasChildren) {
     const childLines: MdText[] = [];
-    for (const child of level.children) {
-      childLines.push(...formatChild(child, isNestedList));
+    for (const child of children) {
+      childLines.push(...formatChild(child));
     }
-    sections.push(mdJoin(childLines, '\n'));
+    sections.push(
+      mdConcat(md`*${level.subtitle}*\n`, mdJoin(childLines, '\n')),
+    );
+  } else {
+    if (level.subtitle) {
+      sections.push(md`*${level.subtitle}*`);
+    }
+    if (hasChildren) {
+      const childLines: MdText[] = [];
+      for (const child of children) {
+        childLines.push(...formatChild(child));
+      }
+      sections.push(mdJoin(childLines, '\n'));
+    }
   }
 
   return mdJoin(sections, '\n\n');
@@ -173,7 +168,7 @@ function resolveTarget(
 }
 
 /** Максимальная длина текста на inline-кнопке для предотвращения обрезки в Telegram. */
-const MAX_BUTTON_LABEL_LENGTH = 48;
+const MAX_BUTTON_LABEL_LENGTH = 44;
 
 /**
  * Очищает название дочернего элемента для отображения на кнопке (без эмодзи и префикса уровня).
@@ -201,15 +196,18 @@ function cleanChildButtonTitle(title: string): string {
  * Формирует читабельный текст для кнопки дочернего элемента.
  */
 function buildChildButtonText(child: NavChild): string {
-  const meta = child.meta ? ` ${child.meta}` : '';
-  let title = cleanChildButtonTitle(child.title);
+  // На кнопке выводим только краткий прогресс (например "(1/2)"),
+  // а развёрнутые счётчики ("(2 урока)", "(5 шагов)") остаются в тексте карточки
+  const showMetaOnButton = child.meta && /^\(\d+\/\d+\)$/.test(child.meta);
+  const meta = showMetaOnButton ? ` ${child.meta}` : '';
+  const title = cleanChildButtonTitle(child.title);
 
   const full = `${child.index}. ${title}${meta}`;
   if (full.length > MAX_BUTTON_LABEL_LENGTH) {
     const available =
-      MAX_BUTTON_LABEL_LENGTH - `${child.index}. ${meta}...`.length;
-    title = `${title.slice(0, Math.max(5, available))}...`;
-    return `${child.index}. ${title}${meta}`;
+      MAX_BUTTON_LABEL_LENGTH - `${child.index}. ${meta}`.length;
+    const truncatedTitle = truncateByWords(title, available);
+    return `${child.index}. ${truncatedTitle}${meta}`;
   }
 
   return full;
@@ -230,13 +228,6 @@ export function buildNavLevelKeyboard(level: NavLevel): KeyboardDescription {
     }
   }
 
-  // 1.5. Дополнительные ряды кнопок (например wish actions)
-  if (level.extraRows && level.extraRows.length > 0) {
-    for (const extraRow of level.extraRows) {
-      rows.push([...extraRow]);
-    }
-  }
-
   // 2. Навигационный ряд соседей: ◀️ / ▶️ в одном ряду
   const navRow: KbButton[] = [];
   if (level.prev) {
@@ -249,6 +240,13 @@ export function buildNavLevelKeyboard(level: NavLevel): KeyboardDescription {
   }
   if (navRow.length > 0) {
     rows.push(navRow);
+  }
+
+  // 2.5. Дополнительные ряды кнопок (например wish actions: после навигации, перед кнопкой назад)
+  if (level.extraRows && level.extraRows.length > 0) {
+    for (const extraRow of level.extraRows) {
+      rows.push([...extraRow]);
+    }
   }
 
   // 3. Кнопка возврата: ⬅️ Назад в самом низу

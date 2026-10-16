@@ -213,7 +213,7 @@ export function formatStepMessage(
 
     // Хлебные крошки
     const defaultBreadcrumbs = [
-      mode === 'student' ? '📂 Уроки' : '📖 Программа модуля',
+      '📖 Программа модуля',
       resolved?.projectTitle ?? 'Проект',
       resolved?.lessonTitle ?? 'Урок',
       `Шаг ${resolved?.stepIndex ?? 1}`,

@@ -1,9 +1,9 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import { type MdText, md, mdJoin } from '@u7-scl/core/shared';
+import { type MdText, md } from '@u7-scl/core/shared';
 import type { BotSession, DialogResponse, KbButton } from '@u7-scl/core/ui';
 import { buttons } from '../../shared/buttons';
-import { authorLine } from './review-render';
+import { renderReviewCard } from './review-render';
 
 /**
  * US: «Отзывы мне» (S08) — все отзывы, адресованные пользователю.
@@ -11,8 +11,9 @@ import { authorLine } from './review-render';
  * Вход: `view:<page>` — кнопка «📥 Отзывы мне» в хабе S02 (видна при
  * наличии хотя бы одного отзыва) и в его заглушке. Контент: UC
  * `list-my-reviews` — новые наверху (createdAt desc); имена авторов —
- * batch-UC `get-users-by-ids` до нарезки страниц. Блок = отзыв: автор с
- * ролью, исходом (у автора-студента) и датой, ниже текст. Только чтение.
+ * batch-UC `get-users-by-ids`, потоки — `get-stream` по scopeId.
+ * Карточный просмотр: ровно один отзыв на экран с пагинацией ◀️ / ▶️.
+ * Только чтение.
  */
 export class ReviewsForMeStory extends U7BotUiStory {
   readonly name = 'reviews-for-me';
@@ -35,14 +36,14 @@ export class ReviewsForMeStory extends U7BotUiStory {
     return this.#showReviews(actor, session, Number.isNaN(page) ? 0 : page);
   }
 
-  /** S08: постраничный просмотр отзывов адресату (кеш страниц — диалог). */
+  /** S08: карточный просмотр отзывов адресату (кеш страниц — диалог). */
   async #showReviews(
     actor: User,
     session: BotSession,
     pageIndex: number,
   ): Promise<DialogResponse> {
-    return this.pagedScreen({
-      build: () => this.#buildBlocks(actor),
+    return this.cardPagedScreen({
+      build: () => this.#buildCards(actor),
       emptyScreen: () => this.#emptyScreen(),
       rows: () => this.#navRows(),
       cacheKey: this.#cacheKey,
@@ -53,52 +54,37 @@ export class ReviewsForMeStory extends U7BotUiStory {
     });
   }
 
-  /** Читает отзывы адресату, резолвит имена авторов и собирает блоки. */
-  async #buildBlocks(
+  /** Читает отзывы адресату, резолвит авторов и потоки, собирает карточки. */
+  async #buildCards(
     actor: User,
-  ): Promise<{ header: MdText; blocks: string[]; payload: undefined }> {
+  ): Promise<{ title: MdText; cards: MdText[]; payload: undefined }> {
     const { reviews } = await this.appApi.execute(
       'list-my-reviews',
       { userId: actor.uuid },
       actor,
     );
 
-    const names = await this.#namesOf(
-      [...new Set(reviews.map((r) => r.authorId))],
-      actor,
+    const [names, titles] = await Promise.all([
+      this.#namesOf([...new Set(reviews.map((r) => r.authorId))], actor),
+      this.#titlesOf([...new Set(reviews.map((r) => r.scopeId))], actor),
+    ]);
+
+    const cards = reviews.map((review) =>
+      renderReviewCard({
+        authorName: names.get(review.authorId) ?? 'неизвестно',
+        direction: review.direction,
+        authorOutcome: review.authorOutcome,
+        streamTitle: titles.get(review.scopeId) ?? 'неизвестно',
+        createdAt: review.createdAt,
+        text: review.text,
+      }),
     );
 
-    // Карточки-отзывы, разделённые линией (как в хабе S02): линия перед
-    // всеми, кроме первой
-    const blocks = reviews.map((review, i) => {
-      const block = mdJoin([
-        authorLine({
-          name: names.get(review.authorId) ?? 'неизвестно',
-          direction: review.direction,
-          authorOutcome: review.authorOutcome,
-          createdAt: review.createdAt,
-        }),
-        md`«${review.text}»`,
-      ]);
-      return i > 0 ? mdJoin([md`──────────────`, block]) : block;
-    });
-
     return {
-      header: this.#header(reviews.length),
-      blocks,
+      title: md`📥 *Отзывы мне*`,
+      cards,
       payload: undefined,
     };
-  }
-
-  /** Шапка: заголовок + интро «что это за место» + число отзывов. */
-  #header(count: number): MdText {
-    return mdJoin([
-      md`📥 *Отзывы мне*`,
-      md``,
-      md`Все отзывы, которые оставили тебе\\. Новые — наверху\\.`,
-      md``,
-      md`${pluralReviews(count)} от участников твоих потоков и мероприятий\\.`,
-    ]);
   }
 
   /** Экран-заглушка: отзывов нет (кнопка в хабе скрыта — сюда не попасть). */
@@ -112,12 +98,36 @@ export class ReviewsForMeStory extends U7BotUiStory {
     );
   }
 
-  /** Навигация под отзывами: назад в хаб S02, главное меню последним. */
+  /** Навигация под карточкой: назад в хаб S02, главное меню последним. */
   #navRows(): KbRows {
     return [
       [this.btn('↩️ Мои отзывы', this.cbFor('my-reviews', 'hub'))],
       [buttons.mainMenu()],
     ];
+  }
+
+  /** Названия потоков по scopeId карточек. */
+  async #titlesOf(
+    scopeIds: string[],
+    actor: User,
+  ): Promise<Map<string, string>> {
+    const titles = new Map<string, string>();
+    if (scopeIds.length === 0) return titles;
+    await Promise.all(
+      scopeIds.map(async (scopeId) => {
+        try {
+          const stream = await this.appApi.execute(
+            'get-stream',
+            { streamId: scopeId },
+            actor,
+          );
+          titles.set(scopeId, stream.title);
+        } catch {
+          titles.set(scopeId, 'неизвестно');
+        }
+      }),
+    );
+    return titles;
   }
 
   /** Имена авторов — один batch-запрос. */
@@ -138,14 +148,3 @@ export class ReviewsForMeStory extends U7BotUiStory {
 
 /** Псевдоним типа строк кнопок (rows клавиатуры). */
 type KbRows = KbButton[][];
-
-/** Русская плюрализация: 1 отзыв / 2 отзыва / 5 отзывов. */
-function pluralReviews(n: number): string {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return `${n} отзыв`;
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-    return `${n} отзыва`;
-  }
-  return `${n} отзывов`;
-}

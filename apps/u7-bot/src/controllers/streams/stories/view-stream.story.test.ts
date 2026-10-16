@@ -203,7 +203,7 @@ describe('ViewStreamStory (S02-S04)', () => {
     expect(text).toContain('Программа модуля');
     // дефис в доменном названии экранирован md-интерполяцией
     expect(text).toContain('CLI\\-калькулятор');
-    expect(text).toContain('Введение');
+    expect(text).toContain('урок');
   });
 
   test('program: пустой contentSnapshot — заглушка', async () => {
@@ -676,8 +676,8 @@ describe('ViewStreamStory — публичная drill-down программа �
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text);
     expect(text).toContain('Модули и компоненты');
-    expect(text).toContain('Шаг 1: Описание первого шага');
-    expect(text).toContain('Шаг 2: Описание второго шага');
+    expect(text).toContain('Описание первого шага');
+    expect(text).toContain('Описание второго шага');
 
     const btnTexts =
       response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];

@@ -52,6 +52,36 @@ interface CachedPaged<T> {
   payload: T;
 }
 
+/** Опции карточного экрана (хелпер U7BotUiStory.cardPagedScreen). */
+interface CardPagedScreenOpts<T = undefined> {
+  /** Сборка экрана: чтение домена + шапка, массив готовых карточек и данные
+   * для кнопок (payload). Вызывается ТОЛЬКО при промахе кеша. */
+  build: () =>
+    | { title: MdText; cards: MdText[]; payload?: T }
+    | Promise<{ title: MdText; cards: MdText[]; payload?: T }>;
+  /** Экран-заглушка при пустом наборе карточек. */
+  emptyScreen: (payload?: T) => DialogResponse;
+  /** Кнопки под навигацией («Назад», «Главное меню» и т.п.). */
+  rows?: (payload?: T) => KbButton[][];
+  /** Ключ кеша `DialogCache`. */
+  cacheKey: string;
+  /** Индекс текущей карточки (0-based; за пределами — clamp). */
+  pageIndex?: number;
+  /** Callback-код страницы: `cb(n)` для навигационных кнопок ◀️ / ▶️. */
+  cbPage: (n: number) => string;
+  /** Сессия — эпоха кеша. */
+  session: BotSession;
+  /** Telegram ID пользователя — ключ кеша. */
+  tgId: number;
+}
+
+/** Закешированные карточки экрана: заголовок, массив карточек, данные кнопок. */
+interface CachedCards<T> {
+  title: MdText;
+  cards: MdText[];
+  payload?: T;
+}
+
 /**
  * Специализированный пользовательский сценарий для U7 Telegram-бота.
  *
@@ -163,6 +193,58 @@ export abstract class U7BotUiStory extends BotUiStory<
         ...this.botPaginator.navRows(page, opts.cbPage),
         ...contentRows(page, cached.payload),
       ]),
+    );
+  }
+
+  /**
+   * Карточный экран: ровно одна карточка на экран, кеш в `DialogCache`,
+   * ряд `◀️ Пред.` / `След. ▶️` над кнопками `rows(payload)`,
+   * индикатор `· 1/N` — суффикс шапки (только если карточек > 1).
+   * Листание — edit на месте.
+   */
+  protected async cardPagedScreen<T = undefined>(
+    opts: CardPagedScreenOpts<T>,
+  ): Promise<DialogResponse> {
+    let cached = this.dialogCache.get<CachedCards<T>>(
+      opts.tgId,
+      opts.cacheKey,
+      opts.session,
+    );
+    if (!cached) {
+      const built = await opts.build();
+      cached = {
+        title: built.title,
+        cards: built.cards,
+        payload: built.payload,
+      };
+      this.dialogCache.set(opts.tgId, opts.cacheKey, cached, opts.session);
+    }
+
+    if (cached.cards.length === 0) {
+      return opts.emptyScreen(cached.payload);
+    }
+
+    const total = cached.cards.length;
+    const index = Math.max(0, Math.min(opts.pageIndex ?? 0, total - 1));
+    const card = cached.cards[index]!;
+
+    const header =
+      total > 1
+        ? mdConcat(cached.title, md` · ${index + 1}/${total}`)
+        : cached.title;
+
+    const navRow: KbButton[] = [];
+    if (index > 0) {
+      navRow.push(this.btn('◀️ Пред.', opts.cbPage(index - 1)));
+    }
+    if (index < total - 1) {
+      navRow.push(this.btn('След. ▶️', opts.cbPage(index + 1)));
+    }
+    const navRows = navRow.length > 0 ? [navRow] : [];
+
+    return this.screen(
+      mdConcat(header, md`\n\n`, card),
+      this.kb([...navRows, ...(opts.rows?.(cached.payload) ?? [])]),
     );
   }
 

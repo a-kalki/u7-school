@@ -275,7 +275,7 @@ describe('E2E: Пагинация (S03 + каталог уровня 3)', () => 
 
     const modulesScreen = await press(tgId, 'Длинный модуль');
     const modulesText = String(modulesScreen.screen?.text ?? '');
-    expect(modulesText).toContain('Модуль: Длинный модуль');
+    expect(modulesText).toContain('Длинный модуль');
     expect(modulesText).toContain('Проект 01');
 
     const originMessageId = lastSentMessageId(tgId);
@@ -283,30 +283,24 @@ describe('E2E: Пагинация (S03 + каталог уровня 3)', () => 
     // Переход в проект 01 через кнопку подуровня
     const projectScreen = await press(tgId, 'Проект 01');
     const projectText = String(projectScreen.screen?.text ?? '');
-    expect(projectText).toContain('Проект: Проект 01');
+    expect(projectText).toContain('Проект 01');
     expect(hasButton(tgId, 'След. проект ▶️')).toBe(true);
     expectEditInPlace(tgId, originMessageId);
 
     // Листание проектов вперед
     const nextProject = await press(tgId, 'След. проект ▶️');
-    expect(String(nextProject.screen?.text ?? '')).toContain(
-      'Проект: Проект 02',
-    );
+    expect(String(nextProject.screen?.text ?? '')).toContain('Проект 02');
     expect(hasButton(tgId, '◀️ Пред. проект')).toBe(true);
     expectEditInPlace(tgId, originMessageId);
 
     // Листание проектов назад
     const prevProject = await press(tgId, '◀️ Пред. проект');
-    expect(String(prevProject.screen?.text ?? '')).toContain(
-      'Проект: Проект 01',
-    );
+    expect(String(prevProject.screen?.text ?? '')).toContain('Проект 01');
     expectEditInPlace(tgId, originMessageId);
 
     // Возврат к модулю
     const backToModule = await press(tgId, 'Назад к модулю');
-    expect(String(backToModule.screen?.text ?? '')).toContain(
-      'Модуль: Длинный модуль',
-    );
+    expect(String(backToModule.screen?.text ?? '')).toContain('Длинный модуль');
     expectEditInPlace(tgId, originMessageId);
   });
 
@@ -322,7 +316,9 @@ describe('E2E: Пагинация (S03 + каталог уровня 3)', () => 
     const seen = new Set<string>();
     for (let i = 0; i < 20; i++) {
       const text = String(screen.screen?.text ?? '');
-      const match = text.match(/Проект:\s*(Проект\s*\d+)/);
+      const match = text.match(
+        /Проект(?:\s+\d+(?:\s+из\s+|\/)\d+)?:\s*(Проект\s*\d+)/,
+      );
       if (match?.[1]) seen.add(match[1]);
 
       if (!hasButton(tgId, 'След. проект ▶️')) break;

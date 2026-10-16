@@ -180,8 +180,8 @@ describe('E2E: Витрина для любопытного', () => {
         }),
       );
       const text = response.screen?.text ?? '';
-      expect(text).toContain('Курс: Основы программирования');
-      expect(text).toContain('Этап: Синтаксис');
+      expect(text).toContain('Курс 1/6: Основы программирования');
+      expect(text).toContain('Этап 1/2: Синтаксис');
       expect(text).toContain('JavaScript Основы');
       const btns =
         response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -208,8 +208,8 @@ describe('E2E: Витрина для любопытного', () => {
         }),
       );
       const text = response.screen?.text ?? '';
-      expect(text).toContain('Этап: Синтаксис');
-      expect(text).toContain('Модуль: JavaScript Основы');
+      expect(text).toContain('Этап 1/2: Синтаксис');
+      expect(text).toContain('Модуль 1/1: JavaScript Основы');
       expect(text).toContain('Введение');
       const btns =
         response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -241,10 +241,10 @@ describe('E2E: Витрина для любопытного', () => {
         }),
       );
       const text = response.screen?.text ?? '';
-      expect(text).toContain('Модуль: JavaScript Основы');
-      expect(text).toContain('Проект: Введение');
+      expect(text).toContain('Модуль 1/1: JavaScript Основы');
+      expect(text).toContain('Проект 1/2: Введение');
+      expect(text).toContain('Уроки проекта:');
       expect(text).toContain('Переменные и типы');
-      expect(text).toContain('Условные операторы');
       const btns =
         response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('Переменные'))).toBe(true);
@@ -280,8 +280,8 @@ describe('E2E: Витрина для любопытного', () => {
         }),
       );
       const text = response.screen?.text ?? '';
-      expect(text).toContain('Проект: Введение');
-      expect(text).toContain('Урок: Переменные и типы');
+      expect(text).toContain('Проект 1/2: Введение');
+      expect(text).toContain('Урок 1/2: Переменные и типы');
       // Тела шагов скрыты — только заголовки уроков и нумерация шагов
       expect(text).not.toContain('```');
       expect(text).not.toContain('function');
@@ -306,32 +306,32 @@ describe('E2E: Витрина для любопытного', () => {
       const l0 = await press('Курсы');
       const text0 = l0.screen?.text ?? '';
       expect(text0).toContain('📖 *Курсы*');
-      expect(text0).toContain('› *Курс: Основы программирования*');
-      expect(text0).toContain('Курс состоит из 2 этапов');
+      expect(text0).toContain('Курс 1/6: Основы программирования');
+      expect(text0).toContain('*Этапы курса:*');
 
       // Уровень 1 (этап)
       const l1 = await press('Синтаксис');
       const text1 = l1.screen?.text ?? '';
-      expect(text1).toContain('› *Этап: Синтаксис*');
-      expect(text1).toContain('Этап состоит из 1 модуля');
+      expect(text1).toContain('Этап 1/2: Синтаксис');
+      expect(text1).toContain('*Модули этапа:*');
 
       // Уровень 2 (модуль)
       const l2 = await press('JavaScript');
       const text2 = l2.screen?.text ?? '';
-      expect(text2).toContain('› *Модуль: JavaScript Основы*');
-      expect(text2).toContain('Модуль состоит из 2 проектов');
+      expect(text2).toContain('Модуль 1/1: JavaScript Основы');
+      expect(text2).toContain('*Проекты модуля:*');
 
       // Уровень 3 (проект)
       const l3 = await press('Введение');
       const text3 = l3.screen?.text ?? '';
-      expect(text3).toContain('› *Проект: Введение*');
-      expect(text3).toContain('Проект состоит из 2 уроков');
+      expect(text3).toContain('Проект 1/2: Введение');
+      expect(text3).toContain('*Уроки проекта:*');
 
       // Уровень 4 (урок)
       const l4 = await press('Переменные');
       const text4 = l4.screen?.text ?? '';
-      expect(text4).toContain('› *Урок: Переменные и типы*');
-      expect(text4).toContain('Урок состоит из');
+      expect(text4).toContain('Урок 1/2: Переменные и типы');
+      expect(text4).toContain('*Шаги урока:*');
     });
 
     test('горизонтальное листание соседей ◀️/▶️ на уровнях каталога (FR-4)', async () => {
@@ -347,33 +347,31 @@ describe('E2E: Витрина для любопытного', () => {
       // Уровень 0: листание курсов вперед и назад
       await press('Курсы');
       const nextCourse = await press('След. курс ▶️');
-      expect(nextCourse.screen?.text).toContain('Курс: Продвинутый JavaScript');
+      expect(nextCourse.screen?.text).toContain('Продвинутый JavaScript');
       const prevCourse = await press('◀️ Пред. курс');
-      expect(prevCourse.screen?.text).toContain(
-        'Курс: Основы программирования',
-      );
+      expect(prevCourse.screen?.text).toContain('Основы программирования');
 
       // Уровень 1: листание этапов
       await press('Синтаксис');
       const nextPhase = await press('След. этап ▶️');
-      expect(nextPhase.screen?.text).toContain('Этап: Алгоритмика');
+      expect(nextPhase.screen?.text).toContain('Алгоритмика');
       const prevPhase = await press('◀️ Пред. этап');
-      expect(prevPhase.screen?.text).toContain('Этап: Синтаксис');
+      expect(prevPhase.screen?.text).toContain('Синтаксис');
 
       // Уровень 3: листание проектов внутри модуля
       await press('JavaScript');
       await press('Введение');
       const nextProject = await press('След. проект ▶️');
-      expect(nextProject.screen?.text).toContain('Проект: Циклы и функции');
+      expect(nextProject.screen?.text).toContain('Циклы и функции');
       const prevProject = await press('◀️ Пред. проект');
-      expect(prevProject.screen?.text).toContain('Проект: Введение');
+      expect(prevProject.screen?.text).toContain('Введение');
 
       // Уровень 4: листание уроков внутри проекта
       await press('Переменные');
       const nextLesson = await press('След. урок ▶️');
-      expect(nextLesson.screen?.text).toContain('Урок: Условные операторы');
+      expect(nextLesson.screen?.text).toContain('Условные операторы');
       const prevLesson = await press('◀️ Пред. урок');
-      expect(prevLesson.screen?.text).toContain('Урок: Переменные и типы');
+      expect(prevLesson.screen?.text).toContain('Переменные и типы');
     });
   });
 
@@ -491,23 +489,23 @@ describe('E2E: Витрина для любопытного', () => {
       await press('JavaScript');
       await press('Введение');
       const l4 = await press('Переменные');
-      expect(l4.screen?.text).toContain('Урок: Переменные');
+      expect(l4.screen?.text).toContain('Переменные');
 
       // Назад: 4 → 3
       const back3 = await press('Назад к проекту');
-      expect(back3.screen?.text).toContain('Проект: Введение');
+      expect(back3.screen?.text).toContain('Введение');
 
       // Назад: 3 → 2
       const back2 = await press('Назад к модулю');
-      expect(back2.screen?.text).toContain('Модуль: JavaScript');
+      expect(back2.screen?.text).toContain('JavaScript');
 
       // Назад: 2 → 1
       const back1 = await press('Назад к этапу');
-      expect(back1.screen?.text).toContain('Этап: Синтаксис');
+      expect(back1.screen?.text).toContain('Синтаксис');
 
       // Назад: 1 → 0
       const back0 = await press('Назад к курсу');
-      expect(back0.screen?.text).toContain('Курс: Основы программирования');
+      expect(back0.screen?.text).toContain('Основы программирования');
 
       // Назад: 0 → главное меню
       const menu = await press('Главное меню');
@@ -529,7 +527,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(l1.screen?.text).toContain('Синтаксис');
 
       const back0 = await press('Назад к курсу');
-      expect(back0.screen?.text).toContain('Курс: Основы программирования');
+      expect(back0.screen?.text).toContain('Основы программирования');
 
       // Другой путь: этап «Алгоритмика» того же курса
       const algoResp = await press('Алгоритмика');

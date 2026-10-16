@@ -10,16 +10,23 @@ import { Routes } from '../../shared/routes';
 import { ReviewsForMeStory } from './reviews-for-me.story';
 
 /**
- * S08 — «Отзывы мне»: все отзывы адресату, новые наверху (порядок даёт
- * UC list-my-reviews), пагинация целыми отзывами.
+ * S08 — «Отзывы мне»: карточный просмотр отзывов адресату, новые наверху
+ * (порядок даёт UC list-my-reviews), ровно один отзыв на экран с листанием
+ * ◀️ Пред. / След. ▶️ и индикатором 1/N.
  *
- * Формат блока:
- *   👤 {автор} ({роль} · {исход} · {дата}):
- *   «{текст}»
+ * Формат карточки:
+ *   👤 От: {автор} ({роль} · {исход})
+ *   📚 Поток: {название потока}
+ *   📅 Дата: {ДД.ММ.ГГГГ}
+ *
+ *   💬 «{текст}»
+ *
  * Лейбл исхода — только у автора-студента; автор-ментор — без лейбла.
  */
 
 const READER = '22222222-2222-4222-8222-222222222222';
+const STREAM_1 = '11111111-1111-4111-8111-111111111111';
+const STREAM_2 = '55555555-5555-4555-8555-555555555555';
 const AUTHOR_1 = '33333333-3333-4333-8333-333333333333';
 const AUTHOR_2 = '34444444-4444-4444-8444-444444444444';
 
@@ -37,6 +44,7 @@ const actor: User = {
 /** Снимок отзыва — как отдаёт list-my-reviews (новые наверху). */
 interface Snapshot {
   reviewId: string;
+  scopeId: string;
   authorId: string;
   direction: 'student_student' | 'student_mentor' | 'mentor_student';
   authorOutcome?:
@@ -48,15 +56,13 @@ interface Snapshot {
   createdAt: string;
 }
 
-/** Длинный текст отзыва (n — номер, чтобы блоки различались). */
-function longText(n: number, pad = 700): string {
-  return `Отзыв номер ${n}. ${'б'.repeat(pad)}`;
-}
-
-/** appApi-мок: list-my-reviews + get-users-by-ids. */
-function makeAppApi(reviews: Snapshot[], opts: { emptyNames?: boolean } = {}) {
+/** appApi-мок: list-my-reviews + get-users-by-ids + get-stream. */
+function makeAppApi(
+  reviews: Snapshot[],
+  opts: { emptyNames?: boolean; streamFails?: boolean } = {},
+) {
   return {
-    execute: mock(async (ucName: string) => {
+    execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
       switch (ucName) {
         case 'list-my-reviews':
           return { reviews };
@@ -66,6 +72,12 @@ function makeAppApi(reviews: Snapshot[], opts: { emptyNames?: boolean } = {}) {
             { uuid: AUTHOR_1, name: 'Анна' },
             { uuid: AUTHOR_2, name: 'Глеб' },
           ];
+        case 'get-stream':
+          if (opts.streamFails) throw new Error('Поток не найден');
+          if (attrs.streamId === STREAM_2) {
+            return { uuid: STREAM_2, title: 'JS Advanced — Поток 2' };
+          }
+          return { uuid: STREAM_1, title: 'JS Core — Поток 1' };
         default:
           throw new Error(`неизвестный UC: ${ucName}`);
       }
@@ -73,7 +85,10 @@ function makeAppApi(reviews: Snapshot[], opts: { emptyNames?: boolean } = {}) {
   };
 }
 
-function makeStory(reviews: Snapshot[], opts?: { emptyNames?: boolean }) {
+function makeStory(
+  reviews: Snapshot[],
+  opts?: { emptyNames?: boolean; streamFails?: boolean },
+) {
   const appApi = makeAppApi(reviews, opts);
   const story = new ReviewsForMeStory();
   story.init({ appApi } as never);
@@ -89,22 +104,24 @@ function findBtn(r: DialogResponse, needle: string) {
 }
 
 /** Отзывы, как их отдаёт UC: новые наверху. */
-function manyReviews(n: number, textPad = 700): Snapshot[] {
+function manyReviews(n: number): Snapshot[] {
   return Array.from({ length: n }, (_, i) => ({
     reviewId: `11111111-0000-0000-0000-${String(i).padStart(12, '0')}`,
+    scopeId: i % 2 === 0 ? STREAM_1 : STREAM_2,
     authorId: i % 2 === 0 ? AUTHOR_1 : AUTHOR_2,
     direction: 'student_student' as const,
     authorOutcome: 'completed_passed' as const,
-    text: longText(i + 1, textPad),
+    text: `Отзыв номер ${i + 1}`,
     createdAt: `2026-09-2${9 - (i % 10)}T10:00`,
   }));
 }
 
-describe('ReviewsForMeStory — формат экрана S08', () => {
-  test('блок: автор + роль + исход + дата, текст ниже; вызов UC с userId актора', async () => {
+describe('ReviewsForMeStory — формат карточки S08', () => {
+  test('карточка: автор + роль + исход + поток + дата, текст ниже; вызов UC с userId актора', async () => {
     const reviews: Snapshot[] = [
       {
         reviewId: '11111111-0000-0000-0000-000000000001',
+        scopeId: STREAM_1,
         authorId: AUTHOR_1,
         direction: 'student_student',
         authorOutcome: 'completed_passed',
@@ -118,15 +135,13 @@ describe('ReviewsForMeStory — формат экрана S08', () => {
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text ?? '');
 
+    // Ровно один отзыв — шапка без индикатора 1/1
     expect(text).toContain('📥 *Отзывы мне*');
-    expect(text).toContain('Все отзывы, которые оставили тебе');
-    expect(text).toContain('1 отзыв от участников');
-    expect(text).toContain(
-      '👤 Анна \\(студент · завершил и прошел · 21\\.09\\.2026\\):',
-    );
-    expect(text).toContain('«Отличный товарищ по команде»');
-    // один отзыв — без линии-разделителя
-    expect(text).not.toContain('──────────────');
+    expect(text).not.toContain('· 1/1');
+    expect(text).toContain('👤 От: Анна \\(студент · завершил и прошел\\)');
+    expect(text).toContain('📚 Поток: JS Core — Поток 1');
+    expect(text).toContain('📅 Дата: 21\\.09\\.2026');
+    expect(text).toContain('💬 «Отличный товарищ по команде»');
 
     expect(appApi.execute).toHaveBeenCalledWith(
       'list-my-reviews',
@@ -139,6 +154,7 @@ describe('ReviewsForMeStory — формат экрана S08', () => {
     const reviews: Snapshot[] = [
       {
         reviewId: '11111111-0000-0000-0000-000000000002',
+        scopeId: STREAM_1,
         authorId: AUTHOR_2,
         direction: 'mentor_student',
         text: 'Глубоко разбирается в коде',
@@ -150,43 +166,15 @@ describe('ReviewsForMeStory — формат экрана S08', () => {
     const response = await story.handleCallback('view', actor, session);
     const text = String(response.screen?.text ?? '');
 
-    expect(text).toContain('👤 Глеб \\(ментор · 20\\.09\\.2026\\):');
-    expect(text).toContain('«Глубоко разбирается в коде»');
-  });
-
-  test('порядок — как отдал UC: новые наверху (стории не пересортировывает)', async () => {
-    const reviews: Snapshot[] = [
-      {
-        reviewId: '11111111-0000-0000-0000-000000000003',
-        authorId: AUTHOR_1,
-        direction: 'student_student',
-        text: 'Свежий отзыв',
-        createdAt: '2026-09-22T09:00',
-      },
-      {
-        reviewId: '11111111-0000-0000-0000-000000000004',
-        authorId: AUTHOR_2,
-        direction: 'student_student',
-        text: 'Старый отзыв',
-        createdAt: '2026-09-18T09:00',
-      },
-    ];
-    const { story } = makeStory(reviews);
-
-    const response = await story.handleCallback('view', actor, session);
-    const text = String(response.screen?.text ?? '');
-
-    expect(text.indexOf('Свежий отзыв')).toBeLessThan(
-      text.indexOf('Старый отзыв'),
-    );
-    // несколько отзывов — карточки разделены линией (как в хабе S02)
-    expect(text).toContain('──────────────');
+    expect(text).toContain('👤 От: Глеб \\(ментор\\)');
+    expect(text).toContain('💬 «Глубоко разбирается в коде»');
   });
 
   test('имена авторов — один batch-запрос с уникальными id', async () => {
     const reviews: Snapshot[] = [
       {
         reviewId: '11111111-0000-0000-0000-000000000005',
+        scopeId: STREAM_1,
         authorId: AUTHOR_1,
         direction: 'student_student',
         text: 'текст один',
@@ -194,6 +182,7 @@ describe('ReviewsForMeStory — формат экрана S08', () => {
       },
       {
         reviewId: '11111111-0000-0000-0000-000000000006',
+        scopeId: STREAM_1,
         authorId: AUTHOR_1,
         direction: 'student_student',
         text: 'текст два',
@@ -201,6 +190,7 @@ describe('ReviewsForMeStory — формат экрана S08', () => {
       },
       {
         reviewId: '11111111-0000-0000-0000-000000000007',
+        scopeId: STREAM_1,
         authorId: AUTHOR_2,
         direction: 'student_student',
         text: 'текст три',
@@ -225,6 +215,7 @@ describe('ReviewsForMeStory — формат экрана S08', () => {
       [
         {
           reviewId: '11111111-0000-0000-0000-000000000008',
+          scopeId: STREAM_1,
           authorId: AUTHOR_1,
           direction: 'student_student',
           authorOutcome: 'dropped',
@@ -238,13 +229,33 @@ describe('ReviewsForMeStory — формат экрана S08', () => {
     const response = await story.handleCallback('view', actor, session);
     const text = String(response.screen?.text ?? '');
 
-    expect(text).toContain(
-      '👤 неизвестно \\(студент · забросил · 21\\.09\\.2026\\):',
+    expect(text).toContain('👤 От: неизвестно \\(студент · забросил\\)');
+  });
+
+  test('поток не найден — запасная «неизвестно»', async () => {
+    const { story } = makeStory(
+      [
+        {
+          reviewId: '11111111-0000-0000-0000-000000000009',
+          scopeId: STREAM_1,
+          authorId: AUTHOR_1,
+          direction: 'student_student',
+          authorOutcome: 'completed_passed',
+          text: 'текст отзыва',
+          createdAt: '2026-09-21T10:00',
+        },
+      ],
+      { streamFails: true },
     );
+
+    const response = await story.handleCallback('view', actor, session);
+    const text = String(response.screen?.text ?? '');
+
+    expect(text).toContain('📚 Поток: неизвестно');
   });
 
   test('кнопки: «↩️ Мои отзывы» в хаб S02, главное меню последним рядом', async () => {
-    const { story } = makeStory(manyReviews(1, 50));
+    const { story } = makeStory(manyReviews(1));
 
     const response = await story.handleCallback('view', actor, session);
 
@@ -266,7 +277,7 @@ describe('ReviewsForMeStory — формат экрана S08', () => {
   });
 
   test('неизвестная команда — экран unknownCommand', async () => {
-    const { story } = makeStory(manyReviews(1, 50));
+    const { story } = makeStory(manyReviews(1));
 
     const response = await story.handleCallback('wat', actor, session);
     const text = String(response.screen?.text ?? '');
@@ -275,56 +286,77 @@ describe('ReviewsForMeStory — формат экрана S08', () => {
   });
 });
 
-describe('ReviewsForMeStory — пагинация (BotPaginator + DialogCache)', () => {
-  test('длинные отзывы: ≥3 страницы из целых отзывов, полный цикл листания', async () => {
-    const reviews = manyReviews(16);
+describe('ReviewsForMeStory — карточная пагинация (◀️ Пред. / След. ▶️ и 1/N)', () => {
+  test('один отзыв — без индикатора и без кнопок навигации', async () => {
+    const { story } = makeStory(manyReviews(1));
+
+    const response = await story.handleCallback('view', actor, session);
+    const text = String(response.screen?.text ?? '');
+
+    expect(text).not.toContain('· 1/');
+    expect(findBtn(response, 'След. ▶️')).toBeNull();
+    expect(findBtn(response, '◀️ Пред.')).toBeNull();
+  });
+
+  test('два отзыва: карточки с 1/2 и 2/2, кнопки След. ▶️ и ◀️ Пред., новые наверху', async () => {
+    const reviews: Snapshot[] = [
+      {
+        reviewId: '11111111-0000-0000-0000-000000000001',
+        scopeId: STREAM_1,
+        authorId: AUTHOR_1,
+        direction: 'student_student',
+        text: 'Свежий отзыв',
+        createdAt: '2026-09-22T09:00',
+      },
+      {
+        reviewId: '11111111-0000-0000-0000-000000000002',
+        scopeId: STREAM_2,
+        authorId: AUTHOR_2,
+        direction: 'student_student',
+        text: 'Старый отзыв',
+        createdAt: '2026-09-18T09:00',
+      },
+    ];
     const { story } = makeStory(reviews);
 
-    const pageTexts: string[] = [];
-    let response = await story.handleCallback('view', actor, session);
-    assertDialogResponseMarkdownSafe(response);
-    pageTexts.push(String(response.screen?.text ?? ''));
+    // Первая карточка
+    const p1 = await story.handleCallback('view', actor, session);
+    assertDialogResponseMarkdownSafe(p1);
+    const t1 = String(p1.screen?.text ?? '');
 
-    for (let i = 0; i < 12; i++) {
-      const next = findBtn(response, 'След ›');
-      if (!next) break;
-      response = await story.handleCallback(
-        `view:${next.code.split(':').pop()}`,
-        actor,
-        session,
-      );
-      assertDialogResponseMarkdownSafe(response);
-      pageTexts.push(String(response.screen?.text ?? ''));
-    }
+    expect(t1).toContain('📥 *Отзывы мне* · 1/2');
+    expect(t1).toContain('Свежий отзыв');
+    expect(t1).not.toContain('Старый отзыв');
+    expect(findBtn(p1, '◀️ Пред.')).toBeNull();
+    const nextBtn = findBtn(p1, 'След. ▶️');
+    expect(nextBtn).toBeDefined();
 
-    expect(pageTexts.length).toBeGreaterThanOrEqual(3);
+    // Переход на вторую карточку
+    const p2 = await story.handleCallback(
+      nextBtn!.code.split(':').slice(1).join(':'),
+      actor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(p2);
+    const t2 = String(p2.screen?.text ?? '');
 
-    // Шапка и индикатор на каждой странице
-    const total = pageTexts.length;
-    for (let i = 0; i < total; i++) {
-      expect(pageTexts[i]).toContain('Отзывы мне');
-      expect(pageTexts[i]).toContain(`Стр\\. ${i + 1}/${total}`);
-    }
-
-    // Все 16 отзывов на местах, без потерь и дублей
-    for (let i = 1; i <= 16; i++) {
-      expect(pageTexts.join('\n').split(`Отзыв номер ${i}\\.`).length).toBe(2);
-    }
+    expect(t2).toContain('📥 *Отзывы мне* · 2/2');
+    expect(t2).toContain('Старый отзыв');
+    expect(t2).not.toContain('Свежий отзыв');
+    expect(findBtn(p2, 'След. ▶️')).toBeNull();
+    expect(findBtn(p2, '◀️ Пред.')).toBeDefined();
   });
 
   test('листание не перечитывает домен: list-my-reviews один раз (кеш)', async () => {
-    const { story, appApi } = makeStory(manyReviews(16));
+    const { story, appApi } = makeStory(manyReviews(3));
 
-    let response = await story.handleCallback('view', actor, session);
-    for (let i = 0; i < 3; i++) {
-      const next = findBtn(response, 'След ›');
-      if (!next) break;
-      response = await story.handleCallback(
-        `view:${next.code.split(':').pop()}`,
-        actor,
-        session,
-      );
-    }
+    const p0 = await story.handleCallback('view', actor, session);
+    const next = findBtn(p0, 'След. ▶️')!;
+    await story.handleCallback(
+      next.code.split(':').slice(1).join(':'),
+      actor,
+      session,
+    );
 
     const reads = (
       appApi.execute.mock.calls as unknown as Array<[string]>
@@ -332,24 +364,14 @@ describe('ReviewsForMeStory — пагинация (BotPaginator + DialogCache)'
     expect(reads).toHaveLength(1);
   });
 
-  test('одна страница коротких отзывов — без индикатора и навигации', async () => {
-    const { story } = makeStory(manyReviews(2, 50));
-
-    const response = await story.handleCallback('view', actor, session);
-    const text = String(response.screen?.text ?? '');
-
-    expect(text).not.toContain('Стр\\.');
-    expect(findBtn(response, 'След ›')).toBeNull();
-    expect(findBtn(response, '‹ Пред')).toBeNull();
-  });
-
-  test('запрос страницы за пределами — clamp к последней', async () => {
-    const { story } = makeStory(manyReviews(8));
+  test('запрос страницы за пределами — clamp к границам', async () => {
+    const { story } = makeStory(manyReviews(3));
 
     const response = await story.handleCallback('view:99', actor, session);
     const text = String(response.screen?.text ?? '');
 
-    expect(text).toContain('Стр\\. 2/2');
-    expect(findBtn(response, 'След ›')).toBeNull();
+    expect(text).toContain('📥 *Отзывы мне* · 3/3');
+    expect(findBtn(response, 'След. ▶️')).toBeNull();
+    expect(findBtn(response, '◀️ Пред.')).toBeDefined();
   });
 });

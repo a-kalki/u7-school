@@ -223,9 +223,42 @@ class StringUtility {
     return result;
   }
 
+  /**
+   * Обрезает текст по границе последнего слова перед лимитом с добавлением многоточия.
+   * Убирает висячие союзы и предлоги перед многоточием.
+   *
+   * @param text - исходный текст
+   * @param maxLength - максимальная длина строки вместе с многоточием
+   * @returns обрезанная строка с '...' или исходный текст
+   */
+  truncateByWords(text: string, maxLength: number): string {
+    return truncateByWords(text, maxLength);
+  }
+
   private static isTitle(char: string): boolean {
     return char >= 'A' && char <= 'Z';
   }
+}
+
+/**
+ * Обрезает текст по границе последнего слова перед лимитом с добавлением многоточия.
+ * Убирает висячие предлоги и союзы перед многоточием.
+ *
+ * @param text - исходный текст
+ * @param maxLength - максимальная допустимая длина результирующей строки (включая многоточие)
+ */
+export function truncateByWords(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  const budget = Math.max(5, maxLength - 3); // 3 символа под '...'
+  const sliced = text.slice(0, budget);
+  const lastSpace = sliced.lastIndexOf(' ');
+  let cut = lastSpace > 10 ? sliced.slice(0, lastSpace) : sliced;
+  // Убираем висячие союзы и предлоги перед многоточием (например " и...", " для...")
+  cut = cut.replace(
+    /\s+(?:и|или|в|во|с|со|к|ко|о|об|на|по|за|из|от|под|над|для|a|an|the|and|or|in|on|at|to|for|of|with)$/iu,
+    '',
+  );
+  return `${cut.trimEnd()}...`;
 }
 
 export const stringUtility = Object.freeze(new StringUtility());

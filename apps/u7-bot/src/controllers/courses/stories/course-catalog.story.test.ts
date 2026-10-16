@@ -171,7 +171,7 @@ describe('CourseCatalogStory', () => {
     expect(text).toContain('JS Basics');
     expect(text).toContain('Синтаксис');
     expect(text).toContain('Практика');
-    expect(text).toContain('Модуль');
+    expect(text).toContain('модул');
     // Описание НЕ показывается
     expect(text).not.toContain('Описание курса');
 
@@ -265,10 +265,9 @@ describe('CourseCatalogStory', () => {
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text ?? '');
 
-    expect(text).toContain('Курс: Fullstack JS');
-    expect(text).toContain('Этап: Синтаксис');
+    expect(text).toContain('Курс 1/1: Fullstack JS');
+    expect(text).toContain('Этап 1/2: Синтаксис');
     expect(text).toContain('Переменные');
-    expect(text).toContain('Введение');
 
     // Кнопки-модули
     const rows = response.screen?.keyboard?.rows ?? [];
@@ -334,16 +333,15 @@ describe('CourseCatalogStory', () => {
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text ?? '');
 
-    expect(text).toContain('Этап: Синтаксис');
-    expect(text).toContain('Модуль: Модуль A');
+    expect(text).toContain('Этап 1/1: Синтаксис');
+    expect(text).toContain('Модуль 1/1: Модуль A');
     expect(text).toContain('Проект 1');
-    expect(text).toContain('Урок 1');
 
     // Кнопки-проекты
     const rows = response.screen?.keyboard?.rows ?? [];
     const projBtn = rows.find((r) => r[0]?.text?.includes('Проект 1'));
     expect(projBtn).toBeDefined();
-    expect(projBtn![0]!.code).toBe(`course-catalog:project:m-a:pa`);
+    expect(projBtn![0]!.code).toBe(`course-catalog:prj:${courseUuid}:m-a:pa`);
 
     // Кнопка «Назад к этапу»
     expect(rows.some((r) => r[0]?.text?.includes('Назад к этапу'))).toBe(true);
@@ -410,18 +408,18 @@ describe('CourseCatalogStory', () => {
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text ?? '');
 
-    expect(text).toContain('Модуль: Модуль X');
-    expect(text).toContain('Проект: ToDo App');
+    expect(text).toContain('Модуль 1/1: Модуль X');
+    expect(text).toContain('Проект 1/1: ToDo App');
     expect(text).toContain('HTML разметка');
-    expect(text).toContain('Структура DOM');
     expect(text).toContain('CSS стили');
-    expect(text).toContain('Селекторы');
 
     // Кнопки-уроки
     const rows = response.screen?.keyboard?.rows ?? [];
     const lessonBtn = rows.find((r) => r[0]?.text?.includes('HTML разметка'));
     expect(lessonBtn).toBeDefined();
-    expect(lessonBtn![0]!.code).toBe(`course-catalog:lesson:m-x:proj-1:les-a`);
+    expect(lessonBtn![0]!.code).toBe(
+      `course-catalog:les:${courseUuid}:proj-1:les-a`,
+    );
 
     // Кнопка «Назад к модулю»
     expect(rows.some((r) => r[0]?.text?.includes('Назад к модулю'))).toBe(true);
@@ -485,8 +483,8 @@ describe('CourseCatalogStory', () => {
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text ?? '');
 
-    expect(text).toContain('Проект: App');
-    expect(text).toContain('Урок: Урок 1');
+    expect(text).toContain('Проект 1/1: App');
+    expect(text).toContain('Урок 1/1: Урок 1');
     expect(text).toContain('Что такое переменные');
     expect(text).toContain('Типы данных');
 
@@ -1272,6 +1270,101 @@ describe('CourseCatalogStory', () => {
       const prevPhaseBtn = btns1.find((b) => b.text.includes('Пред. этап'));
       expect(prevPhaseBtn).toBeDefined();
       expect(prevPhaseBtn?.code).toBe('course-catalog:phase:c-1:0');
+    });
+
+    test('drill-down сохраняет контекст курса, если модуль входит в несколько курсов', async () => {
+      const sharedModId = 'shared-mod';
+      const courses = [
+        {
+          uuid: 'course-first',
+          title: 'Основы программирования',
+          description: 'Первый курс',
+          authorId: 'a',
+          phases: [{ title: 'Этап 1', moduleIds: [sharedModId] }],
+          status: 'published',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+        {
+          uuid: 'course-second',
+          title: 'Тест курс (v2)',
+          description: 'Второй курс',
+          authorId: 'a',
+          phases: [{ title: 'Этап 1', moduleIds: [sharedModId] }],
+          status: 'published',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ];
+      const appApi = makeAppApi(
+        courses,
+        {
+          [sharedModId]: {
+            uuid: sharedModId,
+            title: 'Общий модуль',
+            description: '...',
+            projects: [],
+          },
+        },
+        {
+          [sharedModId]: [
+            {
+              projectId: 'proj-1',
+              projectTitle: 'Тестовый проект',
+              lessons: [
+                {
+                  lessonId: 'les-1',
+                  lessonTitle: 'Тестовый урок',
+                  stepIds: ['s1'],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          'les-1': [{ uuid: 's1', description: 'Шаг 1' }],
+        },
+      );
+
+      const story = new CourseCatalogStory();
+      initStory(story, appApi);
+
+      // 1. Заходим в проект второго курса по новому адресу prj:courseId:modId:projId
+      const projResp = await story.handleCallback(
+        `prj:course-second:${sharedModId}:proj-1`,
+        actor,
+        session,
+      );
+      assertDialogResponseMarkdownSafe(projResp);
+      const projText = String(projResp.screen?.text ?? '');
+      // Должен быть именно второй курс «Тест курс (v2)», а не первый!
+      expect(projText).toContain('Тест курс');
+      expect(projText).not.toContain('Основы программирования');
+
+      // Кнопка «Назад к модулю» должна вести во второй курс
+      const projBtns = projResp.screen?.keyboard?.rows.flat() ?? [];
+      const backToModBtn = projBtns.find((b) =>
+        b.text.includes('Назад к модулю'),
+      );
+      expect(backToModBtn).toBeDefined();
+      expect(backToModBtn?.code).toContain('course-second');
+
+      // 2. Переходим в урок второго курса
+      const lesResp = await story.handleCallback(
+        `les:course-second:proj-1:les-1`,
+        actor,
+        session,
+      );
+      assertDialogResponseMarkdownSafe(lesResp);
+      const lesText = String(lesResp.screen?.text ?? '');
+      expect(lesText).toContain('Тест курс');
+      expect(lesText).not.toContain('Основы программирования');
+
+      // Кнопка «Назад к проекту» должна содержать course-second
+      const lesBtns = lesResp.screen?.keyboard?.rows.flat() ?? [];
+      const backToProjBtn = lesBtns.find((b) =>
+        b.text.includes('Назад к проекту'),
+      );
+      expect(backToProjBtn).toBeDefined();
+      expect(backToProjBtn?.code).toContain('course-second');
     });
   });
 });
