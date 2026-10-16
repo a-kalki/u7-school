@@ -11,12 +11,12 @@
     - [x] [Red] Написать тесты на совместимость типов и контрактов в `packages/core/src/ui/bot/types.test.ts`.
     - [x] [Green] Объявить `MessengerEvent` (joined, left, bot_membership), `MessengerEventReaction` ('pass' | 'stop'), `MessengerAction` (kick_member, etc.) и расширить `ProactiveSender` методом `execute(action: MessengerAction): Promise<void>`.
     - [x] Пометить метод `kickFromGroup` как `@deprecated`.
-- [ ] Task: Поддержка `handleMessengerEvent` (цепочка stop/pass, гост-регистрация) и `execute` в `BotController` и `BotUiApp` [TDD]
-    - [ ] [Red] Тест в `ui-app.test.ts`: при вызове `uiApp.handleMessengerEvent(event)` с объектом участника автоматически вызывается `ensureRegisteredGuest`.
-    - [ ] [Red] Тест в `ui-app.test.ts`: вызов `uiApp.handleMessengerEvent(event)` последовательно опрашивает контроллеры и прерывается при ответе `'stop'`.
-    - [ ] [Green] Реализовать централизованную регистрацию гостя и цепочку диспетчеризации в `U7BotUiApp` / `BotUiApp`.
-    - [ ] [Green] Опциональный хук `handleMessengerEvent?(event): Promise<MessengerEventReaction | void>` в `BotController`.
-    - [ ] [Red/Green] Делегирование `execute(action)` из `BotController` в `proactiveSender.execute(action)`.
+- [x] Task: Поддержка `handleMessengerEvent` (цепочка stop/pass, гост-регистрация) и `execute` в `BotController` и `BotUiApp` [TDD] [0c68cc4]
+    - [x] [Red] Тест в `ui-app.test.ts`: при вызове `uiApp.handleMessengerEvent(event)` с объектом участника автоматически вызывается `ensureRegisteredGuest`.
+    - [x] [Red] Тест в `ui-app.test.ts`: вызов `uiApp.handleMessengerEvent(event)` последовательно опрашивает контроллеры и прерывается при ответе `'stop'`.
+    - [x] [Green] Реализовать централизованную регистрацию гостя и цепочку диспетчеризации в `U7BotUiApp` / `BotUiApp`.
+    - [x] [Green] Опциональный хук `handleMessengerEvent?(event): Promise<MessengerEventReaction | undefined>` в `BotController`.
+    - [x] [Red/Green] Делегирование `execute(action)` из `BotController` в `proactiveSender.execute(action)`.
 
 ---
 
