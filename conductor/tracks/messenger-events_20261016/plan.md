@@ -82,9 +82,9 @@
 - [x] Task: Перевести стори и тесты на `execute` вместо `kickFromGroup` [f774378]
     - [x] Обновить `apps/u7-bot/src/controllers/streams/stories/inactivity.story.ts`: вызов `this.proactiveSender.execute({ kind: 'kick_member', ... })`.
     - [x] Обновить тестовые хелперы `TestBotTransport`.
-- [ ] Task: Удалить процедурный `group-handler.ts` и `group-handler.test.ts`
-    - [ ] Убрать вызов `registerGroupHandlers` из `apps/u7-bot/src/main.ts`.
-    - [ ] Удалить файлы `apps/u7-bot/src/handlers/group-handler.ts` и `group-handler.test.ts`.
+- [x] Task: Удалить процедурный `group-handler.ts` и `group-handler.test.ts` [6e45b93]
+    - [x] Убрать вызов `registerGroupHandlers` из `apps/u7-bot/src/main.ts`.
+    - [x] Удалить файлы `apps/u7-bot/src/handlers/group-handler.ts` и `group-handler.test.ts`.
 - [ ] Task: Актуализировать e2e-тесты
     - [ ] Перевести `apps/u7-bot/tests/e2e/inactivity.e2e.test.ts` на эмуляцию через `uiApp.handleMessengerEvent`.
     - [ ] Убедиться, что тест `inactivity.e2e.test.ts` полностью зелёный.
