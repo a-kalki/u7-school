@@ -22,13 +22,13 @@
 
 ## Фаза 2: Domain — Права роли SUBSCRIBER в UserPolicy (закрытие TODO.md)
 
-- [ ] Task: Разрешить управление ролью `SUBSCRIBER` администратору [TDD]
-    - [ ] [Red] Тесты в `packages/user/src/domain/user/policy.test.ts`:
+- [x] Task: Разрешить управление ролью `SUBSCRIBER` администратору [TDD] [1a2fbc2]
+    - [x] [Red] Тесты в `packages/user/src/domain/user/policy.test.ts`:
         - `UserPolicy.canAddRole(targetUser, Role.SUBSCRIBER, adminActor)` возвращает `true`;
         - `UserPolicy.canRemoveRole(targetUser, Role.SUBSCRIBER, adminActor)` возвращает `true`.
         - Не-админ не может добавлять/снимать `SUBSCRIBER` (возвращает `false`).
-    - [ ] [Green] Добавить правило в `UserPolicy.canAddRole` и `UserPolicy.canRemoveRole`.
-    - [ ] Удалить пункт о неработающей роли `SUBSCRIBER` из `TODO.md`.
+    - [x] [Green] Добавить правило в `UserPolicy.canAddRole` и `UserPolicy.canRemoveRole`.
+    - [x] Удалить пункт о неработающей роли `SUBSCRIBER` из `TODO.md`.
 
 ---
 
