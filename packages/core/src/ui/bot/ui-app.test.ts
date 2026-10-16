@@ -10,6 +10,10 @@ import type {
   CommandUpdate,
   DialogResponse,
   DialogState,
+  MessengerAction,
+  MessengerEvent,
+  MessengerEventReaction,
+  ProactiveSender,
 } from './types';
 import { BotUiApp } from './ui-app';
 
@@ -622,11 +626,108 @@ describe('BotUiApp — инварианты: операция входа', () =>
   });
 });
 
+describe('BotUiApp — handleMessengerEvent и execute', () => {
+  test('handleMessengerEvent последовательно опрашивает контроллеры и останавливается на stop', async () => {
+    const calls: string[] = [];
+    class Ctrl1 extends BotController {
+      readonly name = 'ctrl1';
+      protected readonly stories = [];
+      override async handleMessengerEvent(
+        event: MessengerEvent,
+      ): Promise<MessengerEventReaction> {
+        calls.push(`ctrl1:${event.kind}`);
+        return 'pass';
+      }
+    }
+    class Ctrl2 extends BotController {
+      readonly name = 'ctrl2';
+      protected readonly stories = [];
+      override async handleMessengerEvent(
+        event: MessengerEvent,
+      ): Promise<MessengerEventReaction> {
+        calls.push(`ctrl2:${event.kind}`);
+        return 'stop';
+      }
+    }
+    class Ctrl3 extends BotController {
+      readonly name = 'ctrl3';
+      protected readonly stories = [];
+      override async handleMessengerEvent(
+        event: MessengerEvent,
+      ): Promise<MessengerEventReaction> {
+        calls.push(`ctrl3:${event.kind}`);
+        return 'pass';
+      }
+    }
+
+    const c1 = new Ctrl1();
+    const c2 = new Ctrl2();
+    const c3 = new Ctrl3();
+    const app = new TestUiApp([c1, c2, c3]);
+    app.init({
+      appApi: {} as never,
+      eventBus: {} as never,
+      actorResolver: async () => makeActor(),
+    });
+
+    const event: MessengerEvent = {
+      kind: 'member_joined',
+      chatId: '-1001',
+      user: { id: 10, firstName: 'A' },
+    };
+
+    await app.handleMessengerEvent(event);
+
+    expect(calls).toEqual(['ctrl1:member_joined', 'ctrl2:member_joined']);
+  });
+
+  test('BotUiApp.execute делегирует действие в transport.execute', async () => {
+    const executed: MessengerAction[] = [];
+    const mockTransport: ProactiveSender = {
+      async notify() {},
+      async invite() {},
+      async kickFromGroup() {},
+      async execute(action) {
+        executed.push(action);
+      },
+    };
+
+    const ctrl = makeController('test');
+    const app = new TestUiApp([ctrl]);
+    app.init(
+      {
+        appApi: {} as never,
+        eventBus: {} as never,
+        actorResolver: async () => makeActor(),
+      },
+      mockTransport,
+    );
+
+    const action: MessengerAction = {
+      kind: 'kick_member',
+      chatId: '-100',
+      userId: 55,
+    };
+
+    await app.execute(action);
+    expect(executed).toEqual([action]);
+
+    // Проверяем, что BotController.execute делегирует в ProactiveSender (родителя app)
+    await ctrl.execute(action);
+    expect(executed).toEqual([action, action]);
+  });
+});
+
 describe('BotUiApp — init-каскад', () => {
   test('init передаёт resolve и transport, getController сужен до BotController', async () => {
     const ctrl = makeController('a');
     const uiApp = new TestUiApp([ctrl]);
-    const sender = { notify: mock(), invite: mock(), kickFromGroup: mock() };
+    const sender = {
+      notify: mock(),
+      invite: mock(),
+      kickFromGroup: mock(),
+      execute: mock(),
+    };
     uiApp.init(
       {
         appApi: {} as never,

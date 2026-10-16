@@ -10,6 +10,8 @@ import type {
   CommandUpdate,
   DialogResponse,
   KeyboardDescription,
+  MessengerAction,
+  MessengerEvent,
   NotificationPayload,
   ProactiveSender,
 } from './types';
@@ -70,6 +72,19 @@ export abstract class BotUiApp<
   }
 
   // ── Pipe команд (ФР-4) ──
+
+  /**
+   * Диспетчеризация входящих событий мессенджера по цепочке контроллеров (Chain of Responsibility).
+   * Опрашивает зарегистрированные контроллеры до первого ответа 'stop'.
+   */
+  async handleMessengerEvent(event: MessengerEvent): Promise<void> {
+    for (const controller of this.controllers.values()) {
+      const reaction = await controller.handleMessengerEvent?.(event);
+      if (reaction === 'stop') {
+        break;
+      }
+    }
+  }
 
   /**
    * Обработка команды, делегирует сторис.
@@ -161,6 +176,11 @@ export abstract class BotUiApp<
   }
 
   // ── ProactiveSender ──
+
+  /** Исполнение инициативной команды управления мессенджером — делегирует в transport */
+  async execute(action: MessengerAction): Promise<void> {
+    await this.transport.execute(action);
+  }
 
   /** Проактивное уведомление — делегирует в transport */
   async notify(

@@ -17,6 +17,9 @@ import type {
   CommandUpdate,
   DialogResponse,
   KeyboardDescription,
+  MessengerAction,
+  MessengerEvent,
+  MessengerEventReaction,
   NotificationPayload,
   ProactiveSender,
 } from './types';
@@ -90,6 +93,11 @@ export abstract class BotController<
     await this.proactiveSender.invite(telegramId, payload);
   }
 
+  /** Исполнение инициативных команд управления мессенджером — делегирует родителю */
+  async execute(action: MessengerAction): Promise<void> {
+    await this.proactiveSender.execute(action);
+  }
+
   /** Проактивный кик из группы — делегирует родителю без изменений */
   async kickFromGroup(groupId: number | string, userId: number): Promise<void> {
     await this.proactiveSender.kickFromGroup(groupId, userId);
@@ -117,6 +125,15 @@ export abstract class BotController<
   }
 
   // ── Обработчики ──
+
+  /**
+   * Обработка событий чатов и групп мессенджера (членство, служебные).
+   * Возвращает 'stop', чтобы прекратить дальнейшую диспетчеризацию по цепочке контроллеров,
+   * или 'pass' (либо void), чтобы передать событие следующему контроллеру.
+   */
+  handleMessengerEvent?(
+    event: MessengerEvent,
+  ): Promise<MessengerEventReaction | undefined>;
 
   /**
    * Обработка callback. Делегирует в стори по префиксу.

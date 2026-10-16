@@ -13,6 +13,7 @@ import {
   type CommandReaction,
   type CommandUpdate,
   type DialogResponse,
+  type MessengerEvent,
 } from '@u7-scl/core/ui';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
 import { AppController } from '../controllers/app/app-controller';
@@ -619,5 +620,59 @@ describe('U7BotUiApp — delegate на системные коды', () => {
     const response = await uiApp.handleCallback('nav:go:x', 123, session);
 
     expect(String(response?.screen?.text)).toContain('Неизвестная');
+  });
+});
+
+describe('U7BotUiApp — handleMessengerEvent', () => {
+  test('при member_joined автоматически вызывает ensureRegisteredGuest', async () => {
+    setGlobalLogger(makeLogger());
+    const facade = makeUserFacade(undefined);
+    const uiApp = makeUiApp({ userFacade: facade });
+
+    const event: MessengerEvent = {
+      kind: 'member_joined',
+      chatId: '-10012345',
+      user: {
+        id: 777,
+        firstName: 'Пётр',
+        username: 'peter',
+      },
+    };
+
+    await uiApp.handleMessengerEvent(event);
+
+    expect(facade.registerGuest).toHaveBeenCalledTimes(1);
+    expect(facade.registerGuest).toHaveBeenCalledWith(
+      777,
+      'Пётр',
+      'peter',
+      expect.anything(),
+    );
+  });
+
+  test('при bot_membership с byUser регистрирует добавившего пользователя', async () => {
+    setGlobalLogger(makeLogger());
+    const facade = makeUserFacade(undefined);
+    const uiApp = makeUiApp({ userFacade: facade });
+
+    const event: MessengerEvent = {
+      kind: 'bot_membership',
+      chatId: '-10012345',
+      status: 'added',
+      byUser: {
+        id: 888,
+        firstName: 'Админ',
+      },
+    };
+
+    await uiApp.handleMessengerEvent(event);
+
+    expect(facade.registerGuest).toHaveBeenCalledTimes(1);
+    expect(facade.registerGuest).toHaveBeenCalledWith(
+      888,
+      'Админ',
+      undefined,
+      expect.anything(),
+    );
   });
 });

@@ -14,6 +14,7 @@ import {
   type DialogResponse,
   type KeyboardDescription,
   kb,
+  type MessengerEvent,
   notify,
   type ProactiveSender,
   type Screen,
@@ -59,6 +60,26 @@ export class U7BotUiApp extends BotUiApp<
    */
   override init(resolve: U7BotUiAppResolve, transport?: ProactiveSender): void {
     super.init(resolve, transport);
+  }
+
+  // ── События мессенджера (гост-регистрация + цепочка контроллеров) ──
+
+  override async handleMessengerEvent(event: MessengerEvent): Promise<void> {
+    const member = event.kind === 'bot_membership' ? event.byUser : event.user;
+    if (member) {
+      await ensureRegisteredGuest(
+        this.resolve.userFacade,
+        this.resolve.botAdminUser,
+        {
+          id: member.id,
+          first_name: member.firstName,
+          ...(member.username !== undefined
+            ? { username: member.username }
+            : {}),
+        },
+      );
+    }
+    await super.handleMessengerEvent(event);
   }
 
   // ── Команды: /start напрямую, прочее — pipe + дефолты u7 (ФР-4) ──
